@@ -30,3 +30,13 @@
 *.exe
 *.out
 *.app
+
+# Ignore Build Output
+build/
+
+$ Ignore Mac OSX Files
+.DS_Store
+._.DS_Store
+
+# Ignore Compiler
+gcc-arm-none-eabi-10.3-2021.10/
