@@ -1,0 +1,13 @@
+$bin?=@build/jarnax.elf
+mach create
+machine LoadPlatformDescription @scripts/segger_trb_stm32f407.repl
+machine StartGdbServer 2331
+sysbus LoadELF @build/jarnax.elf
+# showAnalyzer sysbus.uart2
+
+macro reset
+"""
+    sysbus LoadELF $bin
+"""
+
+runMacro $reset

@@ -1,0 +1,61 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "${workspaceFolder}/modules/jarnax/include",
+                "${workspaceFolder}/modules/core/include",
+                "${workspaceFolder}/modules/memory/include",
+                "${workspaceFolder}/modules/cortex/include",
+                "${workspaceFolder}/modules/stm32/include",
+                "${workspaceFolder}/applications/unittests"
+            ],
+            "defines": [],
+            "macFrameworkPath": [
+                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/jarnax/Library/Frameworks"
+            ],
+            "compilerPath": "/usr/bin/clang",
+            "intelliSenseMode": "macos-clang-x64",
+            "cppStandard": "c++14",
+            "cStandard": "c17",
+            "compilerArgs": [],
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json"
+        },
+        {
+            "name": "On Target",
+            "includePath": [
+                "/Applications/ARM/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/include/c++/10.3.1",
+                "/Applications/ARM/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/include/c++/10.3.1/arm-none-eabi",
+                "/Applications/ARM/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/include/c++/10.3.1/backward",
+                "/Applications/ARM/bin/../lib/gcc/arm-none-eabi/10.3.1/include",
+                "/Applications/ARM/bin/../lib/gcc/arm-none-eabi/10.3.1/include-fixed",
+                "/Applications/ARM/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/include",
+                "${workspaceFolder}/modules/jarnax/include",
+                "${workspaceFolder}/modules/core/include",
+                "${workspaceFolder}/modules/memory/include",
+                "${workspaceFolder}/modules/cortex/include",
+                "${workspaceFolder}/modules/stm32/include",
+                "${workspaceFolder}/applications/unittests"
+            ],
+            "defines": [],
+            "compilerPath": "/Applications/ARM/bin/arm-none-eabi-g++",
+            "intelliSenseMode": "macos-gcc-arm",
+            "cppStandard": "c++14",
+            "cStandard": "c17",
+            "compilerArgs": [
+                "-nostdlib",
+                "-mthumb",
+                "-mno-thumb-interwork",
+                "-mcpu=cortex-m4",
+                "-mfpu=fpv4-sp-d16",
+                "-mfloat-abi=hard",
+                "-fsingle-precision-constant",
+                "-fno-exceptions",
+                "-fno-rtti"
+            ],
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json",
+            "configurationProvider": "ms-vscode.cmake-tools"
+        }
+    ],
+    "version": 4
+}

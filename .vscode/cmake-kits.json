@@ -1,0 +1,10 @@
+[
+    {
+        "name": "Clang Native",
+        "toolchainFile": "${workspaceFolder}/modules/native/cmake/mac-clang.cmake"
+    },
+    {
+        "name": "STM32 Toolchain",
+        "toolchainFile": "${workspaceFolder}/modules/stm32/cmake/stm32.cmake"
+    }
+]

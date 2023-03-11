@@ -1,0 +1,78 @@
+{
+    "buildType": {
+        "default": "debug",
+        "description": "Variant for Jarnax build kits.",
+        "choices": {
+            "debug": {
+                "short": "Debug",
+                "long": "Debug builds with asserts enabled, no optimizations.",
+                "buildType": "Debug",
+                "settings": {
+                    "CMAKE_BUILD_TYPE": "Debug"
+                }
+            },
+            "coverage": {
+                "short": "Coverage",
+                "long": "Coverage builds with asserts enabled, no optimizations.",
+                "buildType": "Coverage",
+                "settings": {
+                    "CMAKE_BUILD_TYPE": "Coverage"
+                }
+            },
+            "release": {
+                "short": "Release",
+                "long": "Release builds, some optimizations",
+                "buildType": "Release",
+                "settings": {
+                    "CMAKE_BUILD_TYPE": "Release"
+                }
+            },
+            "reldeb": {
+                "short": "RelWithDebInfo",
+                "long": "Builds for speed but with Debug symbols, some optimizations",
+                "buildType": "RelWithDebInfo",
+                "settings": {
+                    "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+                }
+            }
+        }
+    },
+    "bistType": {
+        "default": "none-bist",
+        "choices": {
+            "none-bist": {
+                "short": "none-bist",
+                "long": "No Boot Up Self Test",
+                "settings": {
+                    "USE_BIST": 0
+                }
+            },
+            "bist": {
+                "short": "bist",
+                "long": "Boot Up Self Test Performed",
+                "settings": {
+                    "USE_BIST": 1
+                }
+            }
+        }
+    },
+    "cppstd": {
+        "default": "14",
+        "choices": {
+            "14": {
+                "short": "--std=c++14",
+                "long": "Compile and link using the C++14 standard.",
+                "settings": {
+                    "CMAKE_CXX_STANDARD": "14"
+                }
+            },
+            "20": {
+                "short": "--std=c++20",
+                "long": "Compile and link using the C++20 standard.",
+                "settings": {
+                    "CMAKE_CXX_STANDARD": "20"
+                }
+            }
+        }
+    },
+}

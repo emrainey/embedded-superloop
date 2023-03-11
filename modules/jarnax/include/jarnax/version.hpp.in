@@ -1,0 +1,8 @@
+#ifndef JARNAX_VERSION_HPP_
+#define JARNAX_VERSION_HPP_
+
+namespace jarnax {
+constexpr char const* const VersionString = "@PROJECT_NAME@-@jarnax_VERSION@";
+}    // namespace jarnax
+
+#endif    // JARNAX_VERSION_HPP_
