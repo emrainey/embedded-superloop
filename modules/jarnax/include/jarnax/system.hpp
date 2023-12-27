@@ -160,6 +160,7 @@ constexpr static std::uint32_t kBistArg2 = 0x22'22'22'22UL;
 constexpr static std::uint32_t kBistArg3 = 0x33'33'33'33UL;
 /// @}
 
+/// Functions in the system which are called by the supervisor or can be called in Supervisor Mode
 namespace supervisor {
 
 /// Raises from Privileged Low to High execution mode
@@ -201,6 +202,7 @@ struct Marshal {
 
         // ====================
         BuiltInSelfTest bist;
+        // Tick tick;
         thumb::Stacked generic;
         // ====================
     } type;

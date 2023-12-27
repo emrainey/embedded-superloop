@@ -16,9 +16,9 @@ struct MemoryProtectionUnit {
     /// The type register
     /// @see MPU_TYPE
     struct Type final {
-        std::uint32_t separate               : 1U;
-        std::uint32_t                        : 7U;    ///< Reserved field
-        std::uint32_t number_of_data_regions : 8U;    //<! Unifed number of regions (in doc as number of data regions)
+        std::uint32_t separate                      : 1U;
+        std::uint32_t                               : 7U;    ///< Reserved field
+        std::uint32_t number_of_data_regions        : 8U;    //<! Unifed number of regions (in doc as number of data regions)
         std::uint32_t number_of_instruction_regions : 8U;
         std::uint32_t                               : 8U;    ///< Reserved field
     };
@@ -26,9 +26,11 @@ struct MemoryProtectionUnit {
     /// The control register
     /// @see MPU_CTRL
     struct Control final {
-        Control() : whole{0U} {}
+        Control()
+            : whole{0U} {}
         /// Copy Constructor
-        Control(Control volatile& other) : whole{other.whole} {}
+        Control(Control volatile& other)
+            : whole{other.whole} {}
         struct Fields final {
             std::uint32_t enable                           : 1U;
             std::uint32_t core_handlers_use_mpu            : 1U;
@@ -63,7 +65,7 @@ struct MemoryProtectionUnit {
     public:
 #if defined(__arm__)
         using AddressType = std::uint32_t;
-#else
+#elif defined(__x86_64__) or defined(__aarch64__) or defined(__arm64__)
         using AddressType = std::uint64_t;
 #endif
         /// Default Constructor
@@ -74,7 +76,7 @@ struct MemoryProtectionUnit {
         // BaseAddress(uintptr_t addr) {
         void Set(uintptr_t addr) volatile {
             /// The register field only wants the top 27 bits (the pointer will be forced to align to 32 bytes)
-            core::Split<uintptr_t, 5U> tmp;
+            core::Split<AddressType, 5U> tmp;
             /// put the address into the tmp
             tmp.whole = addr;
             // we'll use the external RNR
@@ -88,11 +90,11 @@ struct MemoryProtectionUnit {
         void operator=(BaseAddress volatile& other) { whole = other.whole; }
 
         struct Fields final {
-            AddressType region  : 4U;
-            AddressType valid   : 1U;
+            AddressType region : 4U;
+            AddressType valid  : 1U;
             ///@todo Find a way to make this a uintptr_t again. Compiler was very insistent that it
             /// would not allow a narrowing here, which is nice but not useful in this one place
-            AddressType address : 27U;
+            AddressType address : (sizeof(AddressType) * 8u) - 5u;    // 27 in 32 bit, more on 64 bit
         };
         union {
             Fields parts;
@@ -117,9 +119,11 @@ struct MemoryProtectionUnit {
     /// @see MPU_RASR
     struct Access final {
         // Default Constructor
-        constexpr Access() : whole{0U} {}
+        constexpr Access()
+            : whole{0U} {}
         // Copy Constructor
-        constexpr Access(const cortex::MemoryProtectionUnit::Access& other) : whole{other.whole} {}
+        constexpr Access(const cortex::MemoryProtectionUnit::Access& other)
+            : whole{other.whole} {}
 
         class Fields {    // anonymous
         public:
@@ -191,15 +195,15 @@ struct MemoryProtectionUnit {
 
     /// The various memory region types. This does not map to any specific cortex field directly.
     enum class Attribute : std::uint32_t {
-        StronglyOrdered,             ///< Implicitly sharable as all transactions are in program order.
-        DeviceSharedProcessor,       ///< For Memory Mapped Peripherals accessed by Multiple Cores.
-        DeviceSingleProcessor,       ///< For Memory Mapped Peripherals accessed by a Single Core.
-        NormalWriteThroughShared,    ///< Normal Memory which is marked as Write Through and possible accessed by
-                                     ///< multiple cores.
-        NormalWriteThroughSingle,    ///< Normal Memory which is marked as Write Through but only accessed by one core.
-        NormalWriteBackWriteAllocateShared,    ///< Normal Memory with Write Back and Write Allocate from multiple
-                                               ///< processors
-        NormalWriteBackWriteAllocateSingle,    ///< Normal Memory with Write Back and Write Allocate from one processor
+        StronglyOrdered,                         ///< Implicitly sharable as all transactions are in program order.
+        DeviceSharedProcessor,                   ///< For Memory Mapped Peripherals accessed by Multiple Cores.
+        DeviceSingleProcessor,                   ///< For Memory Mapped Peripherals accessed by a Single Core.
+        NormalWriteThroughShared,                ///< Normal Memory which is marked as Write Through and possible accessed by
+                                                 ///< multiple cores.
+        NormalWriteThroughSingle,                ///< Normal Memory which is marked as Write Through but only accessed by one core.
+        NormalWriteBackWriteAllocateShared,      ///< Normal Memory with Write Back and Write Allocate from multiple
+                                                 ///< processors
+        NormalWriteBackWriteAllocateSingle,      ///< Normal Memory with Write Back and Write Allocate from one processor
         NormalWriteBackNoWriteAllocateShared,    ///< Normal Memory with Write Back but not Write Allocate from multiple
                                                  ///< processors
         NormalWriteBackNoWriteAllocateSingle,    ///< Normal Memory with Write Back but not Write Allocate from one

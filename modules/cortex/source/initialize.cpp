@@ -54,7 +54,8 @@ void class_globals() {
     mpui[idx].access.bits.execute_never = 1U;
     idx++;
     //===============================================================================
-    const std::uint32_t main_stack_size = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(__main_stack_size));
+    std::uint32_t const volatile main_stack_size =
+        static_cast<uint32_t>(reinterpret_cast<uintptr_t>(__main_stack_size));
     if (main_stack_size > 0U) {
         if (not iso::is_power_of_two(main_stack_size)) {
             jarnax::spinhalt();
@@ -72,7 +73,8 @@ void class_globals() {
     //===============================================================================
     // Read/Write over the Process Stack, never execute!
     // the linker script computed the size of the process stack and we pull it in here...
-    const std::uint32_t process_stack_size = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(__process_stack_size));
+    std::uint32_t const volatile process_stack_size =
+        static_cast<uint32_t>(reinterpret_cast<uintptr_t>(__process_stack_size));
     if (process_stack_size > 0U) {
         if (not iso::is_power_of_two(process_stack_size)) {
             jarnax::spinhalt();
@@ -88,7 +90,7 @@ void class_globals() {
     }
     //===============================================================================
     // Read/Write over the Privileged Data, never execute!
-    const std::uint32_t privileged_data_size =
+    std::uint32_t const volatile privileged_data_size =
         static_cast<uint32_t>(reinterpret_cast<uintptr_t>(__privileged_data_size));
     if (privileged_data_size > 0U) {
         if (not iso::is_power_of_two(privileged_data_size)) {

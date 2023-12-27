@@ -11,6 +11,7 @@ namespace cortex {
 /// Cortex M4 Specialized Namespace
 namespace m4 {
 
+/// @brief The CPU ID Feature set
 struct CentralProcessingUnitIdentification final {
     std::uint32_t PFR[2];          /*!< Offset: 0x040 (R/ )  Processor Feature Register                            */
     std::uint32_t DFR;             /*!< Offset: 0x048 (R/ )  Debug Feature Register                                */

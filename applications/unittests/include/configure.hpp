@@ -7,13 +7,31 @@
 #include "board.hpp"
 
 namespace jarnax {
+/// Zeroes CCM at boot (if present)
+constexpr static bool zero_ccm_at_boot{true};
+
+/// Zeroes ITCM at boot (if present)
+constexpr static bool zero_itcm_at_boot{true};
+
+/// Zeroes DTCM at boot (if present)
+constexpr static bool zero_dtcm_at_boot{true};
+
+/// Zeroes SRAM at boot (if present)
+constexpr static bool zero_sram_at_boot{true};
+
+namespace initialize {
+/// Indicates if the system should run the preinitialization array
+constexpr static bool has_preinitialization{true};
+/// Indicates if the system should run the static constructors
+constexpr static bool has_static_constructors{true};
+}    // namespace initialize
 
 /// Enables access to the FPU at runtime.
-constexpr static bool enable_access_to_fpu = true;
+constexpr static bool enable_access_to_fpu{true};
 
 /// When false, this will enable thread mode (or User Mode) with a separate stack, before calling the user application.
 /// When true, all code will run on in privileged mode on one stack.
-constexpr static bool run_in_privileged_mode_only = false;
+constexpr static bool run_in_privileged_mode_only{false};
 
 /// When false, the boost up self tests will not run
 constexpr static bool perform_boot_self_test =
@@ -24,18 +42,18 @@ constexpr static bool perform_boot_self_test =
 #endif
 
 /// Defines the system tick value in the Cortex Tick Registers
-constexpr static std::size_t ticks_per_second = 128U;
+constexpr static std::size_t ticks_per_second{128U};
 
 /// Defines the system tick period value used to represent the passage of time in floats
-constexpr static float tick_period = 1.0F / ticks_per_second;
+constexpr static float tick_period{1.0F / ticks_per_second};
 
 /// Control SWO features
 namespace swo {
 /// The flag to control enabling the SWO and TPIU/ITM
-constexpr static bool enable = false;
+constexpr static bool enable{false};
 
 /// The desired SWO baudrate
-constexpr static std::size_t baudrate = 50'000U;
+constexpr static std::size_t baudrate{50'000U};
 }    // namespace swo
 
 /// Indicates the number of executable objects in the system
@@ -43,7 +61,7 @@ constexpr static std::size_t baudrate = 50'000U;
 constexpr static std::size_t num_executable_tasks = 4U;
 
 /// Configures the use of the default mpu configuration only (no additions from system)
-constexpr static bool use_only_default_mpu_configuration = true;
+constexpr static bool use_only_default_mpu_configuration{true};
 
 /// The System Stack WaterMark. Typically a distinct Hex value which is noticeable in a debugger
 /// and uncommon in usage. This is a hex palindrome so that it is visible in LE or BE.

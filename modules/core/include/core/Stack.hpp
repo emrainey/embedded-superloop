@@ -37,7 +37,8 @@ public:
     using IteratorConst = PointerConst;
 
     /// Constructor
-    Stack() : m_data_{} {}
+    Stack()
+        : data_{} {}
     /// Destructor
     ~Stack() = default;
 
@@ -45,9 +46,9 @@ public:
     /// @warning When count() is zero, values are undefined
     ValueType& operator[](IndexType index) {
         if (count() > 0 and index < count()) {
-            return m_data_[m_head_ + index];    // bounded index
+            return data_[head_ + index];    // bounded index
         } else {
-            return m_data_[m_limit_ - 1];    // return last element even if uninitialized
+            return data_[limit_ - 1];    // return last element even if uninitialized
         }
     }
 
@@ -55,9 +56,9 @@ public:
     /// @warning When count() is zero, values are undefined
     ReferenceConst& operator[](IndexType index) const {
         if (count() > 0 and index < count()) {
-            return m_data_[m_head_ + index];    // bounded index
+            return data_[head_ + index];    // bounded index
         } else {
-            return m_data_[m_limit_ - 1];    // return last element even if uninitialized
+            return data_[limit_ - 1];    // return last element even if uninitialized
         }
     }
 
@@ -68,7 +69,7 @@ public:
         bool ret = false;
         if (count() < capacity()) {
             grow();
-            m_data_[m_head_] = value;    // copy assign
+            data_[head_] = value;    // copy assign
             ret = true;
         }
         return ret;
@@ -80,8 +81,8 @@ public:
     bool Pop(Reference value) {
         bool ret = false;
         if (count() > 0U) {
-            value = m_data_[m_head_];
-            m_data_[m_head_] = 0u;    // clear
+            value = data_[head_];
+            data_[head_] = 0u;    // clear
             shrink();
             ret = true;
         }
@@ -92,15 +93,15 @@ public:
     constexpr CountType capacity(void) const { return COUNT; }
 
     /// Return the number of _active_ elements in the Stack
-    constexpr CountType count(void) const { return m_count_; }
+    constexpr CountType count(void) const { return count_; }
 
     /// Returns the sizeof the _used_ Stack area in bytes
-    constexpr SizeType size(void) const { return m_count_ * sizeof(ValueType); }
+    constexpr SizeType size(void) const { return count_ * sizeof(ValueType); }
 
     /// Returns the beginning of the Stack
     Iterator begin(void) {
         if (count() > 0U) {
-            return &m_data_[m_head_];
+            return &data_[head_];
         } else {
             return end();
         }
@@ -109,7 +110,7 @@ public:
     /// @copydoc core::Stack::begin
     IteratorConst begin(void) const {
         if (count() > 0U) {
-            return &m_data_[m_head_];
+            return &data_[head_];
         } else {
             return end();
         }
@@ -117,25 +118,22 @@ public:
 
     /// Returns one-past the end of the Stack.
     /// @warning OBVIOUSLY DO NOT DEREFERENCE THIS FIELD!
-    Iterator end(void) { return &m_data_[m_limit_]; }
+    Iterator end(void) { return &data_[limit_]; }
 
     /// @copydoc core::Stack::end
-    IteratorConst end(void) const { return &m_data_[m_limit_]; }
+    IteratorConst end(void) const { return &data_[limit_]; }
 
     /// Emplaces (constructs an object at the head location). Only usable by constructible objects.
     /// @tparam ...Args
     /// @param ...args
     /// @return True if constructed, false if otherwise
-    template <typename... Args>
-    bool emplace(Args&&... args) {
-        static_assert(
-            std::is_constructible<ValueType, Args...>::value,
-            "Object type must be constructible with provided arguments"
-        );
+    template <typename... ARGS>
+    bool emplace(ARGS&&... args) {
+        static_assert(std::is_constructible<ValueType, ARGS...>::value, "Object type must be constructible with provided arguments");
         bool ret = false;
         if (count() < capacity()) {
             grow();
-            ::new (static_cast<void*>(&m_data_[m_head_])) ValueType(std::forward<Args>(args)...);
+            ::new (static_cast<void*>(&data_[head_])) ValueType(std::forward<ARGS>(args)...);
             ret = true;
         }
         return ret;
@@ -147,7 +145,7 @@ public:
         static_assert(std::is_destructible<ValueType>::value, "Object must be destructible");
         bool ret = false;
         if (count() > 0U) {
-            m_data_[m_head_].~ValueType();    // destruct
+            data_[head_].~ValueType();    // destruct
             shrink();
             ret = true;
         }
@@ -157,24 +155,24 @@ public:
 protected:
     /// when releaseing a item, move the head back up until it's at the last element inclusive
     void shrink() {
-        if (m_count_ > 1U) {
-            m_head_++;
+        if (count_ > 1U) {
+            head_++;
         }
-        m_count_--;
+        count_--;
     }
 
     /// When capturing an item, move the head down until the zeroth entry
     void grow() {
-        if (m_count_ >= 1U) {
-            m_head_--;
+        if (count_ >= 1U) {
+            head_--;
         }
-        m_count_++;
+        count_++;
     }
 
-    IndexType m_head_{COUNT - 1U};    ///< The first element in the Stack. This the read and write location, inclusive.
-    IndexType m_limit_{COUNT};        ///< The last element in the Stack, exclusive (technically out of bounds!)
-    CountType m_count_{0U};           ///< The number of elements in the Stack
-    ValueType m_data_[COUNT];         ///< The storage of the data values
+    IndexType head_{COUNT - 1U};    ///< The first element in the Stack. This the read and write location, inclusive.
+    IndexType limit_{COUNT};        ///< The last element in the Stack, exclusive (technically out of bounds!)
+    CountType count_{0U};           ///< The number of elements in the Stack
+    ValueType data_[COUNT];         ///< The storage of the data values
 };
 
 }    // namespace core

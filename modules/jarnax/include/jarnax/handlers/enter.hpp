@@ -38,8 +38,7 @@ __attribute__((always_inline)) inline void enter(cortex::exceptions::InterruptSe
         // setup r0, r1, r2
         "mov r0, %0 \r\n"
         "mov r2, lr \r\n"
-        "bl %[handler]"
-        "\r\n"    // use the mangled C++ name for fun
+        "bl %[handler] \r\n"    // use the mangled C++ name for fun
         "pop {r4-r11, pc} \r\n"
         :                                                              // outputs
         : "r"(isr_number), [handler] "i"(jarnax::handlers::generic)    // inputs

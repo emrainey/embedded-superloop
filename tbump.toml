@@ -1,5 +1,5 @@
 # Uncomment this if your project is hosted on GitHub:
-# github_url = "https://github.com/<user or organization>/<project>/"
+github_url = "https://github.com/emrainey/jarnax/"
 
 [version]
 current = "0.1.48"
@@ -24,6 +24,9 @@ tag_template = "v{new_version}"
 # tbump.toml location.
 [[file]]
 src = "CMakeLists.txt"
+
+[[file]]
+src = "build-support/share/cmake/jarnax/jarnax.cmake"
 
 # You can specify a list of commands to
 # run after the files have been patched

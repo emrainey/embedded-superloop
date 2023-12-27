@@ -1,30 +1,10 @@
-set(CMAKE_SYSTEM_NAME Generic)
+set(CMAKE_SYSTEM_NAME Generic) # No explicit OS, used by bare-metal systems
 set(CMAKE_SYSTEM_PROCESSOR arm)
 
-find_program(CMAKE_C_COMPILER
-    NAMES
-        arm-none-eabi-gcc
-    REQUIRED
-    HINTS
-        /Applications/ArmGNUToolchain/12.3.rel1/arm-none-eabi/bin  # 12.3.1
-        /Applications/ARM/bin # 10.3.1
-)
-find_program(CMAKE_CXX_COMPILER
-    NAMES
-        arm-none-eabi-g++
-    REQUIRED
-    HINTS
-        /Applications/ArmGNUToolchain/12.3.rel1/arm-none-eabi/bin  # 12.3.1
-        /Applications/ARM/bin # 10.3.1
-)
-find_program(CMAKE_OBJDUMP
-    NAMES
-        arm-none-eabi-objdump
-    REQUIRED
-    HINTS
-        /Applications/ArmGNUToolchain/12.3.rel1/arm-none-eabi/bin  # 12.3.1
-        /Applications/ARM/bin # 10.3.1
-)
+find_program(CMAKE_C_COMPILER NAMES arm-none-eabi-gcc REQUIRED)
+find_program(CMAKE_CXX_COMPILER NAMES arm-none-eabi-g++ REQUIRED)
+find_program(CMAKE_ASM_COMPILER NAMES arm-none-eabi-g++ REQUIRED)
+find_program(CMAKE_OBJDUMP NAMES arm-none-eabi-objdump REQUIRED)
 
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
@@ -53,7 +33,7 @@ message(STATUS "Additional Flags for Stack, Statics, Linkage")
 add_compile_options(
     -ffunction-sections
     -fdata-sections
-    -flto
+    # -flto
     -fno-threadsafe-statics
     -fno-use-cxa-atexit
     -fomit-frame-pointer

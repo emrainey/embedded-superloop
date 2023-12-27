@@ -33,7 +33,6 @@
 
 # Ignore Build Output
 build/
-build-host/
 
 $ Ignore Mac OSX Files
 .DS_Store
@@ -41,3 +40,6 @@ $ Ignore Mac OSX Files
 
 # Ignore Compiler
 gcc-arm-none-eabi-10.3-2021.10/
+
+# Ignore user's custom settings
+CMakeUserPresets.json

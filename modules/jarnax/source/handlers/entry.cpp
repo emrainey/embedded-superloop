@@ -20,21 +20,42 @@ namespace handlers {
     // values inlined in assembly. TREAD WITH CAUTION!
     // =============================================================
     thumb::interrupts::disable();
-    // thumb::initialize();    // clear all register of previous state
+    // clear all register of previous state (processor does this but we do it for completeness)
+    thumb::initialize();
     // reinstall the vector table in case it changed
     cortex::system_control_block.vector_table = &vector_table;
 
     // IF the device had ITCM, or DTCM enable here.
+    if constexpr (zero_itcm_at_boot and vendor::configuration::has_itcm) {
+        // TODO enable here
+        uint32_t volatile const *end = reinterpret_cast<uint32_t volatile const *>(__itcm_end);
+        uint32_t volatile *beg = reinterpret_cast<uint32_t volatile *>(__itcm_beg);
+        while (beg < end) {
+            *beg++ = 0;
+        }
+    }
+    if constexpr (zero_dtcm_at_boot and vendor::configuration::has_dtcm) {
+        // TODO enable here
+        uint32_t volatile const *end = reinterpret_cast<uint32_t volatile const *>(__dtcm_end);
+        uint32_t volatile *beg = reinterpret_cast<uint32_t volatile *>(__dtcm_beg);
+        while (beg < end) {
+            *beg++ = 0;
+        }
+    }
+
     // IF device had ECC memory, now would the time to initialize it.
+
     // of course we could just zero initialize it all w/o ECC
-    {
+    // IF the device has CCM clear it here
+    if constexpr (zero_ccm_at_boot and vendor::configuration::has_ccm) {
+        // TODO enable here
         uint32_t volatile const *end = reinterpret_cast<uint32_t volatile const *>(__ccm_end);
         uint32_t volatile *beg = reinterpret_cast<uint32_t volatile *>(__ccm_beg);
         while (beg < end) {
             *beg++ = 0;
         }
     }
-    {
+    if constexpr (zero_sram_at_boot and vendor::configuration::has_sram) {
         uint32_t volatile const *end = reinterpret_cast<uint32_t volatile const *>(__sram_end);
         uint32_t volatile *beg = reinterpret_cast<uint32_t volatile *>(__sram_beg);
         while (beg < end) {
@@ -43,7 +64,10 @@ namespace handlers {
     }
 
     // == STACK IS NOW VALID ============
+    thumb::jump(__main_stack_top, entry_after_stack);
+}
 
+[[noreturn]] void entry_after_stack(void) {
     // read the configuration control
     auto configuration_control = cortex::system_control_block.configuration_control;
     // disable the data cache

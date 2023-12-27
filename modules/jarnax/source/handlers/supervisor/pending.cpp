@@ -1,5 +1,6 @@
 #include "configure.hpp"
 #include "jarnax/system.hpp"
+#include "jarnax/handlers/enter.hpp"
 #include "jarnax/linker.hpp"
 #include "memory.hpp"
 
@@ -8,11 +9,7 @@ namespace handlers {
 namespace supervisor {
 
 void pending(void) {
-    if (jarnax::built_in_self_test.trigger_pending_supervisor.is_testing) {
-        jarnax::built_in_self_test.trigger_pending_supervisor.has_passed = true;
-        // @todo return?
-    }
-    spinhalt();
+    enter(cortex::exceptions::InterruptServiceRoutine::PendSV);
 }
 
 }    // namespace supervisor

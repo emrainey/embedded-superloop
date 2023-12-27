@@ -17,6 +17,8 @@ void OnProjectLoad (void) {
   File.Open ("$(ProjectDir)/@FW_NAME@.elf");
   Edit.SysVar (VAR_TARGET_POWER_ON, 1);
   Project.AddRTTSearchRange(0x20000000, 0x80000);
+  Break.SetOnSrcEx("jarnax::main");
+  Break.SetVectorCatch(0xFF); // Catch on All Faults
 }
 
 void _SetupTarget(void) {

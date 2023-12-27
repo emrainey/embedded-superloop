@@ -16,7 +16,10 @@ extern VectorTable const vector_table;
 namespace handlers {
 
 /// Handler invoked by the reset exception (does not need to be naked on processor w/o ECC in Stack)
-[[noreturn]] void entry(void);
+ATTRIBUTE((used, naked)) [[noreturn]] void entry(void);
+
+/// The handler invoked after the stack has been initialized
+[[noreturn]] void entry_after_stack(void);
 
 /// The generic handler for all exceptions
 ATTRIBUTE((used))

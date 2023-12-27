@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include <jarnax/Event.hpp>
+#include <core/Event.hpp>
 
-using namespace jarnax;
+using namespace core;
 
 TEST(Events, SingleEventsDefault) {
     events::Single<int> trigger;    // default constructor
@@ -15,7 +15,7 @@ TEST(Events, SingleEventsParameterized) {
 
 TEST(Events, SingleEventsSetAndGet) {
     events::Single<int> trigger;
-
+    ASSERT_FALSE((trigger));
     trigger = 6;
     ASSERT_TRUE((trigger));
     auto tmp = int(trigger);

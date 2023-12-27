@@ -31,9 +31,9 @@ __attribute__((always_inline)) inline void initialize(void) {
         "mov r11, #0 \r\n"
         "mov r12, #0 \r\n"
         "mov lr, #0xFFFFFFFF \r\n"
-        :                                                                                    // outputs
-        :                                                                                    // inputs
-        : "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12"    // clobbers
+        :                                                                                          // outputs
+        :                                                                                          // inputs
+        : "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12", "lr"    // clobbers
     );
 #endif
 }
@@ -117,6 +117,8 @@ __attribute__((always_inline)) inline std::uint32_t supervisor(Stacked* stacked)
 #else
     // call the SVC
     (void)stacked;
+    // jarnax::handlers::generic(jarnax::cortex::exceptions::InterruptServiceRoutine::SupervisorCall, nullptr,
+    // jarnax::cortex::exceptions::ExceptionReturn::SupervisorCall);
 #endif
     return ret;
 }
@@ -160,7 +162,7 @@ __attribute__((always_inline)) inline void stacks(void* main_stack, void* proces
 
 /// Obtains the Control Register through the Thumb instruction
 __attribute__((always_inline)) inline cortex::word get_control() {
-    cortex::word value;
+    cortex::word value{0u};
 #if defined(__arm__)
     asm volatile("mrs %0, control    \r\n"
                  : "=r"(value)       // outputs

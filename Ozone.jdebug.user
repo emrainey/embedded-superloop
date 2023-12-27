@@ -1,39 +1,28 @@
 
 
-Breakpoint=/Users/emrainey/Source/jarnax/modules/jarnax/source/configure.cpp:15:22, State=BP_STATE_DISABLED
-Breakpoint=/Users/emrainey/Source/jarnax/applications/unittests/source/self.cpp:52:28, State=BP_STATE_DISABLED
-Breakpoint=/Users/emrainey/Source/jarnax/applications/unittests/source/self.cpp:59, State=BP_STATE_ON
-Breakpoint=/Users/emrainey/Source/jarnax/applications/unittests/source/self.cpp:63, State=BP_STATE_ON
-Breakpoint=/Users/emrainey/Source/jarnax/applications/unittests/source/self.cpp:67, State=BP_STATE_ON
-Breakpoint=/Users/emrainey/Source/jarnax/modules/stm32/source/initialize.cpp:55, State=BP_STATE_DISABLED
-Breakpoint=/Users/emrainey/Source/jarnax/modules/stm32/source/initialize.cpp:66:35, State=BP_STATE_DISABLED
-Breakpoint=/Users/emrainey/Source/jarnax/modules/stm32/source/initialize.cpp:110:1, State=BP_STATE_DISABLED
-Breakpoint=/Users/emrainey/Source/jarnax/modules/jarnax/source/main.cpp:7, State=BP_STATE_ON
-Breakpoint=/Users/emrainey/Source/jarnax/modules/board/stm32_f4ve_v2/board.cpp:36, State=BP_STATE_DISABLED
-Breakpoint=/Users/emrainey/Source/jarnax/applications/unittests/source/stack.cpp:15:1, State=BP_STATE_DISABLED
-OpenDocument="print.cpp", FilePath="/Users/emrainey/Source/jarnax/modules/jarnax/source/print.cpp", Line=63
+OpenDocument="Ozone.jdebug", FilePath="/Users/emrainey/Source/jarnax/Ozone.jdebug", Line=0
+OpenDocument="print.cpp", FilePath="/Users/emrainey/Source/jarnax/modules/jarnax/source/print.cpp", Line=0
 OpenDocument="main.cpp", FilePath="/Users/emrainey/Source/jarnax/modules/jarnax/source/main.cpp", Line=0
 OpenDocument="thumb.hpp", FilePath="/Users/emrainey/Source/jarnax/modules/cortex/include/thumb.hpp", Line=277
 OpenDocument="limits", FilePath="/Applications/ARM/arm-none-eabi/include/c++/10.3.1/limits", Line=1677
 OpenDocument="UnitTest.hpp", FilePath="/Users/emrainey/Source/jarnax/modules/jarnax/include/jarnax/UnitTest.hpp", Line=86
-OpenDocument="self.cpp", FilePath="/Users/emrainey/Source/jarnax/applications/unittests/source/self.cpp", Line=22
 OpenToolbar="Debug", Floating=0, x=0, y=0
-OpenWindow="Call Stack", DockArea=RIGHT, x=0, y=0, w=1030, h=283, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Registers 1", DockArea=LEFT, x=0, y=1, w=543, h=586, TabPos=0, TopOfStack=1, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, FilteredItems=[], RefreshRate=1
-OpenWindow="Disassembly", DockArea=RIGHT, x=0, y=2, w=1030, h=393, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Break & Tracepoints", DockArea=LEFT, x=0, y=1, w=543, h=586, TabPos=1, TopOfStack=0, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, VectorCatchIndexMask=0
-OpenWindow="Memory 1", DockArea=BOTTOM, x=1, y=0, w=1030, h=321, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, EditorAddress=0x20000060
-OpenWindow="Watched Data 1", DockArea=LEFT, x=0, y=0, w=543, h=317, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Functions", DockArea=RIGHT, x=0, y=1, w=1030, h=246, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Terminal", DockArea=BOTTOM, x=0, y=0, w=1529, h=301, TabPos=1, TopOfStack=1, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Console", DockArea=BOTTOM, x=0, y=0, w=1529, h=301, TabPos=0, TopOfStack=0, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Call Stack", DockArea=RIGHT, x=0, y=0, w=718, h=261, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Registers 1", DockArea=LEFT, x=0, y=1, w=472, h=485, TabPos=0, TopOfStack=1, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, FilteredItems=[], RefreshRate=1
+OpenWindow="Disassembly", DockArea=RIGHT, x=0, y=2, w=718, h=319, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Break & Tracepoints", DockArea=LEFT, x=0, y=1, w=472, h=485, TabPos=1, TopOfStack=0, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, VectorCatchIndexMask=0
+OpenWindow="Memory 1", DockArea=BOTTOM, x=1, y=0, w=759, h=321, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, EditorAddress=0x20000060
+OpenWindow="Watched Data 1", DockArea=LEFT, x=0, y=0, w=472, h=319, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Functions", DockArea=RIGHT, x=0, y=1, w=718, h=243, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Terminal", DockArea=BOTTOM, x=0, y=0, w=1126, h=301, TabPos=1, TopOfStack=1, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Console", DockArea=BOTTOM, x=0, y=0, w=1126, h=301, TabPos=0, TopOfStack=0, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
 SmartViewPlugin="", Page="", Toolbar="Hidden", Window="SmartView 1"
 TableHeader="Vector Catches", SortCol="", SortOrder="ASCENDING", VisibleCols=["";"Vector Catch";"Description"], ColWidths=[50;300;564]
-TableHeader="Break & Tracepoints", SortCol="", SortOrder="ASCENDING", VisibleCols=["";"Type";"Location";"Extras"], ColWidths=[100;81;125;608]
-TableHeader="Functions", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Address";"Size";"#Insts";"Class";"Source"], ColWidths=[612;100;100;100;27;714]
+TableHeader="Break & Tracepoints", SortCol="", SortOrder="ASCENDING", VisibleCols=["";"Type";"Location";"Extras"], ColWidths=[100;81;125;166]
+TableHeader="Functions", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Address";"Size";"#Insts";"Source"], ColWidths=[612;100;100;100;112]
 TableHeader="Call Stack", SortCol="Function", SortOrder="ASCENDING", VisibleCols=["Function";"Stack Frame";"Source";"PC";"Return Address";"Stack Used"], ColWidths=[120;132;448;100;147;100]
 TableHeader="Power Sampling", SortCol="None", SortOrder="ASCENDING", VisibleCols=["Index";"Time";"Ch 0"], ColWidths=[100;100;100]
-TableHeader="Watched Data 1", SortCol="Expression", SortOrder="ASCENDING", VisibleCols=["Expression";"Value";"Location";"Refresh";"Access"], ColWidths=[100;100;100;614;100]
+TableHeader="Watched Data 1", SortCol="Expression", SortOrder="ASCENDING", VisibleCols=["Expression";"Value";"Location";"Refresh"], ColWidths=[100;100;100;172]
 TableHeader="RegisterSelectionDialog", SortCol="None", SortOrder="ASCENDING", VisibleCols=[], ColWidths=[]
 TableHeader="Registers 1", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Description"], ColWidths=[178;105;259]
 TableHeader="TargetExceptionDialog", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Address";"Description"], ColWidths=[200;100;100;1017]

@@ -3,8 +3,20 @@
 
 #include "stm32/stm32.hpp"
 
+#define HAS_FLASH 1
+#define HAS_CCM 1
+#define HAS_SRAM 1
+
 /// The ST Micro 32 Namespace
 namespace stm32 {
+
+namespace configuration {
+constexpr bool has_flash{true};
+constexpr bool has_ccm{true};
+constexpr bool has_itcm{false};
+constexpr bool has_dtcm{false};
+constexpr bool has_sram{true};
+}    // namespace configuration
 
 /// Contains the defined address for the chip
 namespace address {

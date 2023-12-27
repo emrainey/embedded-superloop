@@ -25,6 +25,8 @@ void drivers(void);
 }    // namespace initialize
 
 /// @brief The STM32 clock configuration.
+/// @note This does NOT map to hardware but it does have register values which will so we limit
+/// their possible value ranges.
 struct ClockConfiguration {
     bool use_internal;
     bool use_bypass;

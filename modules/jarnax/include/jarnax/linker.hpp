@@ -8,6 +8,10 @@
 
 extern std::uint32_t __ccm_end[];
 extern std::uint32_t __ccm_beg[];
+extern std::uint32_t __itcm_end[];
+extern std::uint32_t __itcm_beg[];
+extern std::uint32_t __dtcm_end[];
+extern std::uint32_t __dtcm_beg[];
 extern std::uint32_t __sram_end[];
 extern std::uint32_t __sram_beg[];
 

@@ -188,9 +188,9 @@ SECTIONS {
         _stm32_dac = . ;
     } > APB1
 
-    /* Arm Private Bus 1 */
+    /* Arm Private Bus 2 */
     .apb2 (NOLOAD) : {
-    } > APB1
+    } > APB2
 
     /* Arm High Performance Bus 1 */
     .ahb1 (NOLOAD) : {
@@ -206,13 +206,13 @@ SECTIONS {
         _stm32_bkpsram_start = .;
         KEEP(*(.bkpsram))
         _stm32_bkpsram_end = .;
-
     } > AHB1
 
     PROVIDE(_ZN5stm329registers23reset_and_clock_controlE = _stm32_reset_and_clock_control);
 
     ASSERT((_stm32_bkpsram_end - _stm32_bkpsram_start) <= BKPRSRAM_SIZE, ".bkpsram has overrun!")
 
+    /* Arm High Performance Bus 2 */
     .ahb2 (NOLOAD) : {
         . = ORIGIN(AHB2) + 0x00000;
         _stm32_dcmi = . ;
@@ -226,18 +226,31 @@ SECTIONS {
 
     PROVIDE_HIDDEN(_ZN5stm329registers23random_number_generatorE = _stm32_rng);
 
+    /* USB On-The-Go High Speed */
     .usb_otg_hs (NOLOAD) : {
         . = ORIGIN(USB_OTG_HS) + 0x0000;
         _stm32_usb_otg_hs_device = . ;
     } > USB_OTG_HS
 
+
+    /* USB On-The-Go Full Speed */
     .usb_otg_fs (NOLOAD) : {
         . = ORIGIN(USB_OTG_FS) + 0x0000;
         _stm32_usb_otg_fs_device = . ;
     } > USB_OTG_FS
 
+    /* Arm High Performance Bus 3 */
     .ahb3 (NOLOAD) : {
-
+        . = ORIGIN(AHB3) + 0x00000000;
+        _stm32_fsmc_bank_1 = . ;
+        . = ORIGIN(AHB3) + 0x10000000;
+        _stm32_fsmc_bank_2 = . ;
+        . = ORIGIN(AHB3) + 0x20000000;
+        _stm32_fsmc_bank_3 = . ;
+        . = ORIGIN(AHB3) + 0x30000000;
+        _stm32_fsmc_bank_4 = . ;
+        . = ORIGIN(AHB3) + 0x40000000;
+        _stm32_fsmc_control_block = . ;
     } > AHB3
 
     /* These are used to zero initialize memory */

@@ -1,0 +1,148 @@
+{
+    "version": 8,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 29,
+        "patch": 0
+    },
+    "include": [],
+    "configurePresets": [
+        {
+            "name": "common",
+            "hidden": true,
+            "description": "Common configuration information which each preset needs but isn't enough to build with",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "installDir": "${sourceDir}/install/${presetName}",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_PREFIX_PATH": "${sourceDir}/build-support/"
+            }
+        },
+        {
+            "name": "strict",
+            "hidden": true,
+            "warnings": {
+                "dev": false,
+                "uninitialized": true,
+                "deprecated": true,
+                "unusedCli": true,
+                "systemVars": true
+            },
+            "debug": {
+                "find": true
+            }
+        },
+        {
+            "name": "Homebrew",
+            "hidden": true,
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Darwin"
+            },
+            "environment": {
+                "HOMEBREW_ROOT": "/opt/homebrew",
+                "HOMEBREW_PATH": "$env{HOMEBREW_ROOT}/bin:$env{HOMEBREW_ROOT}/sbin"
+            }
+        },
+        {
+            "name": "stm32",
+            "hidden": true,
+            "displayName": "STM32",
+            "inherits": "common",
+            "description": "Configuration for STM32",
+            "toolchainFile": "${sourceDir}/build-support/lib/cmake/bare-gcc-cortex-m4.cmake"
+        },
+        {
+            "name": "native-gcc",
+            "hidden": true,
+            "inherits": "common",
+            "displayName": "Native GCC Toolchain",
+            "toolchainFile": "${sourceDir}/build-support/lib/cmake/native-gcc.cmake"
+        },
+        {
+            "name": "native-clang",
+            "inherits": "common",
+            "displayName": "Native Clang Toolchain",
+            "description": "Uses the default clang in your path",
+            "toolchainFile": "${sourceDir}/build-support/lib/cmake/native-clang.cmake"
+        },
+        {
+            "name": "native-llvm",
+            "hidden": true,
+            "inherits": "common",
+            "displayName": "Native LLVM Toolchain",
+            "toolchainFile": "${sourceDir}/build-support/lib/cmake/native-llvm.cmake"
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "build-common",
+            "hidden": true,
+            "jobs": 20,
+            "targets": [
+                "all"
+            ],
+            "cleanFirst": true,
+            "verbose": false
+        },
+        {
+            "name": "build-native-gcc",
+            "inherits": "build-common",
+            "targets": [
+                "all",
+                "docs",
+                "coverage"
+            ],
+            "configurePreset": "native-gcc"
+        },
+        {
+            "name": "build-native-clang",
+            "inherits": "build-common",
+            "targets": [
+                "all",
+                "docs",
+                "coverage"
+            ],
+            "configurePreset": "native-clang"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "test-common",
+            "hidden": true,
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error",
+                "stopOnFailure": true
+            }
+        },
+        {
+            "name": "run-tests-built-with-native-gcc",
+            "inherits": "test-common",
+            "configurePreset": "native-gcc"
+        },
+        {
+            "name": "run-tests-built-with-native-clang",
+            "inherits": "test-common",
+            "configurePreset": "native-clang"
+        }
+    ],
+    "packagePresets": [
+        {
+            "name": "default",
+            "hidden": true,
+            "generators": [
+                "TGZ"
+            ]
+        }
+    ],
+    "vendor": {
+        "jarnax": {
+            "something": true
+        }
+    }
+}

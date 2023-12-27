@@ -1,7 +1,7 @@
-#ifndef JARNAX_EVENTS_HPP_
-#define JARNAX_EVENTS_HPP_
+#ifndef CORE_EVENTS_HPP_
+#define CORE_EVENTS_HPP_
 
-namespace jarnax {
+namespace core {
 namespace events {
 
 /// @brief An enum which wraps a boolean to provide a more abstracted notion of a flag.
@@ -45,9 +45,7 @@ protected:
 template <typename STORAGE>
 class Single : public Event<STORAGE> {
 public:
-    static_assert(
-        std::is_integral<STORAGE>::value or std::is_enum<STORAGE>::value, "Must be an integer type or enumeration"
-    );
+    static_assert(std::is_integral<STORAGE>::value or std::is_enum<STORAGE>::value, "Must be an integer type or enumeration");
     using StorageType = typename Event<STORAGE>::StorageType;
 
     /// @brief Single Event do not initialize as fired by the default constructor
@@ -103,28 +101,28 @@ public:
         }
     }
 
-    explicit operator bool(void) const override { return bool(input); }
+    explicit operator bool(void) const override { return bool(input_); }
 
-    explicit operator StorageType(void) override { return StorageType(input); }
+    explicit operator StorageType(void) override { return StorageType(input_); }
 
-    explicit operator StorageType(void) const override { return StorageType(input); }
+    explicit operator StorageType(void) const override { return StorageType(input_); }
 
     void operator=(StorageType const &other) override {
-        input = other;
+        input_ = other;
         for (size_t i = 0; i < count_; i++) {
-            printf("Test [%zu] = %p\r\n", i, reinterpret_cast<void *>(outputs[i]));
-            if (outputs[i]) {
-                *outputs[i] = other;
+            printf("Test [%zu] = %p\r\n", i, reinterpret_cast<void *>(outputs_[i]));
+            if (outputs_[i]) {
+                *outputs_[i] = other;
             }
         }
     }
 
     bool Hook(Event<STORAGE> *other) {
         for (size_t i = count_; i < COUNT; i++) {
-            if (outputs[i] == nullptr) {
+            if (outputs_[i] == nullptr) {
                 count_++;
-                outputs[i] = other;
-                StorageType volatile tmp = StorageType(*outputs[i]);    // get the event, thus clearing it
+                outputs_[i] = other;
+                StorageType volatile tmp = StorageType(*outputs_[i]);    // get the event, thus clearing it
                 (void)tmp;
                 return true;
             }
@@ -133,12 +131,12 @@ public:
     }
 
 protected:
-    Single<STORAGE> input;
+    Single<STORAGE> input_;
     size_t count_{0u};
-    Event<STORAGE> *outputs[COUNT] = {};
+    Event<STORAGE> *outputs_[COUNT]{};
 };
 
 }    // namespace events
-}    // namespace jarnax
+}    // namespace core
 
-#endif    // JARNAX_EVENTS_HPP_
+#endif    // CORE_EVENTS_HPP_

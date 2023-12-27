@@ -35,49 +35,68 @@ public:
     /// The Iterator of Constant Type
     using IteratorConst = Pointer_Const;
 
-    Span() : m_pointer_{nullptr}, m_count_{0U} {}
-    Span(Pointer ptr, IndexType count) : m_pointer_{ptr}, m_count_{count} {}
-    Span(IndexType count, Pointer ptr) : m_pointer_{ptr}, m_count_{count} {}
+    Span()
+        : pointer_{nullptr}
+        , count_{0U} {}
+    Span(Pointer ptr, IndexType count)
+        : pointer_{ptr}
+        , count_{count} {}
+    Span(IndexType count, Pointer ptr)
+        : pointer_{ptr}
+        , count_{count} {}
 
     template <IndexType COUNT>
-    Span(TYPE (&_array)[COUNT]) : m_pointer_{&_array[0U]}, m_count_{COUNT} {}
+    Span(TYPE (&_array)[COUNT])
+        : pointer_{&_array[0U]}
+        , count_{COUNT} {}
 
     /// Returns the number of elements of the span.
-    SizeType count() const { return m_count_; }
+    SizeType count() const { return count_; }
+    Pointer data() { return pointer_; }
+    Pointer_Const data() const { return pointer_; }
 
     ValueType& operator[](IndexType index) {
-        return m_pointer_[index % m_count_];    // bounded index
+        if (index < count_) {
+            return pointer_[index];
+        }
+        return pointer_[index % count_];    // bounded index
     }
 
-    const ValueType& operator[](IndexType index) const {
-        return m_pointer_[index % m_count_];    // bounded index
+    ValueType const& operator[](IndexType index) const {
+        if (index < count_) {
+            return pointer_[index];
+        }
+        return pointer_[index % count_];    // bounded index
     }
 
     /// Subspan operation
     Span operator()(IndexType offset, IndexType count) {
-        if ((offset + count) <= m_count_) {
-            return Span{&m_pointer_[offset], count};
-        } else {
-            return Span{};
+        if ((offset + count) <= count_) {
+            return Span{&pointer_[offset], count};
         }
+        return Span{};
     }
 
+    bool operator==(Span const& other) const { return (pointer_ == other.pointer_) && (count_ == other.count_); }
+    bool operator!=(Span const& other) const { return not operator==(other); }
+    explicit operator bool() const { return pointer_ != nullptr and count_ > 0u; }
+
     /// Returns the beginning of the Span
-    Iterator begin() { return m_pointer_; }
+    Iterator begin() { return pointer_; }
 
     /// @copydoc core::Span::begin
-    IteratorConst begin() const { return m_pointer_; }
+    IteratorConst begin() const { return pointer_; }
 
     /// Returns one-past the Span.
     /// @warning OBVIOUSLY DO NOT DEREFERENCE THIS FIELD!
-    Iterator end() { return m_pointer_ + m_count_; }
+    Iterator end() { return pointer_ + count_; }
 
     /// @copydoc core::Span::end
-    IteratorConst end() const { return m_pointer_ + m_count_; }
+    IteratorConst end() const { return pointer_ + count_; }
 
 protected:
-    Pointer m_pointer_;
-    std::size_t m_count_;
+    Pointer pointer_;
+    std::size_t count_;
 };
 
 }    // namespace core

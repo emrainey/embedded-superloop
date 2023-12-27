@@ -10,7 +10,7 @@
 namespace core {
 
 /// The simple Array template index operators and iterators.
-template <typename TYPE, std::size_t COUNT>
+template <typename TYPE, std::size_t CAPACITY>
 class Array final {
 public:
     /// The value type of the Array
@@ -35,48 +35,49 @@ public:
     using IteratorConst = PointerConst;
 
     /// Constructor
-    Array() : m_data_{} {}
+    Array()
+        : data_{} {}
 
     /// Allows mutable access to the array elements
     ValueType& operator[](IndexType index) {
-        if (index < COUNT) {
-            return m_data_[index];
+        if (index < CAPACITY) {
+            return data_[index];
         } else {
-            return m_data_[index % COUNT];    // bounded index
+            return data_[index % CAPACITY];    // bounded index
         }
     }
 
     /// Allows const access to the array elements
     const ValueType& operator[](IndexType index) const {
-        if (index < COUNT) {
-            return m_data_[index];
+        if (index < CAPACITY) {
+            return data_[index];
         } else {
-            return m_data_[index % COUNT];    // bounded index
+            return data_[index % CAPACITY];    // bounded index
         }
     }
 
     /// Return the number of elements in the array
-    constexpr CountType count(void) const { return COUNT; }
+    constexpr CountType count(void) const { return CAPACITY; }
 
     /// Returns the sizeof the array itself in bytes
-    constexpr SizeType size(void) const { return COUNT * sizeof(ValueType); }
+    constexpr SizeType size(void) const { return CAPACITY * sizeof(ValueType); }
 
     /// Returns the beginning of the Array
-    Iterator begin(void) { return &m_data_[0]; }
+    Iterator begin(void) { return &data_[0]; }
 
     /// @copydoc core::Array::begin
-    IteratorConst begin(void) const { return &m_data_[0]; }
+    IteratorConst begin(void) const { return &data_[0]; }
 
     /// Returns one-past the Array.
     /// @warning OBVIOUSLY DO NOT DEREFERENCE THIS FIELD!
-    Iterator end(void) { return &m_data_[COUNT]; }
+    Iterator end(void) { return &data_[CAPACITY]; }
 
     /// @copydoc core::Array::end
-    IteratorConst end(void) const { return &m_data_[COUNT]; }
+    IteratorConst end(void) const { return &data_[CAPACITY]; }
 
 protected:
     /// The storage of the data values
-    ValueType m_data_[COUNT];
+    ValueType data_[CAPACITY];
 };
 
 }    // namespace core

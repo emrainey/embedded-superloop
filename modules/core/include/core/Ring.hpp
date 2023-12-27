@@ -47,22 +47,22 @@ public:
     constexpr SizeType Capacity() const { return COUNT; }
 
     /// The number of active elements
-    constexpr SizeType Count() const { return m_count_; }
+    constexpr SizeType Count() const { return count_; }
 
     /// @brief Returns the active size in bytes of the Ring.
     /// @return The number of bytes consumed by the active elements.
-    constexpr SizeType sSize() const { return m_count_ * sizeof(ValueType); }
+    constexpr SizeType sSize() const { return count_ * sizeof(ValueType); }
 
     /// @brief Uses a Copy Assignment to put a new element into the Ring
     /// @param element The reference to the element to add
     /// @return True if it was pushed, false otherwise.
     bool Push(ReferenceConst element) {
         if (Count() < Capacity()) {
-            m_buffer_[m_head_] = element;    // copy assign or simple assign
-            ++m_count_;
-            ++m_head_;
-            if (m_head_ == m_limit_) {
-                m_head_ = 0u;
+            buffer_[head_] = element;    // copy assign or simple assign
+            ++count_;
+            ++head_;
+            if (head_ == limit_) {
+                head_ = 0u;
             }
             return true;
         }
@@ -74,11 +74,11 @@ public:
     /// @return True when the
     bool Pop(Reference output) {
         if (Count() > 0) {
-            output = m_buffer_[m_tail_];    // copy assign or simple assign
-            --m_count_;
-            ++m_tail_;
-            if (m_tail_ == m_limit_) {
-                m_tail_ = 0u;
+            output = buffer_[tail_];    // copy assign or simple assign
+            --count_;
+            ++tail_;
+            if (tail_ == limit_) {
+                tail_ = 0u;
             }
             return true;
         }
@@ -86,12 +86,12 @@ public:
     }
 
 protected:
-    ValueType m_buffer_[COUNT]{};
-    IndexType m_head_{0u};              ///< Head index inclusive (only valid when count > 0)
-    IndexType m_tail_{0u};              ///< Tail Index inclusive (only valid when count > 0)
-    IndexType const m_limit_{COUNT};    ///< The "one-past the end" limit to the index. When equal to this value, the
-                                        ///< Ring index should loop to zero.
-    SizeType m_count_{0u};              ///< The count of the number of active elements
+    ValueType buffer_[COUNT]{};
+    IndexType head_{0u};              ///< Head index inclusive (only valid when count > 0)
+    IndexType tail_{0u};              ///< Tail Index inclusive (only valid when count > 0)
+    IndexType const limit_{COUNT};    ///< The "one-past the end" limit to the index. When equal to this value, the
+                                      ///< Ring index should loop to zero.
+    SizeType count_{0u};              ///< The count of the number of active elements
 };
 
 }    // namespace core

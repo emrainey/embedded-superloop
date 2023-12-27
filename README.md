@@ -10,7 +10,7 @@ To write a safety oriented Cortex-M bare-metal system in C++14 or later, with no
 
 * No `C` casts when casting is needed.
 * No `#defines`, including macros. Instead replaced with `inline`d code, `using`s and other C++-isms.
-* No `CMSIS`. The Cortex System Structures are all defined locally as C++ bit-fields with the proper types _built in_.
+* No `CMSIS`. The Cortex System Structures are all defined locally as C++ bit-fields with the proper types _built in_ mainly using inspiration from the [peripheralyzer](https://github.com/emrainey/peripheralyzer) project.
 
 This bare-metal firmware also does not permit several C++ features in order to reduce failure modes:
 
@@ -33,6 +33,8 @@ In order to fill the _need_ that the _STL_ or other template libraries provide, 
 * `Array`
 * `Ring`
 * `Stack`
+* `Container`
+* `Pool`
 
 Additionally the design of the firmware is generally
 
@@ -59,24 +61,32 @@ Additionally the design of the firmware is generally
 
 ## Renode
 
-Renode is a (mostly complete) emulation of the Cortex M series and it has a _board_ emulation of the Segger TRB (STM32F407VE). Typically this is used by other system to emulate for testing purposes. Renode's emulation is missing some features like ITM/TPIU and SWO.
+Renode is a (not nearly complete enough) emulation of the Cortex M series and it has a _board_ emulation of the Segger TRB (STM32F407VE). Typically this is used by other system to emulate for testing purposes. Renode's emulation is missing some features like ITM/TPIU and SWO and Ticks and a bunch of other stuff.
 
 * <https://interrupt.memfault.com/blog/intro-to-renode>
 * <https://zephyr-dashboard.renode.io/renodepedia/boards/segger_trb_stm32f407/?view=hardware&demo=Hello_World>
 
 ## Building
 
+Visual Studio Code should be able to run this and identify the presets configuration. However you can also use the command line.
+
 ```bash
 # After installing arm-none-eabi-gcc via mac pkg
-export PATH=$PATH:/Application/ARM/bin
-cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=modules/stm32/cmake/stm32.cmake
-cmake --build build
-```
+$ export PATH=$PATH:/Application/ARM/bin
+$ cmake --list-presets
+Available configure presets:
 
-or
-
-```
-./scripts/build.sh
+  "stm32-gcc-arm-none-eabi-10" - GCC ARM None EABI 10 for STM32
+  "stm32-gcc-arm-none-eabi-11" - GCC ARM None EABI 11 for STM32
+  "stm32-gcc-arm-none-eabi-12" - GCC ARM None EABI 12 for STM32
+  "stm32-gcc-arm-none-eabi-13" - GCC ARM None EABI 13 for STM32
+  "native-gcc-11"              - Homebrew GCC 11
+  "native-gcc-12"              - Homebrew GCC 12
+  "native-gcc-13"              - Homebrew GCC 13
+  "native-llvm-17"             - LLVM 17.0.0
+  "native-clang"               - Native Clang Toolchain
+$ cmake --preset stm32-gcc-arm-none-eabi-13 -B build/stm32-gcc-arm-none-eabi-13 -S .
+$ cmake --build build/stm32-gcc-arm-none-eabi-13
 ```
 
 ## Debug

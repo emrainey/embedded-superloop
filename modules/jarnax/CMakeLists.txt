@@ -57,23 +57,9 @@ target_include_directories(test-jarnax PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     # ${CMAKE_CURRENT_BINARY_DIR}/include
 )
-target_link_libraries(test-jarnax Catch2::Catch2WithMain)
+target_link_libraries(test-jarnax core Catch2::Catch2WithMain)
 # include(CTest)
 # include(Catch)
 # catch_discover_tests(tests)
-
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
-)
-FetchContent_MakeAvailable(googletest)
-add_executable(test-events
-    ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest_events.cpp
-)
-target_include_directories(test-events PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(test-events gtest_main)
-include(GoogleTest)
-gtest_discover_tests(test-events)
 
 endif()

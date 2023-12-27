@@ -22,7 +22,7 @@
             "compileCommands": "${workspaceFolder}/build/compile_commands.json"
         },
         {
-            "name": "On Target",
+            "name": "On Target gcc-10.x",
             "includePath": [
                 "/Applications/ARM/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/include/c++/10.3.1",
                 "/Applications/ARM/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/include/c++/10.3.1/arm-none-eabi",
@@ -54,6 +54,41 @@
                 "-fno-rtti"
             ],
             "compileCommands": "${workspaceFolder}/build/compile_commands.json",
+            "configurationProvider": "ms-vscode.cmake-tools"
+        },
+        {
+            "name": "On Target gcc-12.x",
+            "includePath": [
+                "/Applications/ArmGNUToolchain/12.3.rel1/arm-none-eabi/lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1",
+                "/Applications/ArmGNUToolchain/12.3.rel1/arm-none-eabi/lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/arm-none-eabi",
+                "/Applications/ArmGNUToolchain/12.3.rel1/arm-none-eabi/lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/backward",
+                "/Applications/ArmGNUToolchain/12.3.rel1/arm-none-eabi/lib/gcc/arm-none-eabi/12.3.1/include",
+                "/Applications/ArmGNUToolchain/12.3.rel1/arm-none-eabi/lib/gcc/arm-none-eabi/12.3.1/include-fixed",
+                "/Applications/ArmGNUToolchain/12.3.rel1/arm-none-eabi/lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include",
+                "${workspaceFolder}/modules/jarnax/include",
+                "${workspaceFolder}/modules/core/include",
+                "${workspaceFolder}/modules/memory/include",
+                "${workspaceFolder}/modules/cortex/include",
+                "${workspaceFolder}/modules/stm32/include",
+                "${workspaceFolder}/applications/unittests"
+            ],
+            "defines": [],
+            "compilerPath": "/Applications/ArmGNUToolchain/12.3.rel1/arm-none-eabi/bin/arm-none-eabi-g++",
+            "intelliSenseMode": "macos-gcc-arm",
+            "cppStandard": "c++14",
+            "cStandard": "c17",
+            "compilerArgs": [
+                "-nostdlib",
+                "-mthumb",
+                "-mno-thumb-interwork",
+                "-mcpu=cortex-m4",
+                "-mfpu=fpv4-sp-d16",
+                "-mfloat-abi=hard",
+                "-fsingle-precision-constant",
+                "-fno-exceptions",
+                "-fno-rtti"
+            ],
+            "compileCommands": "${workspaceFolder}/build/native-clang/compile_commands.json",
             "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],

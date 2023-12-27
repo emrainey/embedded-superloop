@@ -8,9 +8,7 @@ namespace jarnax {
 namespace handlers {
 
 void generic(
-    cortex::exceptions::InterruptServiceRoutine isr_number,
-    cortex::exceptions::ExtendedFrame *frame,
-    cortex::exceptions::ExceptionReturn exc_return
+    cortex::exceptions::InterruptServiceRoutine isr_number, cortex::exceptions::ExtendedFrame *frame, cortex::exceptions::ExceptionReturn exc_return
 ) {
     using jarnax::supervisor::Marshal;
     using jarnax::supervisor::Status;
@@ -56,6 +54,7 @@ void generic(
             auto old = jarnax::supervisor::escalate();    // become supervisor
             // marshall the call structure out of the frame and the calling instruction (which contains the #imm)
             Marshal marshal;
+            // this is taken from an ARM example which uses the previous frame PC to load the instruction and pluck out the immediate value!
             marshal.call = static_cast<Marshal::Calls>(reinterpret_cast<uint8_t *>(frame->basic.program_counter)[-2]);
             if (marshal.call == Marshal::Calls::BuiltInSelfTest) {
                 marshal.type.bist.arg0 = frame->basic.r0.as_u32;
@@ -99,6 +98,13 @@ void generic(
             frame->basic.r0.as_u32 = to_underlying(status);
             break;
         }
+        case cortex::exceptions::InterruptServiceRoutine::PendSV:
+            if (jarnax::built_in_self_test.trigger_pending_supervisor.is_testing) {
+                jarnax::built_in_self_test.trigger_pending_supervisor.has_passed = true;
+                status = Status::Success;
+            }
+            /// @todo Implement PendSV handler
+            break;
         default:
             break;
     }

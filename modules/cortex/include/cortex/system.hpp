@@ -7,6 +7,7 @@
 #include "cortex/core.hpp"
 #include "cortex/exceptions.hpp"
 #include "cortex/tick.hpp"
+#include "cortex/vendor.hpp"
 
 namespace cortex {
 
@@ -34,9 +35,12 @@ struct SystemControlBlock final {
 
     /// The Interrupt Control State Register
     struct InterruptControlState final {
-        InterruptControlState() : whole{0} {}
-        InterruptControlState(InterruptControlState const& other) : whole{other.whole} {}
-        InterruptControlState(InterruptControlState volatile& other) : whole{other.whole} {}
+        InterruptControlState()
+            : whole{0} {}
+        InterruptControlState(InterruptControlState const& other)
+            : whole{other.whole} {}
+        InterruptControlState(InterruptControlState volatile& other)
+            : whole{other.whole} {}
         struct Fields final {
             std::uint32_t /* const */ vector_active                     : 9U;
             std::uint32_t                                               : 2U;    ///< Reserved field
@@ -66,9 +70,12 @@ struct SystemControlBlock final {
 
     /// The Application Interrupt Reset and Control Register
     struct ApplicationInterruptResetControl final {
-        ApplicationInterruptResetControl() : whole{0} {}
-        ApplicationInterruptResetControl(ApplicationInterruptResetControl const& other) : whole{other.whole} {}
-        ApplicationInterruptResetControl(ApplicationInterruptResetControl volatile& other) : whole{other.whole} {}
+        ApplicationInterruptResetControl()
+            : whole{0} {}
+        ApplicationInterruptResetControl(ApplicationInterruptResetControl const& other)
+            : whole{other.whole} {}
+        ApplicationInterruptResetControl(ApplicationInterruptResetControl volatile& other)
+            : whole{other.whole} {}
         struct Fields final {
             std::uint32_t debug_state_vector_reset        : 1U;
             std::uint32_t debug_state_vector_clear_active : 1U;
@@ -108,9 +115,12 @@ struct SystemControlBlock final {
 
     /// The Configuration and Control Register
     struct ConfigurationControl final {
-        ConfigurationControl() : whole{0} {}
-        ConfigurationControl(ConfigurationControl const& other) : whole{other.whole} {}
-        ConfigurationControl(ConfigurationControl volatile& other) : whole{other.whole} {}
+        ConfigurationControl()
+            : whole{0} {}
+        ConfigurationControl(ConfigurationControl const& other)
+            : whole{other.whole} {}
+        ConfigurationControl(ConfigurationControl volatile& other)
+            : whole{other.whole} {}
         struct Fields final {
             std::uint32_t allow_thread_mode_exception_return                     : 1U;
             std::uint32_t allow_unprivileged_access_to_software_trigger          : 1U;
@@ -172,9 +182,12 @@ struct SystemControlBlock final {
 
     /// The System Handler Control State Register
     struct SystemHandlerControlState final {
-        SystemHandlerControlState() : whole{0} {}
-        SystemHandlerControlState(SystemHandlerControlState const& other) : whole{other.whole} {}
-        SystemHandlerControlState(SystemHandlerControlState volatile& other) : whole{other.whole} {}
+        SystemHandlerControlState()
+            : whole{0} {}
+        SystemHandlerControlState(SystemHandlerControlState const& other)
+            : whole{other.whole} {}
+        SystemHandlerControlState(SystemHandlerControlState volatile& other)
+            : whole{other.whole} {}
         struct Fields final {
             std::uint32_t active_mem_fault          : 1;
             std::uint32_t active_bus_fault          : 1;
@@ -243,11 +256,11 @@ struct SystemControlBlock final {
 
     /// The Hard Fault Status Register (HFSR)
     struct HardFaultStatus final {
-        uint32_t                   : 1U;    ///< Reserved field
-        uint32_t vector_table_read : 1U;
-        uint32_t                   : 28U;    ///< Reserved field
-        uint32_t forced            : 1U;
-        uint32_t debug_event       : 1U;
+        std::uint32_t                   : 1U;    ///< Reserved field
+        std::uint32_t vector_table_read : 1U;
+        std::uint32_t                   : 28U;    ///< Reserved field
+        std::uint32_t forced            : 1U;
+        std::uint32_t debug_event       : 1U;
     };
     static_assert(sizeof(HardFaultStatus) == sizeof(std::uint32_t), "Must be exactly this size");
 
@@ -264,7 +277,7 @@ struct SystemControlBlock final {
 
     /// The Memory Management Fault Address Register (MMFAR)
     struct MemoryManagementFaultAddress final {
-        uintptr_t address;
+        std::uintptr_t address;
     };
 #if defined(__arm__)
     static_assert(sizeof(MemoryManagementFaultAddress) == sizeof(std::uint32_t), "Must be exactly this size");
@@ -272,7 +285,7 @@ struct SystemControlBlock final {
 
     /// The Bus Fault Address Register (BFAR)
     struct BusFaultAddress final {
-        uintptr_t address;    ///< The Address which faulted
+        std::uintptr_t address;    ///< The Address which faulted
     };
 #if defined(__arm__)
     static_assert(sizeof(BusFaultAddress) == sizeof(std::uint32_t), "Must be exactly this size");
@@ -280,9 +293,12 @@ struct SystemControlBlock final {
 
     /// The Co Processor Access Control Register
     struct CoProcessorAccessControl final {
-        CoProcessorAccessControl() : whole{0} {}
-        CoProcessorAccessControl(CoProcessorAccessControl const& other) : whole{other.whole} {}
-        CoProcessorAccessControl(CoProcessorAccessControl volatile& other) : whole{other.whole} {}
+        CoProcessorAccessControl()
+            : whole{0} {}
+        CoProcessorAccessControl(CoProcessorAccessControl const& other)
+            : whole{other.whole} {}
+        CoProcessorAccessControl(CoProcessorAccessControl volatile& other)
+            : whole{other.whole} {}
         enum class Access : std::uint32_t {
             Denied = 0b00,
             Privileged = 0b01,
@@ -331,15 +347,33 @@ struct SystemControlBlock final {
     DebugFaultStatus debug_fault_status;
     MemoryManagementFaultAddress memory_management_fault_address;
     BusFaultAddress bus_fault_address;
-    std::uint32_t auxiliary_fault_status;
+    vendor::AuxiliaryFaultStatus auxiliary_fault_status;    ///< This is implementation defined (i.e. by Vendor)
     variant::CentralProcessingUnitIdentification cpu_id;    ///< Implementation defined
     CoProcessorAccessControl coprocessor_access_control;
-    std::uint32_t _reserved1[1];
+    std::uint32_t : 32;
     //===================================================
 };
 #if defined(__arm__)
 static_assert(sizeof(variant::CentralProcessingUnitIdentification) == 0x48, "Must be this exact size");
+
+// Ensure the structure is in standard layout format
+static_assert(std::is_standard_layout<SystemControlBlock>::value, "Must be standard layout");
+// Ensure the offsets are all correct
+static_assert(offsetof(SystemControlBlock, cpu_id_base) == 0x0UL, "Must be located at this offset");
+static_assert(offsetof(SystemControlBlock, interrupt_control_state) == 0x4UL, "Must be located at this offset");
+static_assert(offsetof(SystemControlBlock, vector_table) == 0x8UL, "Must be located at this offset");
+static_assert(offsetof(SystemControlBlock, application_interrupt_reset_control) == 0xcUL, "Must be located at this offset");
+static_assert(offsetof(SystemControlBlock, system_control) == 0x10UL, "Must be located at this offset");
 static_assert(offsetof(SystemControlBlock, configuration_control) == 0x14, "Must be at this offset");
+static_assert(offsetof(SystemControlBlock, handlers1) == 0x18UL, "Must be located at this offset");
+static_assert(offsetof(SystemControlBlock, handlers2) == 0x1cUL, "Must be located at this offset");
+static_assert(offsetof(SystemControlBlock, handlers3) == 0x20UL, "Must be located at this offset");
+static_assert(offsetof(SystemControlBlock, system_handler_control_state) == 0x24UL, "Must be located at this offset");
+static_assert(offsetof(SystemControlBlock, configuration_fault_status) == 0x28UL, "Must be located at this offset");
+static_assert(offsetof(SystemControlBlock, hard_fault_status) == 0x2cUL, "Must be located at this offset");
+static_assert(offsetof(SystemControlBlock, memory_management_fault_address) == 0x34UL, "Must be located at this offset");
+static_assert(offsetof(SystemControlBlock, bus_fault_address) == 0x38UL, "Must be located at this offset");
+static_assert(offsetof(SystemControlBlock, auxiliary_fault_status) == 0x3cUL, "Must be located at this offset");
 static_assert(offsetof(SystemControlBlock, coprocessor_access_control) == 0x88, "Must be at this offset");
 static_assert(sizeof(SystemControlBlock) == 0x90, "Must be this size");
 #endif
@@ -358,12 +392,14 @@ using AuxiliaryControl = variant::AuxiliaryControl;
 
 /// The special purpose Control Register (CONTROL)
 struct Control final {
-    constexpr Control() : whole{0U} {}
-    Control(cortex::word reg) : whole{reg} {}
+    constexpr Control()
+        : whole{0U} {}
+    Control(cortex::word reg)
+        : whole{reg} {}
     struct Fields final {
-        modes::Privileged privilege : 1;
-        modes::Stack stack          : 1;
-        std::uint32_t float_active  : 1;
+        modes::Privileged privilege : 1;     ///< Execution Privilege in Thread Mode
+        modes::Stack stack          : 1;     ///< 0 is Main, 1 is Process
+        std::uint32_t float_active  : 1;     ///< Floating Point Active
         std::uint32_t               : 29;    ///< Reserved field
     };
     union {
@@ -406,18 +442,18 @@ struct FloatingPoint final {
     /// (FPCCR) Holds control data for the Floating Point Unit.
     struct ContextControl final {
         struct Fields final {
-            std::uint32_t lazy_preservation         : 1U;
-            modes::Privileged privilege             : 1U;    ///< (Also know as USER)
-            std::uint32_t                           : 1U;
-            modes::Execution execution              : 1U;    ///< (THREAD)
-            std::uint32_t hard_fault_pending        : 1U;
-            std::uint32_t memory_management_pending : 1U;
-            std::uint32_t bus_fault_pending         : 1U;
-            std::uint32_t                           : 1U;
-            std::uint32_t debug_monitor_pending     : 1U;
-            std::uint32_t                           : 21U;
-            std::uint32_t lazy_context_save         : 1U;    ///< (LSPEN)
-            std::uint32_t context_save              : 1U;    ///< (ASPEN)
+            std::uint32_t lazy_preservation           : 1U;
+            modes::Privileged privilege               : 1U;    ///< (Also know as USER)
+            std::uint32_t                             : 1U;
+            modes::Execution execution                : 1U;    ///< (THREAD)
+            std::uint32_t hard_fault_pending          : 1U;
+            std::uint32_t memory_management_pending   : 1U;
+            std::uint32_t bus_fault_pending           : 1U;
+            std::uint32_t                             : 1U;
+            std::uint32_t debug_monitor_pending       : 1U;
+            std::uint32_t                             : 21U;
+            std::uint32_t lazy_context_save           : 1U;    ///< (LSPEN)
+            std::uint32_t floating_point_context_save : 1U;    ///< (ASPEN)
         };
         union {
             Fields bits;
@@ -425,7 +461,7 @@ struct FloatingPoint final {
         };
     };
 
-    ///  (FPCAR) Holds the location of the
+    ///  (FPCAR) Holds the location of the Floating Point Context
     struct ContextAddress final {
         struct Fields final {
             std::uint32_t         : 3U;

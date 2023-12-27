@@ -22,11 +22,11 @@ void OnProjectLoad (void) {
   //
   // Dialog-generated settings
   //
-  Project.SetTraceSource ("SWO");
   Project.SetDevice ("STM32F407VE");
   Project.SetHostIF ("USB", "");
   Project.SetTargetIF ("SWD");
-  Project.SetTIFSpeed ("50 MHz");
+  Project.SetTIFSpeed ("Automatic");
+  Project.SetTraceSource ("SWO");
   Project.AddSvdFile ("$(InstallDir)/Config/CPU/Cortex-M4F.svd");
   Project.AddSvdFile ("$(ProjectDir)/scripts/STM32F407.svd");
   //
@@ -34,7 +34,7 @@ void OnProjectLoad (void) {
   //
   Edit.Preference (PREF_TIMESTAMP_FORMAT, TIMESTAMP_FORMAT_INST_CNT);
   Edit.SysVar (VAR_RTT_ENABLED, 1);
-  File.Open ("$(ProjectDir)/build/applications/unittests/jarnax-unittest-stm32.elf");
+  File.Open ("$(ProjectDir)/build/stm32-gcc-arm-none-eabi-13/applications/unittests/jarnax-unittest-stm32.elf");
   Edit.SysVar (VAR_TARGET_POWER_ON, 1);
   Project.AddRTTSearchRange(0x20000000, 0x80000);
 }

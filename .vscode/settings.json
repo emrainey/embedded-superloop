@@ -102,7 +102,11 @@
         "coroutine": "cpp",
         "__verbose_abort": "cpp",
         "format": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "charconv": "cpp",
+        "shared_mutex": "cpp",
+        "span": "cpp",
+        "text_encoding": "cpp"
     },
     "cSpell.allowCompoundWords": true,
     "cSpell.dictionaryDefinitions": [
@@ -139,28 +143,18 @@
     ],
     "clang-format.fallbackStyle": "Google",
     "editor.formatOnSave": true,
-    "cmake.buildBeforeRun": true,
-    "cmake.additionalKits": [
-        ".vscode/cmake-kits.json"
-    ],
-    "cmake.configureArgs": [
-        "--warn-uninitialized"
-    ],
-    "cmake.generator": "Unix Makefiles",
-    // "cmake.preferredGenerators": [
-    //     "Unix Makefiles"
-    // ],
+    "cmake.useCMakePresets": "always",
     "C_Cpp.errorSquiggles": "enabled",
-    "C_Cpp.default.cppStandard": "c++14",
+    "C_Cpp.default.cppStandard": "c++20",
     "C_Cpp.default.cStandard": "c17",
     "C_Cpp.codeAnalysis.clangTidy.enabled": true,
     "C_Cpp.default.includePath": [
-        "/Applications/ARM/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/include/c++/10.3.1",
-        "/Applications/ARM/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/include/c++/10.3.1/arm-none-eabi",
-        "/Applications/ARM/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/include/c++/10.3.1/backward",
-        "/Applications/ARM/bin/../lib/gcc/arm-none-eabi/10.3.1/include",
-        "/Applications/ARM/bin/../lib/gcc/arm-none-eabi/10.3.1/include-fixed",
-        "/Applications/ARM/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/include",
+        "/Applications/ArmGNUToolchain/12.3.rel1/arm-none-eabi/lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1",
+        "/Applications/ArmGNUToolchain/12.3.rel1/arm-none-eabi/lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/arm-none-eabi",
+        "/Applications/ArmGNUToolchain/12.3.rel1/arm-none-eabi/lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include/c++/12.3.1/backward",
+        "/Applications/ArmGNUToolchain/12.3.rel1/arm-none-eabi/lib/gcc/arm-none-eabi/12.3.1/include",
+        "/Applications/ArmGNUToolchain/12.3.rel1/arm-none-eabi/lib/gcc/arm-none-eabi/12.3.1/include-fixed",
+        "/Applications/ArmGNUToolchain/12.3.rel1/arm-none-eabi/lib/gcc/arm-none-eabi/12.3.1/../../../../arm-none-eabi/include",
         "${workspaceFolder}/modules/jarnax/include",
         "${workspaceFolder}/modules/core/include",
         "${workspaceFolder}/modules/memory/include",
@@ -194,6 +188,9 @@
         "-std=c17",
     ],
     "testMate.cpp.test.advancedExecutables": [
-        "build/**/test*"
-    ]
+        {
+            "pattern": "build/**/test-*",
+            "cwd": "${workspaceFolder}",
+        }
+    ],
 }
