@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 project(jarnax
-        VERSION 0.1.48
+        VERSION 0.1.49
         LANGUAGES CXX ASM)
 
 set(JARAX_PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
