@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CORE_VARIANT_HPP
+#define CORE_VARIANT_HPP
 
 #include <cstdint>
 #include <cstddef>
@@ -89,3 +90,5 @@ public:
 };
 
 }    // namespace core
+
+#endif    // CORE_VARIANT_HPP

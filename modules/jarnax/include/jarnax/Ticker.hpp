@@ -2,17 +2,19 @@
 #define TICKER_HPP_
 
 /// @file
-/// jarnax::Exectuable Interface
+/// jarnax::Ticker Interface
 
 #include <cstdint>
+#include "cortex/tick.hpp"
 
 namespace jarnax {
 
 /// The Storage of the Ticks type in the system
-using Ticks = std::uint64_t;
-
-/// The Storage of the Time type in the system
-using Time = float;
+using Ticks = cortex::Ticks;
+/// The Storage for cycles per second
+using Hertz = cortex::Hertz;
+/// The Storage for Time is seconds
+using Time = core::units::Seconds;
 
 /// The interface to the System Ticker
 class Ticker {
@@ -21,7 +23,7 @@ public:
     virtual Ticks GetTicksSinceBoot(void) const = 0;
 
     /// Returns the number of ticks per second
-    virtual Ticks GetTicksPerSecond(void) const = 0;
+    virtual Hertz GetTicksPerSecond(void) const = 0;
 
     /// Returns the Time since boot in seconds (as a `float`)
     virtual Time GetTimeSinceBoot(void) const = 0;

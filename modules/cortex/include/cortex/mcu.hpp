@@ -7,17 +7,21 @@
 #include <cstdint>
 #include <cstddef>
 #include <limits>
-#include "thumb.hpp"
 #include "debug.hpp"
 #include "iso.hpp"
+#include "compiler.hpp"
 #include "core/Split.hpp"
+#include "cortex/thumb.hpp"
 #include "cortex/system.hpp"
 #include "cortex/exceptions.hpp"
 #include "cortex/mpu.hpp"
 #include "cortex/trace.hpp"
 #include "cortex/debug.hpp"
 #include "cortex/tick.hpp"
+#include "cortex/clocks.hpp"
 #include "cortex/nvic.hpp"
+#include "cortex/bist.hpp"
+#include "cortex/supervisor.hpp"
 
 /// The Cortex M Namespace
 namespace cortex {
@@ -124,16 +128,19 @@ constexpr static std::uint32_t vendor = (256U * iso::prefix::mebi) - private_per
 namespace power2 {
 
 /// The Power of 2 of the code section
-constexpr static std::uint32_t code = iso::log2(cortex::sizes::code);
+constexpr static std::uint32_t code = polyfill::log2(cortex::sizes::code);
 
 /// The Power of 2 of the SRAM section
-constexpr static std::uint32_t sram = iso::log2(cortex::sizes::sram);
+constexpr static std::uint32_t sram = polyfill::log2(cortex::sizes::sram);
+
+/// The Power of 2 of the Peripheral space
+constexpr static std::uint32_t peripheral = polyfill::log2(cortex::sizes::peripheral);
 
 /// The Power of 2 of the System section
-constexpr static std::uint32_t system = iso::log2(cortex::sizes::system);
+constexpr static std::uint32_t system = polyfill::log2(cortex::sizes::system);
 
 /// The Power of 2 of the Private Peripherals section
-constexpr static std::uint32_t private_peripheral = iso::log2(cortex::sizes::private_peripheral);
+constexpr static std::uint32_t private_peripheral = polyfill::log2(cortex::sizes::private_peripheral);
 }    // namespace power2
 
 }    // namespace sizes
@@ -259,7 +266,7 @@ void fpu(void);
 void mpu(void);
 
 /// Initializes the SWO output
-void swo(std::uint32_t desired_baud, std::uint32_t clock_frequency);
+void swo(std::uint32_t desired_baud, Hertz clock_frequency);
 
 /// Initializes the Instruction Trace Macrocell
 void itm(void);
@@ -274,7 +281,7 @@ void faults(void);
 void nvic(void);
 
 /// Initializes the System Tick
-void tick(uint32_t ticks_per_second, uint32_t reference_clock_frequency);
+void tick(Hertz ticks_per_second, Hertz reference_clock_frequency);
 }    // namespace initialize
 
 /// The Serial Wire Output Namespace
@@ -331,6 +338,11 @@ void disable(void);
 void enable(void);
 }    // namespace instruction
 }    // namespace cache
+
+/// Used for debug, trapping, bad handlers, and to catch bad behavior.
+/// @warning Paths which enter this function do not leave and will not run user applications.
+[[noreturn]] void spinhalt(void);
+
 }    // namespace cortex
 
 #endif    // CORTEX_M_HPP_

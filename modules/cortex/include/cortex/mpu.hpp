@@ -5,6 +5,7 @@
 /// The Cortex M Core Header
 
 #include "cortex/core.hpp"
+#include "core/Split.hpp"
 
 namespace cortex {
 
@@ -136,7 +137,7 @@ struct MemoryProtectionUnit {
             std::uint32_t                   : 2U;
             std::uint32_t subregion_disable : 8U;
             std::uint32_t bufferable        : 1U;
-            std::uint32_t cachable          : 1U;
+            std::uint32_t cacheable         : 1U;
             std::uint32_t sharable          : 1U;
             std::uint32_t type_extension    : 3U;    ///< This field is so poorly documented!
             std::uint32_t                   : 2U;
@@ -148,9 +149,9 @@ struct MemoryProtectionUnit {
             /// Setting the Power of Two Size requires this interface
             /// to ensure it is done correctly w/ all the strict flags on.
             inline bool set_power2_size(std::uint32_t bytes) volatile {
-                if (iso::is_power_of_two(bytes)) {
+                if (::is_power_of_two(bytes)) {
                     core::Split<std::uint32_t, 5U> tmp;
-                    tmp.whole = iso::log2(bytes);
+                    tmp.whole = polyfill::log2(bytes);
                     pow2_size = tmp.parts.lower;
                     return true;
                 }
@@ -208,14 +209,27 @@ struct MemoryProtectionUnit {
                                                  ///< processors
         NormalWriteBackNoWriteAllocateSingle,    ///< Normal Memory with Write Back but not Write Allocate from one
                                                  ///< processor
-        NormalNonCachableShared,                 ///< Normal memory but uncacheable access from multiple cores
-        NormalNonCachableSingle,                 ///< Normal memory but uncacheable access from a single core
+        NormalNonCacheableShared,                ///< Normal memory but uncacheable access from multiple cores
+        NormalNonCacheableSingle,                ///< Normal memory but uncacheable access from a single core
     };
 };
 
 /// Creates an Access Register filled in from the given attribute
 /// @param attribute
 MemoryProtectionUnit::Access make_access(MemoryProtectionUnit::Attribute attribute);
+
+/// An enumerated count of the various protected regions in the MPU
+enum class ProtectedRegion : std::uint8_t {
+    Code = 0U,              ///< The .text section
+    Data = 1U,              ///< The section of RAM which contains the .bss and .data
+    Stack = 2U,             ///< The Full Stack area
+    MainStack = 3U,         ///< Just the Main Stack area (comes after Stack)
+    ProcesStack = 4U,       ///< Just the Process Stack area (comes after Main)
+    PrivilegedData = 5U,    ///< The section of RAM dedicated to the Privilege mode (comes after Data)
+    Peripherals = 6U,       ///< Device memory mapped peripherals
+    Backup = 7U,            ///< The backup RAM area (for low power mode, if supported), (must overlay Peripherals)
+    System = 8U,            ///< The system processor memory map
+};
 
 }    // namespace cortex
 

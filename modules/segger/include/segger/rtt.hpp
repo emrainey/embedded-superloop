@@ -4,6 +4,10 @@
 /// @file
 /// A re-implementation of the SEGGER RTT interface for use with the RTT Viewer in C++.
 
+#ifdef UNITTEST
+#include <new>
+#endif
+
 #include <cstdint>
 #include <cstddef>
 #include <utility>
@@ -85,7 +89,8 @@ static_assert(sizeof(BufferInfo) == 24U, "Must be exactly this size on 32 bit");
 static constexpr size_t kIndexBits{4u};
 
 struct Index {
-    Index(uint32_t i) : index{i & 0xF} {}
+    Index(uint32_t i)
+        : index{i & 0xF} {}
     uint32_t index : kIndexBits;
     uint32_t : 32U - kIndexBits;
 };
@@ -137,6 +142,9 @@ protected:
 
 /// The global instance of the Control Block
 extern ControlBlock control_block;
+
+/// @brief Called bu clients to initialize the RTT to sensible defaults.
+void initialize(void);
 
 }    // namespace rtt
 

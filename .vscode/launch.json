@@ -7,7 +7,7 @@
         {
             "name": "Cortex-Debug (JLink) Jarnax",
             "cwd": "${workspaceRoot}",
-            "executable": "build/jarnax-demo.elf",
+            "executable": "build/stm32-basic",
             "request": "launch",
             "type": "cortex-debug",
             "servertype": "jlink",

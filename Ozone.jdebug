@@ -22,21 +22,29 @@ void OnProjectLoad (void) {
   //
   // Dialog-generated settings
   //
+  Project.ConfigSemihosting ("ModeBKPT=2");
+  Debug.SetResetMode (RM_RESET_HALT);
   Project.SetDevice ("STM32F407VE");
   Project.SetHostIF ("USB", "");
   Project.SetTargetIF ("SWD");
-  Project.SetTIFSpeed ("Automatic");
-  Project.SetTraceSource ("SWO");
+  Project.SetTIFSpeed ("25 MHz");
   Project.AddSvdFile ("$(InstallDir)/Config/CPU/Cortex-M4F.svd");
   Project.AddSvdFile ("$(ProjectDir)/scripts/STM32F407.svd");
   //
   // User settings
   //
   Edit.Preference (PREF_TIMESTAMP_FORMAT, TIMESTAMP_FORMAT_INST_CNT);
+  Edit.SysVar (VAR_BREAK_AT_THIS_SYMBOL, "jarnax::main");
+  Edit.SysVar (VAR_STARTUP_COMPLETION_POINT, "jarnax::entry_after_stack");
   Edit.SysVar (VAR_RTT_ENABLED, 1);
-  File.Open ("$(ProjectDir)/build/stm32-gcc-arm-none-eabi-13/applications/unittests/jarnax-unittest-stm32.elf");
-  Edit.SysVar (VAR_TARGET_POWER_ON, 1);
+  //File.Open ("$(ProjectDir)/build/stm32-gcc-arm-none-eabi-13/applications/unittests/jarnax-unittest-stm32-basic-stm32_f4ve_v2.elf");
+  File.Open ("$(ProjectDir)/build/stm32-gcc-arm-none-eabi-13/applications/simple/jarnax-simple-stm32-basic-stm32_f4ve_v2.elf");
   Project.AddRTTSearchRange(0x20000000, 0x80000);
+  Break.SetOnSrc("reset_entry");
+  Break.SetOnSrc("jarnax::entry_after_stack");
+  Break.SetOnSrc("jarnax::initialize::on_entry");
+  Break.SetOnSrc("jarnax::main");
+  
 }
 
 /*********************************************************************
@@ -66,32 +74,6 @@ void OnProjectLoad (void) {
 **********************************************************************
 */
 //void TargetReset (void) {
-//
-//  unsigned int SP;
-//  unsigned int PC;
-//  unsigned int VectorTableAddr;
-//
-//  VectorTableAddr = Elf.GetBaseAddr();
-//  //
-//  // Set up initial stack pointer
-//  //
-//  if (VectorTableAddr != 0xFFFFFFFF) {
-//    SP = Target.ReadU32(VectorTableAddr);
-//    Target.SetReg("SP", SP);
-//  }
-//  //
-//  // Set up entry point PC
-//  //
-//  PC = Elf.GetEntryPointPC();
-//
-//  if (PC != 0xFFFFFFFF) {
-//    Target.SetReg("PC", PC);
-//  } else if (VectorTableAddr != 0xFFFFFFFF) {
-//    PC = Target.ReadU32(VectorTableAddr + 4);
-//    Target.SetReg("PC", PC);
-//  } else {
-//    Util.Error("Project file error: failed to set entry point PC", 1);
-//  }
 //}
 
 /*********************************************************************
@@ -103,8 +85,14 @@ void OnProjectLoad (void) {
 *
 **********************************************************************
 */
-//void BeforeTargetReset (void) {
-//}
+void BeforeTargetReset (void) {
+  // Clear the PENDING interrupts and status if set
+  Target.WriteU32(0xE000ED24, 0x0);
+	Target.WriteU32(0xE000ED28, 0xFFFFFFFF);
+  Target.WriteU32(0xE000ED2C, 0xFFFFFFFF);
+  Target.WriteU32(0xE000ED34, 0x00000000);
+  Target.WriteU32(0xE000ED38, 0x00000000);
+}
 
 /*********************************************************************
 *

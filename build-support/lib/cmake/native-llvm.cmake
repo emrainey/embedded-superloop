@@ -20,7 +20,9 @@ add_compile_options(-Wno-deprecated-register)
 message(NOTICE "Enable Unit Test Features")
 add_compile_definitions(UNITTEST=1)
 
-add_compile_options(-Wno-unknown-pragmas)
+message(NOTICE "Enable coverage all the time")
+add_compile_options(-Wno-unknown-pragmas -fprofile-arcs -ftest-coverage)
+link_libraries(--coverage)
 
 # no default math lib is needed?
-set(COMPILER_MATH_LIB "")
+unset(COMPILER_MATH_LIBS)

@@ -9,11 +9,9 @@ namespace jarnax {
     Context& context = GetContext();
     if (context.Initialize()) {
         SuperLoop& superloop = context.GetSuperLoop();
-        while (true) {
-            superloop.RunAllOnce();
-        }
+        superloop.RunForever();
     }
-    jarnax::spinhalt();
+    cortex::spinhalt();
     __builtin_unreachable();
 }
 

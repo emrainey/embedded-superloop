@@ -224,54 +224,102 @@ struct SystemControlBlock final {
 
     /// The Configuration Fault Status
     struct ConfigurationFaultStatus final {
-        // Memory Management (MMFSR)
-        std::uint32_t execute_never                        : 1U;
-        std::uint32_t data_access                          : 1U;
-        std::uint32_t                                      : 1U;    ///< Reserved field
-        std::uint32_t derived_memory_management_on_return  : 1U;
-        std::uint32_t derived_memory_management_on_entry   : 1U;
-        std::uint32_t memory_management_on_float_lazy_eval : 1U;
-        std::uint32_t                                      : 1U;    ///< Reserved field
-        std::uint32_t mmfar_is_valid                       : 1U;
-        // Bus Fault (BFSR)
-        std::uint32_t instruction_prefetch                 : 1U;
-        std::uint32_t precise_data_access                  : 1U;
-        std::uint32_t imprecise_data_access                : 1U;
-        std::uint32_t derived_bus_on_return                : 1U;
-        std::uint32_t derived_bus_on_entry                 : 1U;
-        std::uint32_t bus_fault_on_float_lazy_eval         : 1U;
-        std::uint32_t                                      : 1U;    ///< Reserved field
-        std::uint32_t bfar_is_valid                        : 1U;
-        // Usage Fault (UFSR)
-        std::uint32_t undefined_instruction                : 1U;
-        std::uint32_t invalid_epsr_bits                    : 1U;
-        std::uint32_t integrity_check_on_exc_return        : 1U;
-        std::uint32_t coprocessor_access_error             : 1U;
-        std::uint32_t                                      : 4U;    ///< Reserved field
-        std::uint32_t unaligned_access                     : 1U;
-        std::uint32_t divide_by_zero                       : 1U;
-        std::uint32_t                                      : 6U;    ///< Reserved field
+        ConfigurationFaultStatus()
+            : whole{0} {}
+        ConfigurationFaultStatus(ConfigurationFaultStatus const& other)
+            : whole{other.whole} {}
+        ConfigurationFaultStatus(ConfigurationFaultStatus volatile& other)
+            : whole{other.whole} {}
+        struct Fields final {
+            // Memory Management (MMFSR)
+            std::uint32_t execute_never                        : 1U;
+            std::uint32_t data_access                          : 1U;
+            std::uint32_t                                      : 1U;    ///< Reserved field
+            std::uint32_t derived_memory_management_on_return  : 1U;
+            std::uint32_t derived_memory_management_on_entry   : 1U;
+            std::uint32_t memory_management_on_float_lazy_eval : 1U;
+            std::uint32_t                                      : 1U;    ///< Reserved field
+            std::uint32_t mmfar_is_valid                       : 1U;
+            // Bus Fault (BFSR)
+            std::uint32_t instruction_prefetch                 : 1U;
+            std::uint32_t precise_data_access                  : 1U;
+            std::uint32_t imprecise_data_access                : 1U;
+            std::uint32_t derived_bus_on_return                : 1U;
+            std::uint32_t derived_bus_on_entry                 : 1U;
+            std::uint32_t bus_fault_on_float_lazy_eval         : 1U;
+            std::uint32_t                                      : 1U;    ///< Reserved field
+            std::uint32_t bfar_is_valid                        : 1U;
+            // Usage Fault (UFSR)
+            std::uint32_t undefined_instruction                : 1U;
+            std::uint32_t invalid_epsr_bits                    : 1U;
+            std::uint32_t integrity_check_on_exc_return        : 1U;
+            std::uint32_t coprocessor_access_error             : 1U;
+            std::uint32_t                                      : 4U;    ///< Reserved field
+            std::uint32_t unaligned_access                     : 1U;
+            std::uint32_t divide_by_zero                       : 1U;
+            std::uint32_t                                      : 6U;    ///< Reserved field
+        };
+        union {
+            Fields bits;
+            std::uint32_t whole;
+        };
+        // Assignment from copy back to registers
+        void operator=(ConfigurationFaultStatus const& other) volatile { whole = other.whole; }
+        // Copy from volatile register to local copy
+        void operator=(ConfigurationFaultStatus volatile& other) { whole = other.whole; }
     };
     static_assert(sizeof(ConfigurationFaultStatus) == sizeof(std::uint32_t), "Must be exactly this size");
 
     /// The Hard Fault Status Register (HFSR)
     struct HardFaultStatus final {
-        std::uint32_t                   : 1U;    ///< Reserved field
-        std::uint32_t vector_table_read : 1U;
-        std::uint32_t                   : 28U;    ///< Reserved field
-        std::uint32_t forced            : 1U;
-        std::uint32_t debug_event       : 1U;
+        HardFaultStatus()
+            : whole{0} {}
+        HardFaultStatus(HardFaultStatus const& other)
+            : whole{other.whole} {}
+        HardFaultStatus(HardFaultStatus volatile& other)
+            : whole{other.whole} {}
+        struct Fields {
+            std::uint32_t                   : 1U;    ///< Reserved field
+            std::uint32_t vector_table_read : 1U;
+            std::uint32_t                   : 28U;    ///< Reserved field
+            std::uint32_t forced            : 1U;
+            std::uint32_t debug_event       : 1U;
+        };
+        union {
+            Fields bits;
+            std::uint32_t whole;
+        };
+        // Assignment from copy back to registers
+        void operator=(HardFaultStatus const& other) volatile { whole = other.whole; }
+        // Copy from volatile register to local copy
+        void operator=(HardFaultStatus volatile& other) { whole = other.whole; }
     };
     static_assert(sizeof(HardFaultStatus) == sizeof(std::uint32_t), "Must be exactly this size");
 
     /// The Debug Fault Register (DFR)
     struct DebugFaultStatus final {
-        std::uint32_t halted           : 1U;
-        std::uint32_t breakpoint       : 1U;
-        std::uint32_t debug_event_trap : 1U;
-        std::uint32_t vector_catch     : 1U;
-        std::uint32_t external         : 1U;
-        std::uint32_t                  : 27U;    ///< Reserved field
+        DebugFaultStatus()
+            : whole{0} {}
+        DebugFaultStatus(DebugFaultStatus const& other)
+            : whole{other.whole} {}
+        DebugFaultStatus(DebugFaultStatus volatile& other)
+            : whole{other.whole} {}
+        struct Fields {
+            std::uint32_t halted           : 1U;
+            std::uint32_t breakpoint       : 1U;
+            std::uint32_t debug_event_trap : 1U;
+            std::uint32_t vector_catch     : 1U;
+            std::uint32_t external         : 1U;
+            std::uint32_t                  : 27U;    ///< Reserved field
+        };
+        union {
+            Fields bits;
+            std::uint32_t whole;
+        };
+        // Assignment from copy back to registers
+        void operator=(DebugFaultStatus const& other) volatile { whole = other.whole; }
+        // Copy from volatile register to local copy
+        void operator=(DebugFaultStatus volatile& other) { whole = other.whole; }
     };
     static_assert(sizeof(DebugFaultStatus) == sizeof(std::uint32_t), "Must be exactly this size");
 

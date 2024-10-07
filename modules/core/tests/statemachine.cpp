@@ -45,7 +45,10 @@ public:
         return state;
     }
 
-    void OnExit(State state) override { results.exit = true; }
+    void OnExit(State state) override {
+        static_cast<void>(state);
+        results.exit = true;
+    }
 
     void OnTransition(State from, State to) override {
         if (from == State::Initial and to == State::Running) {

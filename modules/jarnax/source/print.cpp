@@ -147,11 +147,12 @@ void print(const char *format, ...) {
                     break;
                 }
                 case 'f': {
-                    double num = va_arg(args, double);
+                    using precision = float;
+                    precision num = static_cast<precision>(va_arg(args, double));
                     long integer_part = static_cast<long>(num);
                     index = print_signed_number(index, buffer, integer_part, base10);
                     buffer[index++] = '.';
-                    double fractional_part = num - static_cast<double>(integer_part);
+                    precision fractional_part = num - static_cast<precision>(integer_part);
                     // we only use 6 decimal places
                     for (unsigned int i = 0; i < float_fractional_limit; i++) {
                         // bring one place up from the fractional part
@@ -159,7 +160,7 @@ void print(const char *format, ...) {
                         // get the integer part again of the digit
                         long digit = static_cast<long>(fractional_part);
                         buffer[index++] = '0' + static_cast<char>(digit);
-                        fractional_part -= static_cast<double>(digit);
+                        fractional_part -= static_cast<precision>(digit);
                     }
                     break;
                 }

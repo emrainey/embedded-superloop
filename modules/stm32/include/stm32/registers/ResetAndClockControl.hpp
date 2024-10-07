@@ -18,9 +18,11 @@ struct ResetAndClockControl final {
     /// clock control register (CR)
     struct Control final {
         /// Default Constructor
-        Control() : whole{0u} {}
+        Control()
+            : whole{0u} {}
         /// Parameterized Constructor
-        Control(std::uint32_t const& value) : whole{value} {}
+        Control(std::uint32_t const& value)
+            : whole{value} {}
         /// The internal bitfield for the register
         struct Fields final {
             /// Internal high-speed clock enable (HSION)
@@ -89,9 +91,11 @@ struct ResetAndClockControl final {
             HighSpeedExternal = 1,    ///<  (HSE_CLOCK)
         };
         /// Default Constructor
-        PhaseLockLoopConfiguration() : whole{0u} {}
+        PhaseLockLoopConfiguration()
+            : whole{0u} {}
         /// Parameterized Constructor
-        PhaseLockLoopConfiguration(std::uint32_t const& value) : whole{value} {}
+        PhaseLockLoopConfiguration(std::uint32_t const& value)
+            : whole{value} {}
         /// The internal bitfield for the register
         struct Fields final {
             /// Division factor for the main PLL (PLL) and audio PLL (PLLI2S) input clock (PLLM)
@@ -140,9 +144,7 @@ struct ResetAndClockControl final {
     // Ensure the register is in standard layout format
     static_assert(std::is_standard_layout<PhaseLockLoopConfiguration>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(
-        sizeof(PhaseLockLoopConfiguration) == 4UL, "Must be this exact size"
-    );    /// clock configuration register (CFGR)
+    static_assert(sizeof(PhaseLockLoopConfiguration) == 4UL, "Must be this exact size");    /// clock configuration register (CFGR)
     struct Configuration final {
         /// Microcontroller clock output 2 (MCO2)
         enum class Clock2Source : std::uint32_t {
@@ -165,15 +167,17 @@ struct ResetAndClockControl final {
             PhaseLockLoop = 2,        ///<  (PLL_CLOCK)
         };
         /// Default Constructor
-        Configuration() : whole{0u} {}
+        Configuration()
+            : whole{0u} {}
         /// Parameterized Constructor
-        Configuration(std::uint32_t const& value) : whole{value} {}
+        Configuration(std::uint32_t const& value)
+            : whole{value} {}
         /// The internal bitfield for the register
         struct Fields final {
             /// System clock switch (SW)
             SystemClockSwitch system_clock_switch          : 2;    // bits 0:1
             /// System clock switch status (SWS)
-            std::uint32_t system_clock_switch_status       : 2;    // bits 2:3
+            SystemClockSwitch system_clock_switch_status   : 2;    // bits 2:3
             /// AHB prescaler (HPRE)
             std::uint32_t ahb_divider                      : 4;    // bits 4:7
             /// (reserved)
@@ -225,9 +229,11 @@ struct ResetAndClockControl final {
     static_assert(sizeof(Configuration) == 4UL, "Must be this exact size");    /// clock interrupt register (CIR)
     struct ClockInterrupt final {
         /// Default Constructor
-        ClockInterrupt() : whole{0u} {}
+        ClockInterrupt()
+            : whole{0u} {}
         /// Parameterized Constructor
-        ClockInterrupt(std::uint32_t const& value) : whole{value} {}
+        ClockInterrupt(std::uint32_t const& value)
+            : whole{value} {}
         /// The internal bitfield for the register
         struct Fields final {
             /// LSI ready interrupt flag (LSIRDYF)
@@ -306,14 +312,14 @@ struct ResetAndClockControl final {
     // Ensure the register is in standard layout format
     static_assert(std::is_standard_layout<ClockInterrupt>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(
-        sizeof(ClockInterrupt) == 4UL, "Must be this exact size"
-    );    /// AHB1 peripheral reset register (AHB1RSTR)
+    static_assert(sizeof(ClockInterrupt) == 4UL, "Must be this exact size");    /// AHB1 peripheral reset register (AHB1RSTR)
     struct AHB1PeripheralReset final {
         /// Default Constructor
-        AHB1PeripheralReset() : whole{0u} {}
+        AHB1PeripheralReset()
+            : whole{0u} {}
         /// Parameterized Constructor
-        AHB1PeripheralReset(std::uint32_t const& value) : whole{value} {}
+        AHB1PeripheralReset(std::uint32_t const& value)
+            : whole{value} {}
         /// The internal bitfield for the register
         struct Fields final {
             /// IO port A reset (GPIOARST)
@@ -382,26 +388,26 @@ struct ResetAndClockControl final {
     // Ensure the register is in standard layout format
     static_assert(std::is_standard_layout<AHB1PeripheralReset>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(
-        sizeof(AHB1PeripheralReset) == 4UL, "Must be this exact size"
-    );    /// AHB2 peripheral reset register (AHB2RSTR)
+    static_assert(sizeof(AHB1PeripheralReset) == 4UL, "Must be this exact size");    /// AHB2 peripheral reset register (AHB2RSTR)
     struct AHB2PeripheralReset final {
         /// Default Constructor
-        AHB2PeripheralReset() : whole{0u} {}
+        AHB2PeripheralReset()
+            : whole{0u} {}
         /// Parameterized Constructor
-        AHB2PeripheralReset(std::uint32_t const& value) : whole{value} {}
+        AHB2PeripheralReset(std::uint32_t const& value)
+            : whole{value} {}
         /// The internal bitfield for the register
         struct Fields final {
             /// Camera interface reset (DCMIRST)
-            std::uint32_t dcmirst  : 1;    // bit 0
+            std::uint32_t dcmirst                       : 1;    // bit 0
             /// (reserved)
-            std::uint32_t          : 5;    // bits 1:5
+            std::uint32_t                               : 5;    // bits 1:5
             /// Random number generator module reset (RNGRST)
-            std::uint32_t rngrst   : 1;    // bit 6
+            std::uint32_t random_number_generator_reset : 1;    // bit 6
             /// USB OTG FS module reset (OTGFSRST)
-            std::uint32_t otgfsrst : 1;    // bit 7
+            std::uint32_t otgfsrst                      : 1;    // bit 7
             /// (reserved)
-            std::uint32_t          : 24;    // bits 8:31
+            std::uint32_t                               : 24;    // bits 8:31
         };
         //==MEMORY==========================
         union {
@@ -430,14 +436,14 @@ struct ResetAndClockControl final {
     // Ensure the register is in standard layout format
     static_assert(std::is_standard_layout<AHB2PeripheralReset>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(
-        sizeof(AHB2PeripheralReset) == 4UL, "Must be this exact size"
-    );    /// AHB3 peripheral reset register (AHB3RSTR)
+    static_assert(sizeof(AHB2PeripheralReset) == 4UL, "Must be this exact size");    /// AHB3 peripheral reset register (AHB3RSTR)
     struct AHB3PeripheralReset final {
         /// Default Constructor
-        AHB3PeripheralReset() : whole{0u} {}
+        AHB3PeripheralReset()
+            : whole{0u} {}
         /// Parameterized Constructor
-        AHB3PeripheralReset(std::uint32_t const& value) : whole{value} {}
+        AHB3PeripheralReset(std::uint32_t const& value)
+            : whole{value} {}
         /// The internal bitfield for the register
         struct Fields final {
             /// Flexible static memory controller module reset (FSMCRST)
@@ -472,14 +478,14 @@ struct ResetAndClockControl final {
     // Ensure the register is in standard layout format
     static_assert(std::is_standard_layout<AHB3PeripheralReset>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(
-        sizeof(AHB3PeripheralReset) == 4UL, "Must be this exact size"
-    );    /// APB1 peripheral reset register (APB1RSTR)
+    static_assert(sizeof(AHB3PeripheralReset) == 4UL, "Must be this exact size");    /// APB1 peripheral reset register (APB1RSTR)
     struct APB1PeripheralReset final {
         /// Default Constructor
-        APB1PeripheralReset() : whole{0u} {}
+        APB1PeripheralReset()
+            : whole{0u} {}
         /// Parameterized Constructor
-        APB1PeripheralReset(std::uint32_t const& value) : whole{value} {}
+        APB1PeripheralReset(std::uint32_t const& value)
+            : whole{value} {}
         /// The internal bitfield for the register
         struct Fields final {
             /// TIM2 reset (TIM2RST)
@@ -568,14 +574,14 @@ struct ResetAndClockControl final {
     // Ensure the register is in standard layout format
     static_assert(std::is_standard_layout<APB1PeripheralReset>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(
-        sizeof(APB1PeripheralReset) == 4UL, "Must be this exact size"
-    );    /// APB2 peripheral reset register (APB2RSTR)
+    static_assert(sizeof(APB1PeripheralReset) == 4UL, "Must be this exact size");    /// APB2 peripheral reset register (APB2RSTR)
     struct APB2PeripheralReset final {
         /// Default Constructor
-        APB2PeripheralReset() : whole{0u} {}
+        APB2PeripheralReset()
+            : whole{0u} {}
         /// Parameterized Constructor
-        APB2PeripheralReset(std::uint32_t const& value) : whole{value} {}
+        APB2PeripheralReset(std::uint32_t const& value)
+            : whole{value} {}
         /// The internal bitfield for the register
         struct Fields final {
             /// TIM1 reset (TIM1RST)
@@ -640,14 +646,14 @@ struct ResetAndClockControl final {
     // Ensure the register is in standard layout format
     static_assert(std::is_standard_layout<APB2PeripheralReset>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(
-        sizeof(APB2PeripheralReset) == 4UL, "Must be this exact size"
-    );    /// AHB1 peripheral clock register (AHB1ENR)
+    static_assert(sizeof(APB2PeripheralReset) == 4UL, "Must be this exact size");    /// AHB1 peripheral clock register (AHB1ENR)
     struct AHB1PeripheralClockEnable final {
         /// Default Constructor
-        AHB1PeripheralClockEnable() : whole{0u} {}
+        AHB1PeripheralClockEnable()
+            : whole{0u} {}
         /// Parameterized Constructor
-        AHB1PeripheralClockEnable(std::uint32_t const& value) : whole{value} {}
+        AHB1PeripheralClockEnable(std::uint32_t const& value)
+            : whole{value} {}
         /// The internal bitfield for the register
         struct Fields final {
             /// IO port A clock enable (GPIOAEN)
@@ -726,26 +732,26 @@ struct ResetAndClockControl final {
     // Ensure the register is in standard layout format
     static_assert(std::is_standard_layout<AHB1PeripheralClockEnable>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(
-        sizeof(AHB1PeripheralClockEnable) == 4UL, "Must be this exact size"
-    );    /// AHB2 peripheral clock enable register (AHB2ENR)
+    static_assert(sizeof(AHB1PeripheralClockEnable) == 4UL, "Must be this exact size");    /// AHB2 peripheral clock enable register (AHB2ENR)
     struct AHB2PeripheralClockEnable final {
         /// Default Constructor
-        AHB2PeripheralClockEnable() : whole{0u} {}
+        AHB2PeripheralClockEnable()
+            : whole{0u} {}
         /// Parameterized Constructor
-        AHB2PeripheralClockEnable(std::uint32_t const& value) : whole{value} {}
+        AHB2PeripheralClockEnable(std::uint32_t const& value)
+            : whole{value} {}
         /// The internal bitfield for the register
         struct Fields final {
             /// Camera interface enable (DCMIEN)
-            std::uint32_t dcmien  : 1;    // bit 0
+            std::uint32_t dcmien                         : 1;    // bit 0
             /// (reserved)
-            std::uint32_t         : 5;    // bits 1:5
+            std::uint32_t                                : 5;    // bits 1:5
             /// Random number generator clock enable (RNGEN)
-            std::uint32_t enable  : 1;    // bit 6
+            std::uint32_t random_number_generator_enable : 1;    // bit 6
             /// USB OTG FS clock enable (OTGFSEN)
-            std::uint32_t otgfsen : 1;    // bit 7
+            std::uint32_t otgfsen                        : 1;    // bit 7
             /// (reserved)
-            std::uint32_t         : 24;    // bits 8:31
+            std::uint32_t                                : 24;    // bits 8:31
         };
         //==MEMORY==========================
         union {
@@ -774,14 +780,14 @@ struct ResetAndClockControl final {
     // Ensure the register is in standard layout format
     static_assert(std::is_standard_layout<AHB2PeripheralClockEnable>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(
-        sizeof(AHB2PeripheralClockEnable) == 4UL, "Must be this exact size"
-    );    /// AHB3 peripheral clock enable register (AHB3ENR)
+    static_assert(sizeof(AHB2PeripheralClockEnable) == 4UL, "Must be this exact size");    /// AHB3 peripheral clock enable register (AHB3ENR)
     struct AHB3PeripheralClockEnable final {
         /// Default Constructor
-        AHB3PeripheralClockEnable() : whole{0u} {}
+        AHB3PeripheralClockEnable()
+            : whole{0u} {}
         /// Parameterized Constructor
-        AHB3PeripheralClockEnable(std::uint32_t const& value) : whole{value} {}
+        AHB3PeripheralClockEnable(std::uint32_t const& value)
+            : whole{value} {}
         /// The internal bitfield for the register
         struct Fields final {
             /// Flexible static memory controller module clock enable (FSMCEN)
@@ -816,14 +822,14 @@ struct ResetAndClockControl final {
     // Ensure the register is in standard layout format
     static_assert(std::is_standard_layout<AHB3PeripheralClockEnable>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(
-        sizeof(AHB3PeripheralClockEnable) == 4UL, "Must be this exact size"
-    );    /// APB1 peripheral clock enable register (APB1ENR)
+    static_assert(sizeof(AHB3PeripheralClockEnable) == 4UL, "Must be this exact size");    /// APB1 peripheral clock enable register (APB1ENR)
     struct APB1PeripheralClockEnable final {
         /// Default Constructor
-        APB1PeripheralClockEnable() : whole{0u} {}
+        APB1PeripheralClockEnable()
+            : whole{0u} {}
         /// Parameterized Constructor
-        APB1PeripheralClockEnable(std::uint32_t const& value) : whole{value} {}
+        APB1PeripheralClockEnable(std::uint32_t const& value)
+            : whole{value} {}
         /// The internal bitfield for the register
         struct Fields final {
             /// TIM2 clock enable (TIM2EN)
@@ -912,14 +918,14 @@ struct ResetAndClockControl final {
     // Ensure the register is in standard layout format
     static_assert(std::is_standard_layout<APB1PeripheralClockEnable>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(
-        sizeof(APB1PeripheralClockEnable) == 4UL, "Must be this exact size"
-    );    /// APB2 peripheral clock enable register (APB2ENR)
+    static_assert(sizeof(APB1PeripheralClockEnable) == 4UL, "Must be this exact size");    /// APB2 peripheral clock enable register (APB2ENR)
     struct APB2PeripheralClockEnable final {
         /// Default Constructor
-        APB2PeripheralClockEnable() : whole{0u} {}
+        APB2PeripheralClockEnable()
+            : whole{0u} {}
         /// Parameterized Constructor
-        APB2PeripheralClockEnable(std::uint32_t const& value) : whole{value} {}
+        APB2PeripheralClockEnable(std::uint32_t const& value)
+            : whole{value} {}
         /// The internal bitfield for the register
         struct Fields final {
             /// TIM1 clock enable (TIM1EN)
@@ -991,9 +997,11 @@ struct ResetAndClockControl final {
     );    /// AHB1 peripheral clock enable in low power mode register (AHB1LPENR)
     struct AHB1PeripheralLowPowerEnable final {
         /// Default Constructor
-        AHB1PeripheralLowPowerEnable() : whole{0u} {}
+        AHB1PeripheralLowPowerEnable()
+            : whole{0u} {}
         /// Parameterized Constructor
-        AHB1PeripheralLowPowerEnable(std::uint32_t const& value) : whole{value} {}
+        AHB1PeripheralLowPowerEnable(std::uint32_t const& value)
+            : whole{value} {}
         /// The internal bitfield for the register
         struct Fields final {
             /// IO port A clock enable during sleep mode (GPIOALPEN)
@@ -1083,9 +1091,11 @@ struct ResetAndClockControl final {
     );    /// AHB2 peripheral clock enable in low power mode register (AHB2LPENR)
     struct AHB2PeripheralLowPowerEnable final {
         /// Default Constructor
-        AHB2PeripheralLowPowerEnable() : whole{0u} {}
+        AHB2PeripheralLowPowerEnable()
+            : whole{0u} {}
         /// Parameterized Constructor
-        AHB2PeripheralLowPowerEnable(std::uint32_t const& value) : whole{value} {}
+        AHB2PeripheralLowPowerEnable(std::uint32_t const& value)
+            : whole{value} {}
         /// The internal bitfield for the register
         struct Fields final {
             /// Camera interface enable during Sleep mode (DCMILPEN)
@@ -1131,9 +1141,11 @@ struct ResetAndClockControl final {
     );    /// AHB3 peripheral clock enable in low power mode register (AHB3LPENR)
     struct AHB3PeripheralLowPowerEnable final {
         /// Default Constructor
-        AHB3PeripheralLowPowerEnable() : whole{0u} {}
+        AHB3PeripheralLowPowerEnable()
+            : whole{0u} {}
         /// Parameterized Constructor
-        AHB3PeripheralLowPowerEnable(std::uint32_t const& value) : whole{value} {}
+        AHB3PeripheralLowPowerEnable(std::uint32_t const& value)
+            : whole{value} {}
         /// The internal bitfield for the register
         struct Fields final {
             /// Flexible static memory controller module clock enable during Sleep mode (FSMCLPEN)
@@ -1173,9 +1185,11 @@ struct ResetAndClockControl final {
     );    /// APB1 peripheral clock enable in low power mode register (APB1LPENR)
     struct APB1PeripheralLowPowerEnable final {
         /// Default Constructor
-        APB1PeripheralLowPowerEnable() : whole{0u} {}
+        APB1PeripheralLowPowerEnable()
+            : whole{0u} {}
         /// Parameterized Constructor
-        APB1PeripheralLowPowerEnable(std::uint32_t const& value) : whole{value} {}
+        APB1PeripheralLowPowerEnable(std::uint32_t const& value)
+            : whole{value} {}
         /// The internal bitfield for the register
         struct Fields final {
             /// TIM2 clock enable during Sleep mode (TIM2LPEN)
@@ -1269,9 +1283,11 @@ struct ResetAndClockControl final {
     );    /// APB2 peripheral clock enabled in low power mode register (APB2LPENR)
     struct APB2PeripheralLowPowerEnable final {
         /// Default Constructor
-        APB2PeripheralLowPowerEnable() : whole{0u} {}
+        APB2PeripheralLowPowerEnable()
+            : whole{0u} {}
         /// Parameterized Constructor
-        APB2PeripheralLowPowerEnable(std::uint32_t const& value) : whole{value} {}
+        APB2PeripheralLowPowerEnable(std::uint32_t const& value)
+            : whole{value} {}
         /// The internal bitfield for the register
         struct Fields final {
             /// TIM1 clock enable during Sleep mode (TIM1LPEN)
@@ -1338,14 +1354,14 @@ struct ResetAndClockControl final {
     // Ensure the register is in standard layout format
     static_assert(std::is_standard_layout<APB2PeripheralLowPowerEnable>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(
-        sizeof(APB2PeripheralLowPowerEnable) == 4UL, "Must be this exact size"
-    );    /// Backup domain control register (BDCR)
+    static_assert(sizeof(APB2PeripheralLowPowerEnable) == 4UL, "Must be this exact size");    /// Backup domain control register (BDCR)
     struct BackupDomainControl final {
         /// Default Constructor
-        BackupDomainControl() : whole{0u} {}
+        BackupDomainControl()
+            : whole{0u} {}
         /// Parameterized Constructor
-        BackupDomainControl(std::uint32_t const& value) : whole{value} {}
+        BackupDomainControl(std::uint32_t const& value)
+            : whole{value} {}
         /// The internal bitfield for the register
         struct Fields final {
             /// External low-speed oscillator enable (LSEON)
@@ -1396,14 +1412,14 @@ struct ResetAndClockControl final {
     // Ensure the register is in standard layout format
     static_assert(std::is_standard_layout<BackupDomainControl>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(
-        sizeof(BackupDomainControl) == 4UL, "Must be this exact size"
-    );    /// clock control & status register (CSR)
+    static_assert(sizeof(BackupDomainControl) == 4UL, "Must be this exact size");    /// clock control & status register (CSR)
     struct Status final {
         /// Default Constructor
-        Status() : whole{0u} {}
+        Status()
+            : whole{0u} {}
         /// Parameterized Constructor
-        Status(std::uint32_t const& value) : whole{value} {}
+        Status(std::uint32_t const& value)
+            : whole{value} {}
         /// The internal bitfield for the register
         struct Fields final {
             /// Internal low-speed oscillator enable (LSION)
@@ -1456,14 +1472,14 @@ struct ResetAndClockControl final {
     // Ensure the register is in standard layout format
     static_assert(std::is_standard_layout<Status>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(
-        sizeof(Status) == 4UL, "Must be this exact size"
-    );    /// spread spectrum clock generation register (SSCGR)
+    static_assert(sizeof(Status) == 4UL, "Must be this exact size");    /// spread spectrum clock generation register (SSCGR)
     struct SpreadSpectrumClockGeneration final {
         /// Default Constructor
-        SpreadSpectrumClockGeneration() : whole{0u} {}
+        SpreadSpectrumClockGeneration()
+            : whole{0u} {}
         /// Parameterized Constructor
-        SpreadSpectrumClockGeneration(std::uint32_t const& value) : whole{value} {}
+        SpreadSpectrumClockGeneration(std::uint32_t const& value)
+            : whole{value} {}
         /// The internal bitfield for the register
         struct Fields final {
             /// Modulation period (MODPER)
@@ -1504,14 +1520,14 @@ struct ResetAndClockControl final {
     // Ensure the register is in standard layout format
     static_assert(std::is_standard_layout<SpreadSpectrumClockGeneration>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(
-        sizeof(SpreadSpectrumClockGeneration) == 4UL, "Must be this exact size"
-    );    /// PLLI2S configuration register (PLLI2SCFGR)
+    static_assert(sizeof(SpreadSpectrumClockGeneration) == 4UL, "Must be this exact size");    /// PLLI2S configuration register (PLLI2SCFGR)
     struct PhaseLockLoopI2SConfiguration final {
         /// Default Constructor
-        PhaseLockLoopI2SConfiguration() : whole{0u} {}
+        PhaseLockLoopI2SConfiguration()
+            : whole{0u} {}
         /// Parameterized Constructor
-        PhaseLockLoopI2SConfiguration(std::uint32_t const& value) : whole{value} {}
+        PhaseLockLoopI2SConfiguration(std::uint32_t const& value)
+            : whole{value} {}
         /// The internal bitfield for the register
         struct Fields final {
             /// (reserved)
@@ -1851,26 +1867,14 @@ static_assert(offsetof(ResetAndClockControl, ahb2_peripheral_clock_enable) == 0x
 static_assert(offsetof(ResetAndClockControl, ahb3_peripheral_clock_enable) == 0x38UL, "Must be located at this offset");
 static_assert(offsetof(ResetAndClockControl, apb1_peripheral_clock_enable) == 0x40UL, "Must be located at this offset");
 static_assert(offsetof(ResetAndClockControl, apb2_peripheral_clock_enable) == 0x44UL, "Must be located at this offset");
-static_assert(
-    offsetof(ResetAndClockControl, ahb1_peripheral_low_power_enable) == 0x50UL, "Must be located at this offset"
-);
-static_assert(
-    offsetof(ResetAndClockControl, ahb2_peripheral_low_power_enable) == 0x54UL, "Must be located at this offset"
-);
-static_assert(
-    offsetof(ResetAndClockControl, ahb3_peripheral_low_power_enable) == 0x58UL, "Must be located at this offset"
-);
-static_assert(
-    offsetof(ResetAndClockControl, apb1_peripheral_low_power_enable) == 0x60UL, "Must be located at this offset"
-);
-static_assert(
-    offsetof(ResetAndClockControl, apb2_peripheral_low_power_enable) == 0x64UL, "Must be located at this offset"
-);
+static_assert(offsetof(ResetAndClockControl, ahb1_peripheral_low_power_enable) == 0x50UL, "Must be located at this offset");
+static_assert(offsetof(ResetAndClockControl, ahb2_peripheral_low_power_enable) == 0x54UL, "Must be located at this offset");
+static_assert(offsetof(ResetAndClockControl, ahb3_peripheral_low_power_enable) == 0x58UL, "Must be located at this offset");
+static_assert(offsetof(ResetAndClockControl, apb1_peripheral_low_power_enable) == 0x60UL, "Must be located at this offset");
+static_assert(offsetof(ResetAndClockControl, apb2_peripheral_low_power_enable) == 0x64UL, "Must be located at this offset");
 static_assert(offsetof(ResetAndClockControl, backup_domain_control) == 0x70UL, "Must be located at this offset");
 static_assert(offsetof(ResetAndClockControl, status) == 0x74UL, "Must be located at this offset");
-static_assert(
-    offsetof(ResetAndClockControl, spread_spectrum_clock_generation) == 0x80UL, "Must be located at this offset"
-);
+static_assert(offsetof(ResetAndClockControl, spread_spectrum_clock_generation) == 0x80UL, "Must be located at this offset");
 static_assert(offsetof(ResetAndClockControl, pll_i2s_configuration) == 0x84UL, "Must be located at this offset");
 
 // Ensure the sizeof the entire structure is correct.

@@ -28,16 +28,12 @@ public:
     /// This will internally clear the indicator.
     virtual explicit operator StorageType(void) = 0;
 
-    /// @brief Used to read or get the value out of the Event.
-    /// This will internally clear the indicator.
-    virtual explicit operator StorageType(void) const = 0;
-
     /// @brief Used to write or set the value into the Event.
     /// This will internally set the indicator.
     virtual void operator=(StorageType const &other) = 0;
 
 protected:
-    virtual ~Event() = default;
+    ~Event() = default;
 };
 
 /// @brief Provides a concrete implementation of a single event wrapper.
@@ -60,11 +56,6 @@ public:
     explicit operator bool(void) const override { return fired_; }
 
     explicit operator StorageType(void) override {
-        fired_ = false;
-        return value_;
-    }
-
-    explicit operator StorageType(void) const override {
         fired_ = false;
         return value_;
     }
@@ -104,8 +95,6 @@ public:
     explicit operator bool(void) const override { return bool(input_); }
 
     explicit operator StorageType(void) override { return StorageType(input_); }
-
-    explicit operator StorageType(void) const override { return StorageType(input_); }
 
     void operator=(StorageType const &other) override {
         input_ = other;

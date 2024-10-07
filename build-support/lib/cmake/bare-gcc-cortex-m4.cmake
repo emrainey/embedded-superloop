@@ -13,6 +13,7 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 
 set(CMAKE_CROSS_BUILD TRUE)
+set(CMAKE_BUILD_TYPE Debug)
 
 message(NOTICE "Enabling THUMB Mode")
 add_compile_options(-mthumb -mno-thumb-interwork)
@@ -31,6 +32,7 @@ add_compile_options(-fno-exceptions -fno-rtti)
 
 message(STATUS "Additional Flags for Stack, Statics, Linkage")
 add_compile_options(
+    # -ffreestanding
     -ffunction-sections
     -fdata-sections
     # -flto
@@ -39,6 +41,7 @@ add_compile_options(
     -fomit-frame-pointer
     -fstack-usage
     -Wstack-usage=32768
+    -ggdb3 -O1
 )
 
 message(STATUS "Enable reproducible build flags")
@@ -61,4 +64,4 @@ add_link_options(
     -Wl,-z,now
 )
 
-set(COMPILER_MATH_LIB gcc)
+list(APPEND COMPILER_MATH_LIBS gcc m)

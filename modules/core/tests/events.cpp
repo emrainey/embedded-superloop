@@ -1,67 +1,75 @@
-#include <gtest/gtest.h>
+#include <catch2/catch_test_macros.hpp>
 #include <core/Event.hpp>
 
 using namespace core;
 
-TEST(Events, SingleEventsDefault) {
+TEST_CASE("SingleEventsDefault") {
     events::Single<int> trigger;    // default constructor
-    ASSERT_FALSE((trigger));
+    REQUIRE(not(trigger));
 }
 
-TEST(Events, SingleEventsParameterized) {
+TEST_CASE("SingleEventsParameterized") {
     events::Single<int> trigger{4};
-    ASSERT_TRUE((trigger));
+    REQUIRE((trigger));
 }
 
-TEST(Events, SingleEventsSetAndGet) {
+TEST_CASE("SingleEventsSetAndGet") {
     events::Single<int> trigger;
-    ASSERT_FALSE((trigger));
+    REQUIRE(not(trigger));
     trigger = 6;
-    ASSERT_TRUE((trigger));
+    REQUIRE((trigger));
     auto tmp = int(trigger);
-    ASSERT_FALSE((trigger));
-    ASSERT_EQ(6, tmp);
+    REQUIRE(not(trigger));
+    REQUIRE(6 == tmp);
+    trigger = 7;
+    REQUIRE((trigger));
+    auto const tmp2 = int(trigger);
+    REQUIRE(tmp2 == 7);
+    REQUIRE(not(trigger));
 }
 
-TEST(Events, Flags) {    // As an enumeration
+TEST_CASE("Flags") {    // As an enumeration
     events::Single<events::Flag> trigger{events::Flag::Lowered};
-    ASSERT_TRUE(trigger);
+    REQUIRE(trigger);
     events::Flag tmp = events::Flag(trigger);
-    ASSERT_FALSE(trigger);
-    ASSERT_EQ(events::Flag::Lowered, tmp);
+    REQUIRE(not trigger);
+    REQUIRE(events::Flag::Lowered == tmp);
     // set
     trigger = events::Flag::Raised;
-    ASSERT_TRUE(trigger);
+    REQUIRE(trigger);
     // get
     tmp = events::Flag(trigger);
-    ASSERT_EQ(events::Flag::Raised, tmp);
-    ASSERT_FALSE(trigger);
+    REQUIRE(events::Flag::Raised == tmp);
+    REQUIRE(not trigger);
 }
 
-TEST(Events, Multiples) {
-    // mulitples
+TEST_CASE("Multiples") {
     events::Single<events::Flag> a{events::Flag::Lowered};
     events::Single<events::Flag> b{events::Flag::Lowered};
     events::Single<events::Flag> c{events::Flag::Lowered};
     events::Multiplier<events::Flag, 3> m = {&a, &b, &c};
     events::Flag tmp = events::Flag(m);
-    ASSERT_FALSE(m);
-    ASSERT_FALSE(a);
-    ASSERT_FALSE(b);
-    ASSERT_FALSE(c);
-    ASSERT_EQ(events::Flag::Lowered, tmp);
-    m = events::Flag::Raised;
-    ASSERT_TRUE(m);
-    ASSERT_TRUE(a);
-    ASSERT_TRUE(b);
-    ASSERT_TRUE(c);
-    tmp = events::Flag(a);
-    ASSERT_EQ(events::Flag::Raised, tmp);
-    ASSERT_FALSE(a);
-    tmp = events::Flag(b);
-    ASSERT_EQ(events::Flag::Raised, tmp);
-    ASSERT_FALSE(b);
-    tmp = events::Flag(c);
-    ASSERT_EQ(events::Flag::Raised, tmp);
-    ASSERT_FALSE(c);
+    SECTION("Assumptions") {
+        REQUIRE(not m);
+        REQUIRE(not a);
+        REQUIRE(not b);
+        REQUIRE(not c);
+        REQUIRE(events::Flag::Lowered == tmp);
+    }
+    SECTION("Set and Individually Get") {
+        m = events::Flag::Raised;
+        REQUIRE(m);
+        REQUIRE(a);
+        REQUIRE(b);
+        REQUIRE(c);
+        tmp = events::Flag(a);
+        REQUIRE(events::Flag::Raised == tmp);
+        REQUIRE(not a);
+        tmp = events::Flag(b);
+        REQUIRE(events::Flag::Raised == tmp);
+        REQUIRE(not b);
+        tmp = events::Flag(c);
+        REQUIRE(events::Flag::Raised == tmp);
+        REQUIRE(not c);
+    }
 }

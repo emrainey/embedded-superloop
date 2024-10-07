@@ -1,5 +1,4 @@
 #include "cortex/m4.hpp"
-#include "jarnax/system.hpp"
 
 namespace cortex {
 [[noreturn]] void request_external_reset(void) {
@@ -10,6 +9,6 @@ namespace cortex {
     system_control_block.application_interrupt_reset_control = aircr;
     thumb::data_synchronization_barrier();
     // >>> reset should happen right here <<<
-    jarnax::spinhalt();
+    cortex::spinhalt();
 }
 }    // namespace cortex

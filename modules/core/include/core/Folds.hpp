@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CORE_FOLDS_HPP_
+#define CORE_FOLDS_HPP_
 
 #include <cstdint>
 #include <cstddef>
@@ -70,3 +71,5 @@ constexpr auto min(NUMBER first, NUMBERS... numbers) {
 }
 
 }    // namespace core
+
+#endif    // CORE_FOLDS_HPP_

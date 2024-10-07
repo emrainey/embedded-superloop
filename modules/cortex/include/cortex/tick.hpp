@@ -4,6 +4,7 @@
 /// @file
 /// The Cortex M System Tick Header
 
+#include "core/Units.hpp"
 #include "cortex/core.hpp"
 
 namespace cortex {
@@ -12,9 +13,12 @@ namespace cortex {
 struct SystemTick final {
     /// The Control Status Register
     struct ControlStatus final {
-        ControlStatus() : whole{0} {}
-        ControlStatus(ControlStatus const& other) : whole{other.whole} {}
-        ControlStatus(ControlStatus volatile& other) : whole{other.whole} {}
+        ControlStatus()
+            : whole{0} {}
+        ControlStatus(ControlStatus const& other)
+            : whole{other.whole} {}
+        ControlStatus(ControlStatus volatile& other)
+            : whole{other.whole} {}
         struct Fields final {
             std::uint32_t enable              : 1U;
             std::uint32_t interrupt           : 1U;
@@ -31,9 +35,12 @@ struct SystemTick final {
         void operator=(ControlStatus volatile& other) { whole = other.whole; }
     };
     struct Reload final {
-        Reload() : whole{0} {}
-        Reload(Reload const& other) : whole{other.whole} {}
-        Reload(Reload volatile& other) : whole{other.whole} {}
+        Reload()
+            : whole{0} {}
+        Reload(Reload const& other)
+            : whole{other.whole} {}
+        Reload(Reload volatile& other)
+            : whole{other.whole} {}
         struct Fields final {
             std::uint32_t value : 24U;    ///< The value that is reloaded into the current value
             std::uint32_t       : 8U;     ///< Reserved field
@@ -47,9 +54,12 @@ struct SystemTick final {
     };
     /// The Calibration Registers
     struct Calibration final {
-        Calibration() : whole{0} {}
-        Calibration(Calibration const& other) : whole{other.whole} {}
-        Calibration(Calibration volatile& other) : whole{other.whole} {}
+        Calibration()
+            : whole{0} {}
+        Calibration(Calibration const& other)
+            : whole{other.whole} {}
+        Calibration(Calibration volatile& other)
+            : whole{other.whole} {}
         struct Fields final {
             std::uint32_t ten_millisecond_count : 24U;    ///< The number of reference clocks per 10ms
             std::uint32_t                       : 6U;     ///< Reserved field
@@ -76,6 +86,21 @@ static_assert(sizeof(SystemTick) == 0x10, "Must be the exact size");
 
 /// @brief Linker symbol to the peripheral hardware
 extern SystemTick volatile system_tick;
+
+/// @brief Ticks are held in unit
+using Ticks = core::units::Ticks;
+
+/// @brief The number of cycles per second
+using Hertz = core::units::Hertz;
+
+/// Gets the Current Ticks since Boot
+Ticks GetTickCount(void);
+
+/// Gets the Current Tick Rate per Second
+Hertz GetTickRate();
+
+/// Indicates if the System Tick has been enabled
+bool IsTickEnabled();
 
 }    // namespace cortex
 

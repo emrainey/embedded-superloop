@@ -2,10 +2,11 @@
 #include "jarnax/Context.hpp"
 #include "unittests.hpp"
 
-using jarnax::Cause;
+using core::Cause;
+using core::Result;
+using core::Status;
 using jarnax::Context;
-using jarnax::Result;
-using jarnax::Status;
+using jarnax::DriverContext;
 using jarnax::SuperLoop;
 
 class GlobalContext : public Context {
@@ -15,7 +16,7 @@ public:
         , m_libc_test_{}
         , m_tick_test_{}
         , m_stack_test_{}
-        , m_superloop_{} {}
+        , m_superloop_{jarnax::GetTicker()} {}
 
     Status Initialize(void) override {
         bool result = true;
@@ -24,7 +25,7 @@ public:
         result &= GetSuperLoop().Enlist(m_tick_test_);
         result &= GetSuperLoop().Enlist(m_stack_test_);
         if (result) {
-            return jarnax::Status{};
+            return core::Status{};
         } else {
             return Status{Result::Failure, Cause::Configuration};
         }

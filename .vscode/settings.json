@@ -106,7 +106,10 @@
         "charconv": "cpp",
         "shared_mutex": "cpp",
         "span": "cpp",
-        "text_encoding": "cpp"
+        "text_encoding": "cpp",
+        "execution": "cpp",
+        "print": "cpp",
+        "*.in": "cpp"
     },
     "cSpell.allowCompoundWords": true,
     "cSpell.dictionaryDefinitions": [
@@ -193,4 +196,13 @@
             "cwd": "${workspaceFolder}",
         }
     ],
+    "cmake.allowCommentsInPresetsFile": false,
+    "cmake.allowUnsupportedPresetsVersions": true,
+    "cmake.buildEnvironment": {
+        "CMAKE_VERBOSE": "1"
+    },
+    "cmake.configureArgs": [
+        "--graphviz=jarnax.dot"
+    ],
+    "cmake.deleteBuildDirOnCleanConfigure": true,
 }

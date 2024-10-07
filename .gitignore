@@ -38,8 +38,43 @@ $ Ignore Mac OSX Files
 .DS_Store
 ._.DS_Store
 
-# Ignore Compiler
-gcc-arm-none-eabi-10.3-2021.10/
-
 # Ignore user's custom settings
 CMakeUserPresets.json
+
+# Ignore Ozone outputs
+*.jdebug
+*.jdebug.user
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.elf
+*.out
+*.app

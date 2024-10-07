@@ -1,48 +1,96 @@
 
-add_library(core INTERFACE)
-target_sources(core INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/new.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/eabi.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/constexpr_tests.cpp
+unset(UNIT_COMBOS)
+list(APPEND UNIT_COMBOS Volts:float:1)
+list(APPEND UNIT_COMBOS Amperes:float:1)
+list(APPEND UNIT_COMBOS Volts:float:1)
+list(APPEND UNIT_COMBOS Watts:float:1)
+list(APPEND UNIT_COMBOS Ohms:float:1)
+list(APPEND UNIT_COMBOS Hertz:uint32_t:1)
+list(APPEND UNIT_COMBOS Ticks:uint32_t:1)
+list(APPEND UNIT_COMBOS Seconds:float:1)
+list(APPEND UNIT_COMBOS Meters:float:1)
+list(APPEND UNIT_COMBOS SquareMeters:float:2)
+list(APPEND UNIT_COMBOS CubicMeters:float:3)
+foreach (combo IN LISTS UNIT_COMBOS)
+    string(REPLACE ":" ";" combo ${combo})
+    list(GET combo 0 UNIT_NAME)
+    list(GET combo 1 UNIT_STORAGE)
+    list(GET combo 2 UNIT_POWER)
+    set(_UNIT_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/generated/include/core/units/${UNIT_NAME}.hpp)
+    message(STATUS "Generating ${_UNIT_HEADER}")
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Unit.in
+                   ${_UNIT_HEADER}
+                   @ONLY)
+    set(_UNIT_TEST_FILE ${CMAKE_CURRENT_SOURCE_DIR}/generated/tests/${UNIT_NAME}.cpp)
+    message(STATUS "Generating ${_UNIT_TEST_FILE}")
+    if (${UNIT_STORAGE} STREQUAL "float")
+        configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/UnitTest.float.in
+                       ${_UNIT_TEST_FILE}
+                       @ONLY)
+    else()
+        configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/UnitTest.unsigned.in
+                       ${_UNIT_TEST_FILE}
+                       @ONLY)
+    endif()
+endforeach()
+# Creates the core module, doesn't depend on any configuration or board.
+# Any configiration must be passed in as DEFINES
+add_module(NAME core
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/new.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/eabi.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/constexpr_tests.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/Status.cpp
+        # ${CMAKE_CURRENT_SOURCE_DIR}/source/Units.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/generated/include
+    LIBRARIES
+        configuration-none
+    NO_CONFIGURATIONS
+    NO_BOARDS
 )
-target_include_directories(core INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-#target_link_libraries(core INTERFACE)
 
-message(STATUS CMAKE_CROSS_BUILD=${CMAKE_CROSS_BUILD})
-if (NOT CMAKE_CROSS_BUILD)
-# If we're not cross compiling, then use Catch2 to generate some unit tests
-find_package(Catch2 3 REQUIRED)
-add_executable(test-core
-    tests/span.cpp
-    tests/container.cpp
-    tests/array.cpp
-    tests/pool.cpp
-    tests/ring.cpp
-    tests/stack.cpp
-    tests/enums.cpp
-    tests/folds.cpp
-    tests/variants.cpp
-    tests/statemachine.cpp
+file(GLOB_RECURSE _GENERATED_CORE_TESTS ${CMAKE_CURRENT_SOURCE_DIR}/generated/tests/*.cpp)
+
+host_unit_test(NAME test-core
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/array.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/container.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/enums.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/folds.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/pool.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/ring.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/span.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/stack.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/statemachine.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/status.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/units.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/variants.cpp
+        ${_GENERATED_CORE_TESTS}
+    LIBRARIES
+        strict core-none-all
+    CATCH2
+    NO_CONFIGURATIONS
+    NO_BOARDS
 )
-target_compile_definitions(test-core PUBLIC UNITTEST)
-target_link_libraries(test-core core Catch2::Catch2WithMain)
-# include(CTest)
-# include(Catch)
-# catch_discover_tests(tests)
 
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+host_unit_test(NAME test-events
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/events.cpp
+    LIBRARIES
+        strict core-none-all
+    CATCH2
+    NO_CONFIGURATIONS
+    NO_BOARDS
 )
-FetchContent_MakeAvailable(googletest)
-add_executable(test-events
-    ${CMAKE_CURRENT_SOURCE_DIR}/tests/events.cpp
+
+host_unit_test(NAME test-heap
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/heap.cpp
+    LIBRARIES
+        strict core-none-all
+    CATCH2
+    NO_CONFIGURATIONS
+    NO_BOARDS
 )
-target_include_directories(test-events PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(test-events gtest_main)
-include(GoogleTest)
-gtest_discover_tests(test-events)
-
-
-endif()

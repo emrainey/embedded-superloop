@@ -1,6 +1,6 @@
-#include "jarnax.hpp"
-#include <csignal>
 #include <cstdio>
+#include <csignal>
+#include "jarnax.hpp"
 
 // Pretend we have have a hardware interrupt system here
 void signal_handler(int sig) {

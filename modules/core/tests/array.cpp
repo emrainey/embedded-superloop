@@ -35,6 +35,13 @@ TEST_CASE("Array - Accessing Elements") {
         REQUIRE(arr[7] == 30);
         REQUIRE(arr[8] == 40);
         REQUIRE(arr[9] == 50);
+
+        const core::Array<int, Count>& constArr{arr};
+        REQUIRE(constArr[5] == 10);
+        REQUIRE(constArr[6] == 20);
+        REQUIRE(constArr[7] == 30);
+        REQUIRE(constArr[8] == 40);
+        REQUIRE(constArr[9] == 50);
     }
 }
 
@@ -55,8 +62,9 @@ TEST_CASE("Array - Iterators") {
     }
 
     SECTION("Const Iterator") {
+        const core::Array<int, Count> constArr{arr};
         int expectedValue = 1;
-        for (auto it = arr.begin(); it != arr.end(); ++it) {
+        for (auto it = constArr.begin(); it != constArr.end(); ++it) {
             REQUIRE(*it == expectedValue);
             ++expectedValue;
         }

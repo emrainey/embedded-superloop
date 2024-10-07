@@ -1,5 +1,5 @@
-#ifndef SPLIT_HPP_
-#define SPLIT_HPP_
+#ifndef CORE_SPLIT_HPP_
+#define CORE_SPLIT_HPP_
 
 #include "iso.hpp"
 
@@ -32,4 +32,4 @@ struct Split final {
 
 }    // namespace core
 
-#endif    // SPLIT_HPP_
+#endif    // CORE_SPLIT_HPP_

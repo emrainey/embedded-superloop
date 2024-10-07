@@ -1,11 +1,9 @@
+#ifndef CORE_ENUMTYPE_HPP_
+#define CORE_ENUMTYPE_HPP_
+
+#include "iso.hpp"
+
 namespace core {
-
-template <typename TYPE>
-constexpr typename std::underlying_type<TYPE>::type to_underlying(TYPE e) {
-    static_assert(std::is_enum<TYPE>::value, "Must be an enumeration type");
-    return static_cast<typename std::underlying_type<TYPE>::type>(e);
-}
-
 /// A wraps an enumerated type and provides some syntactic sugar to make using said types easier as Error Codes.
 /// Requires a default value of `None` to be set to 0. This allows for default constructing enums with known values.
 /// @tparam ENUM_TYPE
@@ -71,3 +69,5 @@ protected:
 };
 
 }    // namespace core
+
+#endif    // CORE_ENUMTYPE_HPP_

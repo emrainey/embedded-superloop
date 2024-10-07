@@ -11,14 +11,16 @@ namespace jarnax {
 class Assertion {
 public:
     Assertion(bool condition, char const* const filename, std::uint32_t line_number)
-        : filename_{filename}, line_number_{line_number}, condition_{condition} {}
+        : filename_{filename}
+        , line_number_{line_number}
+        , condition_{condition} {}
 
     ~Assertion() {
         if (not condition_) {
             jarnax::print("Assertion in ");
             jarnax::print(filename_);
             jarnax::print("\r\n");
-            jarnax::spinhalt();
+            cortex::spinhalt();
         }
     }
 

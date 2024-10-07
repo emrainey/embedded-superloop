@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <limits>
+#include "compiler.hpp"
 
 namespace cortex {
 

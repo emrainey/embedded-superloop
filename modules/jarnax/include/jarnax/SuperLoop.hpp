@@ -7,19 +7,28 @@
 #include "configure.hpp"
 #include "core/Array.hpp"
 #include "jarnax/Executable.hpp"
+#include "jarnax/Ticker.hpp"
 
 namespace jarnax {
 
+using Cadence = std::uint32_t;
+static constexpr std::size_t SlotsInCadence = sizeof(Cadence) * 8U;
+
 /// @brief The Executable Object Information
 struct ExecuteInfo final {
-    /// The desired cadence
-    std::size_t cadence{1U};
+    /// A small unique identifier for the Executable Object to be used to differentiate between objects.
+    std::uint32_t id;
+    /// The desired cadence given at configuration. A cadence is a bit pattern starting at bit 0 up to 31. Each bit set to 1 indicates a loop to run.
+    /// Each bit set to 0 indicates a loop to skip.
+    Cadence cadence{0xFFFF'FFFFU};
     /// The number of times the Executable has been invoked
-    std::size_t count{1U};
-    // @todo Last Tick
-    // @todo Last Duration
+    std::size_t count{0U};
+    /// The tick count when the Executable was finished with it's last Execute
+    Ticks last_tick{0U};
+    /// The tick duration of the last Execute
+    Ticks last_duration{0U};
     /// The pointer to the object.
-    Executable* object;
+    Executable* object{nullptr};
     /// The flag to indicate if the Executable should run again.
     bool is_active{false};
 };
@@ -32,25 +41,32 @@ using ExecutableList = core::Array<ExecuteInfo, jarnax::num_executable_tasks>;
 class SuperLoop final {
 public:
     /// Constructs the Super Loop
-    SuperLoop();
+    SuperLoop(Ticker& ticker);
 
     /// Allows users to enlist an object into the SuperLoop
     /// @param obj The reference to the Executable Object
-    /// @param cadence A non-zero number, 1 indicates each loop, 2 every other loop, etc.
-    bool Enlist(Executable& obj, std::size_t cadence = 1U);
+    /// @param cadence A bit pattern representing the cadence of the object over the 32 cycles of the loop. Defaults to all 1's.
+    bool Enlist(Executable& obj, Cadence cadence = 0xFFFF'FFFFU);
 
-    /// @brief Removes an Executable Object from the SuperLoop
+    /// Removes an Executable Object from the SuperLoop
     /// @param obj The reference to the Executable Object
     void Dismiss(Executable& obj);
 
     /// Runs all Executable Objects Once
     void RunAllOnce(void);
 
+    /// Runs the SuperLoop forever
+    void RunForever(void);
+
 protected:
+    /// The reference to the Ticker
+    Ticker& ticker_;
     /// The loop counter
     std::size_t loop_count_{0U};
-    /// @brief The list of executable objects.
+    /// The list of executable objects.
     ExecutableList executables_;
+    /// The next ID to hand out
+    std::uint32_t next_id_;
 };
 
 }    // namespace jarnax

@@ -1,4 +1,5 @@
 // #define CATCH_CONFIG_MAIN
+// #include <cstdio>
 #include <catch2/catch_test_macros.hpp>
 #include "core/Span.hpp"    // Include the header file containing the Span class
 

@@ -6,7 +6,7 @@ public:
     Foo(uint64_t v)
         : foo{v} {}
 
-    int get() const { return foo; }
+    uint64_t get() const { return foo; }
 
 protected:
     uint64_t foo;
@@ -17,7 +17,7 @@ public:
     Bar(Foo& f)
         : foo{f} {}
 
-    int get() const { return foo.get(); }
+    uint64_t get() const { return foo.get(); }
 
 protected:
     Foo& foo;
@@ -40,23 +40,23 @@ TEST_CASE("Containers") {
         REQUIRE(test.storage_size() == sizeof(Foo));
         REQUIRE(test.storage_alignment() == alignof(Foo));
         REQUIRE(!test);
-        test.emplace(42);
+        test.emplace(42UL);
         REQUIRE(test);
-        REQUIRE(test->get() == 42);
-        REQUIRE((*test).get() == 42);
+        REQUIRE(test->get() == 42UL);
+        REQUIRE((*test).get() == 42UL);
         test.dismiss();
         REQUIRE(!test);
     }
     SECTION("Bar - Complex") {
-        Foo foo{42u};
+        Foo foo{42UL};
         core::Container<Bar> bar;
         REQUIRE(bar.storage_size() == sizeof(Bar));
         REQUIRE(bar.storage_alignment() == alignof(Bar));
         REQUIRE(!bar);
         bar.emplace(foo);
         REQUIRE(bar);
-        REQUIRE(bar->get() == 42);
-        REQUIRE((*bar).get() == 42);
+        REQUIRE(bar->get() == 42UL);
+        REQUIRE((*bar).get() == 42UL);
         bar.dismiss();
         REQUIRE(!bar);
     }

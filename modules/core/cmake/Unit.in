@@ -1,0 +1,117 @@
+#pragma once
+
+// clang-format off
+
+/// @file
+/// AUTO GENERATED FILE, DO NOT MODIFY!
+/// Header for the @UNIT_NAME@ unit of measurement
+
+#include <type_traits>
+#include <cstdint>
+
+#if defined(UNITTEST)
+#include <iostream>
+#endif
+
+#include "core/units/Unit.hpp"
+
+namespace core {
+namespace units {
+class @UNIT_NAME@ : public Unit<@UNIT_STORAGE@, @UNIT_POWER@> {
+public:
+    constexpr @UNIT_NAME@()
+        : Unit<@UNIT_STORAGE@, @UNIT_POWER@>{} {
+    }
+    constexpr explicit @UNIT_NAME@(@UNIT_STORAGE@ v)
+        : Unit<@UNIT_STORAGE@, @UNIT_POWER@>{v} {
+    }
+    // constexpr @UNIT_NAME@(@UNIT_NAME@& other)
+    //     : Unit<@UNIT_STORAGE@, @UNIT_POWER@>{other.value()} {
+    // }
+    constexpr @UNIT_NAME@(@UNIT_NAME@ const& other)
+        : Unit<@UNIT_STORAGE@, @UNIT_POWER@>{other.value()} {
+    }
+    // constexpr @UNIT_NAME@(@UNIT_NAME@ volatile & other)
+    //     : Unit<@UNIT_STORAGE@, @UNIT_POWER@>{other.value()} {
+    // }
+    // constexpr @UNIT_NAME@(@UNIT_NAME@ const volatile & other)
+    //     : Unit<@UNIT_STORAGE@, @UNIT_POWER@>{other.value()} {
+    // }
+    constexpr @UNIT_NAME@& operator=(@UNIT_NAME@& other) {
+        value_ = other.value();
+       return *this;
+    }
+    constexpr @UNIT_NAME@& operator=(@UNIT_NAME@ const& other) {
+        value_ = other.value();
+        return *this;
+    }
+    inline @UNIT_NAME@& operator=(@UNIT_NAME@ volatile& other) {
+        value_ = other.value();
+        return *this;
+    }
+    // constexpr @UNIT_NAME@& operator=(@UNIT_NAME@ const volatile& other) {
+    //     value_ = other.value();
+    //     return *this;
+    // }
+    inline @UNIT_NAME@ volatile& operator=(@UNIT_NAME@& other) volatile {
+        value_ = other.value();
+        return *this;
+    }
+    // constexpr @UNIT_NAME@ volatile& operator=(@UNIT_NAME@ const& other) volatile {
+    //     value_ = other.value();
+    //     return *this;
+    // }
+    // constexpr @UNIT_NAME@ volatile& operator=(@UNIT_NAME@ volatile& other) volatile {
+    //     value_ = other.value();
+    //     return *this;
+    // }
+    // constexpr @UNIT_NAME@ volatile& operator=(@UNIT_NAME@ const volatile& other) volatile {
+    //     value_ = other.value();
+    //     return *this;
+    // }
+    friend constexpr inline @UNIT_NAME@ operator+(@UNIT_NAME@ const& lhs, @UNIT_NAME@ const& rhs) {
+        return @UNIT_NAME@{lhs.value() + rhs.value()};
+    }
+    friend constexpr inline @UNIT_NAME@ operator-(@UNIT_NAME@ const& lhs, @UNIT_NAME@ const& rhs) {
+        return @UNIT_NAME@{lhs.value() - rhs.value()};
+    }
+    friend constexpr inline @UNIT_NAME@ operator*(@UNIT_NAME@ const& lhs, @UNIT_STORAGE@ rhs) {
+        return @UNIT_NAME@{lhs.value() * rhs};
+    }
+    friend constexpr inline @UNIT_NAME@ operator/(@UNIT_NAME@ const& lhs, @UNIT_STORAGE@ rhs) {
+        return @UNIT_NAME@{lhs.value() / rhs};
+    }
+    friend constexpr inline @UNIT_NAME@ operator*(@UNIT_STORAGE@ lhs, @UNIT_NAME@ const& rhs) {
+        return @UNIT_NAME@{lhs * rhs.value()};
+    }
+    friend constexpr inline bool operator==(@UNIT_NAME@ const& lhs, @UNIT_NAME@ const& rhs) {
+        return lhs.value() == rhs.value();
+    }
+    friend constexpr inline bool operator!=(@UNIT_NAME@ const& lhs, @UNIT_NAME@ const& rhs) {
+        return lhs.value() != rhs.value();
+    }
+    friend constexpr inline bool operator<(@UNIT_NAME@ const& lhs, @UNIT_NAME@ const& rhs) {
+        return lhs.value() < rhs.value();
+    }
+    friend constexpr inline bool operator<=(@UNIT_NAME@ const& lhs, @UNIT_NAME@ const& rhs) {
+        return lhs.value() <= rhs.value();
+    }
+    friend constexpr inline bool operator>(@UNIT_NAME@ const& lhs, @UNIT_NAME@ const& rhs) {
+        return lhs.value() > rhs.value();
+    }
+    friend constexpr inline bool operator>=(@UNIT_NAME@ const& lhs, @UNIT_NAME@ const& rhs) {
+        return lhs.value() >= rhs.value();
+    }
+};
+
+#if defined(UNITTEST)
+constexpr std::ostream& operator<<(std::ostream& os, @UNIT_NAME@ const& v) {
+        os << "@UNIT_NAME@" << " " << v.value();
+        return os;
+    }
+#endif
+
+}    // namespace units
+}    // namespace core
+
+// clang-format on

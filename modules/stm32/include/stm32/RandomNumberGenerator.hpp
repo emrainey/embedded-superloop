@@ -1,7 +1,7 @@
 #ifndef STM32_RNG_H
 #define STM32_RNG_H
 
-#include "jarnax/Status.hpp"
+#include "core/Status.hpp"
 #include "jarnax/RandomNumberGenerator.hpp"
 #include "jarnax/Initializable.hpp"
 
@@ -10,7 +10,7 @@ namespace stm32 {
 class RandomNumberGenerator : public jarnax::RandomNumberGenerator, public jarnax::Initializable {
 public:
     RandomNumberGenerator() = default;
-    jarnax::Status Initialize() override;
+    core::Status Initialize() override;
     std::uint32_t GetNextRandom(void) override;
 
 protected:

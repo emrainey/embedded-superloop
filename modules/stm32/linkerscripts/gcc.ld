@@ -8,7 +8,7 @@ BKPRSRAM_SIZE = 4k;
 STACK_SIZE = 32K;
 
 MEMORY {
-    FLASH         (rx) : ORIGIN = 0x08000000, LENGTH = 256K
+    FLASH         (rx) : ORIGIN = 0x08000000, LENGTH = 1M
     CCM           (rw) : ORIGIN = 0x10000000, LENGTH = 64K
     SRAM          (rw) : ORIGIN = 0x20000000, LENGTH = 128K
     APB1          (rw) : ORIGIN = 0x40000000, LENGTH = 0x00010000
@@ -201,15 +201,16 @@ SECTIONS {
         . = ORIGIN(AHB1) + 0x3800;
         _stm32_reset_and_clock_control = . ;
         . = ORIGIN(AHB1) + 0x3C00;
-        _stm32_flash_interface = . ;
+        _stm32_flash_control = . ;
         . = ORIGIN(AHB1) + 0x4000;
         _stm32_bkpsram_start = .;
         KEEP(*(.bkpsram))
         _stm32_bkpsram_end = .;
     } > AHB1
 
+    PROVIDE(_ZN5stm329registers28general_purpose_input_outputE = _stm32_gpio);
     PROVIDE(_ZN5stm329registers23reset_and_clock_controlE = _stm32_reset_and_clock_control);
-
+    PROVIDE(_ZN5stm329registers13flash_controlE = _stm32_flash_control);
     ASSERT((_stm32_bkpsram_end - _stm32_bkpsram_start) <= BKPRSRAM_SIZE, ".bkpsram has overrun!")
 
     /* Arm High Performance Bus 2 */

@@ -1,4 +1,5 @@
-#include "configure.hpp"
+#include "cortex/mcu.hpp"
+#include "cortex/thumb.hpp"
 
 namespace cortex {
 namespace cache {

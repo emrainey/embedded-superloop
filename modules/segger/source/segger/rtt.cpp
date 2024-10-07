@@ -1,9 +1,13 @@
+#include "board.hpp"
 #include "segger/rtt.hpp"
-#include "thumb.hpp"
+#include "cortex/thumb.hpp"
 
 namespace rtt {
 
-BufferInfo::BufferInfo(char const* n, size_t s, uint8_t d[]) : name_{n}, data_{d}, size_(s) {
+BufferInfo::BufferInfo(char const* n, size_t s, uint8_t d[])
+    : name_{n}
+    , data_{d}
+    , size_(s) {
 }
 
 size_t BufferInfo::Write(size_t const size, char const string[]) {
@@ -82,21 +86,22 @@ char const* BufferInfo::GetName(void) const volatile {
     return name_;
 }
 
-BufferInfo::Flags::Flags() : mode_{Mode::NoBlockTrim}, check_{0u} {
+BufferInfo::Flags::Flags()
+    : mode_{Mode::NoBlockTrim}
+    , check_{0u} {
+}
+
+/// Buffers for RTT[0] "Terminal"
+uint8_t upward_buffer[kUpwardBufferSize];
+/// Buffers for RTT[0] "Terminal"
+uint8_t downward_buffer[kDownwardBufferSize];
+/// RTT Control Block
+ControlBlock control_block{};
+
+void initialize(void) {
+    // initialize the RTT buffers for Terminal
+    rtt::control_block.emplace_up("Terminal", sizeof(rtt::upward_buffer), rtt::upward_buffer);
+    rtt::control_block.emplace_down("Terminal", sizeof(rtt::downward_buffer), rtt::downward_buffer);
 }
 
 }    // namespace rtt
-// int main(void) {
-
-//     alignas(8) uint8_t buffer[1024];
-//     alignas(8) uint8_t buffer2[1024];
-//     alignas(8) uint8_t keys[16];
-//     rtt::ControlBlock cb{};
-//     cb.emplace_up("Terminal", 1024, buffer);
-//     cb.emplace_up("MicroNet", 1024, buffer2);
-//     cb.emplace_down("Terminal", 16, keys);
-//     printf("%s %s\r\n", cb.id, cb.GetUp(0).GetName());
-//     printf("%s %s\r\n", cb.id, cb.GetUp(1).GetName());
-//     printf("%s %s\r\n", cb.id, cb.GetDown(0).GetName());
-//     return 0;
-// }

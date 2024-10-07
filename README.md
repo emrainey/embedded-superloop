@@ -138,6 +138,8 @@ Chip specific drivers live in the chip specific namespace like `stm32`. These in
 
 ```
 [ ] Pick a better name than _jarnax_ (first word that popped into my mind)
+  [x] bare-metal firmware = bmf
+  [ ] bare-metal firmware super loop - bmfsl
 [x] Modern CMake INTERFACE libraries
 [x] Encapsulate Firmware Build in a CMake Function
 [x] Separate Cortex flags from Strict flags from Firmware options in CMake.
@@ -165,7 +167,7 @@ Chip specific drivers live in the chip specific namespace like `stm32`. These in
 [x] Implement `Array`
 [x] Implement `Ring`
 [x] Implement `Stack`
-[ ] Implement `List`
+[ ] Implement `List` (what am I counting here as a List?)
 [x] Implement 'Split' - for a variable bit split (upper/lower)
 [ ] Implement Iterators in Span/Array/Ring/Stack/List
 [ ] Implement Unit Test for Span in an Application

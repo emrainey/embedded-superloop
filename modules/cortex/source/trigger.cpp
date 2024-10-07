@@ -1,5 +1,4 @@
 #include "cortex/m4.hpp"
-#include "jarnax/system.hpp"
 
 namespace cortex {
 

@@ -1,11 +1,14 @@
-
-add_library(native INTERFACE)
-target_sources(native INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/main.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/peripherals.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/symbols.cpp
+if (NOT CMAKE_CROSS_BUILD)
+add_module(NAME native
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/main.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+    MODULES
+        jarnax
+    CONFIGURATIONS
+        ${LOCAL_CONFIGURATIONS}
+    BOARDS
+        ${LOCAL_BOARDS}
 )
-target_include_directories(native INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
-target_link_libraries(native INTERFACE core stm32)
+endif()

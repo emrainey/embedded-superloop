@@ -1,12 +1,9 @@
+#include "configure.hpp"
 #include "cortex/m4.hpp"
 #include "core/core.hpp"
-#include "jarnax/system.hpp"
-#include "jarnax/linker.hpp"
-
-// Defined in jarnax/globals.cpp
-namespace jarnax {
-extern bool is_tick_running;
-}
+#include "cortex/linker.hpp"
+#include "cortex/globals.hpp"
+#include "cortex/thumb.hpp"
 
 namespace cortex {
 
@@ -22,7 +19,30 @@ size_t DesiredRegions;
 
 namespace initialize {
 void simple_globals(void) {
+    using namespace core::units;
     DesiredRegions = 0U;
+    clock_frequency = 0_Hz;
+    system_clock_frequency = 0_Hz;
+    // initialize the tick count
+    ticks_since_boot = 0;
+    // initialize the tick flag
+    is_tick_enabled = false;
+    // initialize the built in self test data
+    built_in_self_test.trigger_non_maskable_interrupt.is_testing = false;
+    built_in_self_test.trigger_hard_fault.is_testing = false;
+    built_in_self_test.trigger_memory_management_fault.is_testing = false;
+    built_in_self_test.trigger_bus_fault.is_testing = false;
+    built_in_self_test.trigger_usage_fault.is_testing = false;
+    built_in_self_test.trigger_supervisor_call.is_testing = false;
+    built_in_self_test.trigger_pending_supervisor.is_testing = false;
+    built_in_self_test.trigger_system_tick.is_testing = false;
+    built_in_self_test.trigger_hard_fault.has_passed = false;
+    built_in_self_test.trigger_memory_management_fault.has_passed = false;
+    built_in_self_test.trigger_bus_fault.has_passed = false;
+    built_in_self_test.trigger_usage_fault.has_passed = false;
+    built_in_self_test.trigger_supervisor_call.has_passed = false;
+    built_in_self_test.trigger_pending_supervisor.has_passed = false;
+    built_in_self_test.trigger_system_tick.has_passed = false;
 }
 
 void class_globals() {
@@ -30,38 +50,37 @@ void class_globals() {
     /// they will execute here!
     size_t idx{0U};
     //===============================================================================
-    mpui[idx].region.parts.number = to_underlying(jarnax::ProtectedRegion::Code);
-    mpui[idx].address.Set(jarnax::address::code);
+    mpui[idx].region.parts.number = to_underlying(cortex::ProtectedRegion::Code);
+    mpui[idx].address.Set(cortex::address::flash);
     mpui[idx].access = make_access(MemoryProtectionUnit::Attribute::NormalWriteThroughSingle);
-    mpui[idx].access.bits.set_power2_size(jarnax::sizes::power2::code);
+    mpui[idx].access.bits.set_power2_size(cortex::sizes::power2::flash);
     mpui[idx].access.bits.permissions = MemoryProtectionUnit::Permissions::RW_Priv_RW_User;
     mpui[idx].access.bits.execute_never = 0U;    // CODE must be executable!
     idx++;
     //===============================================================================
-    mpui[idx].region.parts.number = to_underlying(jarnax::ProtectedRegion::Data);
-    mpui[idx].address.Set(jarnax::address::sram);
+    mpui[idx].region.parts.number = to_underlying(cortex::ProtectedRegion::Data);
+    mpui[idx].address.Set(cortex::address::sram);
     mpui[idx].access = make_access(MemoryProtectionUnit::Attribute::NormalWriteBackWriteAllocateSingle);
-    mpui[idx].access.bits.set_power2_size(jarnax::sizes::power2::sram);
+    mpui[idx].access.bits.set_power2_size(cortex::sizes::power2::sram);
     mpui[idx].access.bits.permissions = MemoryProtectionUnit::Permissions::RW_Priv_RW_User;
     mpui[idx].access.bits.execute_never = 1U;
     idx++;
     //===============================================================================
-    mpui[idx].region.parts.number = to_underlying(jarnax::ProtectedRegion::Stack);
-    mpui[idx].address.Set(jarnax::address::stack);
+    mpui[idx].region.parts.number = to_underlying(cortex::ProtectedRegion::Stack);
+    mpui[idx].address.Set(cortex::address::stack);
     mpui[idx].access = make_access(MemoryProtectionUnit::Attribute::NormalWriteBackWriteAllocateSingle);
-    mpui[idx].access.bits.set_power2_size(jarnax::sizes::power2::stack);
+    mpui[idx].access.bits.set_power2_size(cortex::sizes::power2::stack);
     mpui[idx].access.bits.permissions = MemoryProtectionUnit::Permissions::RW_Priv_RW_User;
     mpui[idx].access.bits.execute_never = 1U;
     idx++;
     //===============================================================================
-    std::uint32_t const volatile main_stack_size =
-        static_cast<uint32_t>(reinterpret_cast<uintptr_t>(__main_stack_size));
+    std::uint32_t const volatile main_stack_size = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(__main_stack_size));
     if (main_stack_size > 0U) {
-        if (not iso::is_power_of_two(main_stack_size)) {
-            jarnax::spinhalt();
+        if (not ::is_power_of_two(main_stack_size)) {
+            cortex::spinhalt();
         }
         uintptr_t base_address = reinterpret_cast<uintptr_t>(__main_stack_bottom);
-        mpui[idx].region.parts.number = to_underlying(jarnax::ProtectedRegion::MainStack);
+        mpui[idx].region.parts.number = to_underlying(cortex::ProtectedRegion::MainStack);
         mpui[idx].address.Set(base_address);
         mpui[idx].access = make_access(MemoryProtectionUnit::Attribute::NormalWriteBackWriteAllocateSingle);
         mpui[idx].access.bits.set_power2_size(main_stack_size);
@@ -73,14 +92,13 @@ void class_globals() {
     //===============================================================================
     // Read/Write over the Process Stack, never execute!
     // the linker script computed the size of the process stack and we pull it in here...
-    std::uint32_t const volatile process_stack_size =
-        static_cast<uint32_t>(reinterpret_cast<uintptr_t>(__process_stack_size));
+    std::uint32_t const volatile process_stack_size = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(__process_stack_size));
     if (process_stack_size > 0U) {
-        if (not iso::is_power_of_two(process_stack_size)) {
-            jarnax::spinhalt();
+        if (not ::is_power_of_two(process_stack_size)) {
+            cortex::spinhalt();
         }
         uintptr_t base_address = reinterpret_cast<uintptr_t>(__process_stack_bottom);
-        mpui[idx].region.parts.number = to_underlying(jarnax::ProtectedRegion::ProcesStack);
+        mpui[idx].region.parts.number = to_underlying(cortex::ProtectedRegion::ProcesStack);
         mpui[idx].address.Set(base_address);
         mpui[idx].access = make_access(MemoryProtectionUnit::Attribute::NormalWriteBackWriteAllocateSingle);
         mpui[idx].access.bits.set_power2_size(process_stack_size);
@@ -90,14 +108,13 @@ void class_globals() {
     }
     //===============================================================================
     // Read/Write over the Privileged Data, never execute!
-    std::uint32_t const volatile privileged_data_size =
-        static_cast<uint32_t>(reinterpret_cast<uintptr_t>(__privileged_data_size));
+    std::uint32_t const volatile privileged_data_size = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(__privileged_data_size));
     if (privileged_data_size > 0U) {
-        if (not iso::is_power_of_two(privileged_data_size)) {
-            jarnax::spinhalt();
+        if (not ::is_power_of_two(privileged_data_size)) {
+            cortex::spinhalt();
         }
         uintptr_t base_address = reinterpret_cast<uintptr_t>(__privileged_data_start);
-        mpui[idx].region.parts.number = to_underlying(jarnax::ProtectedRegion::PrivilegedData);
+        mpui[idx].region.parts.number = to_underlying(cortex::ProtectedRegion::PrivilegedData);
         mpui[idx].address.Set(base_address);
         mpui[idx].access = make_access(MemoryProtectionUnit::Attribute::NormalWriteBackWriteAllocateSingle);
         mpui[idx].access.bits.set_power2_size(privileged_data_size);
@@ -108,30 +125,30 @@ void class_globals() {
 
     //===============================================================================
     // Read/Write over the Peripherals, but all R/W
-    mpui[idx].region.parts.number = to_underlying(jarnax::ProtectedRegion::Peripherals);
-    mpui[idx].address.Set(jarnax::address::peripheral);
+    mpui[idx].region.parts.number = to_underlying(cortex::ProtectedRegion::Peripherals);
+    mpui[idx].address.Set(cortex::address::peripheral);
     mpui[idx].access = make_access(MemoryProtectionUnit::Attribute::DeviceSingleProcessor);
-    mpui[idx].access.bits.set_power2_size(jarnax::sizes::power2::peripheral);
+    mpui[idx].access.bits.set_power2_size(cortex::sizes::power2::peripheral);
     mpui[idx].access.bits.permissions = MemoryProtectionUnit::Permissions::RW_Priv_RW_User;
     mpui[idx].access.bits.execute_never = 1U;
     idx++;
 
     //===============================================================================
     // Read/Write over the Backup (adding execute never)
-    mpui[idx].region.parts.number = to_underlying(jarnax::ProtectedRegion::Backup);
-    mpui[idx].address.Set(jarnax::address::backup);
+    mpui[idx].region.parts.number = to_underlying(cortex::ProtectedRegion::Backup);
+    mpui[idx].address.Set(cortex::address::backup);
     mpui[idx].access = make_access(MemoryProtectionUnit::Attribute::NormalWriteBackWriteAllocateSingle);
-    mpui[idx].access.bits.set_power2_size(jarnax::sizes::power2::backup);
+    mpui[idx].access.bits.set_power2_size(cortex::sizes::power2::backup);
     mpui[idx].access.bits.permissions = MemoryProtectionUnit::Permissions::RW_Priv_RW_User;
     mpui[idx].access.bits.execute_never = 1U;
     idx++;
 
     //===============================================================================
     // Read/Write over the System, but Privilege Only RW
-    mpui[idx].region.parts.number = to_underlying(jarnax::ProtectedRegion::System);
-    mpui[idx].address.Set(jarnax::address::system);
+    mpui[idx].region.parts.number = to_underlying(cortex::ProtectedRegion::System);
+    mpui[idx].address.Set(cortex::address::system);
     mpui[idx].access = make_access(MemoryProtectionUnit::Attribute::StronglyOrdered);
-    mpui[idx].access.bits.set_power2_size(jarnax::sizes::power2::system);
+    mpui[idx].access.bits.set_power2_size(cortex::sizes::power2::system);
     mpui[idx].access.bits.permissions = MemoryProtectionUnit::Permissions::RW_Priv_NA_User;
     mpui[idx].access.bits.execute_never = 1U;
     idx++;
@@ -151,7 +168,7 @@ void fpu(void) {
 }
 
 void mpu(void) {
-    if /* constexpr */ (jarnax::use_only_default_mpu_configuration) {
+    if /* constexpr */ (cortex::use_only_default_mpu_configuration) {
         /// don't change anything and return
         return;
     }
@@ -197,13 +214,13 @@ void mpu(void) {
     thumb::instruction_barrier();
 }
 
-void swo(std::uint32_t desired_baud, std::uint32_t clock_frequency) {
-    if /* constexpr */ (not jarnax::swo::enable) {
+void swo(std::uint32_t desired_baud, Hertz clock_frequency) {
+    if constexpr (not cortex::swo::enable) {
         return;
     }
 
     // compute the clock divider as a zero based value
-    std::uint32_t clock_divider = (clock_frequency / desired_baud) - 1U;
+    std::uint32_t clock_divider = (clock_frequency.value() / desired_baud) - 1U;
 
     // disable itm
     instruction_trace_macrocell.control.bits.enable = 0U;
@@ -216,7 +233,7 @@ void swo(std::uint32_t desired_baud, std::uint32_t clock_frequency) {
     // send the key to the register
     instruction_trace_macrocell.lock_access = kItmLockValue;
 
-    if (not jarnax::run_in_privileged_mode_only) {
+    if (not cortex::run_in_privileged_mode_only) {
         // configure the privilege access
         instruction_trace_macrocell.privilege.enable(0);
         instruction_trace_macrocell.privilege.enable(1);
@@ -264,35 +281,27 @@ void faults(void) {
 }
 
 void nvic(void) {
-    /// @todo Initialize the Nested Vector Interrupt Controller
+    // Insert more NVIC initialization here for statically configured interrupts
+    nvic::Prioritize(to_underlying(exceptions::InterruptServiceRoutine::SystemTick), 0);
+    nvic::Enable(to_underlying(exceptions::InterruptServiceRoutine::SystemTick));
 }
 
-void tick(uint32_t ticks_per_second, uint32_t reference_clock_frequency) {
+void tick(Hertz ticks_per_second, Hertz reference_clock_frequency) {
+    // creates a 24 bit value for the reload register
     core::Split<uint32_t, 24U> tmp;    // NOLINT (reload is a 24 bit value)
-    constexpr uint32_t calib_ticks_per_sec = 100U;
-    tmp.whole = reference_clock_frequency / ticks_per_second;
+    tmp.whole = reference_clock_frequency.value() / ticks_per_second.value();
+
     system_tick.reload.bits.value = tmp.parts.lower;
     system_tick.current = 0U;
-    auto calib = system_tick.calibration;
-    calib.bits.no_reference = 0U;
-    tmp.whole = reference_clock_frequency / calib_ticks_per_sec;
-    calib.bits.ten_millisecond_count = tmp.parts.lower;
-    // if the math is exact, no skew exists, otherwise set it to 1
-    if ((calib.bits.ten_millisecond_count * calib_ticks_per_sec) == reference_clock_frequency) {
-        calib.bits.skew = 0U;
-    } else {
-        calib.bits.skew = 1U;
-    }
-    system_tick.calibration = calib;    // write back
+
     // initialize the system tick
     auto ctrl = system_tick.control_status;    // read
     ctrl.bits.enable = 1U;
     ctrl.bits.interrupt = 1U;
-    ctrl.bits.use_processor_clock = 1U;
-    system_tick.control_status = ctrl;    // write back
-    jarnax::is_tick_running = true;
-    nvic::Prioritize(to_underlying(exceptions::InterruptServiceRoutine::SystemTick), 0);
-    nvic::Enable(to_underlying(exceptions::InterruptServiceRoutine::SystemTick));
+    ctrl.bits.use_processor_clock = 0U;    // 0 indicates the "external" processor clock, 1 indicates the core "processor" clock
+    system_tick.control_status = ctrl;     // write back
+    cortex::is_tick_enabled = true;
+    // this won't start interrupting until after the NVIC is initialized
 }
 
 }    // namespace initialize

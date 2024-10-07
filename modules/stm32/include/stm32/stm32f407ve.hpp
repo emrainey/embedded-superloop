@@ -1,9 +1,12 @@
 #ifndef STM32F407VE_HPP_
 #define STM32F407VE_HPP_
 
+#include "core/Units.hpp"
 #include "stm32/stm32.hpp"
 
 #define HAS_FLASH 1
+#undef HAS_ITCM
+#undef HAS_DTCM
 #define HAS_CCM 1
 #define HAS_SRAM 1
 
@@ -36,7 +39,7 @@ constexpr uintptr_t random_number_generator = 0x50'06'08'00UL;
 
 namespace sizes {
 /// The Size in Bytes of Flash
-constexpr std::uint32_t flash = 256U * iso::prefix::kibi;
+constexpr std::uint32_t flash = 1U * iso::prefix::mebi;
 /// The Size in Bytes of CCM
 constexpr std::uint32_t ccm = 64U * iso::prefix::kibi;
 /// The Size in Bytes of SRAM
@@ -45,18 +48,23 @@ constexpr std::uint32_t sram = (112U + 16U) * iso::prefix::kibi;
 constexpr std::uint32_t backup_sram = 4U * iso::prefix::kibi;
 namespace power2 {
 /// The Power of 2 of the CCM Size
-constexpr std::uint8_t flash = iso::log2(stm32::sizes::flash);
+constexpr std::uint8_t flash = polyfill::log2(stm32::sizes::flash);
 /// The Power of 2 of the CCM Size
-constexpr std::uint8_t ccm = iso::log2(stm32::sizes::ccm);
+constexpr std::uint8_t ccm = polyfill::log2(stm32::sizes::ccm);
 /// The Power of 2 of the SRAM Size
-constexpr std::uint8_t sram = iso::log2(stm32::sizes::sram);
+constexpr std::uint8_t sram = polyfill::log2(stm32::sizes::sram);
 /// The Power of 2 of the Backup SRAM Size
-constexpr std::uint32_t backup_sram = iso::log2(stm32::sizes::backup_sram);
+constexpr std::uint32_t backup_sram = polyfill::log2(stm32::sizes::backup_sram);
 }    // namespace power2
 }    // namespace sizes
 
+using namespace core::units;
+
+/// @brief The speed of the HSI oscillator on most STM32 parts
+constexpr Hertz high_speed_internal_oscillator_frequency = 16_MHz;
+
 /// The clock speed of the STM32F407VE
-constexpr std::uint32_t clock_frequency = 168U * iso::prefix::mega;
+constexpr Hertz top_clock_frequency = 168_MHz;
 
 /// The number of extended interrupt vectors supported on this processor
 constexpr std::uint32_t number_of_interrupt_channels = 82U;

@@ -2,8 +2,8 @@
     "version": 8,
     "cmakeMinimumRequired": {
         "major": 3,
-        "minor": 29,
-        "patch": 0
+        "minor": 30,
+        "patch": 2
     },
     "include": [],
     "configurePresets": [
@@ -106,6 +106,16 @@
                 "coverage"
             ],
             "configurePreset": "native-clang"
+        },
+        {
+            "name": "build-native-llvm",
+            "inherits": "build-common",
+            "targets": [
+                "all",
+                "docs",
+                "coverage"
+            ],
+            "configurePreset": "native-llvm"
         }
     ],
     "testPresets": [
@@ -129,6 +139,11 @@
             "name": "run-tests-built-with-native-clang",
             "inherits": "test-common",
             "configurePreset": "native-clang"
+        },
+        {
+            "name": "run-tests-built-with-native-llvm",
+            "inherits": "test-common",
+            "configurePreset": "native-llvm"
         }
     ],
     "packagePresets": [
@@ -144,5 +159,24 @@
         "jarnax": {
             "something": true
         }
-    }
+    },
+    "workflowPresets": [
+        {
+            "name": "unit-tests-clang",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "native-clang"
+                },
+                {
+                    "type": "build",
+                    "name": "build-native-clang"
+                },
+                {
+                    "type": "test",
+                    "name": "run-tests-built-with-native-clang"
+                }
+            ]
+        }
+    ]
 }

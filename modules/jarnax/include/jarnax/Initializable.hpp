@@ -1,7 +1,7 @@
 #ifndef SYSTEM_INITIALIZABLE_HPP_
 #define SYSTEM_INITIALIZABLE_HPP_
 
-#include "jarnax/Status.hpp"
+#include "core/Status.hpp"
 
 /// @file
 /// jarnax::Initializable Interface
@@ -12,7 +12,7 @@ namespace jarnax {
 class Initializable {
 public:
     /// Clients implement this function to be called during boot but *before* the SuperLoop
-    virtual Status Initialize() = 0;
+    virtual core::Status Initialize() = 0;
 
 protected:
     ~Initializable() = default;
