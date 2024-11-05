@@ -1,5 +1,11 @@
 # Versions
 
+## v0.1.50 Milestone approaching
+
+* Added SuperLoop Cadence
+* STM32 Clock Tree works
+* STM32 RNG
+
 ## v0.1.49 Adding Container and Pool
 
 Adding two new containers.

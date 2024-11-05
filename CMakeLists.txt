@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 
 
 project(jarnax-bare-metal-apps
-        VERSION 0.1.49
+        VERSION 0.1.50
         LANGUAGES CXX ASM)
 
 set(CMAKE_C_STANARD 17)
