@@ -64,6 +64,8 @@ enum class InterruptServiceRoutine : std::uint32_t {
     // 13 is Reserved
     PendSV = 14U,
     SystemTick = 15U,
+    // 16-255 is External Interrupts
+    BaseExternal = 16U,
 };
 
 /// An ISR Handler takes no direct arguments

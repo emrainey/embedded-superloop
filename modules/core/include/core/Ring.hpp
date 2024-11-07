@@ -51,7 +51,7 @@ public:
 
     /// @brief Returns the active size in bytes of the Ring.
     /// @return The number of bytes consumed by the active elements.
-    constexpr SizeType sSize() const { return count_ * sizeof(ValueType); }
+    constexpr SizeType Size() const { return count_ * sizeof(ValueType); }
 
     /// @brief Uses a Copy Assignment to put a new element into the Ring
     /// @param element The reference to the element to add

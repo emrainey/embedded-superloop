@@ -8,18 +8,18 @@ TEST_CASE("Ring - Push and Pop") {
 
     REQUIRE(ring.Capacity() == Capacity);
     REQUIRE(ring.Count() == 0u);
-    REQUIRE(ring.sSize() == 0u);
+    REQUIRE(ring.Size() == 0u);
 
     int value = 42;
     REQUIRE(ring.Push(value));
     REQUIRE(ring.Count() == 1u);
-    REQUIRE(ring.sSize() == sizeof(int));
+    REQUIRE(ring.Size() == sizeof(int));
 
     int output = 0;
     REQUIRE(ring.Pop(output));
     REQUIRE(output == value);
     REQUIRE(ring.Count() == 0u);
-    REQUIRE(ring.sSize() == 0u);
+    REQUIRE(ring.Size() == 0u);
 }
 
 TEST_CASE("Ring - Push and Pop Multiple") {

@@ -8,6 +8,8 @@
 #include <cstdint>
 #include <cstddef>
 #include <type_traits>
+#include "jarnax/gpio/Input.hpp"
+#include "jarnax/gpio/Output.hpp"
 
 namespace stm32 {
 namespace gpio {
@@ -53,12 +55,15 @@ enum class Resistor : uint8_t {
 
 static constexpr std::uint8_t IndexMask = 0xFU;
 
-class Pin {
+class Pin : public jarnax::gpio::Input, public jarnax::gpio::Output {
 public:
     Pin() = delete;
     Pin(Port port, uint8_t index);
     // since no pointers are contained within, this can be copied and moved.
     ~Pin() = default;
+
+    bool Value() const override;
+    void Value(bool value) override;
 
     Pin& SetMode(Mode mode);
     Mode GetMode() const;
@@ -71,9 +76,6 @@ public:
 
     Pin& SetResistor(Resistor type);
     Resistor GetResistor() const;
-
-    bool Read() const;
-    void Write(bool value);
 
     Pin& SetAlternative(uint8_t value);
     uint8_t GetAlternative() const;

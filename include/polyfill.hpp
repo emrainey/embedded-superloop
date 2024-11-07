@@ -4,6 +4,7 @@
 /// @file
 /// The C++ PolyFill for features which are not available in the current version of C++
 
+#include <utility>
 #include <cstdint>
 #include <cstddef>
 #include <type_traits>
@@ -45,6 +46,19 @@ constexpr std::uint8_t log2(TYPE value) {
 }
 static_assert(log2(1U << 1U) == 1U, "Must be this value exactly");
 static_assert(log2(1U << 3U) == 3U, "Must be this value exactly");
+
+/// @brief Swaps the values of two typed variables. The intermediate object will live on the stack and be destroyed upon return.
+/// @tparam TYPE The type of the variables to swap.
+/// @param a The first variable
+/// @param b The second variable
+/// @requires
+template <typename TYPE>
+constexpr void swap(TYPE& lhs, TYPE& rhs) {
+    static_assert(std::is_move_assignable<TYPE>::value, "Must be move assignable");
+    TYPE temp = std::move(lhs);
+    lhs = std::move(rhs);
+    rhs = std::move(temp);
+}
 
 }    // namespace polyfill
 

@@ -14,6 +14,12 @@
 #endif
 #define LINKER_SYMBOL(symbol) LINKER_TYPED_SYMBOL(symbol, std::uint32_t)
 
+/// Link Symbol of the VectorTable
+LINKER_SYMBOL(__vector_table_start);
+
+/// Link Symbol of the End of the VectorTable
+LINKER_SYMBOL(__vector_table_end);
+
 /// Link Symbol of End of Coupled Memory
 LINKER_SYMBOL(__ccm_end);
 

@@ -85,8 +85,6 @@ public:
     constexpr bool isa() const {
         return could<TYPE>() and (type_index_ == type_index_mapper<TYPE, type_list<TYPES...>>::value);
     }
-
-    ///
 };
 
 }    // namespace core

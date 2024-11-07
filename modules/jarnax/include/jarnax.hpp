@@ -11,4 +11,8 @@
 #include "jarnax/customize.hpp"
 #include "jarnax/version.hpp"    // [GENERATED]
 
+namespace jarnax {
+using Status = core::Status;
+}    // namespace jarnax
+
 #endif    // JARNAX_HPP_

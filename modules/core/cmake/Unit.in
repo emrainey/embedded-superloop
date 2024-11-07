@@ -19,6 +19,7 @@ namespace core {
 namespace units {
 class @UNIT_NAME@ : public Unit<@UNIT_STORAGE@, @UNIT_POWER@> {
 public:
+    using StorageType = @UNIT_STORAGE@;
     constexpr @UNIT_NAME@()
         : Unit<@UNIT_STORAGE@, @UNIT_POWER@>{} {
     }

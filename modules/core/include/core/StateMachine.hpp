@@ -12,6 +12,10 @@
 
 namespace core {
 
+/// @brief Implements a State Machine via a callback interface and a given State Enumeration.
+/// The order of callbacks is: Enter() -> OnEnter(), OnEntry(initial_state)
+/// Then during the cycle: OnCycle(current_state) -> OnExit(last_state) -> OnTransition(last_state, next_state) -> OnEntry(next_state)
+/// @tparam ENUM_TPARAM The state enumeration. It must have an `Undefined` value.
 template <typename ENUM_TPARAM>
 class StateMachine {
 public:
@@ -41,11 +45,11 @@ public:
         , next_state_{StateType::Undefined}
         , last_state_{StateType::Undefined} {}
 
-    bool Is(StateType state) { return current_state_ == state; }
+    bool Is(StateType state) const { return current_state_ == state; }
 
-    bool Was(StateType state) { return last_state_ == state; }
+    bool Was(StateType state) const { return last_state_ == state; }
 
-    bool WillBe(StateType state) { return next_state_ == state; }
+    bool WillBe(StateType state) const { return next_state_ == state; }
 
     bool IsFinal() const { return stopped_; }
 
@@ -55,21 +59,17 @@ public:
             current_state_ = initial_state_;
             next_state_ = initial_state_;
             last_state_ = initial_state_;
-            entry_ = true;
             cycle_ = false;
             exit_ = false;
             stopped_ = false;
             callback_.OnEnter();
+            callback_.OnEntry(initial_state_);
+            entry_ = false;
         }
     }
 
     void RunOnce() {
         if (not stopped_) {
-            if (entry_) {
-                current_state_ = next_state_;
-                callback_.OnEntry(next_state_);
-                entry_ = false;
-            }
             cycle_ = true;
             StateType state = callback_.OnCycle(current_state_);
             if (current_state_ != final_state_) {
@@ -78,6 +78,7 @@ public:
                     exit_ = true;
                 }
             } else {
+                // we hit the final state
                 exit_ = true;
                 stopped_ = true;
             }
@@ -85,10 +86,17 @@ public:
             if (exit_) {
                 last_state_ = current_state_;
                 callback_.OnExit(last_state_);
+                // set this after so that any state checks will be ok in OnExit
                 current_state_ = StateType::Undefined;
+                // now we're not in a state
                 callback_.OnTransition(last_state_, next_state_);
                 exit_ = false;
                 entry_ = true;
+            }
+            if (entry_ and not stopped_) {
+                current_state_ = next_state_;
+                callback_.OnEntry(current_state_);
+                entry_ = false;
             }
 
             if (stopped_) {

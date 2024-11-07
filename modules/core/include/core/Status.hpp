@@ -20,6 +20,8 @@ enum class Result : std::int8_t {
     NotExpected = 8,       ///< Not expected
     NotInitialized = 9,    ///< Not initialized
     NotAvailable = 10,     ///< Not available
+    Timeout = 11,          ///< A timeout occurred
+    ExceededLimit = 12,    ///< A limit has been exceeded
 };
 
 /// The enumeration of Causes in the system

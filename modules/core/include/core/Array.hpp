@@ -6,6 +6,9 @@
 
 #include <cstdint>
 #include <cstddef>
+#if defined(UNITTEST)
+#include <iostream>
+#endif
 
 namespace core {
 
@@ -35,11 +38,20 @@ public:
     using IteratorConst = PointerConst;
 
     /// Constructor
-    Array()
+    constexpr Array()
         : data_{} {}
 
+    /// Array constructor
+    /// @param data The data to copy into the array
+    constexpr Array(ValueType const (&data)[CAPACITY])
+        : Array() {
+        for (IndexType i = 0; i < CAPACITY; ++i) {
+            data_[i] = data[i];
+        }
+    }
+
     /// Allows mutable access to the array elements
-    ValueType& operator[](IndexType index) {
+    constexpr ValueType& operator[](IndexType index) {
         if (index < CAPACITY) {
             return data_[index];
         } else {
@@ -48,7 +60,7 @@ public:
     }
 
     /// Allows const access to the array elements
-    const ValueType& operator[](IndexType index) const {
+    constexpr ValueType const& operator[](IndexType index) const {
         if (index < CAPACITY) {
             return data_[index];
         } else {
@@ -63,17 +75,33 @@ public:
     constexpr SizeType size(void) const { return CAPACITY * sizeof(ValueType); }
 
     /// Returns the beginning of the Array
-    Iterator begin(void) { return &data_[0]; }
+    constexpr Iterator begin(void) { return &data_[0]; }
 
     /// @copydoc core::Array::begin
-    IteratorConst begin(void) const { return &data_[0]; }
+    constexpr IteratorConst begin(void) const { return &data_[0]; }
 
     /// Returns one-past the Array.
     /// @warning OBVIOUSLY DO NOT DEREFERENCE THIS FIELD!
-    Iterator end(void) { return &data_[CAPACITY]; }
+    constexpr Iterator end(void) { return &data_[CAPACITY]; }
 
     /// @copydoc core::Array::end
-    IteratorConst end(void) const { return &data_[CAPACITY]; }
+    constexpr IteratorConst end(void) const { return &data_[CAPACITY]; }
+
+#if defined(UNITTEST)
+    /// @brief Prints the array to the output stream.
+    /// @param os The output stream to print to.
+    friend std::ostream& operator<<(std::ostream& os, Array const& array) {
+        os << "Array<" << CAPACITY << ">{";
+        for (IndexType i = 0; i < CAPACITY; ++i) {
+            os << array[i];
+            if (i < CAPACITY - 1) {
+                os << ", ";
+            }
+        }
+        os << "}";
+        return os;
+    }
+#endif
 
 protected:
     /// The storage of the data values

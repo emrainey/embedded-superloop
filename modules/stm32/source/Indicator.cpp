@@ -12,10 +12,10 @@ Indicator::Indicator(stm32::gpio::Pin& pin, Level level)
     , pin_{pin} {
 }
 void Indicator::Active() {
-    pin_.Write(to_underlying(level_));
+    pin_.Value(to_underlying(level_));
 }
 void Indicator::Inactive() {
-    pin_.Write(not to_underlying(level_));
+    pin_.Value(not to_underlying(level_));
 }
 
 }    // namespace stm32

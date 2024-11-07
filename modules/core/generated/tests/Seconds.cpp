@@ -113,14 +113,6 @@ TEST_CASE("Units - Seconds") {
         REQUIRE_FALSE(v1 >= v2);
     }
 
-    SECTION("Literal") {
-        using namespace core::units;
-        auto v3 = 1.0_V;
-        REQUIRE(v3.value() == 1.0f);
-        v3 = 1000.0_mV;
-        REQUIRE(v3.value() == 1.0f);
-    }
-
     SECTION("OStream") {
         using namespace core::units;
         std::cout << v1 << " and " << v2 << std::endl;

@@ -109,7 +109,8 @@
         "text_encoding": "cpp",
         "execution": "cpp",
         "print": "cpp",
-        "*.in": "cpp"
+        "*.in": "cpp",
+        "regex": "cpp"
     },
     "cSpell.allowCompoundWords": true,
     "cSpell.dictionaryDefinitions": [
@@ -145,7 +146,7 @@
         "systick"
     ],
     "clang-format.fallbackStyle": "Google",
-    "editor.formatOnSave": true,
+    "editor.formatOnSave": false,
     "cmake.useCMakePresets": "always",
     "C_Cpp.errorSquiggles": "enabled",
     "C_Cpp.default.cppStandard": "c++20",

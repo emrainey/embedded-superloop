@@ -19,6 +19,7 @@ namespace core {
 namespace units {
 class Watts : public Unit<float, 1> {
 public:
+    using StorageType = float;
     constexpr Watts()
         : Unit<float, 1>{} {
     }

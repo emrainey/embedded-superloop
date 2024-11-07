@@ -19,6 +19,7 @@ namespace core {
 namespace units {
 class Ohms : public Unit<float, 1> {
 public:
+    using StorageType = float;
     constexpr Ohms()
         : Unit<float, 1>{} {
     }

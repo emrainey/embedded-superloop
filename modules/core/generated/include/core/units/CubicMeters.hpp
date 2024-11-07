@@ -19,6 +19,7 @@ namespace core {
 namespace units {
 class CubicMeters : public Unit<float, 3> {
 public:
+    using StorageType = float;
     constexpr CubicMeters()
         : Unit<float, 3>{} {
     }

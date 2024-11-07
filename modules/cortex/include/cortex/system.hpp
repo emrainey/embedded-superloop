@@ -20,6 +20,12 @@ constexpr static std::uint32_t reset_value = 0x05FA;
 struct SystemControlBlock final {
     /// The CPU Identifier
     struct CpuIDBase final {
+        CpuIDBase()
+            : whole{0} {}
+        CpuIDBase(CpuIDBase const& other)
+            : whole{other.whole} {}
+        CpuIDBase(CpuIDBase volatile& other)
+            : whole{other.whole} {}
         struct Fields final {
             std::uint32_t revision    : 4;
             std::uint32_t part_number : 12;
@@ -31,6 +37,10 @@ struct SystemControlBlock final {
             Fields parts;
             std::uint32_t whole;
         };
+        // Assignment from copy back to registers
+        void operator=(CpuIDBase const& other) volatile { whole = other.whole; }
+        // Copy from volatile register to local copy
+        void operator=(CpuIDBase volatile& other) { whole = other.whole; }
     };
 
     /// The Interrupt Control State Register

@@ -9,6 +9,7 @@ add_architecture(NAME cortex
         ${CMAKE_CURRENT_SOURCE_DIR}/source/swo.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/nvic.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/mpu.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/memory.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/spinhalt.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/bist.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/ticks.cpp
@@ -40,5 +41,20 @@ add_architecture(NAME cortex
         core
     CONFIGURATIONS
         ${LOCAL_CONFIGURATIONS}
+    NO_BOARDS
+)
+
+# This is hard-coded for now, but we should make it more flexible in the future
+host_unit_test(NAME test-memory
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/memory.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/memory.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/modules/stm32/include
+    LIBRARIES
+        strict core-none-all
+    CATCH2
+    NO_CONFIGURATIONS
     NO_BOARDS
 )

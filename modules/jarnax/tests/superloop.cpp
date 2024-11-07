@@ -8,18 +8,22 @@
 using namespace core::units;
 
 namespace jarnax {
-class Dummy : public Executable {
+class DummyTask : public Executable {
 public:
-    Dummy(const char *name)
+    DummyTask(const char *name)
         : name_{name}
         , count_{0u} {}
-    bool Execute(LoopInfo const &) override {
-        count_++;
+    bool Execute(LoopInfo const &loop_info) override {
+        count_ = loop_info.count;
         return true;
     }
 
     std::size_t Count() const { return count_; }
-    void Print() const { printf("%s: %lu\r\n", name_, count_); }
+
+    friend std::ostream &operator<<(std::ostream &os, const DummyTask &dummy) {
+        os << dummy.name_ << ": " << dummy.count_;
+        return os;
+    }
 
 protected:
     char const *name_;
@@ -73,10 +77,10 @@ Ticker &GetTicker() {
 TEST_CASE("SuperLoop - Cadence Test") {
     FakeTicker ticker{10_ticks};
     SuperLoop loop{ticker};
-    Dummy dummy0{"Dummy0"};
-    Dummy dummy1{"Dummy1"};
-    Dummy dummy2{"Dummy2"};
-    Dummy dummy3{"Dummy3"};
+    DummyTask dummy0{"DummyTask0"};
+    DummyTask dummy1{"DummyTask1"};
+    DummyTask dummy2{"DummyTask2"};
+    DummyTask dummy3{"DummyTask3"};
     // right now these have to be read as RIGHT to LEFT <--
     loop.Enlist(dummy0, 0b1010'1010'1010'1010'1010'1010'1010'1010u);
     loop.Enlist(dummy1, 0b0101'0101'0101'0101'0101'0101'0101'0101u);
@@ -85,26 +89,20 @@ TEST_CASE("SuperLoop - Cadence Test") {
 
     SECTION("Single Count") {
         loop.RunAllOnce();
-        dummy0.Print();
+        std::cout << loop << std::endl;
         REQUIRE(dummy0.Count() == 0U);
-        dummy1.Print();
         REQUIRE(dummy1.Count() == 1U);
-        dummy2.Print();
         REQUIRE(dummy2.Count() == 1U);
-        dummy3.Print();
         REQUIRE(dummy3.Count() == 0U);
     }
     SECTION("All Count") {
-        for (size_t i = 0; i < 32U; i++) {
+        for (size_t i = 0; i < SlotsInCadence; i++) {
             loop.RunAllOnce();
         }
-        dummy0.Print();
+        std::cout << loop << std::endl;
         REQUIRE(dummy0.Count() == 16U);
-        dummy1.Print();
         REQUIRE(dummy1.Count() == 16U);
-        dummy2.Print();
         REQUIRE(dummy2.Count() == 32U);
-        dummy3.Print();
         REQUIRE(dummy3.Count() == 16U);
     }
 }

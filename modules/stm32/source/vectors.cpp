@@ -3,7 +3,11 @@
 #include "cortex/vectors.hpp"
 #include "board.hpp"    // Depends on the build
 
+
 namespace stm32 {
+
+/// TIM2 ISR Handler
+extern void timer2_isr(void);
 
 /// Storage location for the extended vector table.
 /// If you need a compile time interrupt setup, do so here.
@@ -19,7 +23,7 @@ ExternalInterrupts external_interrupts = {
     cortex::handlers::dummy,    // 19
     cortex::handlers::dummy,    // 20
     cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy,
-    cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy,
+    cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy, timer2_isr,
     cortex::handlers::dummy,    // 29
     cortex::handlers::dummy,    // 30
     cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy,

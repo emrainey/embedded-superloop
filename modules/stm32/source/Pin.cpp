@@ -61,7 +61,7 @@ Resistor Pin::GetResistor() const {
     return static_cast<Resistor>((pull.whole >> (index_ * 2)) & 0b11);                 // extract
 }
 
-bool Pin::Read() const {
+bool Pin::Value() const {
     Mode mode = GetMode();
     if (mode == Mode::Input) {
         auto input = general_purpose_input_output[to_underlying(port_)].input_data;    // read
@@ -73,7 +73,7 @@ bool Pin::Read() const {
         return false;
     }
 }
-void Pin::Write(bool value) {
+void Pin::Value(bool value) {
     Mode mode = GetMode();
     if (mode == Mode::Output) {
         auto output = general_purpose_input_output[to_underlying(port_)].output_data;    // read

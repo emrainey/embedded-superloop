@@ -19,6 +19,7 @@ namespace core {
 namespace units {
 class Ticks : public Unit<uint32_t, 1> {
 public:
+    using StorageType = uint32_t;
     constexpr Ticks()
         : Unit<uint32_t, 1>{} {
     }

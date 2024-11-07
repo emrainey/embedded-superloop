@@ -2,6 +2,7 @@
 #include "segger/rtt.hpp"
 #include "jarnax.hpp"
 #include "stm32/RandomNumberGenerator.hpp"
+#include "stm32/Timer.hpp"
 
 namespace stm32 {
 
@@ -26,7 +27,8 @@ ClockConfiguration const default_clock_configuration = {
 
 namespace jarnax {
 DriverContext::DriverContext()
-    : random_number_generator_{}
+    : timer_{stm32::registers::timer2}
+    , random_number_generator_{}
     , wakeup_pin_{stm32::gpio::Port::A, 0}
     , mc0_pin_{stm32::gpio::Port::A, 8}
     , key0_pin_{stm32::gpio::Port::E, 4}
@@ -58,7 +60,12 @@ core::Status DriverContext::Initialize(void) {
     error_indicator_.Inactive();
     status_indicator_.Inactive();
     status = random_number_generator_.Initialize();
+    status = timer_.Initialize(stm32::GetClockTree().tim_clk);
     return status;
+}
+
+jarnax::Timer& DriverContext::GetTimer() {
+    return timer_;
 }
 
 jarnax::RandomNumberGenerator& DriverContext::GetRandomNumberGenerator() {

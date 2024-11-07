@@ -35,11 +35,15 @@ ENTRY(reset_entry)
 /* This linker script does not support Heaps, C++ Exceptions or C++ RTTI */
 /* +===================================================================+ */
 SECTIONS {
-    /* Program Code */
-    .text : {
+    /* Vector Table(s) */
+    .tables : {
+        __vector_table_start = .;
         KEEP(*(.vectors))
         KEEP(*(.extended_vectors))
-        /*KEEP(*vectors.cpp.obj (.text .text.*))  Forcibly keep the content of this file */
+        __vector_table_end = .;
+    } >REGION_TEXT
+    /* Program Code (aligned at next 1KB) */
+    .text ALIGN(1024) : {
         *(.text)
         *(.text.*)
     } >REGION_TEXT
@@ -188,6 +192,8 @@ SECTIONS {
         _stm32_dac = . ;
     } > APB1
 
+    PROVIDE(_ZN5stm329registers6timer2E = _stm32_tim2);
+
     /* Arm Private Bus 2 */
     .apb2 (NOLOAD) : {
     } > APB2
@@ -282,6 +288,8 @@ SECTIONS {
         _cortex_floating_point = . ;
         . = ORIGIN(PPB) + 0x40000;
         _cortex_trace_port_inferface_unit = . ;
+        . = ORIGIN(PPB) + 0x42000;
+        _stm32_debug = . ;
     } > PPB
     /* Provide the C++ mangled names */
     PROVIDE(_ZN6cortex27instruction_trace_macrocellE = _cortex_instruction_trace_macrocell);
@@ -294,4 +302,5 @@ SECTIONS {
     PROVIDE(_ZN6cortex22software_triggered_interruptE = _cortex_software_triggered_interrupt);
     PROVIDE(_ZN6cortex14floating_pointE = _cortex_floating_point);
     PROVIDE(_ZN6cortex25trace_port_interface_unitE = _cortex_trace_port_inferface_unit);
+    PROVIDE(_ZN5stm329registers5debugE = _stm32_debug);
 }

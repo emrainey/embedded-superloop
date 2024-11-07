@@ -16,6 +16,8 @@ list(APPEND LOCAL_APPLICATIONS unittests simple)
 list(APPEND LOCAL_CONFIGURATIONS basic)
 list(APPEND LOCAL_BOARDS stm32_f4ve_v2)
 
+add_subdirectory(external) # This is where we find Catch2, GoogleTest, etc.
+
 find_package(jarnax REQUIRED)
 
 message(STATUS CMAKE_CROSS_BUILD=${CMAKE_CROSS_BUILD})

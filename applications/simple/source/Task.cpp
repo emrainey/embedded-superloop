@@ -3,6 +3,7 @@
 
 Task::Task()
     : ticker_{jarnax::GetTicker()}
+    , timer_{jarnax::GetTimer()}
     , rng_{jarnax::GetDriverContext().GetRandomNumberGenerator()}
     , error_indicator_{jarnax::GetDriverContext().GetErrorIndicator()}
     , status_indicator_{jarnax::GetDriverContext().GetStatusIndicator()}
@@ -32,7 +33,9 @@ bool Task::Execute(LoopInfo const &metadata) {
     jarnax::Ticks ticks = ticker_.GetTicksSinceBoot();
     jarnax::Time time = ticker_.GetTimeSinceBoot();
     uint32_t random = rng_.GetNextRandom();
-    jarnax::print("Task::Execute: %lu ticks, %lf sec, 0x%x\r\n", ticks.value(), time.value(), static_cast<unsigned int>(random));
+    std::uint32_t iotas = static_cast<std::uint32_t>(timer_.GetIotas().value());
+
+    jarnax::print("Task::Execute: %lu ticks, %lf sec, 0x%lx Iotas: %lu\r\n", ticks.value(), time.value(), random, iotas);
     DelayForTicks(Ticks{64});
     if (wakeup_button_.IsPressed()) {
         jarnax::print("Wakeup Pressed\r\n");

@@ -16,6 +16,7 @@ public:
 
 protected:
     jarnax::Ticker& ticker_;
+    jarnax::Timer& timer_;
     jarnax::RandomNumberGenerator& rng_;
     jarnax::Indicator& error_indicator_;
     jarnax::Indicator& status_indicator_;

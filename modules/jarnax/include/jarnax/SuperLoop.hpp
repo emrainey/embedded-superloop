@@ -58,6 +58,10 @@ public:
     /// Runs the SuperLoop forever
     void RunForever(void);
 
+#if defined(UNITTEST)
+    friend std::ostream& operator<<(std::ostream& os, SuperLoop const& loop);
+#endif    // UNITTEST
+
 protected:
     /// The reference to the Ticker
     Ticker& ticker_;

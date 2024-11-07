@@ -45,6 +45,9 @@ void OnProjectLoad (void) {
   Break.SetOnSrc("jarnax::initialize::on_entry");
   Break.SetOnSrc("jarnax::main");
   
+  Window.Add ("Watched Data 1", "ticks_since_boot");
+  Window.Add ("Watched Data 1", "timer2_high_order_bits");
+  
 }
 
 /*********************************************************************

@@ -25,6 +25,14 @@ GeneralPurposeInputOutput volatile general_purpose_input_output[NumberOfGeneralP
 ResetAndClockControl volatile reset_and_clock_control;
 RandomNumberGenerator volatile random_number_generator;
 FlashControl volatile flash_control;
+Timer2 volatile timer2;
+Debug volatile debug;
+SerialPeripheralInterface volatile spi1;
+SerialPeripheralInterface volatile spi2;
+SerialPeripheralInterface volatile spi3;
+SerialPeripheralInterface volatile spi4;
+SerialPeripheralInterface volatile spi5;
+SerialPeripheralInterface volatile spi6;
 }    // namespace registers
 }    // namespace stm32
 

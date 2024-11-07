@@ -17,6 +17,11 @@ struct Buffer {
     using Count = std::size_t;
     using Index = std::size_t;
 
+    Buffer()
+        : allocator_{GetDefaultAllocator()}
+        , pointer_{nullptr}
+        , count_{0U} {}
+
     Buffer(Allocator& allocator)
         : allocator_{allocator}
         , pointer_{nullptr}
@@ -33,8 +38,10 @@ struct Buffer {
         }
     }
 
+    /// No Copy Constructor
     Buffer(Buffer const&) = delete;
 
+    /// Move Construction is allowed
     Buffer(Buffer&& other)
         : allocator_{other.allocator_}
         , pointer_{other.pointer_}
@@ -43,8 +50,10 @@ struct Buffer {
         other.count_ = 0U;
     }
 
+    /// Copy Assign is not allowed
     Buffer& operator=(Buffer const&) = delete;
 
+    /// Move Assignment is allowed
     Buffer& operator=(Buffer&& other) {
         if (this != &other) {
             this->~Buffer();

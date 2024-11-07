@@ -19,6 +19,7 @@ namespace core {
 namespace units {
 class Hertz : public Unit<uint32_t, 1> {
 public:
+    using StorageType = uint32_t;
     constexpr Hertz()
         : Unit<uint32_t, 1>{} {
     }

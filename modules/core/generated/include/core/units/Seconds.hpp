@@ -19,6 +19,7 @@ namespace core {
 namespace units {
 class Seconds : public Unit<float, 1> {
 public:
+    using StorageType = float;
     constexpr Seconds()
         : Unit<float, 1>{} {
     }

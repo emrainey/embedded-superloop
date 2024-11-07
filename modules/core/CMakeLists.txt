@@ -1,4 +1,5 @@
 
+# Generates a bunch of header files based on the UNIT_COMBOS list
 unset(UNIT_COMBOS)
 list(APPEND UNIT_COMBOS Volts:float:1)
 list(APPEND UNIT_COMBOS Amperes:float:1)
@@ -7,7 +8,9 @@ list(APPEND UNIT_COMBOS Watts:float:1)
 list(APPEND UNIT_COMBOS Ohms:float:1)
 list(APPEND UNIT_COMBOS Hertz:uint32_t:1)
 list(APPEND UNIT_COMBOS Ticks:uint32_t:1)
+list(APPEND UNIT_COMBOS Iota:uint64_t:1)
 list(APPEND UNIT_COMBOS Seconds:float:1)
+list(APPEND UNIT_COMBOS MicroSeconds:uint64_t:1)
 list(APPEND UNIT_COMBOS Meters:float:1)
 list(APPEND UNIT_COMBOS SquareMeters:float:2)
 list(APPEND UNIT_COMBOS CubicMeters:float:3)
@@ -33,6 +36,7 @@ foreach (combo IN LISTS UNIT_COMBOS)
                        @ONLY)
     endif()
 endforeach()
+
 # Creates the core module, doesn't depend on any configuration or board.
 # Any configiration must be passed in as DEFINES
 add_module(NAME core
@@ -41,10 +45,12 @@ add_module(NAME core
         ${CMAKE_CURRENT_SOURCE_DIR}/source/eabi.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/constexpr_tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Status.cpp
-        # ${CMAKE_CURRENT_SOURCE_DIR}/source/Units.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/generated/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/generated/include # for generated headers like Units above
+    DEFINES
+        DEFAULT_ALLOCATION_BLOCK_SIZE=32
+        DEFAULT_ALLOCATION_BLOCK_COUNT=1024
     LIBRARIES
         configuration-none
     NO_CONFIGURATIONS
@@ -52,13 +58,16 @@ add_module(NAME core
 )
 
 file(GLOB_RECURSE _GENERATED_CORE_TESTS ${CMAKE_CURRENT_SOURCE_DIR}/generated/tests/*.cpp)
+list(SORT _GENERATED_CORE_TESTS) # for reproducibility
 
 host_unit_test(NAME test-core
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/array.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/container.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/doublelink.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/enums.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/folds.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/intervals.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/pool.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/ring.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/span.cpp
@@ -91,6 +100,7 @@ host_unit_test(NAME test-heap
     LIBRARIES
         strict core-none-all
     CATCH2
+    FAKEIT
     NO_CONFIGURATIONS
     NO_BOARDS
 )

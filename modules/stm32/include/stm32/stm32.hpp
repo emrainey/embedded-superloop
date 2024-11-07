@@ -2,10 +2,13 @@
 #define STM32_H_
 
 #include "cortex/vendor.hpp"
+#include "stm32/registers/Debug.hpp"
 #include "stm32/registers/ResetAndClockControl.hpp"
 #include "stm32/registers/RandomNumberGenerator.hpp"
 #include "stm32/registers/GeneralPurposeInputOutput.hpp"
 #include "stm32/registers/FlashControl.hpp"
+#include "stm32/registers/Timer2.hpp"
+#include "stm32/registers/SerialPeripheralInterface.hpp"
 
 /// The ST Micro 32 Namespace
 namespace stm32 {
@@ -33,6 +36,7 @@ struct ClockTree {
     Hertz rtc;
     Hertz rng;
     Hertz usbotg;
+    Hertz tim_clk;           ///< The frequency of the TIMx clocks  (TIMxCLK)
 };
 
 /// Returns what the vendor considers the frequency of the system.
@@ -99,6 +103,9 @@ namespace initialize {
 /// @param external_input_clock_frequency The clock frequency of the external clock (if present)
 /// @param clkcfg The configuration of the clock for the system
 void clocks(ClockConfiguration const& clkcfg);
+
+/// @brief Vendor specific setup of NVIC for drivers
+void nvic(void);
 }    // namespace initialize
 
 }    // namespace stm32

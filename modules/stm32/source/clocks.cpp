@@ -223,6 +223,7 @@ void clocks(ClockConfiguration const& clkcfg) {
     clock_tree.apbx_peripheral = clock_tree.hclk / GetAPB1Divider(clkcfg.low_speed_divider);
     clock_tree.apbx_timer = clock_tree.hclk / GetAPB2Divider(clkcfg.high_speed_divider);
     clock_tree.rtc = clock_tree.high_speed_external / clkcfg.rtc_divider;
+    clock_tree.tim_clk = clock_tree.hclk;
     // clock_tree.rng = clock_tree.sysclk;
 }
 

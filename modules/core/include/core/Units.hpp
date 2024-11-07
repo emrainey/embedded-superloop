@@ -17,7 +17,9 @@
 #include "core/units/Watts.hpp"
 #include "core/units/Hertz.hpp"
 #include "core/units/Ticks.hpp"
+#include "core/units/Iota.hpp"
 #include "core/units/Seconds.hpp"
+#include "core/units/MicroSeconds.hpp"
 #include "core/units/Meters.hpp"
 #include "core/units/SquareMeters.hpp"
 #include "core/units/CubicMeters.hpp"
@@ -68,84 +70,91 @@ constexpr Watts operator*(Amperes const& current, Volts const& voltage) {
 }
 
 constexpr Volts operator""_V(long double value) {
-    return Volts{static_cast<float>(value)};
+    return Volts{static_cast<Volts::StorageType>(value)};
 }
 
 constexpr Volts operator""_mV(long double value) {
-    return Volts{static_cast<float>(value) / 1000.0F};
+    return Volts{static_cast<Volts::StorageType>(value) / 1000.0F};
 }
 
 constexpr Amperes operator""_A(long double value) {
-    return Amperes{static_cast<float>(value)};
+    return Amperes{static_cast<Amperes::StorageType>(value)};
 }
 
 constexpr Amperes operator""_mA(long double value) {
-    return Amperes{static_cast<float>(value) / 1000.0F};
+    return Amperes{static_cast<Amperes::StorageType>(value) / 1000.0F};
 }
 
 constexpr Ohms operator""_Ohm(long double value) {
-    return Ohms{static_cast<float>(value)};
+    return Ohms{static_cast<Ohms::StorageType>(value)};
 }
 
 constexpr Ohms operator""_kOhm(long double value) {
-    return Ohms{static_cast<float>(value) * 1000.0F};
+    return Ohms{static_cast<Ohms::StorageType>(value) * 1000.0F};
 }
 
 constexpr Watts operator""_W(long double value) {
-    return Watts{static_cast<float>(value)};
+    return Watts{static_cast<Watts::StorageType>(value)};
 }
 
 constexpr Watts operator""_mW(long double value) {
-    return Watts{static_cast<float>(value) / 1000.0F};
+    return Watts{static_cast<Watts::StorageType>(value) / 1000.0F};
 }
 
 constexpr Hertz operator""_Hz(unsigned long long value) {
-    return Hertz{static_cast<std::uint32_t>(value)};
+    return Hertz{static_cast<Hertz::StorageType>(value)};
 }
 
 constexpr Hertz operator""_kHz(unsigned long long value) {
-    return Hertz{static_cast<std::uint32_t>(value) * iso::prefix::kilo};
+    return Hertz{static_cast<Hertz::StorageType>(value) * iso::prefix::kilo};
 }
 
 constexpr Hertz operator""_MHz(unsigned long long value) {
-    return Hertz{static_cast<std::uint32_t>(value) * iso::prefix::mega};
+    return Hertz{static_cast<Hertz::StorageType>(value) * iso::prefix::mega};
 }
 
 constexpr Seconds operator""_sec(long double value) {
-    return Seconds{static_cast<float>(value)};
+    return Seconds{static_cast<Seconds::StorageType>(value)};
 }
 
 constexpr Seconds operator""_msec(long double value) {
-    return Seconds{static_cast<float>(value) / 1E3F};
+    return Seconds{static_cast<Seconds::StorageType>(value) / 1E3F};
 }
 
 constexpr Seconds operator""_usec(long double value) {
-    return Seconds{static_cast<float>(value) / 1E6F};
+    return Seconds{static_cast<Seconds::StorageType>(value) / 1E6F};
+}
+
+constexpr MicroSeconds operator""_usec(unsigned long long value) {
+    return MicroSeconds{static_cast<MicroSeconds::StorageType>(value)};
 }
 
 constexpr Ticks operator""_ticks(unsigned long long value) {
-    return Ticks{static_cast<std::uint32_t>(value)};
+    return Ticks{static_cast<Ticks::StorageType>(value)};
+}
+
+constexpr Iota operator""_iota(unsigned long long value) {
+    return Iota{static_cast<Iota::StorageType>(value)};
 }
 
 constexpr Ticks ConvertToTicks(Seconds const& time) {
     // e.g. 1/2 seconds = 1/2 * 128 ticks = 64.0 ticks
     float fraction = time.value() * ticks_per_second.value();
-    return Ticks{static_cast<std::uint32_t>(fraction)};
+    return Ticks{static_cast<Ticks::StorageType>(fraction)};
 }
 
 constexpr Seconds ConvertToSeconds(Ticks const& ticks) {
     // e.g. 64 ticks = 64 / 128 seconds = 0.5 seconds
-    float fraction = static_cast<float>(ticks.value()) / static_cast<float>(ticks_per_second.value());
+    float fraction = static_cast<Seconds::StorageType>(ticks.value()) / static_cast<Seconds::StorageType>(ticks_per_second.value());
     return Seconds{fraction};
 }
 
 constexpr Seconds operator/(float scalar, Hertz const& frequency) {
-    float fraction = scalar / static_cast<float>(frequency.value());
+    float fraction = scalar / static_cast<Seconds::StorageType>(frequency.value());
     return Seconds{fraction};
 }
 
 }    // namespace units
-
 }    // namespace core
 
 #endif    // CORE_UNIT_HPP

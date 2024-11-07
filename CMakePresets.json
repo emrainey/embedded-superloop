@@ -84,7 +84,7 @@
             "targets": [
                 "all"
             ],
-            "cleanFirst": true,
+            "cleanFirst": false,
             "verbose": false
         },
         {

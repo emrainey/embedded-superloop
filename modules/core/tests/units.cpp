@@ -55,6 +55,9 @@ TEST_CASE("Units - Equations") {
         auto s2 = 1.0_usec;
         REQUIRE(s2.value() == 0.000001f);
 
+        auto m3 = 147_usec;
+        REQUIRE(m3.value() == 147U);
+
         auto h0 = 1_Hz;
         REQUIRE(h0.value() == 1U);
 

@@ -1,7 +1,11 @@
 /// @file
 /// Print Functions. Heavily inspired by ChatGPT which likely got these from the Arduino project.
 
+#include <cstdint>
+#include <cstdlib>
+#include <cstddef>
 #include <cstdarg>
+#include <limits>
 
 #include "board.hpp"
 #include "strings.hpp"
@@ -15,6 +19,26 @@ static constexpr unsigned int base10{10u};
 static constexpr unsigned int base16{16u};
 static constexpr unsigned int digit_places_limit{32u};
 static constexpr unsigned int float_fractional_limit{6u};
+
+static unsigned long clamp_to_range(unsigned long value, unsigned long min, unsigned long max) {
+    if (value < min) {
+        return min;
+    } else if (value > max) {
+        return max;
+    } else {
+        return value;
+    }
+}
+
+static long clamp_to_range(long value, long min, long max) {
+    if (value < min) {
+        return min;
+    } else if (value > max) {
+        return max;
+    } else {
+        return value;
+    }
+}
 
 static unsigned long print_number(unsigned long start, char buffer[], unsigned long num, unsigned int base) {
     const char *digits = "0123456789abcdef";
@@ -91,9 +115,34 @@ void print(const char *format, ...) {
             format++;
 
             // Handle %l modifiers
+            bool longlong_modifier = false;
             bool long_modifier = false;
             if (*format == 'l') {
                 long_modifier = true;
+                format++;
+                if (*format == 'l') {
+                    longlong_modifier = true;
+                    format++;
+                }
+            }
+            static_cast<void>(longlong_modifier); // can't use for now
+
+            // Handle %h modifiers
+            bool halfhalf_modifier = false;
+            bool half_modifier = false;
+            if (*format == 'h') {
+                half_modifier = true;
+                format++;
+                if (*format == 'h') {
+                    halfhalf_modifier = true;
+                    format++;
+                }
+            }
+
+            // Handle %z modifier
+            bool size_modifier = false;
+            if (*format == 'z') {
+                size_modifier = true;
                 format++;
             }
 
@@ -111,6 +160,14 @@ void print(const char *format, ...) {
                     long num;
                     if (long_modifier) {
                         num = va_arg(args, long);
+                    } else if (half_modifier) {
+                        num = va_arg(args, int);
+                        num = clamp_to_range(num, std::numeric_limits<int16_t>::min(), std::numeric_limits<int16_t>::max());
+                    } else if (halfhalf_modifier) {
+                        num = va_arg(args, int);
+                        num = clamp_to_range(num, std::numeric_limits<int8_t>::min(), std::numeric_limits<int8_t>::max());
+                    // } else if (size_modifier) {
+                    //     num = va_arg(args, ssize_t);
                     } else {
                         num = va_arg(args, int);
                     }
@@ -121,6 +178,16 @@ void print(const char *format, ...) {
                     unsigned long num;
                     if (long_modifier) {
                         num = va_arg(args, unsigned long);
+                    // } else if (longlong_modifier) {
+                    //     num = va_arg(args, unsigned long long);
+                    } else if (half_modifier) {
+                        num = va_arg(args, unsigned int);
+                        num = clamp_to_range(num, std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max());
+                    } else if (halfhalf_modifier) {
+                        num = va_arg(args, unsigned int);
+                        num = clamp_to_range(num, std::numeric_limits<uint8_t>::min(), std::numeric_limits<uint8_t>::max());
+                    } else if (size_modifier) {
+                        num = va_arg(args, size_t);
                     } else {
                         num = va_arg(args, unsigned int);
                     }
@@ -133,6 +200,9 @@ void print(const char *format, ...) {
                     buffer[index++] = 'x';
                     if (long_modifier) {
                         num = va_arg(args, unsigned long);
+                    } else if (half_modifier) {
+                        num = va_arg(args, unsigned int);
+                        num = clamp_to_range(num, std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max());
                     } else {
                         num = va_arg(args, unsigned int);
                     }

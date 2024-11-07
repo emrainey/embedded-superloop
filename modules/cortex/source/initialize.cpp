@@ -282,8 +282,7 @@ void faults(void) {
 
 void nvic(void) {
     // Insert more NVIC initialization here for statically configured interrupts
-    nvic::Prioritize(to_underlying(exceptions::InterruptServiceRoutine::SystemTick), 0);
-    nvic::Enable(to_underlying(exceptions::InterruptServiceRoutine::SystemTick));
+    // cortex parts don't need to have any NVIC configuration
 }
 
 void tick(Hertz ticks_per_second, Hertz reference_clock_frequency) {

@@ -188,4 +188,9 @@ private:
     Allocator* upstream_;
 };
 
+Allocator& GetDefaultAllocator() noexcept {
+    static BitMapHeap<DEFAULT_ALLOCATION_BLOCK_SIZE, DEFAULT_ALLOCATION_BLOCK_COUNT> defaultAllocator{nullptr, 0U};
+    return defaultAllocator;
+}
+
 }    // namespace core

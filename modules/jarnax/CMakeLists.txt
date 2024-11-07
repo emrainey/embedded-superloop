@@ -45,6 +45,7 @@ host_unit_test(NAME test-jarnax
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/yieldable.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/superloop.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/transactable.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/include
     LIBRARIES

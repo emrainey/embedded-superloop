@@ -24,6 +24,7 @@ inline size_t operator""_Z( unsigned long long int value) {
 #include "cortex/vectors.hpp"
 #include "jarnax/SuperLoop.hpp"
 #include "jarnax/Ticker.hpp"
+#include "jarnax/Timer.hpp"
 
 /// The namespace of the system level functions
 namespace jarnax {

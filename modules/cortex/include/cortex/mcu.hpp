@@ -11,6 +11,7 @@
 #include "iso.hpp"
 #include "compiler.hpp"
 #include "core/Split.hpp"
+#include "core/Intervals.hpp"
 #include "cortex/thumb.hpp"
 #include "cortex/system.hpp"
 #include "cortex/exceptions.hpp"
@@ -116,7 +117,7 @@ constexpr static std::uint32_t ram0 = 256U * iso::prefix::mebi;
 constexpr static std::uint32_t ram1 = 256U * iso::prefix::mebi;
 
 /// System space is defined as 1 MB
-constexpr static std::uint32_t system = 256U * iso::prefix::mebi;
+constexpr static std::uint32_t system = 1U * iso::prefix::mebi;
 
 /// Private Peripheral Bus space is defined as 1 MB
 constexpr static std::uint32_t private_peripheral = 1U * iso::prefix::mebi;
@@ -146,7 +147,6 @@ constexpr static std::uint32_t private_peripheral = polyfill::log2(cortex::sizes
 }    // namespace sizes
 
 namespace registers {
-
 /// The Program Status Registers
 struct ProgramStatus final {
     /// The Application Status Register
@@ -342,6 +342,23 @@ void enable(void);
 /// Used for debug, trapping, bad handlers, and to catch bad behavior.
 /// @warning Paths which enter this function do not leave and will not run user applications.
 [[noreturn]] void spinhalt(void);
+
+constexpr core::Interval unsorted_memory_regions_array[] = {
+    {cortex::address::code, cortex::address::code + cortex::sizes::code - 1U},
+    {cortex::address::sram, cortex::address::sram + cortex::sizes::sram - 1U},
+    {cortex::address::peripheral, cortex::address::peripheral + cortex::sizes::peripheral - 1U},
+    {cortex::address::ram0, cortex::address::ram0 + cortex::sizes::ram0 - 1U},
+    {cortex::address::ram1, cortex::address::ram1 + cortex::sizes::ram1 - 1U},
+    {cortex::address::system, cortex::address::system + cortex::sizes::system - 1U},
+    {cortex::address::vendor, cortex::address::vendor + cortex::sizes::vendor - 1U},
+};
+
+constexpr core::Array<core::Interval, dimof(unsorted_memory_regions_array)> unsorted_memory_regions{unsorted_memory_regions_array};
+constexpr core::Array<core::Interval, dimof(unsorted_memory_regions_array)> sorted_memory_regions = core::Sort(unsorted_memory_regions);
+// static_assert(core::IsSortedAndNonOverlapping(sorted_memory_regions), "Must be sorted and non-overlapping");
+
+/// Used to determine if an address is valid for the Cortex M processor
+bool IsValidAddress(std::uintptr_t address);
 
 }    // namespace cortex
 

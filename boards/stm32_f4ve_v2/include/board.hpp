@@ -8,6 +8,7 @@
 #include "iso.hpp"
 #include "core/Status.hpp"
 #include "jarnax/Ticker.hpp"
+#include "stm32/Timer.hpp"
 #include "stm32/Button.hpp"
 #include "stm32/Indicator.hpp"
 #include "stm32/RandomNumberGenerator.hpp"
@@ -31,6 +32,8 @@ namespace stm32 {    // Choices for STM32
 using namespace core::units;
 /// The HSE value for this board.
 constexpr static Hertz high_speed_external_oscillator_frequency = 8_MHz;
+/// The number of iota per second (based on the ClockTree)
+constexpr static std::uint32_t iota_per_microsecond = 1U;
 }    // namespace stm32
 
 namespace jarnax {
@@ -52,6 +55,9 @@ public:
     /// The move assignment operator
     DriverContext& operator=(DriverContext&&) = delete;
 
+    /// Returns a reference to the Timer
+    jarnax::Timer& GetTimer();
+
     /// Returns a reference to the Random Number Generator
     jarnax::RandomNumberGenerator& GetRandomNumberGenerator();
 
@@ -71,6 +77,7 @@ public:
     jarnax::Button& GetButton1();
 
 protected:
+    stm32::Timer timer_;
     /// The Random Number Generator
     stm32::RandomNumberGenerator random_number_generator_;
     stm32::gpio::Pin wakeup_pin_;

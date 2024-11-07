@@ -14,4 +14,6 @@ protected:
     ~Allocator() = default;
 };
 
+extern Allocator& GetDefaultAllocator() noexcept;
+
 }    // namespace core
