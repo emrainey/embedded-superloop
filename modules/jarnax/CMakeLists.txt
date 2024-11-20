@@ -41,7 +41,7 @@ add_module(NAME jarnax
         ${LOCAL_BOARDS}
 )
 
-host_unit_test(NAME test-jarnax
+host_unit_test(NAME test-jarnax-catch
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/yieldable.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/superloop.cpp
@@ -53,6 +53,23 @@ host_unit_test(NAME test-jarnax
     MODULES
         jarnax
     CATCH2
+    FAKEIT
+    CONFIGURATIONS
+        ${LOCAL_CONFIGURATIONS}
+    BOARDS
+        ${LOCAL_BOARDS}
+)
+
+host_unit_test(NAME test-jarnax-googletest
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/coordinator.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/include
+    LIBRARIES
+        strict memory-none-all core-none-all jarnax-interfaces
+    MODULES
+        jarnax
+    GOOGLETEST
     CONFIGURATIONS
         ${LOCAL_CONFIGURATIONS}
     BOARDS

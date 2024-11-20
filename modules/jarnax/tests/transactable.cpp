@@ -29,7 +29,9 @@ protected:
     mutable Iota current_{0U};
 };
 
-class DummyTransaction : public Transactable<DummyTransaction, 3> {
+static constexpr std::size_t Attempts = 3u;
+
+class DummyTransaction : public Transactable<DummyTransaction, Attempts> {
 public:
     DummyTransaction(Timer& timer)
         : Transactable{timer} {}
@@ -55,7 +57,7 @@ TEST_CASE("Transactable") {
     SECTION("Default") {
         REQUIRE(not dummy.IsComplete());
         REQUIRE(dummy.GetStatus() == Status{core::Result::NotInitialized, core::Cause::State});
-        REQUIRE(dummy.GetAttemptsRemaining() == 3);
+        REQUIRE(dummy.GetAttemptsRemaining() == Attempts);
         REQUIRE(dummy.GetDuration().value() == 0U);
     }
     SECTION("LifeCycle") {
@@ -63,18 +65,19 @@ TEST_CASE("Transactable") {
         REQUIRE(dummy.IsInitialized());
         dummy.Inform(DummyTransaction::Event::Scheduled);
         REQUIRE(dummy.IsQueued());
+        REQUIRE(dummy.GetAttemptsRemaining() == Attempts);
         dummy.Inform(DummyTransaction::Event::Start);
         REQUIRE(dummy.IsRunning());
         REQUIRE(dummy.GetStatus() == Status{core::Result::Busy, core::Cause::State});
         dummy.Inform(DummyTransaction::Event::Completed, Status{core::Result::Success, core::Cause::Unknown});
         REQUIRE(dummy.IsComplete());
-        REQUIRE(dummy.GetAttemptsRemaining() == 2);
+        REQUIRE(dummy.GetAttemptsRemaining() == Attempts - 1);
         REQUIRE(dummy.GetDuration().value() == 1U);
         REQUIRE(dummy.GetStatus() == Status{core::Result::Success, core::Cause::Unknown});
         //======================================================================
         REQUIRE(dummy.Reset());
         REQUIRE(not dummy.IsComplete());
-        REQUIRE(dummy.GetAttemptsRemaining() == 3);
+        REQUIRE(dummy.GetAttemptsRemaining() == Attempts);
         REQUIRE(dummy.GetDuration().value() == 0U);
         REQUIRE(dummy.GetStatus() == Status{core::Result::NotInitialized, core::Cause::State});
         //======================================================================
@@ -82,14 +85,39 @@ TEST_CASE("Transactable") {
         REQUIRE(dummy.IsInitialized());
         dummy.Inform(DummyTransaction::Event::Scheduled);
         REQUIRE(dummy.IsQueued());
+        REQUIRE(dummy.GetAttemptsRemaining() == Attempts);
         dummy.Inform(DummyTransaction::Event::Start);
         REQUIRE(dummy.IsRunning());
         REQUIRE(dummy.GetStatus() == Status{core::Result::Busy, core::Cause::State});
         dummy.Inform(DummyTransaction::Event::Completed, Status{core::Result::Success, core::Cause::Unknown});
         REQUIRE(dummy.IsComplete());
-        REQUIRE(dummy.GetAttemptsRemaining() == 2);
+        REQUIRE(dummy.GetAttemptsRemaining() == Attempts - 1);
         REQUIRE(dummy.GetDuration().value() == 1U);
         REQUIRE(dummy.GetStatus() == Status{core::Result::Success, core::Cause::Unknown});
+    }
+    SECTION("Retry") {
+        dummy.Initialize(3);
+        REQUIRE(dummy.IsInitialized());
+        dummy.Inform(DummyTransaction::Event::Scheduled);
+        REQUIRE(dummy.IsQueued());
+        REQUIRE(dummy.GetAttemptsRemaining() == Attempts);
+        dummy.Inform(DummyTransaction::Event::Start);
+        REQUIRE(dummy.IsRunning());
+        REQUIRE(dummy.GetAttemptsRemaining() == Attempts - 1);
+        dummy.Inform(DummyTransaction::Event::Retry);
+        REQUIRE(dummy.IsQueued());
+        dummy.Inform(DummyTransaction::Event::Start);
+        REQUIRE(dummy.IsRunning());
+        REQUIRE(dummy.GetAttemptsRemaining() == Attempts - 2);
+        dummy.Inform(DummyTransaction::Event::Retry);
+        REQUIRE(dummy.IsQueued());
+        dummy.Inform(DummyTransaction::Event::Start);
+        REQUIRE(dummy.IsRunning());
+        REQUIRE(dummy.GetAttemptsRemaining() == Attempts - 3);
+        dummy.Inform(DummyTransaction::Event::Retry);
+        REQUIRE(dummy.IsComplete());
+        REQUIRE(dummy.GetStatus() == Status{core::Result::ExceededLimit, core::Cause::State});
+        REQUIRE(dummy.GetAttemptsRemaining() == 0);
     }
 }
 

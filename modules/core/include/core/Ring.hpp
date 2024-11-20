@@ -53,6 +53,12 @@ public:
     /// @return The number of bytes consumed by the active elements.
     constexpr SizeType Size() const { return count_ * sizeof(ValueType); }
 
+    /// @brief Returns true when the ring buffer is empty
+    constexpr bool IsEmpty() const { return Count() == 0U; }
+
+    /// @brief Returns true when the ring buffer is full
+    constexpr bool IsFull() const { return Count() == Capacity(); }
+
     /// @brief Uses a Copy Assignment to put a new element into the Ring
     /// @param element The reference to the element to add
     /// @return True if it was pushed, false otherwise.

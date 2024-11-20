@@ -18,6 +18,12 @@ function(print_targets_with_prefix prefix directory)
             message(STATUS "Target: ${target}")
         endif()
     endforeach()
+    get_property(all_targets DIRECTORY ${directory} PROPERTY IMPORTED_TARGETS)
+    foreach(target ${all_targets})
+        if("${target}" MATCHES "^${prefix}")
+            message(STATUS "Imported Target: ${target}")
+        endif()
+    endforeach()
 endfunction()
 
 # Declare External Dependencies and how to fetch them
@@ -41,6 +47,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(gtest) # This will define the gtest and gmock targets
 print_variables_with_prefix("gtest_")
 print_targets_with_prefix("gtest_" ${gtest_SOURCE_DIR})
+# Use GTest::gtest and GTest::gmock targets
 
 FetchContent_Declare(
     FakeIt
@@ -48,9 +55,10 @@ FetchContent_Declare(
     GIT_TAG 2.4.1
 )
 FetchContent_MakeAvailable(FakeIt) # This will define the FakeIt::FakeIt target
-print_variables_with_prefix("FakeIt_")
-print_targets_with_prefix("FakeIt_" ${FakeIt_SOURCE_DIR})
+print_variables_with_prefix("FakeIt")
+print_targets_with_prefix("FakeIt" ${FakeIt_SOURCE_DIR})
 # does not provide a target
-add_library(FakeIt::FakeIt INTERFACE IMPORTED)
-target_include_directories(FakeIt::FakeIt INTERFACE ${FakeIt_SOURCE_DIR}/single_header/catch) # FakeIt is a single header library but we'll use it with Catch2 (above)
+add_library(Catch2FakeIt INTERFACE)
+target_compile_definitions(Catch2FakeIt INTERFACE FAKEIT_USE_CATCH2)
+target_include_directories(Catch2FakeIt INTERFACE ${FakeIt_SOURCE_DIR}/single_header/catch) # FakeIt is a single header library but we'll use it with Catch2 (above)
 endif()

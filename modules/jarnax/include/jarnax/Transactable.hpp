@@ -121,10 +121,9 @@ protected:
             // std::cout << "Entry State: " << static_cast<int>(state) << std::endl;
         }
         if (state == TransactionState::Initialized) {
-            try_count_ = 0;
             status_ = Status{core::Result::NotReady, core::Cause::State};
         } else if (state == TransactionState::Running) {
-            try_count_++;
+            try_count_--;
             start_ = timer_.GetMicroseconds();
             status_ = Status{core::Result::Busy, core::Cause::State};
         } else if (state == TransactionState::Complete) {
@@ -161,7 +160,6 @@ protected:
             }
         } else if (state == TransactionState::Running) {
             if (event_ == Event::Retry) {
-                try_count_--;
                 if (try_count_ > 0U) {
                     return TransactionState::Queued;
                 } else {

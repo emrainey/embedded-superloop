@@ -60,18 +60,18 @@ public:
         }
     }
 
-    void Execute(void) {
+    bool Execute(LoopInfo const &) override {
         core::Status status;
         if (active_ == nullptr) {
             if (transactions_.IsEmpty()) {
                 // no transactions to process
-                return;
+                return false;
             }
             // get the top transaction
             if (not transactions_.Pop(active_)) {
                 // could not pop for some reason
                 active_ = nullptr;
-                return;
+                return false;
             }
         }
 
@@ -113,9 +113,10 @@ public:
             }
         }
         // if it's completed, forget the active transaction
-        if (active_->IsCompleted()) {
+        if (active_->IsComplete()) {
             active_ = nullptr;
         }
+        return true;
     }
 
     /// @brief  The Coordinator Statistics

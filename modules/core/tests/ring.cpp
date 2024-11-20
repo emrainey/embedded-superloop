@@ -26,10 +26,12 @@ TEST_CASE("Ring - Push and Pop Multiple") {
     constexpr std::size_t Capacity = 3;
     core::Ring<int, Capacity> ring;
 
+    REQUIRE(ring.IsEmpty());
     REQUIRE(ring.Push(1));
     REQUIRE(ring.Push(2));
     REQUIRE(ring.Push(3));
     REQUIRE_FALSE(ring.Push(4));    // Buffer is full
+    REQUIRE(ring.IsFull());
 
     int output = 0;
     REQUIRE(ring.Pop(output));
