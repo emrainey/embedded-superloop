@@ -7,6 +7,9 @@
 #include <cstdint>
 #include <cstddef>
 
+#include "core/Units.hpp"
+
+// things in the board can depend on the configuration above
 #include "board.hpp"
 
 namespace cortex {
@@ -105,5 +108,6 @@ constexpr static bool enable_access_to_fpu{true};
 constexpr static std::size_t num_executable_tasks = 4U;
 
 }    // namespace jarnax
+
 
 #endif    // CONFIGURATION_HPP_

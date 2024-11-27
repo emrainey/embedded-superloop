@@ -1,7 +1,7 @@
 #ifndef STM32_SPI_DRIVER_HPP
 #define STM32_SPI_DRIVER_HPP
 
-#include "core/Ring.hpp"
+#include "core/Units.hpp"
 #include "jarnax/spi/Driver.hpp"
 #include "stm32/registers/SerialPeripheralInterface.hpp"
 
@@ -10,7 +10,7 @@ class SpiDriver : public jarnax::spi::Driver, private jarnax::spi::Transactor {
 public:
     SpiDriver(stm32::registers::SerialPeripheralInterface volatile& spi);
 
-    core::Status Initialize(Hertz peripheral_frequency, Hertz desired_spi_clock_frequency);
+    core::Status Initialize(core::units::Hertz peripheral_frequency, core::units::Hertz desired_spi_clock_frequency);
 
     //+======[ Transactor Interface ]=======================================================+
     core::Status Verify(jarnax::spi::Transaction& transaction) override;

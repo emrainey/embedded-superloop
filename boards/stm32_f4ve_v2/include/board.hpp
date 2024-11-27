@@ -8,11 +8,13 @@
 #include "iso.hpp"
 #include "core/Status.hpp"
 #include "jarnax/Ticker.hpp"
+#include "stm32/stm32f407ve.hpp"
 #include "stm32/Timer.hpp"
 #include "stm32/Button.hpp"
 #include "stm32/Indicator.hpp"
+#include "stm32/SpiDriver.hpp"
 #include "stm32/RandomNumberGenerator.hpp"
-#include "stm32/stm32f407ve.hpp"
+
 
 /// RTT features
 namespace rtt {
@@ -93,6 +95,16 @@ protected:
     stm32::Button wakeup_button_;
     stm32::Button key0_button_;
     stm32::Button key1_button_;
+    /// The SPI and related pins
+    stm32::gpio::Pin spi1_mosi_;
+    stm32::gpio::Pin spi1_miso_;
+    stm32::gpio::Pin spi1_sclk_;
+    stm32::gpio::Pin flash_cs_;
+    stm32::gpio::Pin nrf_cs_;
+    stm32::gpio::Pin nrf_ce_;
+    stm32::gpio::Pin nrf_irq_;
+    /// The SPI Driver
+    stm32::SpiDriver spi1_driver_;
 };
 
 /// Gets the reference to the DriverContext

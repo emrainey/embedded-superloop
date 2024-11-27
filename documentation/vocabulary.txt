@@ -1,0 +1,9 @@
+i2c
+i2s
+iic
+miso
+mosi
+nss
+sclk
+sda
+spi

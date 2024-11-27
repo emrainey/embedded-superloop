@@ -14,7 +14,7 @@ public:
         : name_{name}
         , count_{0u} {}
     bool Execute(LoopInfo const &loop_info) override {
-        count_ = loop_info.count;
+        count_ = loop_info.system_loop_count;
         return true;
     }
 

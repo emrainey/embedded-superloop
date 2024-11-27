@@ -42,7 +42,13 @@ public:
     }
 
     MicroSeconds GetMicroseconds(void) const override {
+        // 1:1 ratio of iotas to microseconds
         return MicroSeconds{GetIotas().value()};
+    }
+
+    void Jump(MicroSeconds delta) {
+        // 1:1 ratio of iotas to microseconds
+        current_ = current_ + Iota{delta.value()};
     }
 protected:
     mutable Iota current_{0U};
@@ -93,6 +99,7 @@ protected:
     core::Status full{core::Result::ExceededLimit, core::Cause::Resource};
     core::Status not_initialized{core::Result::NotInitialized, core::Cause::Parameter};
     core::Status invalid_value{core::Result::InvalidValue, core::Cause::Parameter};
+    core::Status timeout{core::Result::Timeout, core::Cause::State};
 };
 
 TEST_F(CoordinatorTest, Empty) {}
@@ -132,6 +139,16 @@ TEST_F(CoordinatorTest, OnePass) {
     EXPECT_CALL(mock, Check(testing::_)).WillOnce(Return(success));
     coord.Execute({});
     ASSERT_EQ(success, txn.GetStatus());
+}
+
+TEST_F(CoordinatorTest, Deadline) {
+    txn.Inform(FakeTransaction::Event::Initialized);
+    txn.SetDeadline(timer.GetMicroseconds() + 100_usec);
+    EXPECT_CALL(mock, Verify(testing::_)).WillOnce(Return(success));
+    ASSERT_EQ(success, coord.Schedule(&txn));
+    timer.Jump(200_usec);
+    coord.Execute({});
+    ASSERT_EQ(timeout, txn.GetStatus());
 }
 
 } // namespace jarnax

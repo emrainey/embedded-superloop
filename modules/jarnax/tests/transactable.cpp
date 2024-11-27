@@ -9,6 +9,8 @@ using namespace core::units;
 
 namespace jarnax {
 
+
+
 class FakeTimer : public Timer {
 public:
     FakeTimer()
@@ -22,7 +24,19 @@ public:
     }
 
     MicroSeconds GetMicroseconds(void) const override {
+        // 1 us = 1 iota
         return core::units::MicroSeconds{GetIotas().value()};
+    }
+
+    void Jump(Iota iotas) {
+        current_ = current_ + iotas;
+        return;
+    }
+
+    void Jump(MicroSeconds microseconds) {
+        // 1 iota == 1 usec
+        current_ = current_ + Iota{microseconds.value()};
+        return;
     }
 
 protected:
@@ -56,7 +70,7 @@ TEST_CASE("Transactable") {
 
     SECTION("Default") {
         REQUIRE(not dummy.IsComplete());
-        REQUIRE(dummy.GetStatus() == Status{core::Result::NotInitialized, core::Cause::State});
+        REQUIRE(dummy.GetStatus() == core::Status{core::Result::NotInitialized, core::Cause::State});
         REQUIRE(dummy.GetAttemptsRemaining() == Attempts);
         REQUIRE(dummy.GetDuration().value() == 0U);
     }
@@ -68,18 +82,18 @@ TEST_CASE("Transactable") {
         REQUIRE(dummy.GetAttemptsRemaining() == Attempts);
         dummy.Inform(DummyTransaction::Event::Start);
         REQUIRE(dummy.IsRunning());
-        REQUIRE(dummy.GetStatus() == Status{core::Result::Busy, core::Cause::State});
-        dummy.Inform(DummyTransaction::Event::Completed, Status{core::Result::Success, core::Cause::Unknown});
+        REQUIRE(dummy.GetStatus() == core::Status{core::Result::Busy, core::Cause::State});
+        dummy.Inform(DummyTransaction::Event::Completed, core::Status{core::Result::Success, core::Cause::Unknown});
         REQUIRE(dummy.IsComplete());
         REQUIRE(dummy.GetAttemptsRemaining() == Attempts - 1);
         REQUIRE(dummy.GetDuration().value() == 1U);
-        REQUIRE(dummy.GetStatus() == Status{core::Result::Success, core::Cause::Unknown});
+        REQUIRE(dummy.GetStatus() == core::Status{core::Result::Success, core::Cause::Unknown});
         //======================================================================
         REQUIRE(dummy.Reset());
         REQUIRE(not dummy.IsComplete());
         REQUIRE(dummy.GetAttemptsRemaining() == Attempts);
         REQUIRE(dummy.GetDuration().value() == 0U);
-        REQUIRE(dummy.GetStatus() == Status{core::Result::NotInitialized, core::Cause::State});
+        REQUIRE(dummy.GetStatus() == core::Status{core::Result::NotInitialized, core::Cause::State});
         //======================================================================
         dummy.Initialize(2);
         REQUIRE(dummy.IsInitialized());
@@ -88,12 +102,12 @@ TEST_CASE("Transactable") {
         REQUIRE(dummy.GetAttemptsRemaining() == Attempts);
         dummy.Inform(DummyTransaction::Event::Start);
         REQUIRE(dummy.IsRunning());
-        REQUIRE(dummy.GetStatus() == Status{core::Result::Busy, core::Cause::State});
-        dummy.Inform(DummyTransaction::Event::Completed, Status{core::Result::Success, core::Cause::Unknown});
+        REQUIRE(dummy.GetStatus() == core::Status{core::Result::Busy, core::Cause::State});
+        dummy.Inform(DummyTransaction::Event::Completed, core::Status{core::Result::Success, core::Cause::Unknown});
         REQUIRE(dummy.IsComplete());
         REQUIRE(dummy.GetAttemptsRemaining() == Attempts - 1);
         REQUIRE(dummy.GetDuration().value() == 1U);
-        REQUIRE(dummy.GetStatus() == Status{core::Result::Success, core::Cause::Unknown});
+        REQUIRE(dummy.GetStatus() == core::Status{core::Result::Success, core::Cause::Unknown});
     }
     SECTION("Retry") {
         dummy.Initialize(3);
@@ -116,8 +130,21 @@ TEST_CASE("Transactable") {
         REQUIRE(dummy.GetAttemptsRemaining() == Attempts - 3);
         dummy.Inform(DummyTransaction::Event::Retry);
         REQUIRE(dummy.IsComplete());
-        REQUIRE(dummy.GetStatus() == Status{core::Result::ExceededLimit, core::Cause::State});
+        REQUIRE(dummy.GetStatus() == core::Status{core::Result::ExceededLimit, core::Cause::State});
         REQUIRE(dummy.GetAttemptsRemaining() == 0);
+    }
+    SECTION("Deadline") {
+        dummy.Initialize(3);
+        dummy.SetDeadline(timer.GetMicroseconds() + 100_usec);
+        REQUIRE(dummy.IsInitialized());
+        dummy.Inform(DummyTransaction::Event::Scheduled);
+        REQUIRE(dummy.IsQueued());
+        REQUIRE(dummy.GetAttemptsRemaining() == Attempts);
+        // time passes (over the amount)
+        timer.Jump(timer.GetMicroseconds() + 200_usec);
+        dummy.Inform(DummyTransaction::Event::Start);
+        REQUIRE(dummy.IsComplete());
+        REQUIRE(dummy.GetStatus() == core::Status{core::Result::Timeout, core::Cause::State});
     }
 }
 

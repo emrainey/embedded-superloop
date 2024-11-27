@@ -2,6 +2,7 @@
 #define JARNAX_SPI_DRIVER_HPP
 
 #include "jarnax/gpio/Output.hpp"
+#include "jarnax/Transactable.hpp"
 #include "jarnax/Coordinator.hpp"
 #include "core/Buffer.hpp"
 
@@ -55,9 +56,9 @@ using Transactor = jarnax::Transactor<spi::Transaction>;
 using Coordinator = jarnax::Coordinator<spi::Transaction, 8U>;
 
 /// The SPI Driver Interface is a Transactor of SPI Transactions and the Coordinator of the SPI Transactions
-class Driver : public spi::Coordinator {
+class Driver : public Coordinator {
 public:
-    Driver(spi::Transactor& tr) : spi::Coordinator{tr} {}
+    Driver(spi::Transactor& tr) : Coordinator{tr} {}
 };
 
 }  // namespace spi

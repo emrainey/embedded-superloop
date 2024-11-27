@@ -2,8 +2,9 @@
 #define JARNAX_COORDINATOR_HPP
 
 #include <cstddef>
+#include "core/Ring.hpp"
 #include "core/StateMachine.hpp"
-#include "jarnax.hpp"
+#include "jarnax/Executable.hpp"
 #include "jarnax/Timer.hpp"
 #include "jarnax/Transactable.hpp"
 #include "jarnax/Transactor.hpp"
@@ -37,26 +38,26 @@ public:
     /// @return core::Result::ExceededLimit, core::Cause::Resource if the transaction ring is full
     /// @return core::Result::Success, core::Cause::State if the transaction was successfully scheduled
     /// @return core::Result::Failure, core::Cause::Parameter if the transaction was not successfully scheduled
-    Status Schedule(TransactionType* transaction) {
+    core::Status Schedule(TransactionType* transaction) {
         if (transaction == nullptr) {
-            return Status{core::Result::InvalidValue, core::Cause::Parameter};
+            return core::Status{core::Result::InvalidValue, core::Cause::Parameter};
         }
         if (not transaction->IsInitialized())  {
-            return Status{core::Result::NotInitialized, core::Cause::Parameter};
+            return core::Status{core::Result::NotInitialized, core::Cause::Parameter};
         }
         if (transactions_.IsFull()) {
-            return Status{core::Result::ExceededLimit, core::Cause::Resource};
+            return core::Status{core::Result::ExceededLimit, core::Cause::Resource};
         }
-        if (driver_.Verify(*transaction) == Status{core::Result::Success, core::Cause::State}) {
+        if (driver_.Verify(*transaction) == core::Status{core::Result::Success, core::Cause::State}) {
             // we've already verified it's not full
             transactions_.Push(transaction);
             // we've already verified it's not nullptr
             transaction->Inform(TransactionType::Event::Scheduled);
             stats_.accepted++;
-            return Status{core::Result::Success, core::Cause::State};
+            return core::Status{core::Result::Success, core::Cause::State};
         } else {
             stats_.rejected++;
-            return Status{core::Result::Failure, core::Cause::Parameter};
+            return core::Status{core::Result::Failure, core::Cause::Parameter};
         }
     }
 
@@ -77,14 +78,22 @@ public:
 
         // check the state of the active_ transaction
         if (active_->IsQueued()) {
-            status = driver_.Start(*active_);
-            if (status.IsSuccess()) {
-                stats_.started++;
-                active_->Inform(TransactionType::Event::Start);
+            // ask it to Start, this will internally check to see if the dead line has been passed.
+            active_->Inform(TransactionType::Event::Start);
+            if (active_->IsRunning()) {
+                status = driver_.Start(*active_);
+                if (status.IsSuccess()) {
+                    stats_.started++;
+                } else {
+                    stats_.stalled++;
+                    stats_.completed++;
+                    active_->Inform(TransactionType::Event::Completed, status);
+                }
             } else {
-                stats_.stalled++;
+                // the transaction is not running
+                stats_.deadline++;
                 stats_.completed++;
-                active_->Inform(TransactionType::Event::Completed, status);
+                // internally the transaction will be marked as complete
             }
         }
         // check the state of the active transaction
@@ -124,7 +133,8 @@ public:
         std::size_t accepted{0U};   ///< The transaction passed verification and placed into the Ring.
         std::size_t rejected{0U};   ///< The transaction was invalid and was not placed into the Ring.
         std::size_t started{0U};    ///< The transaction was started.
-        std::size_t stalled{0U};    ///< The transaction was not started.
+        std::size_t stalled{0U};    ///< The transaction was not started due to failure.
+        std::size_t deadline{0U};   ///< The transaction was not started due to deadline passing
         std::size_t completed{0U};  ///< The transaction was completed.
         std::size_t retried{0U};    ///< The transaction was retried.
         std::size_t passed{0U};     ///< The transaction was successful.

@@ -2,8 +2,9 @@
 #define JARNAX_TRANSACTABLE_HPP
 
 #include <cstddef>
+#include "core/Status.hpp"
+#include "core/Units.hpp"
 #include "core/StateMachine.hpp"
-#include "jarnax.hpp"
 #include "jarnax/Timer.hpp"
 
 namespace jarnax {
@@ -53,7 +54,7 @@ public:
         Completed,      ///< The transaction has completed
     };
 
-    void Inform(Event event, Status status = Status{core::Result::NotAvailable, core::Cause::Parameter}) {
+    void Inform(Event event, core::Status status = core::Status{core::Result::NotAvailable, core::Cause::Parameter}) {
         event_ = event;
         if (event_ == Event::Completed) {
             completion_status_ = status;
@@ -74,7 +75,7 @@ public:
     /// Before the transaction is scheduled, the status is not valid,
     /// After the transaction is scheduled, it should return busy.
     /// After the transaction is complete, it should return the result of the transaction.
-    Status GetStatus() const { return status_; }
+    core::Status GetStatus() const { return status_; }
 
     /// The number of times the transaction has been tried. This is reset to zero when the transaction is initialized.
     std::size_t GetAttemptsRemaining() const { return try_count_; }
@@ -82,13 +83,17 @@ public:
     /// The duration of the transaction in microseconds. This is only valid after the transaction has completed
     core::units::MicroSeconds GetDuration() const { return duration_; }
 
+    /// Sets the deadline for the transaction to a non-infinite value.
+    void SetDeadline(core::units::MicroSeconds deadline) { deadline_ = deadline; }
+
     bool Reset() {
         if (IsFinal()) {
             // moves the state back to Uninitialized
-            status_ = Status{core::Result::NotInitialized, core::Cause::State};
+            status_ = core::Status{core::Result::NotInitialized, core::Cause::State};
             try_count_ = ATTEMPT_LIMIT;
             start_ = core::units::MicroSeconds{0U};
             duration_ = core::units::MicroSeconds{0U};
+            deadline_ = core::units::MicroSeconds{std::numeric_limits<core::units::MicroSeconds::StorageType>::max()};
             derived_.Clear();
             Enter();
             return true;
@@ -121,11 +126,11 @@ protected:
             // std::cout << "Entry State: " << static_cast<int>(state) << std::endl;
         }
         if (state == TransactionState::Initialized) {
-            status_ = Status{core::Result::NotReady, core::Cause::State};
+            status_ = core::Status{core::Result::NotReady, core::Cause::State};
         } else if (state == TransactionState::Running) {
             try_count_--;
             start_ = timer_.GetMicroseconds();
-            status_ = Status{core::Result::Busy, core::Cause::State};
+            status_ = core::Status{core::Result::Busy, core::Cause::State};
         } else if (state == TransactionState::Complete) {
             duration_ = timer_.GetMicroseconds() - start_;
         }
@@ -152,7 +157,12 @@ protected:
             }
         } else if (state == TransactionState::Queued) {
             if (event_ == Event::Start) {
-                return TransactionState::Running;
+                if (timer_.GetMicroseconds() < deadline_) {
+                    return TransactionState::Running;
+                } else {
+                    status_ = core::Status{core::Result::Timeout, core::Cause::State};
+                    return TransactionState::Complete;
+                }
             } else if (event_ == Event::Completed) {
                 // failed to start
                 status_ = completion_status_;
@@ -163,7 +173,7 @@ protected:
                 if (try_count_ > 0U) {
                     return TransactionState::Queued;
                 } else {
-                    status_ = Status{core::Result::ExceededLimit, core::Cause::State};
+                    status_ = core::Status{core::Result::ExceededLimit, core::Cause::State};
                     return TransactionState::Complete;
                 }
             } else if (event_ == Event::Completed) {
@@ -185,11 +195,12 @@ protected:
     DerivedType& derived_;
     Timer& timer_;
     Event event_;
-    Status status_;
-    Status completion_status_;
+    core::Status status_;
+    core::Status completion_status_;
     std::size_t try_count_;
     core::units::MicroSeconds start_;
     core::units::MicroSeconds duration_;
+    core::units::MicroSeconds deadline_;
 };
 
 }    // namespace jarnax

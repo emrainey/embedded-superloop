@@ -7,8 +7,10 @@ SpiDriver::SpiDriver(stm32::registers::SerialPeripheralInterface volatile& spi)
     , spi_{spi} {
 }
 
-core::Status SpiDriver::Initialize(Hertz peripheral_frequency, Hertz desired_spi_clock_frequency) {
-    // do nothing
+core::Status SpiDriver::Initialize(core::units::Hertz peripheral_frequency, core::units::Hertz desired_spi_clock_frequency) {
+
+
+
     return core::Status{core::Result::Success, core::Cause::State};
 }
 
@@ -29,7 +31,7 @@ core::Status SpiDriver::Check(jarnax::spi::Transaction& transaction) {
 
 core::Status SpiDriver::Cancel(jarnax::spi::Transaction& transaction) {
     // do nothing
-    return core::Status{core::Result::Success, core::Cause::State};
+    return core::Status{core::Result::NotSupported, core::Cause::Configuration};
 }
 
 }  // namespace stm32

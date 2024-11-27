@@ -26,7 +26,7 @@ void Task::DelayForTicks(jarnax::Ticks ticks) {
 }
 
 bool Task::Execute(LoopInfo const &metadata) {
-    if ((metadata.count & 1) == 0) {
+    if ((metadata.system_loop_count & 1) == 0) {
         // be able to trigger a NMI
         // jarnax::yield();
     }

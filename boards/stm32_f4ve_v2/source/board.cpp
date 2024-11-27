@@ -39,7 +39,16 @@ DriverContext::DriverContext()
     , status_indicator_{status_pin_, stm32::Level::Low}
     , wakeup_button_{wakeup_pin_, true}
     , key0_button_{key0_pin_, false}
-    , key1_button_{key1_pin_, false} {
+    , key1_button_{key1_pin_, false}
+    , spi1_mosi_{stm32::gpio::Port::B, 5}
+    , spi1_miso_{stm32::gpio::Port::B, 4}
+    , spi1_sclk_{stm32::gpio::Port::B, 3}
+    , flash_cs_{stm32::gpio::Port::B, 0}
+    , nrf_cs_{stm32::gpio::Port::B, 7}
+    , nrf_ce_{stm32::gpio::Port::B, 6}
+    , nrf_irq_{stm32::gpio::Port::B, 8}
+    , spi1_driver_{stm32::registers::spi1}
+    {
     // @todo initialize the driver objects
 }
 
@@ -61,6 +70,13 @@ core::Status DriverContext::Initialize(void) {
     status_indicator_.Inactive();
     status = random_number_generator_.Initialize();
     status = timer_.Initialize(stm32::GetClockTree().tim_clk);
+    spi1_mosi_.SetMode(stm32::gpio::Mode::AlternateFunction).SetOutputSpeed(stm32::gpio::Speed::High).SetAlternative(5); // Alt 5 is SPI1
+    spi1_miso_.SetMode(stm32::gpio::Mode::AlternateFunction).SetOutputSpeed(stm32::gpio::Speed::High).SetAlternative(5); // Alt 5 is SPI1
+    spi1_sclk_.SetMode(stm32::gpio::Mode::AlternateFunction).SetOutputSpeed(stm32::gpio::Speed::High).SetAlternative(5); // Alt 5 is SPI1
+    flash_cs_.SetMode(stm32::gpio::Mode::Output).SetOutputSpeed(stm32::gpio::Speed::High).SetOutputType(stm32::gpio::OutputType::PushPull).SetResistor(stm32::gpio::Resistor::PullUp);
+    nrf_cs_.SetMode(stm32::gpio::Mode::Output).SetOutputSpeed(stm32::gpio::Speed::High).SetOutputType(stm32::gpio::OutputType::PushPull).SetResistor(stm32::gpio::Resistor::PullUp);
+    nrf_ce_.SetMode(stm32::gpio::Mode::Output).SetOutputSpeed(stm32::gpio::Speed::High).SetOutputType(stm32::gpio::OutputType::PushPull).SetResistor(stm32::gpio::Resistor::PullUp);
+    nrf_irq_.SetMode(stm32::gpio::Mode::Input).SetResistor(stm32::gpio::Resistor::PullUp);
     return status;
 }
 

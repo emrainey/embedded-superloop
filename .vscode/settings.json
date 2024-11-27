@@ -121,11 +121,16 @@
         {
             "name": "cortex-m-registers",
             "path": "documentation/cortex-m-registers.txt"
+        },
+        {
+            "name": "vocabulary",
+            "path": "documentation/vocabulary.txt"
         }
     ],
     "cSpell.dictionaries": [
         "thumb2-mnemonics",
-        "cortex-m-registers"
+        "cortex-m-registers",
+        "vocabulary"
     ],
     "cSpell.words": [
         "aeabi",
@@ -205,5 +210,5 @@
     "cmake.configureArgs": [
         "--graphviz=jarnax.dot"
     ],
-    "cmake.deleteBuildDirOnCleanConfigure": true,
+    "cmake.deleteBuildDirOnCleanConfigure": true
 }

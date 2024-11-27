@@ -7,6 +7,7 @@
 #include <iostream>
 #endif    // UNITTEST
 
+namespace core {
 namespace doublelink {
 template <typename TYPE>
 class Node {
@@ -26,11 +27,11 @@ public:
         , next_{nullptr}
         , marker_{false}
         , value_{std::forward<Args>(args)...} {
-        insert_after(&head);
+        InsertAfter(&head);
     }
 
     /// Destructor
-    ~Node() { remove(); }
+    ~Node() { Remove(); }
 
     /// Returns a reference to the value
     TYPE& operator()() { return value_; }
@@ -39,13 +40,13 @@ public:
     TYPE const& operator()() const { return value_; }
 
     /// Inserts this node on the right side of the given node
-    void insert_after(Node& that) { insert_after(&that); }
+    void InsertAfter(Node& that) { InsertAfter(&that); }
 
     /// Inserts this node on the left side of then given node
-    void insert_before(Node& that) { insert_before(&that); }
+    void InsertBefore(Node& that) { InsertBefore(&that); }
 
     /// Removes this node from the list
-    void remove() {
+    void Remove() {
         prev_->next_ = next_;
         next_->prev_ = prev_;
         next_ = prev_ = this;
@@ -54,7 +55,7 @@ public:
 
     /// Iterates over the list in the forward direction (over the next pointers)
     /// @param func The function to call for each node.
-    void foreach_forward(std::function<void(Node&)> func) {
+    void VisitForward(std::function<void(Node&)> func) {
         bool visited = not marker_;
         for (Node* node = this; node->marker_ != visited; node = node->next_) {
             func(*node);
@@ -64,7 +65,7 @@ public:
 
     /// Iterates over the list in the backward direction (over the prev pointers)
     /// @param func The function to call for each node.
-    void foreach_backward(std::function<void(Node&)> func) {
+    void VisitBackward(std::function<void(Node&)> func) {
         bool visited = not marker_;
         for (Node* node = this; node->marker_ != visited; node = node->prev_) {
             func(*node);
@@ -74,7 +75,7 @@ public:
 
     /// Iterates over the list in the forward direction (over the next pointers)
     /// @param func The function to call for each const node.
-    void foreach_forward(std::function<void(Node const&)> func) const {
+    void VisitForward(std::function<void(Node const&)> func) const {
         bool visited = not marker_;
         for (Node* node = this; node->marker_ != visited; node = node->next_) {
             func(*node);
@@ -84,7 +85,7 @@ public:
 
     /// Iterates over the list in the backward direction (over the prev pointers)
     /// @param func The function to call for each const node.
-    void foreach_backward(std::function<void(Node const&)> func) const {
+    void VisitBackward(std::function<void(Node const&)> func) const {
         bool visited = not marker_;
         for (Node* node = this; node->marker_ != visited; node = node->prev_) {
             func(*node);
@@ -103,7 +104,7 @@ public:
 #endif
 private:
     /// Inserts this node on the right side of the given node
-    void insert_after(Node* that) {
+    void InsertAfter(Node* that) {
         if (this == that) {
             return;
         }
@@ -115,7 +116,7 @@ private:
     }
 
     /// Inserts this node on the left side of then given node
-    void insert_before(Node* that) {
+    void InsertBefore(Node* that) {
         if (this == that) {
             return;
         }
@@ -132,6 +133,7 @@ private:
     TYPE value_;             ///< The value of the node
 };
 
-}    // namespace doublelink
+}  // namespace doublelink
+}  // namespace core
 
 #endif    // CORE_DOUBLELINK_NODE_HPP_

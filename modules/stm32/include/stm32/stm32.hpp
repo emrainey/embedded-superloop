@@ -108,9 +108,13 @@ void clocks(ClockConfiguration const& clkcfg);
 void nvic(void);
 }    // namespace initialize
 
+static constexpr bool has_been_set{true};
+
 }    // namespace stm32
 
-/// If you've included this header you want the stm32 namespace to be your vendor
+/// If you've included this header you want the stm32 namespace to be your vendor alias
 namespace vendor = stm32;
+
+static_assert(::vendor::has_been_set, "The STM32 Vendor has not been set");
 
 #endif    // STM32_H_
