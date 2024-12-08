@@ -1,7 +1,9 @@
 #ifndef JARNAX_TRANSACTABLE_HPP
 #define JARNAX_TRANSACTABLE_HPP
 
+#include <cstdint>
 #include <cstddef>
+#include <limits>
 #include "core/Status.hpp"
 #include "core/Units.hpp"
 #include "core/StateMachine.hpp"

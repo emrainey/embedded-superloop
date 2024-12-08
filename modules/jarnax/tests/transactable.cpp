@@ -2,6 +2,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include "jarnax/Context.hpp"
 #include "jarnax/Transactable.hpp"
+#include "JumpTimer.hpp"
 
 #include <cstdio>
 
@@ -10,38 +11,6 @@ using namespace core::units;
 namespace jarnax {
 
 
-
-class FakeTimer : public Timer {
-public:
-    FakeTimer()
-        : current_{0U} {}
-
-    Iota GetIotas(void) const override {
-        Iota tmp;
-        tmp = current_;
-        current_ = current_ + 1_iota;
-        return tmp;
-    }
-
-    MicroSeconds GetMicroseconds(void) const override {
-        // 1 us = 1 iota
-        return core::units::MicroSeconds{GetIotas().value()};
-    }
-
-    void Jump(Iota iotas) {
-        current_ = current_ + iotas;
-        return;
-    }
-
-    void Jump(MicroSeconds microseconds) {
-        // 1 iota == 1 usec
-        current_ = current_ + Iota{microseconds.value()};
-        return;
-    }
-
-protected:
-    mutable Iota current_{0U};
-};
 
 static constexpr std::size_t Attempts = 3u;
 
@@ -65,7 +34,7 @@ public:
 };
 
 TEST_CASE("Transactable") {
-    FakeTimer timer;
+    JumpTimer timer;
     DummyTransaction dummy{timer};
 
     SECTION("Default") {
@@ -83,10 +52,11 @@ TEST_CASE("Transactable") {
         dummy.Inform(DummyTransaction::Event::Start);
         REQUIRE(dummy.IsRunning());
         REQUIRE(dummy.GetStatus() == core::Status{core::Result::Busy, core::Cause::State});
+        timer.Jump(7_usec);
         dummy.Inform(DummyTransaction::Event::Completed, core::Status{core::Result::Success, core::Cause::Unknown});
         REQUIRE(dummy.IsComplete());
         REQUIRE(dummy.GetAttemptsRemaining() == Attempts - 1);
-        REQUIRE(dummy.GetDuration().value() == 1U);
+        REQUIRE(dummy.GetDuration().value() == 7U);
         REQUIRE(dummy.GetStatus() == core::Status{core::Result::Success, core::Cause::Unknown});
         //======================================================================
         REQUIRE(dummy.Reset());
@@ -103,10 +73,11 @@ TEST_CASE("Transactable") {
         dummy.Inform(DummyTransaction::Event::Start);
         REQUIRE(dummy.IsRunning());
         REQUIRE(dummy.GetStatus() == core::Status{core::Result::Busy, core::Cause::State});
+        timer.Jump(7_usec);
         dummy.Inform(DummyTransaction::Event::Completed, core::Status{core::Result::Success, core::Cause::Unknown});
         REQUIRE(dummy.IsComplete());
         REQUIRE(dummy.GetAttemptsRemaining() == Attempts - 1);
-        REQUIRE(dummy.GetDuration().value() == 1U);
+        REQUIRE(dummy.GetDuration().value() == 7U);
         REQUIRE(dummy.GetStatus() == core::Status{core::Result::Success, core::Cause::Unknown});
     }
     SECTION("Retry") {

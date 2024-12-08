@@ -53,42 +53,54 @@ public:
         marker_ = false;
     }
 
+    /// @brief The visitor interface for iteration over the Nodes of the list.
+    class Visitor {
+    public:
+        /// @brief The visitor function to be implemented by the client. This function is called for each node in the list.
+        /// @param node The reference to the node being visited.
+        virtual void Visit(Node& node) = 0;
+
+        /// @brief The visitor function to be implemented by the client for const nodes. This function is called for each node in the list.
+        /// @param node The const reference to the node being visited.
+        virtual void Visit(Node const& node) const = 0;
+    };
+
     /// Iterates over the list in the forward direction (over the next pointers)
     /// @param func The function to call for each node.
-    void VisitForward(std::function<void(Node&)> func) {
+    void VisitForward(Visitor& visitor) {
         bool visited = not marker_;
         for (Node* node = this; node->marker_ != visited; node = node->next_) {
-            func(*node);
+            visitor.Visit(*node);
             node->marker_ = visited;
         }
     }
 
     /// Iterates over the list in the backward direction (over the prev pointers)
     /// @param func The function to call for each node.
-    void VisitBackward(std::function<void(Node&)> func) {
+    void VisitBackward(Visitor& visitor) {
         bool visited = not marker_;
         for (Node* node = this; node->marker_ != visited; node = node->prev_) {
-            func(*node);
+            visitor.Visit(*node);
             node->marker_ = visited;
         }
     }
 
     /// Iterates over the list in the forward direction (over the next pointers)
     /// @param func The function to call for each const node.
-    void VisitForward(std::function<void(Node const&)> func) const {
+    void VisitForward(Visitor const& visitor) const {
         bool visited = not marker_;
-        for (Node* node = this; node->marker_ != visited; node = node->next_) {
-            func(*node);
+        for (Node const* node = this; node->marker_ != visited; node = node->next_) {
+            visitor.Visit(*node);
             node->marker_ = visited;
         }
     }
 
     /// Iterates over the list in the backward direction (over the prev pointers)
     /// @param func The function to call for each const node.
-    void VisitBackward(std::function<void(Node const&)> func) const {
+    void VisitBackward(Visitor const& visitor) const {
         bool visited = not marker_;
-        for (Node* node = this; node->marker_ != visited; node = node->prev_) {
-            func(*node);
+        for (Node const* node = this; node->marker_ != visited; node = node->prev_) {
+            visitor.Visit(*node);
             node->marker_ = visited;
         }
     }

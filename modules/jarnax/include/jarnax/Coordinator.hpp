@@ -61,7 +61,7 @@ public:
         }
     }
 
-    bool Execute(LoopInfo const &) override {
+    bool Execute() override {
         core::Status status;
         if (active_ == nullptr) {
             if (transactions_.IsEmpty()) {

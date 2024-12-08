@@ -3,25 +3,11 @@
 
 /// @file
 /// The System Interface
-
-#include <cstdint>
-#include <cstddef>
-#include <cinttypes>
 #include "compiler.hpp"
-
-// clang-format off
-inline size_t operator""_Z( unsigned long long int value) {
-    return size_t(value);
-}
-// clang-format on
-
-#ifndef PRIz
-#define PRIz "zu"
-#endif
-
 #include "configure.hpp"
 #include "cortex/linker.hpp"
 #include "cortex/vectors.hpp"
+#include "jarnax/print.hpp"
 #include "jarnax/SuperLoop.hpp"
 #include "jarnax/Ticker.hpp"
 #include "jarnax/Timer.hpp"

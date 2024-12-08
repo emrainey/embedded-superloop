@@ -23,9 +23,9 @@ inline Cadence GetMask(std::size_t slot) {
     return (1U << slot);                    // return the mask
 }
 
-/// The Core SuperLoop metadata structure passed to the Executable each loop
+/// The Core SuperLoop metadata structure available to the Executable each loop
 struct LoopInfo final {
-    std::size_t system_loop_count{0U};         ///< Counts the number of system loops
+    std::size_t system_loop_count{0U};    ///< Counts the number of system loops
     std::size_t cadence_slot{0U};         ///< The current cadence slot. Use @GetMask to get the mask for this slot
 };
 

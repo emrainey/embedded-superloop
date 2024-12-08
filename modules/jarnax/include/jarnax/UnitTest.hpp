@@ -13,7 +13,7 @@ namespace jarnax {
 /// naming array.
 /// @tparam NUM_TESTS The number of tests to statically allocate. Must be a power of two.
 template <typename ENUM_TYPE, size_t RESULT_COUNT>
-class UnitTest : public Executable {
+class UnitTest : public Loopable {
 public:
     // Only enumeration types are allowed
     static_assert(std::is_enum<ENUM_TYPE>::value, "Must be an enumeration type");
@@ -96,7 +96,7 @@ public:
         }
     }
 
-    bool Execute(LoopInfo const&) override {
+    bool Execute() override {
         bool continue_tests = true;
         if (m_test_index_ < kMaximum) {
             if (m_states_[m_test_index_] == State::NotEvalutated) {

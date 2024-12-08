@@ -4,15 +4,15 @@
 #include "jarnax.hpp"
 #include "jarnax/RandomNumberGenerator.hpp"
 
-using jarnax::Executable;
+using jarnax::Loopable;
 using jarnax::LoopInfo;
 using jarnax::Ticks;
 
-class Task final : public jarnax::Executable {
+class Task final : public jarnax::Loopable {
 public:
     Task();
     void DelayForTicks(Ticks ticks);
-    bool Execute(LoopInfo const& metadata) override;
+    bool Execute() override;
 
 protected:
     jarnax::Ticker& ticker_;

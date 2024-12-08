@@ -115,10 +115,8 @@ core::units::MicroSeconds Timer::GetMicroseconds(void) const {
 }    // namespace stm32
 
 namespace jarnax {
-
 Timer& GetTimer(void) {
     static stm32::Timer timer{stm32::registers::timer2};
     return timer;
 }
-
 }    // namespace jarnax

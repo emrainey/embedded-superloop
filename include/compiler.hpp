@@ -18,4 +18,13 @@
 #define ALWAYS_INLINE __attribute__((always_inline))
 #endif
 
+#include <cstdint>
+#include <cstddef>
+
+// clang-format off
+inline size_t operator""_Z( unsigned long long int value) {
+    return size_t(value);
+}
+// clang-format on
+
 #endif    // COMPILER_HPP_

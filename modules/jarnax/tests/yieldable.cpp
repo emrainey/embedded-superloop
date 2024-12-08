@@ -9,7 +9,7 @@ class Dummy : public Yielder {
 public:
     Dummy()
         : Yielder() {}
-    bool Execute(LoopInfo const &) override { return true; }
+    bool Execute() override { return true; }
 };
 
 Dummy a;

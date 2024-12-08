@@ -5,6 +5,17 @@ extern "C" void __cxa_pure_virtual(void) {
     }
 }
 
+extern "C" int atexit(void (*function)(void)) {
+    (void)function;
+    return 0;
+}
+
+extern "C" void __cxa_atexit(void (*function)(void *), void *parameter, void *dso_handle) {
+    (void)function;
+    (void)parameter;
+    (void)dso_handle;
+}
+
 /// @fn __cxa_guard_acquire
 /// This is called when the compiler is trying to make sure that
 /// an object is constructed before being used (typically in a threading environment).

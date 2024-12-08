@@ -12,6 +12,10 @@ void *operator new(std::size_t bytes, uintptr_t address) noexcept {
     return reinterpret_cast<void *>(address);
 }
 
+void operator delete(void*, unsigned int) noexcept {
+    // do nothing
+}
+
 namespace core {
 
 /// @todo add core library implementations

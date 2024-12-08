@@ -2,80 +2,36 @@
 #include <catch2/catch_test_macros.hpp>
 #include "jarnax/Context.hpp"
 #include "jarnax/SuperLoop.hpp"
+#include "JumpTicker.hpp"
+#include "TestContext.hpp"
 
 #include <cstdio>
 
 using namespace core::units;
 
 namespace jarnax {
-class DummyTask : public Executable {
+
+class DummyTask : public Loopable {
 public:
     DummyTask(const char *name)
-        : name_{name}
-        , count_{0u} {}
-    bool Execute(LoopInfo const &loop_info) override {
-        count_ = loop_info.system_loop_count;
+        : name_{name} {}
+    bool Execute() override {
+        std::cout << "Running in slot " << GetLoopInfo().cadence_slot << std::endl;
         return true;
     }
 
-    std::size_t Count() const { return count_; }
-
     friend std::ostream &operator<<(std::ostream &os, const DummyTask &dummy) {
-        os << dummy.name_ << ": " << dummy.count_;
+        os << dummy.name_ << ": " << dummy.GetInfo().count;
         return os;
     }
 
 protected:
     char const *name_;
-    std::size_t count_;
 };
 
-class GlobalContext : public Context {
-public:
-    GlobalContext()
-        : loop_{jarnax::GetTicker()} {}
-    core::Status Initialize() override { return core::Status{}; }
-    SuperLoop &GetSuperLoop(void) override { return loop_; }
-
-protected:
-    SuperLoop loop_;
-};
-
-Context &GetContext() {
-    static GlobalContext my_context;
-    return my_context;
-}
-
-class FakeTicker : public Ticker {
-public:
-    FakeTicker(Ticks starting)
-        : current_{0u}
-        , bias_{starting} {}
-    Ticks GetTicksSinceBoot(void) const override {
-        Ticks tmp;
-        tmp = current_;
-        current_ = current_ + 1_ticks;
-        return tmp;
-    }
-    Hertz GetTicksPerSecond(void) const override { return Hertz{core::units::ticks_per_second.value()}; }
-    Time GetTimeSinceBoot(void) const override { return core::units::ConvertToSeconds(GetTicksSinceBoot()); }
-    Ticks GetTicks(void) const override { return GetTicksSinceBoot() + bias_; }
-    Time GetTime(void) const override { return core::units::ConvertToSeconds(GetTicksSinceBoot() + bias_); }
-    void AdjustTicks(Ticks bias) override { bias_ = bias; }
-    bool IsEnabled(void) const override { return true; }
-
-protected:
-    mutable Ticks current_{0u};
-    Ticks bias_{0u};
-};
-
-Ticker &GetTicker() {
-    static FakeTicker ticker{0_ticks};
-    return ticker;
-}
 
 TEST_CASE("SuperLoop - Cadence Test") {
-    FakeTicker ticker{10_ticks};
+    JumpTicker ticker{10_ticks};
     SuperLoop loop{ticker};
     DummyTask dummy0{"DummyTask0"};
     DummyTask dummy1{"DummyTask1"};
@@ -90,20 +46,20 @@ TEST_CASE("SuperLoop - Cadence Test") {
     SECTION("Single Count") {
         loop.RunAllOnce();
         std::cout << loop << std::endl;
-        REQUIRE(dummy0.Count() == 0U);
-        REQUIRE(dummy1.Count() == 1U);
-        REQUIRE(dummy2.Count() == 1U);
-        REQUIRE(dummy3.Count() == 0U);
+        REQUIRE(dummy0.GetInfo().count == 0U);
+        REQUIRE(dummy1.GetInfo().count == 1U);
+        REQUIRE(dummy2.GetInfo().count == 1U);
+        REQUIRE(dummy3.GetInfo().count == 0U);
     }
     SECTION("All Count") {
         for (size_t i = 0; i < SlotsInCadence; i++) {
             loop.RunAllOnce();
         }
         std::cout << loop << std::endl;
-        REQUIRE(dummy0.Count() == 16U);
-        REQUIRE(dummy1.Count() == 16U);
-        REQUIRE(dummy2.Count() == 32U);
-        REQUIRE(dummy3.Count() == 16U);
+        REQUIRE(dummy0.GetInfo().count == 16U);
+        REQUIRE(dummy1.GetInfo().count == 16U);
+        REQUIRE(dummy2.GetInfo().count == 32U);
+        REQUIRE(dummy3.GetInfo().count == 16U);
     }
 }
 
