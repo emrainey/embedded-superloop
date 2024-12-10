@@ -47,8 +47,7 @@ DriverContext::DriverContext()
     , nrf_cs_{stm32::gpio::Port::B, 7}
     , nrf_ce_{stm32::gpio::Port::B, 6}
     , nrf_irq_{stm32::gpio::Port::B, 8}
-    , spi1_driver_{stm32::registers::spi1}
-    {
+    , spi1_driver_{stm32::registers::spi1} {
     // @todo initialize the driver objects
 }
 
@@ -68,15 +67,54 @@ core::Status DriverContext::Initialize(void) {
         .SetResistor(stm32::gpio::Resistor::None);
     error_indicator_.Inactive();
     status_indicator_.Inactive();
+    spi1_mosi_.SetMode(stm32::gpio::Mode::AlternateFunction).SetOutputSpeed(stm32::gpio::Speed::High).SetAlternative(5);    // Alt 5 is SPI1
+    spi1_miso_.SetMode(stm32::gpio::Mode::AlternateFunction).SetOutputSpeed(stm32::gpio::Speed::High).SetAlternative(5);    // Alt 5 is SPI1
+    spi1_sclk_.SetMode(stm32::gpio::Mode::AlternateFunction).SetOutputSpeed(stm32::gpio::Speed::High).SetAlternative(5);    // Alt 5 is SPI1
+    flash_cs_.SetMode(stm32::gpio::Mode::Output)
+        .SetOutputSpeed(stm32::gpio::Speed::High)
+        .SetOutputType(stm32::gpio::OutputType::PushPull)
+        .SetResistor(stm32::gpio::Resistor::PullUp);
+    nrf_cs_.SetMode(stm32::gpio::Mode::Output)
+        .SetOutputSpeed(stm32::gpio::Speed::High)
+        .SetOutputType(stm32::gpio::OutputType::PushPull)
+        .SetResistor(stm32::gpio::Resistor::PullUp);
+    nrf_ce_.SetMode(stm32::gpio::Mode::Output)
+        .SetOutputSpeed(stm32::gpio::Speed::High)
+        .SetOutputType(stm32::gpio::OutputType::PushPull)
+        .SetResistor(stm32::gpio::Resistor::PullUp);
+    nrf_irq_.SetMode(stm32::gpio::Mode::Input).SetResistor(stm32::gpio::Resistor::PullUp);
+
+    // Enable the RNG in the AHB2 Periperhals
+    stm32::registers::ResetAndClockControl::AHB2PeripheralClockEnable ahb2_enable;
+    ahb2_enable = stm32::registers::reset_and_clock_control.ahb2_peripheral_clock_enable;    // read
+    ahb2_enable.bits.random_number_generator_enable = 1U;
+    stm32::registers::reset_and_clock_control.ahb2_peripheral_clock_enable = ahb2_enable;    // write
+
+    // Reset the RNG
+    stm32::registers::ResetAndClockControl::AHB2PeripheralReset reset;
+    reset = stm32::registers::reset_and_clock_control.ahb2_peripheral_reset;    // read
+    reset.bits.random_number_generator_reset = 1U;
+    stm32::registers::reset_and_clock_control.ahb2_peripheral_reset = reset;    // write
+    reset.bits.random_number_generator_reset = 0U;
+    stm32::registers::reset_and_clock_control.ahb2_peripheral_reset = reset;    // write
+
+    // enable clock (from APB1) for Timer2
+    stm32::registers::ResetAndClockControl::APB1PeripheralClockEnable config;
+    config = stm32::registers::reset_and_clock_control.apb1_peripheral_clock_enable;    // read
+    config.bits.tim2en = 1U;
+    stm32::registers::reset_and_clock_control.apb1_peripheral_clock_enable = config;    // write
+
+    // enable the SPI peripheral in the Reset and Clock Control register
+    stm32::registers::ResetAndClockControl::APB2PeripheralClockEnable apb2_enable;
+    apb2_enable = stm32::registers::reset_and_clock_control.apb2_peripheral_clock_enable;    // read
+    apb2_enable.bits.spi1en = 1;                                                             // modify
+    stm32::registers::reset_and_clock_control.apb2_peripheral_clock_enable = apb2_enable;    // write
+
     status = random_number_generator_.Initialize();
     status = timer_.Initialize(stm32::GetClockTree().tim_clk);
-    spi1_mosi_.SetMode(stm32::gpio::Mode::AlternateFunction).SetOutputSpeed(stm32::gpio::Speed::High).SetAlternative(5); // Alt 5 is SPI1
-    spi1_miso_.SetMode(stm32::gpio::Mode::AlternateFunction).SetOutputSpeed(stm32::gpio::Speed::High).SetAlternative(5); // Alt 5 is SPI1
-    spi1_sclk_.SetMode(stm32::gpio::Mode::AlternateFunction).SetOutputSpeed(stm32::gpio::Speed::High).SetAlternative(5); // Alt 5 is SPI1
-    flash_cs_.SetMode(stm32::gpio::Mode::Output).SetOutputSpeed(stm32::gpio::Speed::High).SetOutputType(stm32::gpio::OutputType::PushPull).SetResistor(stm32::gpio::Resistor::PullUp);
-    nrf_cs_.SetMode(stm32::gpio::Mode::Output).SetOutputSpeed(stm32::gpio::Speed::High).SetOutputType(stm32::gpio::OutputType::PushPull).SetResistor(stm32::gpio::Resistor::PullUp);
-    nrf_ce_.SetMode(stm32::gpio::Mode::Output).SetOutputSpeed(stm32::gpio::Speed::High).SetOutputType(stm32::gpio::OutputType::PushPull).SetResistor(stm32::gpio::Resistor::PullUp);
-    nrf_irq_.SetMode(stm32::gpio::Mode::Input).SetResistor(stm32::gpio::Resistor::PullUp);
+    jarnax::print("Feature Clock is %lu\r\n", stm32::GetClockTree().fclk.value());
+    status = spi1_driver_.Initialize(stm32::GetClockTree().fclk, winbond::spi_clock_frequency);
+
     return status;
 }
 

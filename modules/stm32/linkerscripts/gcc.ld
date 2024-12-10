@@ -196,7 +196,44 @@ SECTIONS {
 
     /* Arm Private Bus 2 */
     .apb2 (NOLOAD) : {
+        . = ORIGIN(APB2) + 0x0000;
+        _stm32_tim1 = . ;
+        . = ORIGIN(APB2) + 0x0400;
+        _stm32_tim8 = . ;
+        . = ORIGIN(APB2) + 0x1000;
+        _stm32_usart1 = . ;
+        . = ORIGIN(APB2) + 0x1400;
+        _stm32_usart6 = . ;
+        . = ORIGIN(APB2) + 0x2000;
+        _stm32_adc1 = . ;
+        . = ORIGIN(APB2) + 0x2C00;
+        _stm32_sdio = . ;
+        . = ORIGIN(APB2) + 0x3000;
+        _stm32_spi1 = . ;
+        . = ORIGIN(APB2) + 0x3400;
+        _stm32_spi4 = . ;
+        . = ORIGIN(APB2) + 0x3800;
+        _stm32_syscfg = . ;
+        . = ORIGIN(APB2) + 0x3C00;
+        _stm32_exti = . ;
+        . = ORIGIN(APB2) + 0x4000;
+        _stm32_tim9 = . ;
+        . = ORIGIN(APB2) + 0x4400;
+        _stm32_tim10 = . ;
+        . = ORIGIN(APB2) + 0x4800;
+        _stm32_tim11 = . ;
+        . = ORIGIN(APB2) + 0x5000;
+        _stm32_spi5 = . ;
+        . = ORIGIN(APB2) + 0x5400;
+        _stm32_spi6 = . ;
+        . = ORIGIN(APB2) + 0x5800;
+        _stm32_sai1 = . ;
+        . = ORIGIN(APB2) + 0x6800;
+        _stm32_lcd = . ;
     } > APB2
+
+    PROVIDE(_ZN5stm329registers6timer1E = _stm32_tim1);
+    PROVIDE(_ZN5stm329registers4spi1E = _stm32_spi1);
 
     /* Arm High Performance Bus 1 */
     .ahb1 (NOLOAD) : {
@@ -209,9 +246,9 @@ SECTIONS {
         . = ORIGIN(AHB1) + 0x3C00;
         _stm32_flash_control = . ;
         . = ORIGIN(AHB1) + 0x4000;
-        _stm32_bkpsram_start = .;
+        _stm32_bkpsram_start = . ;
         KEEP(*(.bkpsram))
-        _stm32_bkpsram_end = .;
+        _stm32_bkpsram_end = . ;
     } > AHB1
 
     PROVIDE(_ZN5stm329registers28general_purpose_input_outputE = _stm32_gpio);

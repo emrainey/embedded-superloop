@@ -38,13 +38,6 @@ Timer::Timer(stm32::registers::Timer2 volatile& timer)
 }
 
 core::Status Timer::Initialize(core::units::Hertz internal_clock) {
-
-    // enable clock (from APB1) for Timer2
-    stm32::registers::ResetAndClockControl::APB1PeripheralClockEnable config;
-    config = registers::reset_and_clock_control.apb1_peripheral_clock_enable;    // read
-    config.bits.tim2en = 1U;
-    registers::reset_and_clock_control.apb1_peripheral_clock_enable = config;    // write
-
     stm32::registers::Timer2::Control1 control1;
 
     // disable the timer
@@ -53,24 +46,24 @@ core::Status Timer::Initialize(core::units::Hertz internal_clock) {
     timer_.control1 = control1;    // write
 
     // configure the timer
-    control1.bits.direction = 1U;       // downcounting
-    control1.bits.one_pulse_mode = 0U;  // continuous mode
-    control1.bits.auto_reload_preload_enable = 0U; // disable auto-reload preload
-    control1.bits.update_request_source = 1U;      // only counter overflow/underflow generates an update interrupt
-    timer_.control1 = control1;         // write
+    control1.bits.direction = 1U;                     // downcounting
+    control1.bits.one_pulse_mode = 0U;                // continuous mode
+    control1.bits.auto_reload_preload_enable = 0U;    // disable auto-reload preload
+    control1.bits.update_request_source = 1U;         // only counter overflow/underflow generates an update interrupt
+    timer_.control1 = control1;                       // write
 
     // set the prescaler for a MicroSecond clock
     std::uint32_t prescalar = (internal_clock.value() / 1000000U) - 1U;
     timer_.prescalar = prescalar;
-    timer_.auto_reload = internal_clock.value() / (prescalar + 1U); // should interrupt 1/sec
+    timer_.auto_reload = internal_clock.value() / (prescalar + 1U);    // should interrupt 1/sec
 
     // enable the update event
     stm32::registers::Timer2::EventGeneration event_generation;
-    event_generation = timer_.event_generation;    // read
-    event_generation.bits.update_generation = 1U;  // enable
-    timer_.event_generation = event_generation;    // write
+    event_generation = timer_.event_generation;      // read
+    event_generation.bits.update_generation = 1U;    // enable
+    timer_.event_generation = event_generation;      // write
 
-    stm32::registers::Timer2::DmaInterruptEnable  dma_interrupt;
+    stm32::registers::Timer2::DmaInterruptEnable dma_interrupt;
     dma_interrupt = timer_.dma_interrupt;    // read
     dma_interrupt.bits.update = 1U;          // enable
     timer_.dma_interrupt = dma_interrupt;    // write
@@ -78,16 +71,15 @@ core::Status Timer::Initialize(core::units::Hertz internal_clock) {
     // stop the timer while we're in debug mode
     stm32::registers::Debug::DebugMcu_APB1_Freeze debug_mcu_apb1_freeze;
     debug_mcu_apb1_freeze = stm32::registers::debug.dbgmcu_apb1_freeze;    // read
-    debug_mcu_apb1_freeze.bits.dbg_tim2_stop = 1U;                   // stop
+    debug_mcu_apb1_freeze.bits.dbg_tim2_stop = 1U;                         // stop
     stm32::registers::debug.dbgmcu_apb1_freeze = debug_mcu_apb1_freeze;    // write
 
     // initialize the high order bits
     timer2_high_order_bits = 0U;
 
     // enable the timer
-    control1.bits.enable = 1U;  // enable
-    timer_.control1 = control1; // write
-
+    control1.bits.enable = 1U;     // enable
+    timer_.control1 = control1;    // write
 
     return core::Status{core::Result::Success, core::Cause::Unknown};
 }

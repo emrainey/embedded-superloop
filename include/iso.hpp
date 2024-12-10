@@ -30,6 +30,19 @@ constexpr static std::uint32_t gibi = kibi * mebi;
 static_assert(polyfill::log2(gibi) == 30, "Must be this value exactly");
 
 }    // namespace prefix
+
+constexpr std::size_t operator""_GiB(unsigned long long value) {
+    return static_cast<std::size_t>(value) * prefix::gibi;
+}
+
+constexpr std::size_t operator""_MiB(unsigned long long value) {
+    return static_cast<std::size_t>(value) * prefix::mebi;
+}
+
+constexpr std::size_t operator""_KiB(unsigned long long value) {
+    return static_cast<std::size_t>(value) * prefix::kibi;
+}
+
 }    // namespace iso
 
 #endif    // ISO_HPP_

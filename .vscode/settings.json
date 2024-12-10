@@ -151,7 +151,7 @@
         "systick"
     ],
     "clang-format.fallbackStyle": "Google",
-    "editor.formatOnSave": false,
+    "editor.formatOnSave": true,
     "cmake.useCMakePresets": "always",
     "C_Cpp.errorSquiggles": "enabled",
     "C_Cpp.default.cppStandard": "c++20",

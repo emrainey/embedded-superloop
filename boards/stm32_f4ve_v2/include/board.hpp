@@ -7,6 +7,7 @@
 #include <cstdint>
 #include "iso.hpp"
 #include "core/Status.hpp"
+#include "core/Units.hpp"
 #include "jarnax/Ticker.hpp"
 #include "stm32/stm32f407ve.hpp"
 #include "stm32/Timer.hpp"
@@ -14,7 +15,6 @@
 #include "stm32/Indicator.hpp"
 #include "stm32/SpiDriver.hpp"
 #include "stm32/RandomNumberGenerator.hpp"
-
 
 /// RTT features
 namespace rtt {
@@ -37,6 +37,15 @@ constexpr static Hertz high_speed_external_oscillator_frequency = 8_MHz;
 /// The number of iota per second (based on the ClockTree)
 constexpr static std::uint32_t iota_per_microsecond = 1U;
 }    // namespace stm32
+
+namespace winbond {
+using iso::operator""_MiB;
+using core::units::operator""_MHz;
+/// The size of the flash chip in bytes
+constexpr static std::size_t flash_size = 16_MiB;
+/// @brief The maximum clock frequency of the SPI bus for Read Operations on the Flash W25Q16JV
+constexpr static core::units::Hertz spi_clock_frequency{50_MHz};
+}    // namespace winbond
 
 namespace jarnax {
 

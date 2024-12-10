@@ -12,12 +12,15 @@ public:
 
     core::Status Initialize(core::units::Hertz peripheral_frequency, core::units::Hertz desired_spi_clock_frequency);
 
+    stm32::registers::SerialPeripheralInterface::Control1::BaudRateDivider FindClosestDivider(
+        core::units::Hertz peripheral_frequency, core::units::Hertz desired_spi_clock_frequency
+    );
+
     //+======[ Transactor Interface ]=======================================================+
     core::Status Verify(jarnax::spi::Transaction& transaction) override;
     core::Status Start(jarnax::spi::Transaction& transaction) override;
     core::Status Check(jarnax::spi::Transaction& transaction) override;
     core::Status Cancel(jarnax::spi::Transaction& transaction) override;
-
 
 protected:
     stm32::registers::SerialPeripheralInterface volatile& spi_;
