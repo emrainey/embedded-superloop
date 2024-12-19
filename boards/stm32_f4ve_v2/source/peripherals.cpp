@@ -33,6 +33,7 @@ SerialPeripheralInterface volatile spi3;
 SerialPeripheralInterface volatile spi4;
 SerialPeripheralInterface volatile spi5;
 SerialPeripheralInterface volatile spi6;
+DirectMemoryAccess volatile direct_memory_access[NumberOfDmaControllers];
 }    // namespace registers
 }    // namespace stm32
 

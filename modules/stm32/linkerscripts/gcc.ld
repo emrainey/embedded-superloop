@@ -13,7 +13,7 @@ MEMORY {
     SRAM          (rw) : ORIGIN = 0x20000000, LENGTH = 128K
     APB1          (rw) : ORIGIN = 0x40000000, LENGTH = 0x00010000
     APB2          (rw) : ORIGIN = 0x40010000, LENGTH = 0x00010000
-    AHB1          (rw) : ORIGIN = 0x40020000, LENGTH = 0x00009400
+    AHB1          (rw) : ORIGIN = 0x40020000, LENGTH = 0x0000BC00
     USB_OTG_HS    (rw) : ORIGIN = 0x40040000, LENGTH = 0x00040000
     USB_OTG_FS    (rw) : ORIGIN = 0x50000000, LENGTH = 0x00040000
     AHB2          (rw) : ORIGIN = 0x50050000, LENGTH = 0x00060C00
@@ -75,14 +75,14 @@ SECTIONS {
         . = ALIGN(4);
     } >REGION_TEXT
 
-    /* Intialized Constant Static Storage */
+    /* Initialized Constant Static Storage */
     .rodata ALIGN(4) : {
         __data_load = .;
         *(.rodata)
         *(.rodata.*)
     } >REGION_TEXT
 
-    /* Intialized Static Storage */
+    /* Initialized Static Storage */
     .data : {
         __data_start = .;
         *(.data)
@@ -103,7 +103,7 @@ SECTIONS {
     __privileged_data_size = SIZEOF(.privileged_data);
     __privileged_data_size_pow2 = LOG2CEIL(__privileged_data_size);
 
-    /* Unintialized Static Storage */
+    /* Uninitialized Static Storage */
     .bss (NOLOAD) : {
         __bss_start = ALIGN(4);
         *(.bss)
@@ -111,6 +111,14 @@ SECTIONS {
         . = ALIGN(4);
         __bss_end = .;
     } >REGION_BSS
+
+    /* DMA Buffers (uncached memory) */
+    .dma_buffers ALIGN(1024) (NOLOAD) : {
+        __dma_buffers_start = .;
+        *(.dma_buffers)
+        . = ALIGN(8);
+        __dma_buffers_end = .;
+    } > REGION_DATA
 
     /* Process Stack */
     .process_stack (NOLOAD) : {
@@ -249,12 +257,27 @@ SECTIONS {
         _stm32_bkpsram_start = . ;
         KEEP(*(.bkpsram))
         _stm32_bkpsram_end = . ;
+        . = ORIGIN(AHB1) + 0x6000;
+        _stm32_dma1 = . ;
+        . = ORIGIN(AHB1) + 0x6400;
+        _stm32_dma2 = . ;
+        . = ORIGIN(AHB1) + 0x8000;
+        _stm32_ethernet = . ;
+        . = ORIGIN(AHB1) + 0xB000;
+        _stm32_dma2d = . ;
     } > AHB1
 
+    /* Provide as the base for an array of peripherals */
     PROVIDE(_ZN5stm329registers28general_purpose_input_outputE = _stm32_gpio);
     PROVIDE(_ZN5stm329registers23reset_and_clock_controlE = _stm32_reset_and_clock_control);
     PROVIDE(_ZN5stm329registers13flash_controlE = _stm32_flash_control);
     ASSERT((_stm32_bkpsram_end - _stm32_bkpsram_start) <= BKPRSRAM_SIZE, ".bkpsram has overrun!")
+    /* Provide as the base for an array of peripherals */
+    PROVIDE(_ZN5stm329registers20direct_memory_accessE = _stm32_dma1);
+    PROVIDE(_ZN5stm329registers21direct_memory_access1E = _stm32_dma1);
+    PROVIDE(_ZN5stm329registers21direct_memory_access2E = _stm32_dma2);
+    PROVIDE(_ZN5stm329registers8ethernetE = _stm32_ethernet);
+    PROVIDE(_ZN5stm329registers143dma2d_controlE = _stm32_dma2d);
 
     /* Arm High Performance Bus 2 */
     .ahb2 (NOLOAD) : {
@@ -303,7 +326,7 @@ SECTIONS {
     __sram_beg = ORIGIN(SRAM);
     __sram_end = ORIGIN(SRAM) + LENGTH(SRAM);
 
-    /* Private Peripheral Block for Cortex M7 */
+    /* Private Peripheral Block for Cortex M */
     .ppb (NOLOAD) : {
         . = ORIGIN(PPB) + 0x00000;
         _cortex_instruction_trace_macrocell = . ;

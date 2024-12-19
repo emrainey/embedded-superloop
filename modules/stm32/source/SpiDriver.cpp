@@ -1,11 +1,15 @@
+#include "compiler.hpp"
 #include "stm32/SpiDriver.hpp"
 #include "stm32/registers/ResetAndClockControl.hpp"
 
 namespace stm32 {
 
-SpiDriver::SpiDriver(stm32::registers::SerialPeripheralInterface volatile& spi)
+SpiDriver::SpiDriver(stm32::registers::SerialPeripheralInterface volatile& spi, dma::Driver& dma_driver, DmaBuffer const& dma_memory)
     : jarnax::spi::Driver{static_cast<jarnax::spi::Transactor&>(*this)}
-    , spi_{spi} {
+    , spi_{spi}
+    , dma_driver_{dma_driver}
+    , dma_memory_{dma_memory}
+    , dma_stream_{nullptr} {
 }
 
 stm32::registers::SerialPeripheralInterface::Control1::BaudRateDivider SpiDriver::FindClosestDivider(
@@ -64,6 +68,11 @@ core::Status SpiDriver::Initialize(core::units::Hertz peripheral_frequency, core
     control1 = spi_.control1;        // read
     control1.bits.spi_enable = 1;    // modify
     spi_.control1 = control1;        // write
+
+    core::Status status = dma_driver_.Acquire(dma_stream_, 11U);    // SPI1_TX
+    if (not status) {
+        return status;
+    }
 
     return core::Status{core::Result::Success, core::Cause::State};
 }

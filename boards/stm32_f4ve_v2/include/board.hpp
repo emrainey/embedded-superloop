@@ -112,6 +112,8 @@ protected:
     stm32::gpio::Pin nrf_cs_;
     stm32::gpio::Pin nrf_ce_;
     stm32::gpio::Pin nrf_irq_;
+    /// The DMA Driver
+    stm32::dma::Driver dma_driver_;
     /// The SPI Driver
     stm32::SpiDriver spi1_driver_;
 };

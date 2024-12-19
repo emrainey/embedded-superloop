@@ -8,6 +8,7 @@
 #include "stm32/registers/GeneralPurposeInputOutput.hpp"
 #include "stm32/registers/FlashControl.hpp"
 #include "stm32/registers/Timer2.hpp"
+#include "stm32/registers/DirectMemoryAccess.hpp"
 #include "stm32/registers/SerialPeripheralInterface.hpp"
 
 /// The ST Micro 32 Namespace
@@ -36,7 +37,7 @@ struct ClockTree {
     Hertz rtc;
     Hertz rng;
     Hertz usbotg;
-    Hertz tim_clk;           ///< The frequency of the TIMx clocks  (TIMxCLK)
+    Hertz tim_clk;    ///< The frequency of the TIMx clocks  (TIMxCLK)
 };
 
 /// Returns what the vendor considers the frequency of the system.

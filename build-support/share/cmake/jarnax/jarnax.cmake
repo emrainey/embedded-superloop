@@ -361,6 +361,10 @@ function(add_firmware)
                     -Wl,-gc-sections
                     -Wl,-cref
                 )
+                # Set the INTERFACE_LINK_DEPENDS property
+                set_target_properties(${LOCAL_TARGET}.elf PROPERTIES
+                    INTERFACE_LINK_DEPENDS "${ARG_LINKERSCRIPT}"
+                )
                 # add_dependencies(${ARG_NAME}.elf ${ARG_NAME}-ld-script)
                 set(ARG_ELF ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.elf)
                 set(ARG_DISASM ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.s)

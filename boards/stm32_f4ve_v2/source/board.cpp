@@ -26,6 +26,10 @@ ClockConfiguration const default_clock_configuration = {
 }    // namespace stm32
 
 namespace jarnax {
+
+/// DMA Memory for the SPI1 Driver
+LINKER_SECTION(".dma_buffer") static stm32::SpiDriver::DmaBuffer spi1_dma_memory;
+
 DriverContext::DriverContext()
     : timer_{stm32::registers::timer2}
     , random_number_generator_{}
@@ -47,7 +51,8 @@ DriverContext::DriverContext()
     , nrf_cs_{stm32::gpio::Port::B, 7}
     , nrf_ce_{stm32::gpio::Port::B, 6}
     , nrf_irq_{stm32::gpio::Port::B, 8}
-    , spi1_driver_{stm32::registers::spi1} {
+    , dma_driver_{}
+    , spi1_driver_{stm32::registers::spi1, dma_driver_, spi1_dma_memory} {
     // @todo initialize the driver objects
 }
 
@@ -84,8 +89,12 @@ core::Status DriverContext::Initialize(void) {
         .SetResistor(stm32::gpio::Resistor::PullUp);
     nrf_irq_.SetMode(stm32::gpio::Mode::Input).SetResistor(stm32::gpio::Resistor::PullUp);
 
-    // Enable the RNG in the AHB2 Periperhals
+    stm32::registers::ResetAndClockControl::AHB1PeripheralClockEnable ahb1_enable;
     stm32::registers::ResetAndClockControl::AHB2PeripheralClockEnable ahb2_enable;
+    stm32::registers::ResetAndClockControl::APB1PeripheralClockEnable apb1_enable;
+    stm32::registers::ResetAndClockControl::APB2PeripheralClockEnable apb2_enable;
+
+    // Enable the RNG in the AHB2 Periperhals
     ahb2_enable = stm32::registers::reset_and_clock_control.ahb2_peripheral_clock_enable;    // read
     ahb2_enable.bits.random_number_generator_enable = 1U;
     stm32::registers::reset_and_clock_control.ahb2_peripheral_clock_enable = ahb2_enable;    // write
@@ -99,13 +108,17 @@ core::Status DriverContext::Initialize(void) {
     stm32::registers::reset_and_clock_control.ahb2_peripheral_reset = reset;    // write
 
     // enable clock (from APB1) for Timer2
-    stm32::registers::ResetAndClockControl::APB1PeripheralClockEnable config;
-    config = stm32::registers::reset_and_clock_control.apb1_peripheral_clock_enable;    // read
-    config.bits.tim2en = 1U;
-    stm32::registers::reset_and_clock_control.apb1_peripheral_clock_enable = config;    // write
+    apb1_enable = stm32::registers::reset_and_clock_control.apb1_peripheral_clock_enable;    // read
+    apb1_enable.bits.tim2en = 1U;
+    stm32::registers::reset_and_clock_control.apb1_peripheral_clock_enable = apb1_enable;    // write
+
+    // enable the DMA1 and DMA2 in the Reset and Clock Control register
+    ahb1_enable = stm32::registers::reset_and_clock_control.ahb1_peripheral_clock_enable;    // read
+    ahb1_enable.bits.dma1en = 1;                                                             // modify
+    ahb1_enable.bits.dma2en = 1;                                                             // modify
+    stm32::registers::reset_and_clock_control.ahb1_peripheral_clock_enable = ahb1_enable;    // write
 
     // enable the SPI peripheral in the Reset and Clock Control register
-    stm32::registers::ResetAndClockControl::APB2PeripheralClockEnable apb2_enable;
     apb2_enable = stm32::registers::reset_and_clock_control.apb2_peripheral_clock_enable;    // read
     apb2_enable.bits.spi1en = 1;                                                             // modify
     stm32::registers::reset_and_clock_control.apb2_peripheral_clock_enable = apb2_enable;    // write

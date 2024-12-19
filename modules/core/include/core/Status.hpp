@@ -9,19 +9,20 @@
 namespace core {
 /// The enumeration of Results in the system
 enum class Result : std::int8_t {
-    Success = 0,           ///< Correct, all is as expected
-    Failure = 1,           ///< Unknown or generic failure
-    Busy = 2,              ///< An operation is ongoing
-    InvalidValue = 3,      ///< Not a correct value, not in a set of values
-    OutOfRange = 4,        ///< Not in the correct range
-    NotReady = 5,          ///< The cause was not ready at this time,
-    NotEnough = 6,         ///< Not enough of something
-    NotSupported = 7,      ///< Not supported
-    NotExpected = 8,       ///< Not expected
-    NotInitialized = 9,    ///< Not initialized
-    NotAvailable = 10,     ///< Not available
-    Timeout = 11,          ///< A timeout occurred
-    ExceededLimit = 12,    ///< A limit has been exceeded
+    Success = 0,            ///< Correct, all is as expected
+    Failure = 1,            ///< Unknown or generic failure
+    Busy = 2,               ///< An operation is ongoing
+    InvalidValue = 3,       ///< Not a correct value, not in a set of values
+    OutOfRange = 4,         ///< Not in the correct range
+    NotReady = 5,           ///< The cause was not ready at this time,
+    NotEnough = 6,          ///< Not enough of something
+    NotSupported = 7,       ///< Not supported
+    NotExpected = 8,        ///< Not expected
+    NotInitialized = 9,     ///< Not initialized
+    NotAvailable = 10,      ///< Not available
+    Timeout = 11,           ///< A timeout occurred
+    ExceededLimit = 12,     ///< A limit has been exceeded
+    NotImplemented = 13,    ///< The feature is not implemented
 };
 
 /// The enumeration of Causes in the system
