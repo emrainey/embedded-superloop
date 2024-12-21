@@ -87,6 +87,12 @@ public:
     /// Returns the Key1 Button
     jarnax::Button& GetButton1();
 
+    /// Returns the Copier
+    jarnax::Copier& GetCopier();
+
+    /// Returns the SPI Driver
+    stm32::SpiDriver& GetSpiDriver();
+
 protected:
     stm32::Timer timer_;
     /// The Random Number Generator

@@ -1,7 +1,7 @@
 
 
 Breakpoint=/Users/emrainey/Source/jarnax/modules/jarnax/source/initialize/on_entry.cpp:6:21, State=BP_STATE_ON
-Breakpoint=/Users/emrainey/Source/jarnax/modules/stm32/source/SpiDriver.cpp:14, State=BP_STATE_ON
+Breakpoint=/Users/emrainey/Source/jarnax/modules/stm32/source/SpiDriver.cpp:18:5, State=BP_STATE_ON
 Breakpoint=/Users/emrainey/Source/jarnax/modules/stm32/source/SpiDriver.cpp:60, State=BP_STATE_ON
 Breakpoint=/Users/emrainey/Source/jarnax/modules/jarnax/source/main.cpp:7:30, State=BP_STATE_ON
 Breakpoint=/Users/emrainey/Source/jarnax/modules/cortex/source/vectors.cpp:34:5, State=BP_STATE_ON
@@ -45,29 +45,28 @@ OpenDocument="bist.cpp", FilePath="/Users/emrainey/Source/jarnax/modules/cortex/
 OpenDocument="rtt.cpp", FilePath="/Users/emrainey/Source/jarnax/modules/segger/source/segger/rtt.cpp", Line=7
 OpenDocument="Timer2.hpp", FilePath="/Users/emrainey/Source/jarnax/modules/stm32/include/stm32/registers/Timer2.hpp", Line=368
 OpenToolbar="Debug", Floating=0, x=0, y=0
-OpenWindow="Call Stack", DockArea=RIGHT, x=0, y=0, w=428, h=102, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Registers 1", DockArea=RIGHT, x=1, y=0, w=543, h=102, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, FilteredItems=[], RefreshRate=1
-OpenWindow="Source Files", DockArea=RIGHT, x=0, y=1, w=972, h=244, TabPos=1, TopOfStack=0, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Disassembly", DockArea=RIGHT, x=0, y=2, w=972, h=242, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Break & Tracepoints", DockArea=LEFT, x=0, y=1, w=604, h=484, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, VectorCatchIndexMask=255
-OpenWindow="Memory 1", DockArea=BOTTOM, x=1, y=0, w=1497, h=272, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, EditorAddress=0x20000048
-OpenWindow="Global Data", DockArea=RIGHT, x=0, y=1, w=972, h=244, TabPos=0, TopOfStack=1, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Watched Data 1", DockArea=LEFT, x=0, y=0, w=604, h=125, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Functions", DockArea=RIGHT, x=0, y=1, w=972, h=244, TabPos=2, TopOfStack=0, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Terminal", DockArea=BOTTOM, x=0, y=0, w=422, h=258, TabPos=1, TopOfStack=1, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
-OpenWindow="Console", DockArea=BOTTOM, x=0, y=0, w=422, h=258, TabPos=0, TopOfStack=0, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Call Stack", DockArea=RIGHT, x=0, y=0, w=277, h=134, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Registers 1", DockArea=RIGHT, x=1, y=0, w=351, h=134, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, FilteredItems=[], RefreshRate=1
+OpenWindow="Source Files", DockArea=RIGHT, x=0, y=1, w=629, h=272, TabPos=1, TopOfStack=0, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Disassembly", DockArea=RIGHT, x=0, y=2, w=629, h=269, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Break & Tracepoints", DockArea=LEFT, x=0, y=1, w=604, h=531, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, VectorCatchIndexMask=255
+OpenWindow="Memory 1", DockArea=BOTTOM, x=0, y=0, w=226, h=278, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, EditorAddress=0x20000048
+OpenWindow="Global Data", DockArea=RIGHT, x=0, y=1, w=629, h=272, TabPos=0, TopOfStack=1, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Watched Data 1", DockArea=LEFT, x=0, y=0, w=604, h=165, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Functions", DockArea=RIGHT, x=0, y=1, w=629, h=272, TabPos=2, TopOfStack=0, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Terminal", DockArea=BOTTOM, x=1, y=0, w=560, h=278, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Console", DockArea=BOTTOM, x=2, y=0, w=940, h=278, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
 SmartViewPlugin="", Page="", Toolbar="Hidden", Window="SmartView 1"
+TableHeader="Functions", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Address";"Size";"#Insts";"Class";"Source"], ColWidths=[612;100;100;100;27;100]
 TableHeader="Source Files", SortCol="File", SortOrder="ASCENDING", VisibleCols=["File";"Status";"Size";"#Insts";"Path"], ColWidths=[211;100;100;100;987]
-TableHeader="Global Data", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Location";"Size";"Type";"Access";"Scope"], ColWidths=[297;100;100;100;100;27;233]
-TableHeader="Functions", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Address";"Size";"#Insts";"Class";"Source"], ColWidths=[612;100;100;100;27;637]
 TableHeader="Vector Catches", SortCol="", SortOrder="ASCENDING", VisibleCols=["";"Vector Catch";"Description"], ColWidths=[50;300;564]
 TableHeader="Break & Tracepoints", SortCol="", SortOrder="ASCENDING", VisibleCols=["";"Type";"Location";"Extras"], ColWidths=[100;81;125;651]
 TableHeader="Call Stack", SortCol="Function", SortOrder="ASCENDING", VisibleCols=["Function";"Stack Frame";"Source";"PC";"Return Address";"Stack Used"], ColWidths=[120;132;448;100;147;100]
 TableHeader="Power Sampling", SortCol="None", SortOrder="ASCENDING", VisibleCols=["Index";"Time";"Ch 0"], ColWidths=[100;100;100]
-TableHeader="Registers 1", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Description"], ColWidths=[178;311;273]
+TableHeader="Registers 1", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Description"], ColWidths=[178;311;175]
 TableHeader="Watched Data 1", SortCol="Expression", SortOrder="ASCENDING", VisibleCols=["Expression";"Value";"Location";"Refresh";"Access"], ColWidths=[225;100;100;179;100]
 TableHeader="RegisterSelectionDialog", SortCol="None", SortOrder="ASCENDING", VisibleCols=[], ColWidths=[]
-TableHeader="TargetExceptionDialog", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Address";"Description"], ColWidths=[200;100;100;1015]
+TableHeader="Global Data", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Location";"Size";"Type";"Access";"Scope"], ColWidths=[297;100;100;100;100;27;182]
 WatchedExpression="ticks_since_boot", RefreshRate=1, Window=Watched Data 1
 WatchedExpression="timer2_high_order_bits", Window=Watched Data 1
 WatchedExpression="jarnax::rtt_control_block", Window=Watched Data 1

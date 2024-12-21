@@ -23,6 +23,10 @@ protected:
     jarnax::Button& wakeup_button_;
     jarnax::Button& key0_button_;
     jarnax::Button& key1_button_;
+    jarnax::Copier& copier_;
+
+    uint8_t buffer_one_[256U];
+    uint8_t buffer_two_[256U];
 };
 
 #endif    // APP_TASK_HPP

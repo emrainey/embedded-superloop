@@ -34,12 +34,12 @@ bool SuperLoop::Enlist(Loopable& obj, std::uint32_t cadence) {
     obj.GetMutableInfo().cadence = cadence;
     // Enable the executable
     obj.GetMutableInfo().is_active = true;
-    return false;
+    return true;
 }
 
 void SuperLoop::Dismiss(Loopable& obj) {
-    obj.execute_info_.Remove();   // remove the node from the list
-    obj.ResetInfo();              // reset the info
+    obj.execute_info_.Remove();    // remove the node from the list
+    obj.ResetInfo();               // reset the info
 }
 
 void SuperLoop::RunForever(void) {
@@ -96,7 +96,7 @@ void SuperLoop::Visit(core::doublelink::Node<Loopable::Info> const& node) const 
 #if defined(UNITTEST)
     Loopable::Info const& exec_info = node();
     std::cout << "id: " << exec_info.id << " count: " << exec_info.count << " cadence: " << exec_info.cadence << " last_tick: " << exec_info.last_tick
-           << " last_duration: " << exec_info.last_duration << " is_active: " << exec_info.is_active << std::endl;
+              << " last_duration: " << exec_info.last_duration << " is_active: " << exec_info.is_active << std::endl;
 #else
     // this visitor method is used for printing the list on target
     jarnax::print("id: %" PRIu32 " count: %" PRIz " cadence: %" PRIx32 "\n", node().id, node().count, node().cadence);

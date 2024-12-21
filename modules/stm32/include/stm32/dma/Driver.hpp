@@ -211,13 +211,24 @@ public:
     void HandleInterrupt(uint32_t controller, uint32_t stream);
 
     //===[jarnax::Copier]===================================================================================
-    core::Status Copy(std::uint8_t* destination, std::uint8_t const* source, std::size_t count) override;
-    core::Status Copy(std::uint16_t* destination, std::uint16_t const* source, std::size_t count) override;
-    core::Status Copy(std::uint32_t* destination, std::uint32_t const* source, std::size_t count) override;
+    core::Status Copy(std::uint8_t destination[], std::uint8_t const source[], std::size_t count) override;
+    core::Status Copy(std::uint16_t destination[], std::uint16_t const source[], std::size_t count) override;
+    core::Status Copy(std::uint32_t destination[], std::uint32_t const source[], std::size_t count) override;
     //======================================================================================================
+    core::Status Copy(
+        std::uintptr_t destination,
+        std::uintptr_t source,
+        stm32::registers::DirectMemoryAccess::Stream::Configuration::DataSize data_size,
+        std::size_t count
+    );
 
 protected:
-    static constexpr std::size_t NumStreams{16u};    ///< spread across DMA1 and DMA2
+    ///< spread across DMA1 and DMA2
+    static constexpr std::size_t NumStreams{16u};
+    /// only DMA2 can do memory to memory so the stream number must be >= 8
+    static constexpr std::size_t DedicatedMemoryStream{9U};
+    ///< The maximum number of units to copy in a single operation.
+    static constexpr std::size_t MaximumMemoryCopyUnits{65535U};
     bool used_[NumStreams];
 };
 }    // namespace dma

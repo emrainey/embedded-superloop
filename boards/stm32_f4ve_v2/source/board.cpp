@@ -159,6 +159,14 @@ jarnax::Button& DriverContext::GetButton1() {
     return key1_button_;
 }
 
+jarnax::Copier& DriverContext::GetCopier() {
+    return dma_driver_;
+}
+
+stm32::SpiDriver& DriverContext::GetSpiDriver() {
+    return spi1_driver_;
+}
+
 DriverContext& GetDriverContext() {
     static DriverContext context;
     return context;

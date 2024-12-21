@@ -1,3 +1,4 @@
+#include "memory.h"
 #include "Task.hpp"
 #include "board.hpp"
 
@@ -9,7 +10,10 @@ Task::Task()
     , status_indicator_{jarnax::GetDriverContext().GetStatusIndicator()}
     , wakeup_button_{jarnax::GetDriverContext().GetWakeupButton()}
     , key0_button_{jarnax::GetDriverContext().GetButton0()}
-    , key1_button_{jarnax::GetDriverContext().GetButton1()} {
+    , key1_button_{jarnax::GetDriverContext().GetButton1()}
+    , copier_{jarnax::GetDriverContext().GetCopier()}
+    , buffer_one_{}
+    , buffer_two_{} {
 }
 
 void Task::DelayForTicks(jarnax::Ticks ticks) {
@@ -34,6 +38,15 @@ bool Task::Execute() {
     jarnax::Time time = ticker_.GetTimeSinceBoot();
     uint32_t random = rng_.GetNextRandom();
     std::uint32_t iotas = static_cast<std::uint32_t>(timer_.GetIotas().value());
+
+    memory::fill(buffer_one_, 0x5A, sizeof(buffer_one_));
+    memory::fill(buffer_two_, 0x00, sizeof(buffer_two_));
+    copier_.Copy(&buffer_one_[0], &buffer_two_[0], sizeof(buffer_one_));
+    if (memory::compare(&buffer_one_[0], &buffer_two_[0], sizeof(buffer_one_)) == 0) {
+        jarnax::print("Buffers are the same\r\n");
+    } else {
+        jarnax::print("Buffers are different\r\n");
+    }
 
     jarnax::print("Task::Execute: %lu ticks, %lf sec, 0x%lx Iotas: %lu\r\n", ticks.value(), time.value(), random, iotas);
     DelayForTicks(Ticks{64});

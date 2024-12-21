@@ -525,9 +525,9 @@ struct DirectMemoryAccess final {
                 /// (reserved)
                 uint32_t                                      : 1;    // bit 20
                 /// Peripheral burst transfer configuration (PBURST)
-                Burst peripheral_burst_transfer               : 2;    // bits 21:22
+                Burst peripheral_burst                        : 2;    // bits 21:22
                 /// Memory burst transfer configuration (MBURST)
-                Burst memory_burst_transfer_configuration     : 2;    // bits 23:24
+                Burst memory_burst                            : 2;    // bits 23:24
                 /// Channel selection (CHSEL)
                 uint32_t channel_selection                    : 3;    // bits 25:27
                 /// (reserved)

@@ -1,3 +1,4 @@
+#include "jarnax/print.hpp"
 #include "stm32/dma/Driver.hpp"
 
 namespace stm32 {
@@ -108,10 +109,10 @@ static_assert(ADC1 == ADC1, "Must be this value exactly");
 static_assert((TIM8_CH1 | TIM8_CH2) == TIM8_CH1, "Must be this value exactly");
 static_assert((TIM8_CH1 | TIM8_CH2 | TIM8_CH3) == TIM8_CH1, "Must be this value exactly");
 
-constexpr size_t NumStreams = 8;
-constexpr size_t NumChannels = 8;
+constexpr size_t NumStreamsPerController = 8;
+constexpr size_t NumChannelsPerStream = 8;
 /// @brief Per Table 43 in the reference manual.
-constexpr static Peripheral dma1_endpoints[NumStreams][NumChannels] = {
+constexpr static Peripheral dma1_endpoints[NumStreamsPerController][NumChannelsPerStream] = {
     {// Stream 0
      SPI3_RX,
      I2C1_RX,
@@ -195,7 +196,7 @@ constexpr static Peripheral dma1_endpoints[NumStreams][NumChannels] = {
 };    // index by Stream first, then channel
 
 /// @brief Per Table 44 in the reference manual.
-constexpr static Peripheral dma2_peripherals[NumStreams][NumChannels] = {
+constexpr static Peripheral dma2_peripherals[NumStreamsPerController][NumChannelsPerStream] = {
     {// Stream0,
      ADC1,
      _,
@@ -279,14 +280,14 @@ constexpr static Peripheral dma2_peripherals[NumStreams][NumChannels] = {
 };
 
 constexpr std::size_t GetChannelFromStream(
-    Peripheral const (&enpoints)[NumStreams][NumChannels], std::size_t stream_index, Peripheral const& peripheral
+    Peripheral const (&enpoints)[NumStreamsPerController][NumChannelsPerStream], std::size_t stream_index, Peripheral const& peripheral
 ) {
-    for (std::size_t i = 0; i < NumChannels; ++i) {
+    for (std::size_t i = 0; i < NumChannelsPerStream; ++i) {
         if (enpoints[stream_index][i] == peripheral) {
             return i;
         }
     }
-    return NumChannels;
+    return NumChannelsPerStream;
 }
 
 // some simple tests for lookup
@@ -299,16 +300,17 @@ Driver::Driver()
     : used_{} {
 }
 
-core::Status Driver::Acquire(stm32::registers::DirectMemoryAccess::Stream volatile*& channel, size_t number) {
+core::Status Driver::Acquire(stm32::registers::DirectMemoryAccess::Stream volatile*& stream, size_t number) {
     // check to see if that index is used or not
-    if (number <= (NumStreams * stm32::registers::NumberOfDmaControllers)) {
+    if (number <= NumStreams) {
         if (used_[number]) {
             return core::Status{core::Result::Busy, core::Cause::Resource};
         }
         used_[number] = true;
-        size_t c = number / NumStreams;
-        size_t i = number % NumStreams;
-        channel = &stm32::registers::direct_memory_access[c].streams[i];
+        size_t c = number >= NumStreamsPerController ? 1 : 0;
+        size_t i = number >= NumStreamsPerController ? number - NumStreamsPerController : number;
+        jarnax::print("Acquiring DMA Stream: %u on controller: %u\n", i, c);
+        stream = &stm32::registers::direct_memory_access[c].streams[i];
         return core::Status{};
     } else {
         return core::Status{core::Result::InvalidValue, core::Cause::Parameter};
@@ -320,20 +322,20 @@ void Driver::Release(stm32::registers::DirectMemoryAccess::Stream volatile* chan
     for (size_t c = 0U; c < stm32::registers::NumberOfDmaControllers; c++) {
         for (size_t i = 0U; i < NumStreams; i++) {
             if (channel == &stm32::registers::direct_memory_access[c].streams[i]) {
-                used_[i + (c * NumStreams)] = false;
+                used_[i + (c * NumStreamsPerController)] = false;
                 return;
             }
         }
     }
 }
 
-core::Status Driver::GetStreamStatus(size_t stream, Flags& flags) {
-    if (stream >= (NumStreams * stm32::registers::NumberOfDmaControllers)) {
+core::Status Driver::GetStreamStatus(size_t number, Flags& flags) {
+    if (number >= NumStreams) {
         return core::Status{core::Result::InvalidValue, core::Cause::Parameter};
     }
 
-    size_t c = stream >= NumStreams ? 1 : 0;
-    size_t i = stream >= NumStreams ? stream - NumStreams : stream;
+    size_t c = number >= NumStreamsPerController ? 1 : 0;
+    size_t i = number >= NumStreamsPerController ? number - NumStreamsPerController : number;
     auto low = stm32::registers::direct_memory_access[c].low_interrupt_status;
     auto high = stm32::registers::direct_memory_access[c].high_interrupt_status;
 
@@ -398,12 +400,12 @@ core::Status Driver::GetStreamStatus(size_t stream, Flags& flags) {
     return core::Status{};
 }
 
-core::Status Driver::ClearStreamStatus(size_t stream, Flags const& flags) {
-    if (stream >= (NumStreams * stm32::registers::NumberOfDmaControllers)) {
+core::Status Driver::ClearStreamStatus(size_t number, Flags const& flags) {
+    if (number >= NumStreams) {
         return core::Status{core::Result::InvalidValue, core::Cause::Parameter};
     }
-    size_t c = stream >= NumStreams ? 1 : 0;
-    size_t i = stream >= NumStreams ? stream - NumStreams : stream;
+    size_t c = number >= NumStreamsPerController ? 1 : 0;
+    size_t i = number >= NumStreamsPerController ? number - NumStreamsPerController : number;
     auto low = stm32::registers::direct_memory_access[c].low_interrupt_flag_clear;
     auto high = stm32::registers::direct_memory_access[c].high_interrupt_flag_clear;
 
@@ -479,16 +481,95 @@ core::Status Driver::ClearStreamStatus(size_t stream, Flags const& flags) {
 void Driver::HandleInterrupt(uint32_t controller, uint32_t stream) {
 }
 
+core::Status Driver::Copy(
+    std::uintptr_t destination,
+    std::uintptr_t source,
+    stm32::registers::DirectMemoryAccess::Stream::Configuration::DataSize data_size,
+    std::size_t count
+) {
+    stm32::registers::DirectMemoryAccess::Stream volatile* stream{nullptr};
+    if (count > MaximumMemoryCopyUnits) {
+        return core::Status{core::Result::InvalidValue, core::Cause::Parameter};
+    }
+    // acquire a stream
+    auto status = Acquire(stream, DedicatedMemoryStream);
+    if (status and stream) {
+        using Direction = stm32::registers::DirectMemoryAccess::Stream::Configuration::DataTransferDirection;
+        // ========================================
+        stm32::registers::DirectMemoryAccess::Stream::FifoControl fifo_control = stream->fifo_control;        // read
+        stm32::registers::DirectMemoryAccess::Stream::Configuration configuration = stream->configuration;    // read
+        configuration.bits.stream_enable = 0;                                                                 // disable
+        stream->configuration = configuration;                                                                // write
+        // ========================================
+        // configure the stream
+        fifo_control.bits.fifo_threshold = stm32::registers::DirectMemoryAccess::Stream::FifoControl::FifoThreshold::Empty;
+        fifo_control.bits.fifo_error_interrupt_enable = 0;
+        // memory to memory can't use Direct Mode
+        fifo_control.bits.direct_mode_disable = 1;
+        stream->number_of_datum.bits.number_of_datum = count;
+        // even though it's not a peripheral, we have to use this address
+        stream->peripheral_address = reinterpret_cast<std::uintptr_t>(source);
+        stream->memory0_address = reinterpret_cast<std::uintptr_t>(destination);
+        // one shot
+        configuration.bits.circular_mode = 0;
+        // not a ping pong
+        configuration.bits.double_buffer_mode = 0;
+        configuration.bits.data_transfer_direction = Direction::MemoryToMemory;
+        configuration.bits.memory_increment_mode = 1;    // increment after each element
+        configuration.bits.memory_size = data_size;
+        configuration.bits.memory_burst = stm32::registers::DirectMemoryAccess::Stream::Configuration::Burst::Increment4;
+        configuration.bits.priority_level = stm32::registers::DirectMemoryAccess::Stream::Configuration::Priority::Low;
+        configuration.bits.peripheral_flow_control = 0;               // DMA is flow controller
+        configuration.bits.direct_mode_error_interrupt_enable = 0;    // Polling mode
+        configuration.bits.transfer_error_interrupt_enable = 0;       // Polling mode
+        configuration.bits.half_transfer_interrupt_enable = 0;        // Polling mode
+        configuration.bits.transfer_complete_interrupt_enable = 0;    // Polling mode
+        configuration.bits.stream_enable = 1;                         // enable
+        stream->configuration = configuration;                        // write
+        // ========================================
+        // poll on completion (Use Stream 1 on Controller 1)
+        while (stm32::registers::direct_memory_access[1].low_interrupt_status.bits.transfer_complete_interrupt1 == 0) {
+        }
+        // Clear the completion flag
+        stm32::registers::direct_memory_access[1].low_interrupt_flag_clear.bits.clear_transfer_complete_interrupt1 = 1;
+        // ========================================
+        configuration = stream->configuration;    // read
+        configuration.bits.stream_enable = 0;     // disable
+        stream->configuration = configuration;    // write
+        // ========================================
+        // release the stream
+        Release(stream);
+        stream = nullptr;
+        return core::Status{};
+    }
+    return core::Status{core::Result::NotAvailable, core::Cause::Resource};
+}
+
 core::Status Driver::Copy(std::uint8_t* destination, std::uint8_t const* source, std::size_t count) {
-    return core::Status{core::Result::NotImplemented, core::Cause::Configuration};
+    return Copy(
+        reinterpret_cast<std::uintptr_t>(destination),
+        reinterpret_cast<std::uintptr_t>(source),
+        stm32::registers::DirectMemoryAccess::Stream::Configuration::DataSize::Bits8,
+        count
+    );
 }
 
 core::Status Driver::Copy(std::uint16_t* destination, std::uint16_t const* source, std::size_t count) {
-    return core::Status{core::Result::NotImplemented, core::Cause::Configuration};
+    return Copy(
+        reinterpret_cast<std::uintptr_t>(destination),
+        reinterpret_cast<std::uintptr_t>(source),
+        stm32::registers::DirectMemoryAccess::Stream::Configuration::DataSize::Bits16,
+        count
+    );
 }
 
 core::Status Driver::Copy(std::uint32_t* destination, std::uint32_t const* source, std::size_t count) {
-    return core::Status{core::Result::NotImplemented, core::Cause::Configuration};
+    return Copy(
+        reinterpret_cast<std::uintptr_t>(destination),
+        reinterpret_cast<std::uintptr_t>(source),
+        stm32::registers::DirectMemoryAccess::Stream::Configuration::DataSize::Bits32,
+        count
+    );
 }
 
 }    // namespace dma
