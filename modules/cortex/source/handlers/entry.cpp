@@ -33,7 +33,7 @@ namespace handlers {
 
     // IF the device had ITCM, or DTCM enable here.
     if constexpr (zero_itcm_at_boot and ::vendor::configuration::has_itcm) {
-        // TODO enable here
+        // TODO enable ITCM here if the processor has it (M7)
         uint32_t volatile const *end = reinterpret_cast<uint32_t volatile const *>(__itcm_end);
         uint32_t volatile *beg = reinterpret_cast<uint32_t volatile *>(__itcm_beg);
         while (beg < end) {
@@ -41,7 +41,7 @@ namespace handlers {
         }
     }
     if constexpr (zero_dtcm_at_boot and ::vendor::configuration::has_dtcm) {
-        // TODO enable here
+        // TODO enable DTCM here if the processor has it (M7)
         uint32_t volatile const *end = reinterpret_cast<uint32_t volatile const *>(__dtcm_end);
         uint32_t volatile *beg = reinterpret_cast<uint32_t volatile *>(__dtcm_beg);
         while (beg < end) {

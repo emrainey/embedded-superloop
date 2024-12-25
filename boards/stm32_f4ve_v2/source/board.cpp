@@ -53,7 +53,7 @@ DriverContext::DriverContext()
     , nrf_irq_{stm32::gpio::Port::B, 8}
     , dma_driver_{}
     , spi1_driver_{stm32::registers::spi1, dma_driver_, spi1_dma_memory} {
-    // @todo initialize the driver objects
+    // construct the driver objects as part of the constructor above.
 }
 
 core::Status DriverContext::Initialize(void) {

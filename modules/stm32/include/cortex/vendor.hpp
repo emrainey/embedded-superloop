@@ -9,6 +9,7 @@
 namespace cortex {
 namespace vendor {
 /// @FIXME STM32 Vendor Fault Status Register for now is a uint32_t
+/// Each bit maps to an AUXFAULT bit somewhere in the documentation.
 using AuxiliaryFaultStatus = std::uint32_t;
 }    // namespace vendor
 }    // namespace cortex

@@ -102,12 +102,6 @@ constexpr static bool has_static_constructors{true};
 
 /// Enables access to the FPU at runtime.
 constexpr static bool enable_access_to_fpu{true};
-
-/// Indicates the number of executable objects in the system
-/// @todo make this statically determined at compile time via an initialized list?
-constexpr static std::size_t num_executable_tasks = 4U;
-
 }    // namespace jarnax
-
 
 #endif    // CONFIGURATION_HPP_

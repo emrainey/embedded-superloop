@@ -169,11 +169,12 @@ Chip specific drivers live in the chip specific namespace like `stm32`. These in
 [x] Implement `Stack`
 [ ] Implement `List` (what am I counting here as a List?)
 [x] Implement 'Split' - for a variable bit split (upper/lower)
+[x] Implement DoubleLink Node for Executables
 [ ] Implement Iterators in Span/Array/Ring/Stack/List
-[ ] Implement Unit Test for Span in an Application
-[ ] Implement Unit Test for Array in an Application
-[ ] Implement Unit Test for Ring in an Application
-[ ] Implement Unit Test for Stack in an Application
+[x] Implement Unit Test for Span in an Application
+[x] Implement Unit Test for Array in an Application
+[x] Implement Unit Test for Ring in an Application
+[x] Implement Unit Test for Stack in an Application
 [ ] Implement Unit Test for List in an Application
 [ ] Implement Unit Test for Split in an Application
 [x] Replace for() loops with `for(auto .:..)`
@@ -186,7 +187,7 @@ Chip specific drivers live in the chip specific namespace like `stm32`. These in
 [x] Move the "configure.hpp" to each app so they can configure the firmware build.
 [x] Make all Register volatile and placed by the linkerscript at the right addresses, no #defines or casts needed.
 [x] Add System Tick float unit (1/128th or 1/256th or more, not less) to configuration.
-[ ] Enable System Tick - but do not use a power of 10 base, use a power of 2 base. Time can be more easily represented in powers of 2 in floats.  1/128 (0.0078125 or ~8ms) or 1/256 (0.00390625 or ~4ms).system configuration issue.
+[x] Enable System Tick - but do not use a power of 10 base, use a power of 2 base. Time can be more easily represented in powers of 2 in floats.  1/128 (0.0078125 or ~8ms) or 1/256 (0.00390625 or ~4ms).system configuration issue.
 [ ] Implement Unit Test for System Tick in an Application
 [x] Enabled choosing MSP or PSP at boot along with other Cortex M modes.
 [x] Write up the Interrupt Structures from Cortex Manual
@@ -208,9 +209,11 @@ Chip specific drivers live in the chip specific namespace like `stm32`. These in
 [ ] Capture a PendSV Call
 [ ] Capture an External Fault -> requires a different board? Renode?
 [x] Setup the Privilege vs. User mode function (sets MSP/PSP then jump)
+[x] Implement the Microsecond Timer
 [x] Implement running in User mode vs. Privileged mode via `jarnax::run_in_privileged_mode_only`
 [ ] Implement a STM32F407VE SPI Driver
-[ ] Implement a LSM9DS1 IMU Driver
+[ ] Implement the Winbond SPI Flash Driver W25Q16
+[ ] Implement a LSM9DS1 IMU Driver (spi based?)
 [x] Add a .clang_format
 [x] Add a .clang-tidy
 [x] Add doxygen everywhere
