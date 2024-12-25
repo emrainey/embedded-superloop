@@ -13,7 +13,20 @@ Task::Task()
     , key1_button_{jarnax::GetDriverContext().GetButton1()}
     , copier_{jarnax::GetDriverContext().GetCopier()}
     , buffer_one_{}
-    , buffer_two_{} {
+    , buffer_two_{}
+    , spi_buffer_{1U + 4U + 64U}
+    , spi_transaction_{timer_} {
+    spi_transaction_.phase = jarnax::spi::ClockPhase::ImmediateEdge;
+    spi_transaction_.polarity = jarnax::spi::ClockPolarity::IdleLow;
+    auto spi_data = spi_buffer_.as_span();
+    spi_data.data()[0] = 0x4b;    // read UID
+    spi_data.data()[1] = 0x00;
+    spi_data.data()[2] = 0x00;
+    spi_data.data()[3] = 0x00;
+    spi_data.data()[4] = 0x00;
+    spi_transaction_.buffer = std::move(spi_buffer_);
+    spi_transaction_.send_size = 5U;
+    spi_transaction_.receive_size = 64U;
 }
 
 void Task::DelayForTicks(jarnax::Ticks ticks) {

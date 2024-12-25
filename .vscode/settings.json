@@ -110,7 +110,8 @@
         "execution": "cpp",
         "print": "cpp",
         "*.in": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "version": "cpp"
     },
     "cSpell.allowCompoundWords": true,
     "cSpell.dictionaryDefinitions": [

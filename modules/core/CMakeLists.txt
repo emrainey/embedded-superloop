@@ -45,6 +45,7 @@ add_module(NAME core
         ${CMAKE_CURRENT_SOURCE_DIR}/source/eabi.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/constexpr_tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Status.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/Allocator.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/generated/include # for generated headers like Units above

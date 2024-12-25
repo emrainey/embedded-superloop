@@ -5,7 +5,7 @@
 namespace stm32 {
 
 SpiDriver::SpiDriver(stm32::registers::SerialPeripheralInterface volatile& spi, dma::Driver& dma_driver, DmaBuffer const& dma_memory)
-    : jarnax::spi::Driver{static_cast<jarnax::spi::Transactor&>(*this)}
+    : jarnax::spi::Driver{static_cast<jarnax::spi::Transactor&>(*this)}    // initialize the base class by handing off the transactor
     , spi_{spi}
     , dma_driver_{dma_driver}
     , dma_memory_{dma_memory}
@@ -78,11 +78,35 @@ core::Status SpiDriver::Initialize(core::units::Hertz peripheral_frequency, core
 }
 
 core::Status SpiDriver::Verify(jarnax::spi::Transaction& transaction) {
-    // do nothing
+    // the coordinator has already checked the generic parts of the transaction we just
+    // have to check the SPI specific parts
+    size_t size = transaction.receive_size + transaction.send_size;
+    if (transaction.buffer.size() < size) {
+        return core::Status{core::Result::InvalidValue, core::Cause::Parameter};
+    }
+    // any combination of CPOL/CPHA is valid
+    // any setting of use_data_as_bytes is valid
+    // any setting of use_hardware_crc is valid
+    // either nullptr or a pointer is a valid chip select
+    if (transaction.buffer.IsEmpty()) {
+        return core::Status{core::Result::InvalidValue, core::Cause::Parameter};
+    }
     return core::Status{core::Result::Success, core::Cause::State};
 }
 
 core::Status SpiDriver::Start(jarnax::spi::Transaction& transaction) {
+    // set the device to disabled
+    registers::SerialPeripheralInterface::Control1 control1;
+    control1 = spi_.control1;        // read
+    control1.bits.spi_enable = 0;    // modify
+    spi_.control1 = control1;        // write
+
+    // configure the transaction
+    control1.bits.data_frame_format = (transaction.use_data_as_bytes) ? 0 : 1;
+    control1.bits.crc_enable = (transaction.use_hardware_crc) ? 1 : 0;
+
+    // enable the peripheral
+
     // do nothing
     return core::Status{core::Result::Success, core::Cause::State};
 }

@@ -27,6 +27,9 @@ protected:
 
     uint8_t buffer_one_[256U];
     uint8_t buffer_two_[256U];
+
+    core::Buffer<jarnax::spi::DataUnit> spi_buffer_;
+    jarnax::spi::Transaction spi_transaction_;
 };
 
 #endif    // APP_TASK_HPP

@@ -27,16 +27,17 @@ struct Buffer {
         , pointer_{nullptr}
         , count_{0U} {}
 
-    Buffer(Size bytes, Allocator& allocator)
+    Buffer(Count count, Allocator& allocator)
         : allocator_{allocator}
-        , pointer_{reinterpret_cast<Pointer>(allocator_.allocate(bytes, alignof(Type)))}
-        , count_{0U} {
+        , pointer_{reinterpret_cast<Pointer>(allocator_.allocate(count * sizeof(Type), alignof(Type)))}
+        , count_{count} {
         if (pointer_ == nullptr) {
             count_ = 0U;
-        } else {
-            count_ = bytes / sizeof(Type);
         }
     }
+
+    Buffer(Count count)
+        : Buffer{count, GetDefaultAllocator()} {}
 
     /// No Copy Constructor
     Buffer(Buffer const&) = delete;
@@ -69,6 +70,8 @@ struct Buffer {
     ~Buffer() {
         if (not IsEmpty()) {
             allocator_.deallocate(pointer_, size(), alignof(Type));
+            pointer_ = nullptr;
+            count_ = 0U;
         }
     }
 
@@ -78,9 +81,23 @@ struct Buffer {
 
     Count count() const { return count_; }
 
-    Span<Type> span() { return Span<Type>{pointer_, count_}; }
+    Span<Type> as_span() { return Span<Type>{pointer_, count_}; }
 
-    Span<Type const> span() const { return Span<Type const>{pointer_, count_}; }
+    Span<Type const> as_span() const { return Span<Type const>{pointer_, count_}; }
+
+    template <typename OtherType>
+    Span<OtherType> as_span() {
+        static_assert(alignof(OtherType) <= alignof(Type), "Alignment of OtherType must be less than or equal to Type");
+        static_assert(sizeof(OtherType) <= sizeof(Type), "Size of OtherType must be less than or equal to Type");
+        return Span<OtherType>{reinterpret_cast<OtherType*>(pointer_), (count_ * sizeof(Type)) / sizeof(OtherType)};
+    }
+
+    template <typename OtherType>
+    Span<OtherType const> as_span() const {
+        static_assert(alignof(OtherType) <= alignof(Type), "Alignment of OtherType must be less than or equal to Type");
+        static_assert(sizeof(OtherType) <= sizeof(Type), "Size of OtherType must be less than or equal to Type");
+        return Span<OtherType const>{reinterpret_cast<OtherType const*>(pointer_), (count_ * sizeof(Type)) / sizeof(OtherType)};
+    }
 
 protected:
     Allocator& allocator_;
