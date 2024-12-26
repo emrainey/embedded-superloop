@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <cstddef>
+#include <limits>
 
 #include <core/Array.hpp>
 #include <core/Allocator.hpp>

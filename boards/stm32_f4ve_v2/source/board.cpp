@@ -52,7 +52,9 @@ DriverContext::DriverContext()
     , nrf_ce_{stm32::gpio::Port::B, 6}
     , nrf_irq_{stm32::gpio::Port::B, 8}
     , dma_driver_{}
-    , spi1_driver_{stm32::registers::spi1, dma_driver_, spi1_dma_memory} {
+    , spi1_rx_dma_stream_{dma_driver_.Assign(stm32::dma::SPI1_RX)}
+    , spi1_tx_dma_stream_{dma_driver_.Assign(stm32::dma::SPI1_TX)}
+    , spi1_driver_{stm32::registers::spi1, dma_driver_, spi1_dma_memory, *spi1_rx_dma_stream_, *spi1_tx_dma_stream_} {
     // construct the driver objects as part of the constructor above.
 }
 

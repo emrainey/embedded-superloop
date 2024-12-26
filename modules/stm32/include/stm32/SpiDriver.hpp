@@ -12,7 +12,13 @@ class SpiDriver : public jarnax::spi::Driver, private jarnax::spi::Transactor {
 public:
     static constexpr size_t kDmaMemorySize = 256U;
     using DmaBuffer = core::Array<uint8_t, kDmaMemorySize>;
-    SpiDriver(stm32::registers::SerialPeripheralInterface volatile& spi, dma::Driver& dma_driver, DmaBuffer const& dma_memory);
+    SpiDriver(
+        stm32::registers::SerialPeripheralInterface volatile& spi,
+        dma::Driver& dma_driver,
+        DmaBuffer const& dma_memory,
+        stm32::registers::DirectMemoryAccess::Stream volatile& rx_dma_stream,
+        stm32::registers::DirectMemoryAccess::Stream volatile& tx_dma_stream
+    );
 
     core::Status Initialize(core::units::Hertz peripheral_frequency, core::units::Hertz desired_spi_clock_frequency);
 
@@ -30,7 +36,8 @@ protected:
     stm32::registers::SerialPeripheralInterface volatile& spi_;
     dma::Driver& dma_driver_;
     DmaBuffer const& dma_memory_;
-    registers::DirectMemoryAccess::Stream volatile* dma_stream_;
+    registers::DirectMemoryAccess::Stream volatile& rx_dma_stream_;
+    registers::DirectMemoryAccess::Stream volatile& tx_dma_stream_;
 };
 }    // namespace stm32
 

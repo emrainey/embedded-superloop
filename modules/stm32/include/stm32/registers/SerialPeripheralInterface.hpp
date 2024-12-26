@@ -137,23 +137,23 @@ struct SerialPeripheralInterface final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Rx buffer DMA enable (RXDMAEN)
-            uint32_t rxdmaen      : 1;    // bit 0
+            uint32_t receive_dma_enable                        : 1;    // bit 0
             /// Tx buffer DMA enable (TXDMAEN)
-            uint32_t txdmaen      : 1;    // bit 1
+            uint32_t transmit_dma_enable                       : 1;    // bit 1
             /// SS output enable (SSOE)
-            uint32_t ssoe         : 1;    // bit 2
+            uint32_t follower_output_enable                    : 1;    // bit 2
             /// (reserved)
-            uint32_t              : 1;    // bit 3
+            uint32_t                                           : 1;    // bit 3
             /// Frame format (FRF)
-            uint32_t frame_format : 1;    // bit 4
+            uint32_t frame_format                              : 1;    // bit 4
             /// Error interrupt enable (ERRIE)
-            uint32_t errie        : 1;    // bit 5
+            uint32_t error_interrupt_enable                    : 1;    // bit 5
             /// RX buffer not empty interrupt enable (RXNEIE)
-            uint32_t rxneie       : 1;    // bit 6
+            uint32_t receive_buffer_not_empty_interrupt_enable : 1;    // bit 6
             /// Tx buffer empty interrupt enable (TXEIE)
-            uint32_t txeie        : 1;    // bit 7
+            uint32_t transmit_buffer_empty_interrupt_enable    : 1;    // bit 7
             /// (reserved)
-            uint32_t              : 24;    // bits 8:31
+            uint32_t                                           : 24;    // bits 8:31
         };
         //+=MEMORY======================================+
         union {
@@ -209,25 +209,25 @@ struct SerialPeripheralInterface final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Receive buffer not empty (RXNE)
-            uint32_t rxne   : 1;    // bit 0
+            uint32_t receive_buffer_not_empty    : 1;    // bit 0
             /// Transmit buffer empty (TXE)
-            uint32_t txe    : 1;    // bit 1
+            uint32_t transmit_buffer_empty       : 1;    // bit 1
             /// Channel side (CHSIDE)
-            uint32_t chside : 1;    // bit 2
+            uint32_t channel_side                : 1;    // bit 2
             /// Underrun flag (UDR)
-            uint32_t udr    : 1;    // bit 3
+            uint32_t underrun                    : 1;    // bit 3
             /// CRC error flag (CRCERR)
-            uint32_t crcerr : 1;    // bit 4
+            uint32_t crc_error                   : 1;    // bit 4
             /// Mode fault (MODF)
-            uint32_t modf   : 1;    // bit 5
+            uint32_t mode_fault                  : 1;    // bit 5
             /// Overrun flag (OVR)
-            uint32_t ovr    : 1;    // bit 6
+            uint32_t overrun                     : 1;    // bit 6
             /// Busy flag (BSY)
-            uint32_t bsy    : 1;    // bit 7
+            uint32_t busy                        : 1;    // bit 7
             /// TI frame format error (TIFRFE)
-            uint32_t tifrfe : 1;    // bit 8
+            uint32_t transmit_frame_format_error : 1;    // bit 8
             /// (reserved)
-            uint32_t        : 23;    // bits 9:31
+            uint32_t                             : 23;    // bits 9:31
         };
         //+=MEMORY======================================+
         union {

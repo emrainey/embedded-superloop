@@ -300,6 +300,28 @@ Driver::Driver()
     : used_{} {
 }
 
+stm32::registers::DirectMemoryAccess::Stream volatile* Driver::Assign(Peripheral peripheral) {
+    for (size_t c = 0U; c < stm32::registers::NumberOfDmaControllers; c++) {
+        for (size_t i = 0U; i < NumStreamsPerController; i++) {
+            size_t number = i + (c * NumStreamsPerController);
+            if (used_[number] == false) {
+                for (size_t j = 0U; j < NumChannelsPerStream; j++) {
+                    if (peripheral == dma1_endpoints[i][j] or peripheral == dma2_peripherals[i][j]) {
+                        used_[number] = true;
+                        // assign the Channel!
+                        auto* stream = &stm32::registers::direct_memory_access[c].streams[i];
+                        auto configuration = stream->configuration;    // read
+                        configuration.bits.channel_selection = j;      // modify
+                        stream->configuration = configuration;         // write
+                        return stream;
+                    }
+                }
+            }
+        }
+    }
+    return nullptr;
+}
+
 core::Status Driver::Acquire(stm32::registers::DirectMemoryAccess::Stream volatile*& stream, size_t number) {
     // check to see if that index is used or not
     if (number <= NumStreams) {
@@ -570,6 +592,182 @@ core::Status Driver::Copy(std::uint32_t* destination, std::uint32_t const* sourc
         stm32::registers::DirectMemoryAccess::Stream::Configuration::DataSize::Bits32,
         count
     );
+}
+
+template <>
+core::Status Driver::CopyToPeripheral(
+    stm32::registers::DirectMemoryAccess::Stream volatile& stream, uint32_t volatile* destination, uint8_t const source[], size_t count
+) {
+    return CopyToPeripheral(
+        stream,
+        reinterpret_cast<uintptr_t>(destination),
+        reinterpret_cast<uintptr_t>(source),
+        stm32::registers::DirectMemoryAccess::Stream::Configuration::DataSize::Bits8,
+        count
+    );
+}
+
+template <>
+core::Status Driver::CopyToPeripheral(
+    stm32::registers::DirectMemoryAccess::Stream volatile& stream, uint32_t volatile* destination, uint16_t const source[], size_t count
+) {
+    return CopyToPeripheral(
+        stream,
+        reinterpret_cast<uintptr_t>(destination),
+        reinterpret_cast<uintptr_t>(source),
+        stm32::registers::DirectMemoryAccess::Stream::Configuration::DataSize::Bits16,
+        count
+    );
+}
+
+template <>
+core::Status Driver::CopyToPeripheral(
+    stm32::registers::DirectMemoryAccess::Stream volatile& stream, uint32_t volatile* destination, uint32_t const source[], size_t count
+) {
+    return CopyToPeripheral(
+        stream,
+        reinterpret_cast<uintptr_t>(destination),
+        reinterpret_cast<uintptr_t>(source),
+        stm32::registers::DirectMemoryAccess::Stream::Configuration::DataSize::Bits32,
+        count
+    );
+}
+
+core::Status Driver::CopyToPeripheral(
+    stm32::registers::DirectMemoryAccess::Stream volatile& stream,
+    uintptr_t destination,
+    uintptr_t source,
+    stm32::registers::DirectMemoryAccess::Stream::Configuration::DataSize data_size,
+    size_t count
+) {
+    if (count > MaximumMemoryCopyUnits) {
+        return core::Status{core::Result::InvalidValue, core::Cause::Parameter};
+    }
+    // ========================================
+    stm32::registers::DirectMemoryAccess::Stream::FifoControl fifo_control = stream.fifo_control;        // read
+    stm32::registers::DirectMemoryAccess::Stream::Configuration configuration = stream.configuration;    // read
+    configuration.bits.stream_enable = 0;                                                                // disable
+    stream.configuration = configuration;                                                                // write
+    // ========================================
+    // configure the stream
+    fifo_control.bits.fifo_threshold = stm32::registers::DirectMemoryAccess::Stream::FifoControl::FifoThreshold::Empty;
+    fifo_control.bits.fifo_error_interrupt_enable = 0;
+    // peripheral to memory
+    fifo_control.bits.direct_mode_disable = 1;
+    stream.number_of_datum.bits.number_of_datum = count;
+    // even though it's not a peripheral, we have to use this address
+    stream.peripheral_address = reinterpret_cast<std::uintptr_t>(destination);
+    stream.memory0_address = reinterpret_cast<std::uintptr_t>(source);
+    // one shot
+    configuration.bits.circular_mode = 0;
+    // not a ping pong
+    configuration.bits.double_buffer_mode = 0;
+    configuration.bits.data_transfer_direction =
+        stm32::registers::DirectMemoryAccess::Stream::Configuration::DataTransferDirection::MemoryToPeripheral;
+    configuration.bits.peripheral_increment_mode = 0;    // do not increment the peripheral address
+    configuration.bits.peripheral_data_size = data_size;
+    configuration.bits.memory_increment_mode = 1;    // increment after each element
+    configuration.bits.memory_size = data_size;
+    configuration.bits.memory_burst = stm32::registers::DirectMemoryAccess::Stream::Configuration::Burst::Increment4;
+    configuration.bits.priority_level = stm32::registers::DirectMemoryAccess::Stream::Configuration::Priority::Medium;
+    configuration.bits.peripheral_flow_control = 1;               // Peripheral is flow controller
+    configuration.bits.direct_mode_error_interrupt_enable = 0;    // Polling mode
+    configuration.bits.transfer_error_interrupt_enable = 0;       // Polling mode
+    configuration.bits.half_transfer_interrupt_enable = 0;        // Polling mode
+    configuration.bits.transfer_complete_interrupt_enable = 0;    // Polling mode
+
+    configuration.bits.stream_enable = 1;    // enable
+    stream.configuration = configuration;    // write
+
+    return core::Status{};
+}
+
+template <>
+core::Status Driver::CopyFromPeripheral(
+    stm32::registers::DirectMemoryAccess::Stream volatile& stream, uint8_t destination[], uint32_t volatile const* source, size_t count
+) {
+    return CopyFromPeripheral(
+        stream,
+        reinterpret_cast<uintptr_t>(destination),
+        reinterpret_cast<uintptr_t>(source),
+        stm32::registers::DirectMemoryAccess::Stream::Configuration::DataSize::Bits8,
+        count
+    );
+}
+
+template <>
+core::Status Driver::CopyFromPeripheral(
+    stm32::registers::DirectMemoryAccess::Stream volatile& stream, uint16_t destination[], uint32_t volatile const* source, size_t count
+) {
+    return CopyFromPeripheral(
+        stream,
+        reinterpret_cast<uintptr_t>(destination),
+        reinterpret_cast<uintptr_t>(source),
+        stm32::registers::DirectMemoryAccess::Stream::Configuration::DataSize::Bits16,
+        count
+    );
+}
+
+template <>
+core::Status Driver::CopyFromPeripheral(
+    stm32::registers::DirectMemoryAccess::Stream volatile& stream, uint32_t destination[], uint32_t volatile const* source, size_t count
+) {
+    return CopyFromPeripheral(
+        stream,
+        reinterpret_cast<uintptr_t>(destination),
+        reinterpret_cast<uintptr_t>(source),
+        stm32::registers::DirectMemoryAccess::Stream::Configuration::DataSize::Bits32,
+        count
+    );
+}
+
+core::Status Driver::CopyFromPeripheral(
+    stm32::registers::DirectMemoryAccess::Stream volatile& stream,
+    uintptr_t destination,
+    uintptr_t source,
+    stm32::registers::DirectMemoryAccess::Stream::Configuration::DataSize data_size,
+    size_t count
+) {
+    if (count > MaximumMemoryCopyUnits) {
+        return core::Status{core::Result::InvalidValue, core::Cause::Parameter};
+    }
+    // ========================================
+    stm32::registers::DirectMemoryAccess::Stream::FifoControl fifo_control = stream.fifo_control;        // read
+    stm32::registers::DirectMemoryAccess::Stream::Configuration configuration = stream.configuration;    // read
+    configuration.bits.stream_enable = 0;                                                                // disable
+    stream.configuration = configuration;                                                                // write
+    // ========================================
+    // configure the stream
+    fifo_control.bits.fifo_threshold = stm32::registers::DirectMemoryAccess::Stream::FifoControl::FifoThreshold::Empty;
+    fifo_control.bits.fifo_error_interrupt_enable = 0;
+    // peripheral to memory
+    fifo_control.bits.direct_mode_disable = 1;
+    stream.number_of_datum.bits.number_of_datum = count;
+    // even though it's not a peripheral, we have to use this address
+    stream.peripheral_address = reinterpret_cast<std::uintptr_t>(source);
+    stream.memory0_address = reinterpret_cast<std::uintptr_t>(destination);
+    // one shot
+    configuration.bits.circular_mode = 0;
+    // not a ping pong
+    configuration.bits.double_buffer_mode = 0;
+    configuration.bits.data_transfer_direction =
+        stm32::registers::DirectMemoryAccess::Stream::Configuration::DataTransferDirection::PeripheralToMemory;
+    configuration.bits.peripheral_increment_mode = 0;    // do not increment the peripheral address
+    configuration.bits.peripheral_data_size = data_size;
+    configuration.bits.memory_increment_mode = 1;    // increment after each element
+    configuration.bits.memory_size = data_size;
+    configuration.bits.memory_burst = stm32::registers::DirectMemoryAccess::Stream::Configuration::Burst::Increment4;
+    configuration.bits.priority_level = stm32::registers::DirectMemoryAccess::Stream::Configuration::Priority::Medium;
+    configuration.bits.peripheral_flow_control = 1;               // Peripheral is flow controller
+    configuration.bits.direct_mode_error_interrupt_enable = 0;    // Polling mode
+    configuration.bits.transfer_error_interrupt_enable = 0;       // Polling mode
+    configuration.bits.half_transfer_interrupt_enable = 0;        // Polling mode
+    configuration.bits.transfer_complete_interrupt_enable = 0;    // Polling mode
+
+    configuration.bits.stream_enable = 1;    // enable
+    stream.configuration = configuration;    // write
+
+    return core::Status{};
 }
 
 }    // namespace dma

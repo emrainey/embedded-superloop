@@ -4,12 +4,20 @@
 
 namespace stm32 {
 
-SpiDriver::SpiDriver(stm32::registers::SerialPeripheralInterface volatile& spi, dma::Driver& dma_driver, DmaBuffer const& dma_memory)
+SpiDriver::SpiDriver(
+    stm32::registers::SerialPeripheralInterface volatile& spi,
+    dma::Driver& dma_driver,
+    DmaBuffer const& dma_memory,
+    stm32::registers::DirectMemoryAccess::Stream volatile& rx_dma_stream,
+    stm32::registers::DirectMemoryAccess::Stream volatile& tx_dma_stream
+)
     : jarnax::spi::Driver{static_cast<jarnax::spi::Transactor&>(*this)}    // initialize the base class by handing off the transactor
     , spi_{spi}
     , dma_driver_{dma_driver}
     , dma_memory_{dma_memory}
-    , dma_stream_{nullptr} {
+    , rx_dma_stream_{rx_dma_stream}
+    , tx_dma_stream_{tx_dma_stream} {
+    // TODO Assert if the & of a stream is nullptr
 }
 
 stm32::registers::SerialPeripheralInterface::Control1::BaudRateDivider SpiDriver::FindClosestDivider(
@@ -52,27 +60,21 @@ core::Status SpiDriver::Initialize(core::units::Hertz peripheral_frequency, core
     control1.bits.baud_rate = to_underlying(FindClosestDivider(peripheral_frequency, desired_spi_clock_frequency));
     control1.bits.leader = 1;                              // master mode
     control1.bits.lsbfirst = 0;                            // MSB first
-    control1.bits.software_follower_management = 1;        // software slave management (NSS pin is controlled by peripheral)
+    control1.bits.software_follower_management = 0;        // software slave management (NSS pin is controlled by peripheral)
     control1.bits.rxonly = 0;                              // full duplex
     control1.bits.data_frame_format = 1;                   // 16-bit data frame format
     control1.bits.crc_enable = 0;                          // CRC calculation disabled
-    control1.bits.bidirectional_data_output_enable = 0;    // output disabled
+    control1.bits.bidirectional_data_output_enable = 0;    // (ignored)
     control1.bits.bidirectional_data_mode = 0;             // 2-line unidirectional
     spi_.control1 = control1;                              // write
 
     control2 = spi_.control2;          // read
     control2.bits.frame_format = 0;    // motorola SPI format
-    control2.bits.ssoe = 1;            // enable SS output
     spi_.control2 = control2;          // write
 
     control1 = spi_.control1;        // read
     control1.bits.spi_enable = 1;    // modify
     spi_.control1 = control1;        // write
-
-    core::Status status = dma_driver_.Acquire(dma_stream_, 11U);    // SPI1_TX
-    if (not status) {
-        return status;
-    }
 
     return core::Status{core::Result::Success, core::Cause::State};
 }
@@ -97,6 +99,8 @@ core::Status SpiDriver::Verify(jarnax::spi::Transaction& transaction) {
 core::Status SpiDriver::Start(jarnax::spi::Transaction& transaction) {
     // set the device to disabled
     registers::SerialPeripheralInterface::Control1 control1;
+    registers::SerialPeripheralInterface::Control2 control2;
+
     control1 = spi_.control1;        // read
     control1.bits.spi_enable = 0;    // modify
     spi_.control1 = control1;        // write
@@ -104,21 +108,63 @@ core::Status SpiDriver::Start(jarnax::spi::Transaction& transaction) {
     // configure the transaction
     control1.bits.data_frame_format = (transaction.use_data_as_bytes) ? 0 : 1;
     control1.bits.crc_enable = (transaction.use_hardware_crc) ? 1 : 0;
+    control1.bits.internal_follower_select = 0;
+    control1.bits.software_follower_management = 0;
+
+    control2 = spi_.control2;                                       // read
+    control2.bits.transmit_buffer_empty_interrupt_enable = 0;       // No interrupt on TXE
+    control2.bits.receive_buffer_not_empty_interrupt_enable = 0;    // No interrupt on RXNE
+    control2.bits.error_interrupt_enable = 0;                       // No interrupt on errors
+    // enable DMA on the transactions
+    control2.bits.receive_dma_enable = 1;
+    control2.bits.transmit_dma_enable = 1;
+    // if the transaction does not have the chip select set then enable the follower output
+    control2.bits.follower_output_enable = (transaction.chip_select == nullptr) ? 0 : 1;
+    spi_.control2 = control2;    // write
+
+    // configure the DMA (TX then RX)
+    auto tx_span = transaction.buffer.as_span().subspan(0, transaction.send_size);
+    dma_driver_.CopyToPeripheral(tx_dma_stream_, reinterpret_cast<uint32_t volatile*>(&spi_.data.whole), tx_span.data(), transaction.send_size);
+    auto rx_span = transaction.buffer.as_span().subspan(transaction.send_size, transaction.receive_size);
+    dma_driver_.CopyFromPeripheral(rx_dma_stream_, rx_span.data(), reinterpret_cast<uint32_t volatile*>(&spi_.data.whole), transaction.receive_size);
 
     // enable the peripheral
+    if (transaction.chip_select != nullptr) {
+        transaction.chip_select->Value(false);    // active low chip select
+    }
 
-    // do nothing
+    // enable the peripheral to start a transaction
+    control1.bits.spi_enable = 1;
+    spi_.control1 = control1;    // write
     return core::Status{core::Result::Success, core::Cause::State};
 }
 
 core::Status SpiDriver::Check(jarnax::spi::Transaction& transaction) {
-    // do nothing
+    size_t tx_left = tx_dma_stream_.number_of_datum.bits.number_of_datum;
+    size_t rx_left = rx_dma_stream_.number_of_datum.bits.number_of_datum;
+    if (spi_.status.bits.busy or tx_left > 0 or rx_left > 0) {
+        return core::Status{core::Result::Busy, core::Cause::State};
+    }
+    Cancel(transaction);
     return core::Status{core::Result::Success, core::Cause::State};
 }
 
 core::Status SpiDriver::Cancel(jarnax::spi::Transaction& transaction) {
-    // do nothing
-    return core::Status{core::Result::NotSupported, core::Cause::Configuration};
+    // disable the peripheral
+    registers::SerialPeripheralInterface::Control1 control1;
+    control1 = spi_.control1;        // read
+    control1.bits.spi_enable = 0;    // modify
+    spi_.control1 = control1;        // write
+
+    // disable the streams
+    tx_dma_stream_.configuration.bits.stream_enable = 0;    // read, modify, write
+    rx_dma_stream_.configuration.bits.stream_enable = 0;    // read, modify, write
+
+    if (transaction.chip_select != nullptr) {
+        transaction.chip_select->Value(true);    // active low chip select
+    }
+
+    return core::Status{core::Result::Success, core::Cause::State};
 }
 
 }    // namespace stm32

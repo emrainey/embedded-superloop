@@ -186,6 +186,10 @@ public:
         bool fifo_error;
     };
 
+    /// @brief Used by constructors to initialize a driver to an exact Stream.
+    /// @param periperhal The peripheral to assign the stream from.
+    stm32::registers::DirectMemoryAccess::Stream volatile* Assign(Peripheral periperhal);
+
     /// @brief Acquires a DMA "Channel" for use.
     /// @param[out] channel The reference to a pointer to set.
     /// @return
@@ -209,6 +213,58 @@ public:
     /// @param controller The controller index
     /// @param stream The stream index per controller (0-7 inclusive)
     void HandleInterrupt(uint32_t controller, uint32_t stream);
+
+    /// @brief Copies data to the Peripheral.
+    /// @tparam UNIT_TYPE The type of the data to copy.
+    /// @param stream The pointer to the stream which has been acquired or assigned.
+    /// @param destination The peripheral address
+    /// @param source The UNIT_TYPE source array
+    /// @param count The number of units to copy.
+    /// @return
+    template <typename UNIT_TYPE>
+    core::Status CopyToPeripheral(
+        stm32::registers::DirectMemoryAccess::Stream volatile& stream, uint32_t volatile* destination, UNIT_TYPE const source[], size_t count
+    );
+
+    /// @brief Copies data to the Peripheral.
+    /// @param stream The pointer to the stream which has been acquired or assigned.
+    /// @param destination The peripheral address
+    /// @param source The source address
+    /// @param count The number of units to copy.
+    /// @return
+    core::Status CopyToPeripheral(
+        stm32::registers::DirectMemoryAccess::Stream volatile& stream,
+        std::uintptr_t destination,
+        std::uintptr_t source,
+        stm32::registers::DirectMemoryAccess::Stream::Configuration::DataSize data_size,
+        std::size_t count
+    );
+
+    /// @brief Copies data from the Peripheral.
+    /// @tparam UNIT_TYPE The type of the data to copy.
+    /// @param stream The pointer to the stream which has been acquired or assigned.
+    /// @param destination The UNIT_TYPE destination array
+    /// @param source The peripheral address
+    /// @param count The number of units to copy.
+    /// @return
+    template <typename UNIT_TYPE>
+    core::Status CopyFromPeripheral(
+        stm32::registers::DirectMemoryAccess::Stream volatile& stream, UNIT_TYPE destination[], uint32_t volatile const* source, size_t count
+    );
+
+    /// @brief Copies data from the Peripheral.
+    /// @param stream The pointer to the stream which has been acquired or assigned.
+    /// @param destination The peripheral address
+    /// @param source The source address
+    /// @param count The number of units to copy.
+    /// @return
+    core::Status CopyFromPeripheral(
+        stm32::registers::DirectMemoryAccess::Stream volatile& stream,
+        std::uintptr_t destination,
+        std::uintptr_t source,
+        stm32::registers::DirectMemoryAccess::Stream::Configuration::DataSize data_size,
+        std::size_t count
+    );
 
     //===[jarnax::Copier]===================================================================================
     core::Status Copy(std::uint8_t destination[], std::uint8_t const source[], std::size_t count) override;

@@ -77,6 +77,9 @@ public:
         return Span{};
     }
 
+    /// Subspan operation
+    Span subspan(IndexType offset, IndexType count) { return operator()(offset, count); }
+
     bool operator==(Span const& other) const { return (pointer_ == other.pointer_) && (count_ == other.count_); }
     bool operator!=(Span const& other) const { return not operator==(other); }
     explicit operator bool() const { return pointer_ != nullptr and count_ > 0u; }
