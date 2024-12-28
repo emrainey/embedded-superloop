@@ -28,7 +28,7 @@ enum class Result : std::int8_t {
 /// The enumeration of Causes in the system
 enum class Cause : std::uint8_t {
     Unknown = 0U,          ///< Unstated cause, usually paired with Success
-    Parameter = 1U,        ///<
+    Parameter = 1U,        ///< A parameter was the cause
     Resource = 2U,         ///< Such as a software construct
     Peripheral = 3U,       ///< Such as a peripheral
     Configuration = 4U,    ///< Such as the system configuration
@@ -68,21 +68,17 @@ public:
     /// @brief Returns the location of the Status
     Location GetLocation(void) const;
 
+    /// @brief Returns the Result
+    Result GetResult(void) const;
+
+    /// @brief Returns the Cause
+    Cause GetCause(void) const;
+
 protected:
-#if defined(__arm__)
-    Result m_result_     : 4 {Result::Success};
-    Cause m_cause_       : 4 {Cause::Unknown};
-    Location m_location_ : 24 {0};
-#else
     Result m_result_{Result::Success};
     Cause m_cause_{Cause::Unknown};
     Location m_location_{0};
-#endif
 };
-
-#if defined(__arm__)
-static_assert(sizeof(Status) == sizeof(std::uint32_t), "Must be this size");
-#endif
 
 }    // namespace core
 

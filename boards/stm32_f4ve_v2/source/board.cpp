@@ -165,8 +165,12 @@ jarnax::Copier& DriverContext::GetCopier() {
     return dma_driver_;
 }
 
-stm32::SpiDriver& DriverContext::GetSpiDriver() {
+jarnax::spi::Driver& DriverContext::GetSpiDriver() {
     return spi1_driver_;
+}
+
+jarnax::gpio::Output& DriverContext::GetFlashChipSelect() {
+    return flash_cs_;
 }
 
 DriverContext& GetDriverContext() {

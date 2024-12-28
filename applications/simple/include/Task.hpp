@@ -2,7 +2,7 @@
 #define APP_TASK_HPP
 
 #include "jarnax.hpp"
-#include "jarnax/RandomNumberGenerator.hpp"
+#include "jarnax/CountDown.hpp"
 
 using jarnax::Loopable;
 using jarnax::LoopInfo;
@@ -15,6 +15,8 @@ public:
     bool Execute() override;
 
 protected:
+    void ResetTransaction(void);
+
     jarnax::Ticker& ticker_;
     jarnax::Timer& timer_;
     jarnax::RandomNumberGenerator& rng_;
@@ -25,11 +27,16 @@ protected:
     jarnax::Button& key1_button_;
     jarnax::Copier& copier_;
 
+    jarnax::CountDown countdown_;
+
     uint8_t buffer_one_[256U];
     uint8_t buffer_two_[256U];
 
+    jarnax::gpio::Output& flash_cs_;
+    size_t spi_buffer_count_;
     core::Buffer<jarnax::spi::DataUnit> spi_buffer_;
     jarnax::spi::Transaction spi_transaction_;
+    jarnax::spi::Driver& spi_driver_;
 };
 
 #endif    // APP_TASK_HPP

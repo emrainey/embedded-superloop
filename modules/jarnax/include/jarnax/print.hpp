@@ -6,6 +6,7 @@
 
 #include "compiler.hpp"
 #include <cinttypes>
+#include "core/Status.hpp"
 
 #ifndef PRIz
 #define PRIz "zu"
@@ -15,10 +16,15 @@
 namespace jarnax {
 
 /// @brief Primitive Printing Facility.
-/// Supports %s, %d, %i, %u, %x, %b (binary), %f for float ONLY.
+/// Supports %s, %d, %i, %u, %x, %p, %b (binary), %f for float ONLY (no doubles!)
 /// @param format The format string.
 /// @param ... The variadic arguments.
 void print(const char* format, ...) ATTRIBUTE((format(printf, 1, 2)));
+
+/// @brief Prints the information of a status object
+/// @param source Some literal string to identify the source of the status
+/// @param status The status object to print
+void print(char const* const source, core::Status status);
 
 }    // namespace jarnax
 

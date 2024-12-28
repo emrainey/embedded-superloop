@@ -91,7 +91,10 @@ public:
     jarnax::Copier& GetCopier();
 
     /// Returns the SPI Driver
-    stm32::SpiDriver& GetSpiDriver();
+    jarnax::spi::Driver& GetSpiDriver();
+
+    /// Returns the Flash Chip Select
+    jarnax::gpio::Output& GetFlashChipSelect();
 
 protected:
     stm32::Timer timer_;

@@ -69,6 +69,7 @@ public:
         }
     }
 
+    bool IsUninitialized() const { return Is(TransactionState::Undefined); }
     bool IsInitialized() const { return Is(TransactionState::Initialized); }
     bool IsQueued() const { return Is(TransactionState::Queued); }
     bool IsRunning() const { return Is(TransactionState::Running); }

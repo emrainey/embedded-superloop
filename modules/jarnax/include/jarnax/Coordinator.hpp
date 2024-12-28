@@ -4,7 +4,7 @@
 #include <cstddef>
 #include "core/Ring.hpp"
 #include "core/StateMachine.hpp"
-#include "jarnax/Executable.hpp"
+#include "jarnax/Loopable.hpp"
 #include "jarnax/Timer.hpp"
 #include "jarnax/Transactable.hpp"
 #include "jarnax/Transactor.hpp"
@@ -14,7 +14,7 @@ namespace jarnax {
 /// @brief A transactor is a class that can schedule a transaction
 /// @tparam TRANSACTION_TYPE The transaction type
 template <typename TRANSACTION_TYPE, std::size_t DEPTH>
-class Coordinator : public Executable {
+class Coordinator : public Loopable {
 public:
     using TransactionType = TRANSACTION_TYPE;
     // static_assert(std::is_base_of<Transactable<TransactionType>, TransactionType>::value, "TransactionType must be derived from Transactable");
@@ -42,13 +42,14 @@ public:
         if (transaction == nullptr) {
             return core::Status{core::Result::InvalidValue, core::Cause::Parameter};
         }
-        if (not transaction->IsInitialized())  {
+        if (not transaction->IsInitialized()) {
             return core::Status{core::Result::NotInitialized, core::Cause::Parameter};
         }
         if (transactions_.IsFull()) {
             return core::Status{core::Result::ExceededLimit, core::Cause::Resource};
         }
-        if (driver_.Verify(*transaction) == core::Status{core::Result::Success, core::Cause::State}) {
+        auto status = driver_.Verify(*transaction);
+        if (status) {
             // we've already verified it's not full
             transactions_.Push(transaction);
             // we've already verified it's not nullptr
@@ -57,7 +58,7 @@ public:
             return core::Status{core::Result::Success, core::Cause::State};
         } else {
             stats_.rejected++;
-            return core::Status{core::Result::Failure, core::Cause::Parameter};
+            return status;
         }
     }
 
@@ -130,20 +131,19 @@ public:
 
     /// @brief  The Coordinator Statistics
     struct Statistics {
-        std::size_t accepted{0U};   ///< The transaction passed verification and placed into the Ring.
-        std::size_t rejected{0U};   ///< The transaction was invalid and was not placed into the Ring.
-        std::size_t started{0U};    ///< The transaction was started.
-        std::size_t stalled{0U};    ///< The transaction was not started due to failure.
-        std::size_t deadline{0U};   ///< The transaction was not started due to deadline passing
-        std::size_t completed{0U};  ///< The transaction was completed.
-        std::size_t retried{0U};    ///< The transaction was retried.
-        std::size_t passed{0U};     ///< The transaction was successful.
-        std::size_t failed{0U};     ///< The transaction was unsuccessful.
+        std::size_t accepted{0U};     ///< The transaction passed verification and placed into the Ring.
+        std::size_t rejected{0U};     ///< The transaction was invalid and was not placed into the Ring.
+        std::size_t started{0U};      ///< The transaction was started.
+        std::size_t stalled{0U};      ///< The transaction was not started due to failure.
+        std::size_t deadline{0U};     ///< The transaction was not started due to deadline passing
+        std::size_t completed{0U};    ///< The transaction was completed.
+        std::size_t retried{0U};      ///< The transaction was retried.
+        std::size_t passed{0U};       ///< The transaction was successful.
+        std::size_t failed{0U};       ///< The transaction was unsuccessful.
     };
     /// @brief Returns a read-only view of the statistics
-    Statistics const& GetStatistics() const {
-        return stats_;
-    }
+    Statistics const& GetStatistics() const { return stats_; }
+
 protected:
     /// @brief The ring of transaction pointer which are the work queue
     core::Ring<TransactionType*, DEPTH> transactions_;

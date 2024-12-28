@@ -10,7 +10,11 @@
 
 namespace core {
 Allocator& GetDefaultAllocator() noexcept {
-    static BitMapHeap<DEFAULT_ALLOCATION_BLOCK_SIZE, DEFAULT_ALLOCATION_BLOCK_COUNT> defaultAllocator{nullptr, 0U};
+    static constexpr size_t AlignmentSize = alignof(std::max_align_t);
+    alignas(AlignmentSize) static uint8_t heap_storage[DEFAULT_ALLOCATION_BLOCK_SIZE * DEFAULT_ALLOCATION_BLOCK_COUNT];
+    static BitMapHeap<DEFAULT_ALLOCATION_BLOCK_SIZE, DEFAULT_ALLOCATION_BLOCK_COUNT, AlignmentSize> defaultAllocator{
+        heap_storage, sizeof(heap_storage)
+    };
     return defaultAllocator;
 }
 }    // namespace core

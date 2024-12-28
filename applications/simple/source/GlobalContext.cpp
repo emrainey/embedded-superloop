@@ -18,6 +18,7 @@ public:
     Status Initialize(void) override {
         bool result = true;
         result &= GetSuperLoop().Enlist(m_task_);
+        result &= GetSuperLoop().Enlist(jarnax::GetDriverContext().GetSpiDriver());
         if (result) {
             return core::Status{};
         } else {

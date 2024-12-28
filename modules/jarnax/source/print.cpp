@@ -125,7 +125,7 @@ void print(const char *format, ...) {
                     format++;
                 }
             }
-            static_cast<void>(longlong_modifier); // can't use for now
+            static_cast<void>(longlong_modifier);    // can't use for now
 
             // Handle %h modifiers
             bool halfhalf_modifier = false;
@@ -166,8 +166,8 @@ void print(const char *format, ...) {
                     } else if (halfhalf_modifier) {
                         num = va_arg(args, int);
                         num = clamp_to_range(num, std::numeric_limits<int8_t>::min(), std::numeric_limits<int8_t>::max());
-                    // } else if (size_modifier) {
-                    //     num = va_arg(args, ssize_t);
+                        // } else if (size_modifier) {
+                        //     num = va_arg(args, ssize_t);
                     } else {
                         num = va_arg(args, int);
                     }
@@ -178,8 +178,8 @@ void print(const char *format, ...) {
                     unsigned long num;
                     if (long_modifier) {
                         num = va_arg(args, unsigned long);
-                    // } else if (longlong_modifier) {
-                    //     num = va_arg(args, unsigned long long);
+                        // } else if (longlong_modifier) {
+                        //     num = va_arg(args, unsigned long long);
                     } else if (half_modifier) {
                         num = va_arg(args, unsigned int);
                         num = clamp_to_range(num, std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max());
@@ -270,6 +270,16 @@ void print(const char *format, ...) {
     if (use_swo_for_printf) {
         cortex::swo::emit(cortex::swo::Port::System, buffer);
     }
+}
+
+void print(char const *const source, core::Status status) {
+    print(
+        "%s => Status{Result=%d, Cause=%u Location=%x}\n",
+        source,
+        to_underlying(status.GetResult()),
+        to_underlying(status.GetCause()),
+        status.GetLocation()
+    );
 }
 
 }    // namespace jarnax
