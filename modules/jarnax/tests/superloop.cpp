@@ -14,21 +14,50 @@ namespace jarnax {
 class DummyTask : public Loopable {
 public:
     DummyTask(const char *name)
-        : name_{name} {}
+        : Loopable()
+        , name_{name}
+        , should_keep_going_{true} {}
+
     bool Execute() override {
         std::cout << "Running in slot " << GetLoopInfo().cadence_slot << std::endl;
-        return true;
+        return should_keep_going_;
     }
 
     friend std::ostream &operator<<(std::ostream &os, const DummyTask &dummy) {
-        os << dummy.name_ << ": " << dummy.GetInfo().count;
+        os << dummy.name_ << ": " << std::dec << dummy.GetInfo().count;
         return os;
     }
 
+    void Stop() { should_keep_going_ = false; }
+
 protected:
     char const *name_;
+    bool should_keep_going_;
 };
 
+TEST_CASE("SuperLoop - Two Tasks") {
+    JumpTicker ticker{10_ticks};
+    SuperLoop loop{ticker};
+    DummyTask dummy0{"DummyTask0"};
+    DummyTask dummy1{"DummyTask1"};
+    loop.Enlist(dummy0);
+    loop.Enlist(dummy1);
+    SECTION("Single Loop") {
+        loop.RunAllOnce();
+        std::cout << loop << std::endl;
+        REQUIRE(dummy0.GetInfo().count == 1U);
+        REQUIRE(dummy1.GetInfo().count == 1U);
+    }
+    SECTION("All Count but Stop One") {
+        dummy0.Stop();
+        for (size_t i = 0; i < SlotsInCadence; i++) {
+            loop.RunAllOnce();
+        }
+        std::cout << loop << std::endl;
+        REQUIRE(dummy0.GetInfo().count == 1U);    // stopped after the first loop was called
+        REQUIRE(dummy1.GetInfo().count == 32U);
+    }
+}
 
 TEST_CASE("SuperLoop - Cadence Test") {
     JumpTicker ticker{10_ticks};
@@ -43,7 +72,7 @@ TEST_CASE("SuperLoop - Cadence Test") {
     loop.Enlist(dummy2, 0b1111'1111'1111'1111'1111'1111'1111'1111u);
     loop.Enlist(dummy3, 0b1111'0000'1111'0000'1111'0000'1111'0000u);
 
-    SECTION("Single Count") {
+    SECTION("Single Loop") {
         loop.RunAllOnce();
         std::cout << loop << std::endl;
         REQUIRE(dummy0.GetInfo().count == 0U);
@@ -60,6 +89,65 @@ TEST_CASE("SuperLoop - Cadence Test") {
         REQUIRE(dummy1.GetInfo().count == 16U);
         REQUIRE(dummy2.GetInfo().count == 32U);
         REQUIRE(dummy3.GetInfo().count == 16U);
+    }
+    SECTION("All Count But First Dismissed") {
+        loop.Dismiss(dummy0);
+        for (size_t i = 0; i < SlotsInCadence; i++) {
+            loop.RunAllOnce();
+        }
+        std::cout << loop << std::endl;
+        CHECK(dummy0.GetInfo().count == 0U);
+        CHECK(dummy1.GetInfo().count == 16U);
+        CHECK(dummy2.GetInfo().count == 32U);
+        CHECK(dummy3.GetInfo().count == 16U);
+    }
+    SECTION("All Count But Last Dismissed") {
+        loop.Dismiss(dummy3);
+        for (size_t i = 0; i < SlotsInCadence; i++) {
+            loop.RunAllOnce();
+        }
+        std::cout << loop << std::endl;
+        CHECK(dummy0.GetInfo().count == 16U);
+        CHECK(dummy1.GetInfo().count == 16U);
+        CHECK(dummy2.GetInfo().count == 32U);
+        CHECK(dummy3.GetInfo().count == 0U);
+    }
+    SECTION("All Count But Middle Dismissed") {
+        loop.Dismiss(dummy1);
+        for (size_t i = 0; i < SlotsInCadence; i++) {
+            loop.RunAllOnce();
+        }
+        std::cout << loop << std::endl;
+        CHECK(dummy0.GetInfo().count == 16U);
+        CHECK(dummy1.GetInfo().count == 0U);
+        CHECK(dummy2.GetInfo().count == 32U);
+        CHECK(dummy3.GetInfo().count == 16U);
+    }
+    SECTION("All Count But First and Last Dismissed") {
+        loop.Dismiss(dummy0);
+        loop.Dismiss(dummy3);
+        for (size_t i = 0; i < SlotsInCadence; i++) {
+            loop.RunAllOnce();
+        }
+        std::cout << loop << std::endl;
+        CHECK(dummy0.GetInfo().count == 0U);
+        CHECK(dummy1.GetInfo().count == 16U);
+        CHECK(dummy2.GetInfo().count == 32U);
+        CHECK(dummy3.GetInfo().count == 0U);
+    }
+    SECTION("All Count But Everything Dismissed") {
+        loop.Dismiss(dummy0);
+        loop.Dismiss(dummy1);
+        loop.Dismiss(dummy2);
+        loop.Dismiss(dummy3);
+        for (size_t i = 0; i < SlotsInCadence; i++) {
+            loop.RunAllOnce();
+        }
+        std::cout << loop << std::endl;
+        CHECK(dummy0.GetInfo().count == 0U);
+        CHECK(dummy1.GetInfo().count == 0U);
+        CHECK(dummy2.GetInfo().count == 0U);
+        CHECK(dummy3.GetInfo().count == 0U);
     }
 }
 

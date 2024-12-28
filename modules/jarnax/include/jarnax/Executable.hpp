@@ -11,6 +11,8 @@ namespace jarnax {
 class Executable {
 public:
     /// Clients implement this function to be called by the Super Loop.
+    /// @retval True if the object is still active and should be called again.
+    /// @retval false if the object is complete and should not be called again.
     virtual bool Execute() = 0;
 
 protected:

@@ -15,12 +15,17 @@ namespace jarnax {
 /// which informs them of the current superloop
 class Loopable : public Executable {
 public:
+    // Default constructor
+    Loopable()
+        : execute_info_{}
+        , loop_info_{} {}
+
     /// @brief The Loopable Object Information
     struct Info final {
         /// A small unique identifier for the Loopable Object to be used to differentiate between objects.
-        Id id;
-        /// The desired cadence given at configuration. A cadence is a bit pattern starting at bit 0 up to 31. Each bit set to 1 indicates a loop to run.
-        /// Each bit set to 0 indicates a loop to skip.
+        Id id{0U};
+        /// The desired cadence given at configuration. A cadence is a bit pattern starting at bit 0 up to 31. Each bit set to 1 indicates a loop to
+        /// run. Each bit set to 0 indicates a loop to skip.
         Cadence cadence{0xFFFF'FFFFU};
         /// The number of times the Loopable has been invoked
         std::size_t count{0U};
@@ -38,8 +43,7 @@ protected:
     /// The getter for the LoopInfo for the Loopable object for use by the Loopable itself.
     LoopInfo const& GetLoopInfo() { return loop_info_; }
 
-private: // Private to the Exectable but accessible to the SuperLoop
-
+private:    // Private to the Exectable but accessible to the SuperLoop
     /// @brief The information which the SuperLoop uses to manage the Executable Object
     core::doublelink::Node<Info> execute_info_;
 

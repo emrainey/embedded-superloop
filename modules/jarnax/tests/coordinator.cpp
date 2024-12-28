@@ -17,10 +17,9 @@ using namespace core::units;
 
 class TestTransaction : public Transactable<TestTransaction, 3> {
 public:
-    TestTransaction(Timer& timer) : Transactable{timer} {}
-    void Clear() {
-        return;
-    }
+    TestTransaction(Timer& timer)
+        : Transactable{timer} {}
+    void Clear() { return; }
 };
 
 class MockTransactor : public Transactor<TestTransaction> {
@@ -41,15 +40,10 @@ public:
 
 class CoordinatorTest : public ::testing::Test {
 public:
-    CoordinatorTest() {
-        jarnax::GetContext().Initialize();
-    }
-    void SetUp() override {
+    CoordinatorTest() { jarnax::GetContext().Initialize(); }
+    void SetUp() override {}
+    void TearDown() override {}
 
-    }
-    void TearDown() override {
-
-    }
 protected:
     JumpTimer timer;
     TestTransaction txn{timer};
@@ -63,7 +57,8 @@ protected:
     core::Status timeout{core::Result::Timeout, core::Cause::State};
 };
 
-TEST_F(CoordinatorTest, Empty) {}
+TEST_F(CoordinatorTest, Empty) {
+}
 
 TEST_F(CoordinatorTest, BadParameter) {
     ASSERT_EQ(invalid_value, coord.Schedule(nullptr));
@@ -112,4 +107,4 @@ TEST_F(CoordinatorTest, Deadline) {
     ASSERT_EQ(timeout, txn.GetStatus());
 }
 
-} // namespace jarnax
+}    // namespace jarnax

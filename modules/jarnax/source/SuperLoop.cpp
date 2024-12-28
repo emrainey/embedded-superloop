@@ -21,8 +21,11 @@ bool SuperLoop::Enlist(Loopable& obj, std::uint32_t cadence) {
     if (not head_ and not tail_) {
         head_ = tail_ = &obj.execute_info_;
     } else {
-        tail_->InsertBefore(obj.execute_info_);
+        // insert this new object after the tail
+        obj.execute_info_.InsertAfter(*tail_);
+        // and then update the tail.
         tail_ = &obj.execute_info_;
+        // head_ should never change on Enlist!
     }
     // reset the info
     obj.ResetInfo();
@@ -38,7 +41,19 @@ bool SuperLoop::Enlist(Loopable& obj, std::uint32_t cadence) {
 }
 
 void SuperLoop::Dismiss(Loopable& obj) {
-    obj.execute_info_.Remove();    // remove the node from the list
+    // update head and tail if different
+    if (head_ != tail_) {
+        if (head_ == &obj.execute_info_) {
+            head_ = head_->Next();
+        }
+        if (tail_ == &obj.execute_info_) {
+            tail_ = tail_->Prev();
+        }
+    } else {
+        // if they are the same, we're about to be empty
+        head_ = tail_ = nullptr;
+    }
+    obj.execute_info_.Remove();    // remove the node from the list (safe to do on a single node list too)
     obj.ResetInfo();               // reset the info
 }
 
@@ -79,6 +94,8 @@ void SuperLoop::Visit(core::doublelink::Node<Loopable::Info>& node) {
     std::cout << std::hex << "id: " << exec_info.id << " exec_info.count: " << exec_info.count << " mask: " << cadence_mask << std::endl;
 #endif
     auto start = ticker_.GetTicks();
+    // take the return value of the Exeucte method and store it in the is_active flag
+    // this will allow to the object to stop itself from being called in the future
     exec_info.is_active = exec_info.object->Execute();
     exec_info.last_tick = ticker_.GetTicks();
     exec_info.last_duration = exec_info.last_tick - start;
@@ -106,7 +123,9 @@ void SuperLoop::Visit(core::doublelink::Node<Loopable::Info> const& node) const 
 #if defined(UNITTEST)
 std::ostream& operator<<(std::ostream& os, SuperLoop const& loop) {
     os << "SuperLoop{" << std::endl;
-    loop.head_->VisitForward(loop);
+    if (loop.head_) {
+        loop.head_->VisitForward(loop);
+    }
     os << "}" << std::endl;
 
     return os;

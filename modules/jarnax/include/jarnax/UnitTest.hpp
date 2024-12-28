@@ -69,7 +69,8 @@ public:
 
     /// Default Constructor
     UnitTest(char const* const name, TestName const (&test_names)[NumTestNames])
-        : m_name_{name}
+        : Loopable()
+        , m_name_{name}
         , m_test_index_{IndexOf(EnumType::kMinimum)}
         , m_test_enum_{EnumType::kMinimum}
         , m_test_names_{test_names} {
@@ -100,12 +101,7 @@ public:
         bool continue_tests = true;
         if (m_test_index_ < kMaximum) {
             if (m_states_[m_test_index_] == State::NotEvalutated) {
-                jarnax::print(
-                    "%s Running Test %s [%lu] ... ",
-                    m_name_,
-                    m_test_names_[m_test_index_].name,
-                    static_cast<unsigned long>(m_test_index_)
-                );
+                jarnax::print("%s Running Test %s [%lu] ... ", m_name_, m_test_names_[m_test_index_].name, static_cast<unsigned long>(m_test_index_));
                 // run it
                 m_states_[m_test_index_] = Test(m_test_enum_);
                 // print results
@@ -215,11 +211,7 @@ private:
             m_results_[m_result_index_].test_enum = m_test_enum_;
             m_results_[m_result_index_].test_result = evaluation ? Result::Passed : Result::Failed;
         } else {
-            jarnax::print(
-                "Exceeded Result Count of %" PRIz ". Now at %" PRIz "!\r\n",
-                m_result_counts_[m_test_index_],
-                m_result_index_
-            );
+            jarnax::print("Exceeded Result Count of %" PRIz ". Now at %" PRIz "!\r\n", m_result_counts_[m_test_index_], m_result_index_);
         }
         m_result_index_++;
     }

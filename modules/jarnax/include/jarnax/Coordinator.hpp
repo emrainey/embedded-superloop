@@ -20,7 +20,8 @@ public:
     // static_assert(std::is_base_of<Transactable<TransactionType>, TransactionType>::value, "TransactionType must be derived from Transactable");
 
     Coordinator(Transactor<TransactionType>& driver)
-        : transactions_{}
+        : Loopable()
+        , transactions_{}
         , stats_{}
         , driver_{driver} {
         // do nothing
@@ -66,14 +67,16 @@ public:
         core::Status status;
         if (active_ == nullptr) {
             if (transactions_.IsEmpty()) {
-                // no transactions to process
-                return false;
+                // no transactions to process, but we need to keep the loop active
+                // so we will be called again later
+                return true;
             }
             // get the top transaction
             if (not transactions_.Pop(active_)) {
                 // could not pop for some reason
                 active_ = nullptr;
-                return false;
+                // but we need to keep the loop active
+                return true;
             }
         }
 

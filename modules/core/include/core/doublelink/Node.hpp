@@ -47,11 +47,20 @@ public:
 
     /// Removes this node from the list
     void Remove() {
+        // the special case is where we are already the last item, but
+        // these operations are already safe in that case. You just
+        // won't be able to remove yourself from yourself, i.e. it's always a list of yourself.
         prev_->next_ = next_;
         next_->prev_ = prev_;
         next_ = prev_ = this;
         marker_ = false;
     }
+
+    /// @return Gets the next Node in the List
+    Node* Next() const { return next_; }
+
+    /// @return Gets the previous Node in the List
+    Node* Prev() const { return prev_; }
 
     /// @brief The visitor interface for iteration over the Nodes of the list.
     class Visitor {
@@ -145,7 +154,7 @@ private:
     TYPE value_;             ///< The value of the node
 };
 
-}  // namespace doublelink
-}  // namespace core
+}    // namespace doublelink
+}    // namespace core
 
 #endif    // CORE_DOUBLELINK_NODE_HPP_
