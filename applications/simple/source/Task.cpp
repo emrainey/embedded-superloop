@@ -98,7 +98,7 @@ bool Task::Execute() {
     }
     if (spi_transaction_.IsUninitialized()) {
         // allocates the buffer
-        spi_buffer_ = core::Buffer<jarnax::spi::DataUnit>{spi_buffer_count_};
+        spi_buffer_ = core::Buffer<jarnax::spi::DataUnit>{spi_buffer_count_, jarnax::GetDriverContext().GetDmaAllocator()};
         if (spi_buffer_.IsEmpty()) {
             jarnax::print("SPI Buffer Allocation Failed\r\n");
         } else {

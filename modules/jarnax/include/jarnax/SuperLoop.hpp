@@ -38,7 +38,6 @@ public:
 #endif    // UNITTEST
 
 private:
-
     /// The visitor interface for iteration over the Nodes of the list
     void Visit(core::doublelink::Node<Loopable::Info>& node) override;
 

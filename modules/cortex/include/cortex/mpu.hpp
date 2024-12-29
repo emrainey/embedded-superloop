@@ -17,11 +17,23 @@ struct MemoryProtectionUnit {
     /// The type register
     /// @see MPU_TYPE
     struct Type final {
-        std::uint32_t separate                      : 1U;
-        std::uint32_t                               : 7U;    ///< Reserved field
-        std::uint32_t number_of_data_regions        : 8U;    //<! Unifed number of regions (in doc as number of data regions)
-        std::uint32_t number_of_instruction_regions : 8U;
-        std::uint32_t                               : 8U;    ///< Reserved field
+        Type()
+            : whole{0U} {}
+        /// Copy Constructor
+        Type(Type volatile& other)
+            : whole{other.whole} {}
+
+        struct Fields final {
+            std::uint32_t separate                      : 1U;
+            std::uint32_t                               : 7U;    ///< Reserved field
+            std::uint32_t number_of_data_regions        : 8U;    //<! Unifed number of regions (in doc as number of data regions)
+            std::uint32_t number_of_instruction_regions : 8U;
+            std::uint32_t                               : 8U;    ///< Reserved field
+        };
+        union {
+            Fields bits;
+            std::uint32_t whole;
+        };
     };
 
     /// The control register
@@ -48,6 +60,11 @@ struct MemoryProtectionUnit {
 
     /// The Region Register
     struct Region final {
+        Region()
+            : whole{0U} {}
+        /// Copy Constructor
+        Region(Region volatile& other)
+            : whole{other.whole} {}
         struct Fields final {
             std::uint32_t number : 8U;     ///< The region value. @see MPU_RNR
             std::uint32_t        : 24U;    ///< Reserved field
@@ -187,10 +204,10 @@ struct MemoryProtectionUnit {
 
     /// Returns the number of regions this processor supports
     inline std::uint32_t get_number_of_regions(void) volatile {
-        if (type.separate == 1U) {
-            return type.number_of_data_regions + type.number_of_instruction_regions;
+        if (type.bits.separate == 1U) {
+            return type.bits.number_of_data_regions + type.bits.number_of_instruction_regions;
         } else {
-            return type.number_of_data_regions;
+            return type.bits.number_of_data_regions;
         }
     }
 

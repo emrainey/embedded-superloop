@@ -1,10 +1,14 @@
 #include "board.hpp"
 #include "segger/rtt.hpp"
 #include "jarnax.hpp"
+#include "core/BitMapHeap.hpp"
 #include "stm32/RandomNumberGenerator.hpp"
 #include "stm32/Timer.hpp"
 
 namespace stm32 {
+
+LINKER_SECTION(".dma_buffer") alignas(alignof(std::max_align_t)) static core::Array<uint8_t, DmaBlockSize * DmaBlockCount> dma_memory;
+static core::BitMapHeap<DmaBlockSize, DmaBlockCount> dma_heap_allocator{&dma_memory[0], dma_memory.size()};
 
 /// The Clock configuration for this board.
 ClockConfiguration const default_clock_configuration = {
@@ -26,9 +30,6 @@ ClockConfiguration const default_clock_configuration = {
 }    // namespace stm32
 
 namespace jarnax {
-
-/// DMA Memory for the SPI1 Driver
-LINKER_SECTION(".dma_buffer") static stm32::SpiDriver::DmaBuffer spi1_dma_memory;
 
 DriverContext::DriverContext()
     : timer_{stm32::registers::timer2}
@@ -54,7 +55,7 @@ DriverContext::DriverContext()
     , dma_driver_{}
     , spi1_rx_dma_stream_{dma_driver_.Assign(stm32::dma::SPI1_RX)}
     , spi1_tx_dma_stream_{dma_driver_.Assign(stm32::dma::SPI1_TX)}
-    , spi1_driver_{stm32::registers::spi1, dma_driver_, spi1_dma_memory, *spi1_rx_dma_stream_, *spi1_tx_dma_stream_} {
+    , spi1_driver_{stm32::registers::spi1, dma_driver_, *spi1_rx_dma_stream_, *spi1_tx_dma_stream_} {
     // construct the driver objects as part of the constructor above.
 }
 
@@ -171,6 +172,10 @@ jarnax::spi::Driver& DriverContext::GetSpiDriver() {
 
 jarnax::gpio::Output& DriverContext::GetFlashChipSelect() {
     return flash_cs_;
+}
+
+core::Allocator& DriverContext::GetDmaAllocator() {
+    return stm32::dma_heap_allocator;
 }
 
 DriverContext& GetDriverContext() {

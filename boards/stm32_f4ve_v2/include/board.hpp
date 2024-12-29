@@ -36,6 +36,10 @@ using namespace core::units;
 constexpr static Hertz high_speed_external_oscillator_frequency = 8_MHz;
 /// The number of iota per second (based on the ClockTree)
 constexpr static std::uint32_t iota_per_microsecond = 1U;
+/// Number of bytes per DMA block for the Drivers
+static constexpr size_t DmaBlockSize{32U};
+/// Number of DMA blocks for the Drivers
+static constexpr size_t DmaBlockCount{32U};
 }    // namespace stm32
 
 namespace winbond {
@@ -95,6 +99,9 @@ public:
 
     /// Returns the Flash Chip Select
     jarnax::gpio::Output& GetFlashChipSelect();
+
+    /// Returns the DMA Allocator
+    core::Allocator& GetDmaAllocator();
 
 protected:
     stm32::Timer timer_;

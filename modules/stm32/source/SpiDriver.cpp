@@ -7,14 +7,12 @@ namespace stm32 {
 SpiDriver::SpiDriver(
     stm32::registers::SerialPeripheralInterface volatile& spi,
     dma::Driver& dma_driver,
-    DmaBuffer const& dma_memory,
     stm32::registers::DirectMemoryAccess::Stream volatile& rx_dma_stream,
     stm32::registers::DirectMemoryAccess::Stream volatile& tx_dma_stream
 )
     : jarnax::spi::Driver{static_cast<jarnax::spi::Transactor&>(*this)}    // initialize the base class by handing off the transactor
     , spi_{spi}
     , dma_driver_{dma_driver}
-    , dma_memory_{dma_memory}
     , rx_dma_stream_{rx_dma_stream}
     , tx_dma_stream_{tx_dma_stream} {
     // TODO Assert if the & of a stream is nullptr
