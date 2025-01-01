@@ -27,6 +27,7 @@ add_module(NAME jarnax
         ${CMAKE_CURRENT_SOURCE_DIR}/source/yield.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SuperLoop.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CountDown.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/StopWatch.cpp
         $<IF:$<BOOL:CMAKE_CROSS_BUILD>,${CMAKE_CURRENT_SOURCE_DIR}/source/main.cpp,> # Only build in on target builds
     LIBRARIES
         strict jarnax-interfaces
@@ -47,6 +48,7 @@ host_unit_test(NAME test-jarnax-catch
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/countdown.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/yieldable.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/superloop.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/stopwatch.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/transactable.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/include
