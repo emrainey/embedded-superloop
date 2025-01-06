@@ -1,6 +1,8 @@
 #ifndef COMPILER_HPP_
 #define COMPILER_HPP_
 
+#include <concepts>
+
 /// @file
 /// Contains compiler specific attributes and macros. These should be the only MACROS in the system
 
@@ -20,11 +22,24 @@
 
 #include <cstdint>
 #include <cstddef>
+#include <compare>
 
 // clang-format off
 inline size_t operator""_Z( unsigned long long int value) {
     return size_t(value);
 }
 // clang-format on
+
+/// A concept that requires the type to implement all the comparison operators
+template <typename TYPE>
+concept Comparible = requires(std::remove_reference_t<TYPE> const& t, std::remove_reference_t<TYPE> const& u) {
+    { t < u } -> std::convertible_to<bool>;
+    { t <= u } -> std::convertible_to<bool>;
+    { t > u } -> std::convertible_to<bool>;
+    { t >= u } -> std::convertible_to<bool>;
+    { t == u } -> std::convertible_to<bool>;
+    { t != u } -> std::convertible_to<bool>;
+    { t <=> u } -> std::convertible_to<std::strong_ordering>;
+};
 
 #endif    // COMPILER_HPP_

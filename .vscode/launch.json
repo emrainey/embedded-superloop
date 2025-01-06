@@ -5,6 +5,25 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Local Debug via LLDB",
+            "cwd": "${workspaceRoot}",
+            "type": "cppdbg",
+            "request": "launch",
+            // "program": "${workspaceFolder}/build/native-llvm-18/modules/core/test-core-none-all",
+            "args": [],
+            "stopAtEntry": false,
+            "environment": [],
+            "externalConsole": false,
+            "linux": {
+                "MIMode": "gdb",
+                "miDebuggerPath": "/usr/bin/gdb"
+            },
+            "osx": {
+                "MIMode": "lldb"
+            },
+            "launchCompleteCommand": "exec-run"
+        },
+        {
             "name": "Cortex-Debug (JLink) Jarnax",
             "cwd": "${workspaceRoot}",
             "executable": "build/stm32-basic",

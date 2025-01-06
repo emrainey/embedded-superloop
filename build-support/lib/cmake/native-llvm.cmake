@@ -26,3 +26,8 @@ link_libraries(--coverage)
 
 # no default math lib is needed?
 unset(COMPILER_MATH_LIBS)
+
+# Add debug flags
+add_compile_options(
+    -glldb
+)

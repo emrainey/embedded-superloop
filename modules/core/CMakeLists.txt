@@ -64,6 +64,7 @@ list(SORT _GENERATED_CORE_TESTS) # for reproducibility
 host_unit_test(NAME test-core
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/array.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/avl.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/container.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/doublelink.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/enums.cpp
