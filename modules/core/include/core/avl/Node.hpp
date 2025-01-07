@@ -29,7 +29,7 @@ public:
         : parent_{nullptr}
         , left_{nullptr}
         , right_{nullptr}
-        , height_{0}
+        , height_{1}
         , balance_factor_{0}
         , value_{value} {}
 
@@ -72,10 +72,14 @@ public:
         if (IsLeaf()) {
             // nothing extra
         } else if (left_ != nullptr and right_ == nullptr) {
-            *parent_side = left_;
+            if (parent_) {
+                *parent_side = left_;
+            }
             left_->parent_ = parent_;
         } else if (left_ == nullptr and right_ != nullptr) {
-            *parent_side = right_;
+            if (parent_) {
+                *parent_side = right_;
+            }
             right_->parent_ = parent_;
         } else {
             // we have both children, so we have to pick a replacement node
@@ -107,12 +111,13 @@ public:
             successor->left_->parent_ = successor;
             successor->right_->parent_ = successor;
         }
+        // general cleanup
+        // find the root node (using our parent)
         Node* root = FindRoot();
-        // TODO assert(root);
-        if (root) {
-            root->ComputeHeight();
-        }
-        Reset();    // reset ourselves
+        Reset();    // new we can reset ourselves
+        // recompute our heights
+        root->ComputeHeight();    // visits every node! FIXME2
+        root->Rebalance();        // visits every node! FIXME
     }
 
     /// @brief Removes a value from the tree.
@@ -159,22 +164,63 @@ public:
         return count;
     }
 
+    /// @brief Assures us that the node is connected properly in the tree
+    /// @note This does not validate that the tree is balanced (thus AVL)
+    bool IsConnected() const {
+        bool left_ok = true;
+        bool right_ok = true;
+        if (left_ != nullptr) {
+            if (left_->parent_ != this) {
+                left_ok = false;
+            } else {
+                left_ok = left_->IsConnected();
+            }
+        }
+        if (right_ != nullptr) {
+            if (right_->parent_ != this) {
+                return false;
+            } else {
+                right_ok = right_->IsConnected();
+            }
+        }
+        return left_ok and right_ok;
+    }
+
 #if defined(UNITTEST)
     Node* Left() const { return left_; }
     Node* Right() const { return right_; }
     Node* Parent() const { return parent_; }
-    int GetHeight() const { return height_; }
-    int GetBalanceFactor() const { return balance_factor_; }
+    int Height() const { return height_; }
+    int BalanceFactor() const { return balance_factor_; }
 
     int FindLeftHeight() const { return (left_ != nullptr) ? left_->FindLeftHeight() + 1 : 0; }
 
+    bool VerifySide(Side side, Node* node) const {
+        if (side == Side::Left) {
+            return left_ == node and left_->parent_ == this;
+        } else if (side == Side::Right) {
+            return right_ == node and right_->parent_ == this;
+        }
+        return false;
+    }
+
     friend std::ostream& operator<<(std::ostream& os, Node const& node) {
-        return os << "avl::Node " << &node << " Value=" << node.value_ << " H=" << node.GetHeight() << " BF=" << node.GetBalanceFactor()
+        return os << "avl::Node " << &node << " Value=" << node.value_ << " H=" << node.Height() << " BF=" << node.BalanceFactor()
                   << " Parent=" << node.parent_ << " Left=" << node.left_ << " Right=" << node.right_;
     }
-#endif
 
-private:
+    void PrintTree() const {
+        if (left_ != nullptr) {
+            left_->PrintTree();
+        }
+        std::cout << *this << std::endl;
+        if (right_ != nullptr) {
+            right_->PrintTree();
+        }
+    }
+#endif
+    /// @brief Searches up the tree to find the root node.
+    /// @return The pointer to the root node. Should never be nullptr!
     Node* FindRoot() {
         Node* node = this;
         while (node->parent_ != nullptr) {
@@ -183,6 +229,7 @@ private:
         return node;
     }
 
+private:
     /// Finds the farthest left or right node in the sub tree starting at this node.
     Node* FindSideMost(Side side) {
         Node* node = this;
@@ -209,7 +256,7 @@ private:
         parent_ = nullptr;
         left_ = nullptr;
         right_ = nullptr;
-        height_ = 0;
+        height_ = 1;
         balance_factor_ = 0;
     }
 
@@ -226,6 +273,20 @@ private:
         return Side::Neither;
     }
 
+    /// @brief Updates this node to a new child from a previous child.
+    /// If the previous child is not found, this is a no-op.
+    /// @param prev The previous child to remove
+    /// @param next The new child to update to
+    void Swap(Node* prev, Node* next) {
+        if (prev == left_) {
+            left_ = next;
+            next->parent_ = this;
+        } else if (prev == right_) {
+            right_ = next;
+            next->parent_ = this;
+        }
+    }
+
     /// @brief Updates the balance factor of this node in the tree
     void UpdateBalanceFactor() {
         int left = left_ == nullptr ? 0 : left_->height_;
@@ -233,16 +294,24 @@ private:
         balance_factor_ = left - right;
     }
 
+    /// @brief Assumes the subchildren have valid height and updates ours.
+    void UpdateHeight() {
+        height_ = 1;
+        int left = left_ == nullptr ? 0 : left_->height_;
+        int right = right_ == nullptr ? 0 : right_->height_;
+        height_ += std::max(left, right);
+    }
+
     /// @brief Recursively computes the height of the tree starting at this node.
     /// @return The new height.
     int ComputeHeight() {
-        if (IsLeaf()) {
-            height_ = 0;
-        } else {
-            int left = left_ == nullptr ? 0 : left_->ComputeHeight();
-            int right = right_ == nullptr ? 0 : right_->ComputeHeight();
-            height_ = 1 + std::max(left, right);
+        if (left_ != nullptr) {
+            left_->ComputeHeight();
         }
+        if (right_ != nullptr) {
+            right_->ComputeHeight();
+        }
+        UpdateHeight();
         UpdateBalanceFactor();
         return height_;
     }
@@ -310,12 +379,20 @@ private:
         Node** leaf_sub = (side == Side::Right) ? &leaf->right_ : &leaf->left_;
         // our own side pointer which needs to be updated
         Node** our_sub = (side == Side::Right) ? &left_ : &right_;
-        // the leaf was this but now inherits my parent
-        leaf->parent_ = this->parent_;
+        // if our parent exists, update it to point to the leaf and the leaf to point to it
+        if (this->parent_) {
+            this->parent_->Swap(this, leaf);
+        } else {
+            leaf->parent_ = nullptr;
+        }
         // my parent becomes the leaf
         this->parent_ = leaf;
         // our side pointer now points to whatever the leaf's side pointer was
         *our_sub = *leaf_sub;
+        if (*leaf_sub) {
+            // the leaf's side pointer node parent now points to me if it exists
+            (*leaf_sub)->parent_ = this;
+        }
         // the leaf's side pointer (left or right) now points to me
         *leaf_sub = this;
         // all heights could be different now, recompute from the parent node
