@@ -13,6 +13,7 @@ To write a safety oriented (MISRA 23 adjacent) Cortex-M bare-metal system in C++
 * No `CMSIS`. The Cortex System Structures are all defined locally as C++ bit-fields with the proper types _built in_ mainly using inspiration from the [peripheralyzer](https://github.com/emrainey/peripheralyzer) project.
 * No dependence on "manual" linking. This means when the address of some hardware peripheral is required, the _linker_ is the tool which assigns a symbol to it, not the C++ code. This pattern allows the unit test framework to be completely cross 32/64 pointer agnostic.
 * Unit Test Oriented Development. Many parts of low level firmware are eminently testable given the right environment. The guidelines above make it much simplier to do so. When choosing between being behavior focused (clean API) or implementation focused, the default should be behavior focused.
+* All hardware peripheral register sets _shall_ be considered `volatile`, since they really are. This aids in _unit-testing_ as well since (simple) _simulations_ can be written using threads and direct memory access to the `volatile` "registers" (which would just be a RAM resident structure on the host).
 
 This bare-metal firmware also does not permit several C++ features in order to reduce failure modes (at a cost):
 
@@ -48,6 +49,7 @@ Additionally the design of the firmware is generally
 * Client facing service use Pure Virtual Interfaces to communicate interface and expectations. Application use those Pure Virtual interfaces to remain (to some degree) separated from the details of the implementation and remain (somewhat) abstract.
 * When the need for the complexity arrives, StateCharts or State Machines are employed to control the state of some internal hardware or external chip, parser, standard or some gestalt thereof. Use the given templates or better yet, use a 3rd party tool which generates the code _directly_ from the diagrams such as [StateSmith](https://github.com/StateSmith/StateSmith) or itemis' CREATE (previously Yakindu), or Ansys tools or one of many others. Design in good boundary interfaces and Unit Test those State Machines.
 * In a deviation from common portability norms, this project relies on the platform dependent implementation detail of _bitfields_ and _unions_ to implement easy to use _MACRO_-less  and cast-less peripheral interfaces. The `peripheralyzer` project provides some generated tests which then can enforce compliance.
+* When pointers needs to be treated as addresses (for ranges, hardware registers, etc) they should be used as `std::uintptr_t` types to take away the ability the easy dereference them. Dereferencing them would more than likely lead to hard faults.
 
 ## Documentation
 
@@ -114,13 +116,14 @@ $ cmake --workflow --preset unit-tests-clang"
 ## Debug
 
 ```bash
-# in one window
+# in one window, launch the GDB server
 ./scripts/debug.sh renode
-# or if yu have a JLink
+# or if you have a JLink, use their GDB server
 ./scripts/debug.sh server
 
 # in another terminal
 # modify ./scripts/stm32f407ve.gdb for commands as needed
+# and launch the GDB client.
 ./scripts/debug.sh client
 ```
 
@@ -145,11 +148,11 @@ As this experiment moves towards a C++20 module build, the code and the artifact
 
 #### Configuration
 
-There are two layers of configuration. System and Board Level. Some modules depend on none, one or both of these sets of configuration.
+There are two layers of configuration. System and Board Level. Some modules depend on none, one, or both of these configurations layers.
 
 ##### System Configuration
 
-This configuration sets high level feature switches and constants which do not directly depend on the hardware on which is runs (generally). Typically this will be something like enabling some high level feature or some debug setting. In the build the list of all system configurations is referred to as `LOCAL_CONFIGURATIONS`.
+This configuration sets high level feature switches and constants which do not directly depend on the hardware on which is runs (generally). Typically this will be something like enabling some high level feature, like the `tick` period, the flag to enabler fpu at boot, or some debug settings. In the build the list of all system configurations is referred to as `LOCAL_CONFIGURATIONS`.
 
 ##### Board Level Configuration
 
@@ -177,7 +180,7 @@ Layout:
 
 * `modules/`
   * `jarnax/`
-    * `include/system` - only path to `include` is made as a dependency
+    * `include/jarnax` - only path to `include` is made as a dependency
     * `source/*.cpp`
 
 ## Drivers
@@ -221,4 +224,4 @@ extern Timer2 volatile timer2;
 }    // namespace stm32
 ```
 
-Thus only the memory map in the linker needs to know it's real address. If it needs to be known in code, we simply refer to it naturally as `&stm32::registers::timer2`.
+Thus only the memory map in the linker needs to know it's real address. If it needs to be known in code, we simply refer to it naturally as `&stm32::registers::timer2`. This works seemlessly in unit test and on-target.
