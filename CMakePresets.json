@@ -47,11 +47,11 @@
             }
         },
         {
-            "name": "stm32",
+            "name": "cortex-m4",
             "hidden": true,
-            "displayName": "STM32",
+            "displayName": "cortex-m4",
             "inherits": "common",
-            "description": "Configuration for STM32",
+            "description": "Configuration for Cortex M4",
             "toolchainFile": "${sourceDir}/build-support/lib/cmake/bare-gcc-cortex-m4.cmake"
         },
         {
