@@ -18,7 +18,7 @@ This bare-metal firmware also does not permit several C++ features in order to r
 
 * No C++ exceptions (we look forward to memory safe exceptions!)
 * No C++ RTTI (Run Time Type Information)
-* No `dynamic_cast`, use as few `reinterpret_cast` as possible, favoring to get types correct first. Wheneven it is needed it should be used sparringly and in an extensible way to encourage wide use (and thus situational coverage).
+* No `dynamic_cast`, use as few `reinterpret_cast` as possible, favoring to get types correct first. Wheneven it is needed it should be used sparingly and in an extensible way to encourage wide use (and thus situational coverage).
 * No dynamic memory allocation except where absolutely unavoidable. When it is absolutely unavoidable, prefer to allocate at initialization time and not "in the moment".
 
 Using the plain STL or libc with these features turned "off" is challenging and leads to hard-to-meet expectations about which structures or templates or related features will work or when those will sneakily do the wrong thing.
@@ -41,13 +41,13 @@ In order to fill the _need_ that the _STL_ or other template libraries provide, 
 
 Additionally the design of the firmware is generally
 
-* A single thread of execution.
+* A single thread of execution, the Super-Loop. This means a single `while(true)` loop is permitted, in `main` and no where else.
 * A bare minimum number of interrupts are enabled.
-* When a peripheral is used, prefer a DMA driven design first, then ISR, then polled. A very specific design choice should drive this. We _understand_ that DMA is not free, but it is generally conceivable how to prioritize.
+* When a peripheral is used, prefer a DMA driven design first, then ISR, then polled. A very specific design choice should drive this. We _understand_ that DMA is not free, but it is generally conceivable to prioritize.
 * Asynchronous and non-blocking functions in all interfaces
 * Client facing service use Pure Virtual Interfaces to communicate interface and expectations. Application use those Pure Virtual interfaces to remain (to some degree) separated from the details of the implementation and remain (somewhat) abstract.
 * When the need for the complexity arrives, StateCharts or State Machines are employed to control the state of some internal hardware or external chip, parser, standard or some gestalt thereof. Use the given templates or better yet, use a 3rd party tool which generates the code _directly_ from the diagrams such as [StateSmith](https://github.com/StateSmith/StateSmith) or itemis' CREATE (previously Yakindu), or Ansys tools or one of many others. Design in good boundary interfaces and Unit Test those State Machines.
-* A single `while(true)` loop is permitted, in `main`
+* In a deviation from common portability norms, this project relies on the platform dependent implementation detail of _bitfields_ and _unions_ to implement easy to use _MACRO_-less  and cast-less peripheral interfaces. The `peripheralyzer` project provides some generated tests which then can enforce compliance.
 
 ## Documentation
 
@@ -95,8 +95,8 @@ Available configure presets:
   "native-clang"                - Native Clang Toolchain
 $ cmake --preset cortex-gcc-arm-none-eabi-13 -B build/stm32-gcc-arm-none-eabi-13 -S .
 $ cmake --build build/cortex-gcc-arm-none-eabi-13
-# Or Run the Whole Worflow
-$ cmake --worflow --list-presets
+# Or Run the Whole Workflow
+$ cmake --workflow --list-presets
 Available workflow presets:
 
   "on-target-gcc-10"
@@ -159,14 +159,14 @@ This configuration is low level and contains things which are board specific whi
 
 For example, the `memory` module doesn't depend on either board level or system level configuration. This has an effect on the module (static library) name generated. When a module doesn't depend on a system configuration it's marked with the `none` name. When a module doesn't depend on a specific board configuration it's marked with the `all` name. Thus, `memory-none-all.a` is the output name for the module.
 
-When a module _does_ depend on either configuration, it's name is incorporated into the name of the module artifact. `jarnax` module for example is built for a specific system configuration and it must know about the board it runs on, thus it's artifact name follows the convention of `<module>-<systemcfg>-<boardcfg>.a` or in a specific case, `jarnax-basic-stm32_f4ve_v2.a`. This module depends on the system level configuration named `basic` and the board configuration for the `stm32_f4ve_v2` board.
+When a module _does_ depend on either configuration, it's name is incorporated into the name of the module artifact. `jarnax` module for example is built for a specific system configuration and it must know about the board it runs on, thus it's artifact name follows the convention of `<module>-<system-cfg>-<board-cfg>.a` or in a specific case, `jarnax-basic-stm32_f4ve_v2.a`. This module depends on the system level configuration named `basic` and the board configuration for the `stm32_f4ve_v2` board.
 
 Applications also follow this pattern, but with a slight variation. Applications have names which may have further variations in the stem.
 
-```
-<application>-<systemcfg>-<boardcfg>.elf
+```text
+<application>-<system-cfg>-<board-cfg>.elf
 Where
-<application> may break down into <name>-<appcfg>.
+<application> may break down into <name>-<app-cfg>.
 ```
 
 ### System
@@ -197,7 +197,7 @@ The first board supported is the `stm32_f4ve_v2` board. The STM32F4VE has the fo
 
 ### Linkerscripts
 
-Each vendor will contain it's own version of the linker script under `<vendor>/linkerscripts/<compiler>.ld`. As architectures or variation are added, it may be necessary to build a hierarchy but not yet. Generally the pattern followed in the linkerscript is to explicitly assign address to hardware peripherals here and _only_ here, so that unit tests never have to have `#ifdefs` to know if they are referencing 32 bit pointer or a 64 bit pointers and to that Drivers never worry about uninitialized pointers.
+Each vendor will contain it's own version of the linker script under `<vendor>/linkerscripts/<compiler>.ld`. As architectures or variation are added, it may be necessary to build a hierarchy but not yet. Generally the pattern followed in the linkerscript is to explicitly assign address to hardware peripherals here and _only_ here, so that unit tests never have to have `#ifdef`s to know if they are referencing 32 bit pointer or a 64 bit pointers and to that Drivers never worry about uninitialized pointers.
 
 ```text
     /* Arm Private Bus 1 */
@@ -225,11 +225,11 @@ Thus only the memory map in the linker needs to know it's real address. If it ne
 
 ## Things To Do
 
-```
+```text
 [ ] Pick a better name than _jarnax_ (first word that popped into my mind)
   [x] bare-metal firmware = bmf
-  [ ] bare-metal firmware super loop - bmfsl
-  [X] embedded-superloop = esl
+  [ ] bare-metal firmware super loop = bmfsl
+  [x] embedded-superloop = esl
 [x] Modern CMake INTERFACE libraries
 [x] Modern CMake Preset Build
 [x] Encapsulate Firmware Build in a CMake Function
@@ -288,11 +288,11 @@ Thus only the memory map in the linker needs to know it's real address. If it ne
 [x] Capture a Non Maskable Interrupt in Ozone
 [ ] Process the NMI as what? yield?
 [ ] Capture a Hard Fault in Ozone
-[ ] Process a Hard Fault (if Bist, return, else?)
+[ ] Process a Hard Fault (if BIST, return, else?)
 [ ] Capture a Memory Management Fault in Ozone
-[ ] Process a Memory Management Fault (if Bist, return, else?)
+[ ] Process a Memory Management Fault (if BIST, return, else?)
 [ ] Capture a Usage Fault in Ozone
-[ ] Process a Usage Fault (if Bist, return, else?)
+[ ] Process a Usage Fault (if BIST, return, else?)
 [x] Capture a SVC Call in Ozone
 [x] Trigger SVC Call (w/ parameters?)
 [x] Return a value back from SVC
@@ -311,7 +311,7 @@ Thus only the memory map in the linker needs to know it's real address. If it ne
 [x] Generate doxygen in CMake
 [x] Learn how to run in Renode in a Container
 [x] Run in Renode (takes forever to start)
-[x] Create VSCode cmake variant fileb
+[x] Create VSCode cmake variant file
 [ ] Generate Coverage in Renode
 [ ] Determinstic builds (ld GUID removal, no __FILE__)
 [x] Add disassembly target to build.
