@@ -30,6 +30,9 @@ namespace cortex {
 /// The number of bits per byte on this processor
 constexpr static std::uint32_t bits_per_byte = 8U;
 
+/// @TODO Eliminate the need for this namespace. ONLY the linker should know these values.
+/// The primary reason they are know is due to the MPU and the need to have large address
+/// ranges defined as constexprs for compile time use.
 namespace address {
 
 /// Base Code Address
@@ -343,6 +346,9 @@ void enable(void);
 /// @warning Paths which enter this function do not leave and will not run user applications.
 [[noreturn]] void spinhalt(void);
 
+/// @brief The Cortex M processor memory regions
+/// @note The order of the regions is important for the MPU
+/// @TODO Construct this table in the linkerscript, not in C++ as we really do not need to know these addresses.
 constexpr core::Interval unsorted_memory_regions_array[] = {
     {cortex::address::code, cortex::address::code + cortex::sizes::code - 1U},
     {cortex::address::sram, cortex::address::sram + cortex::sizes::sram - 1U},

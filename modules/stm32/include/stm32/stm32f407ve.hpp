@@ -22,6 +22,9 @@ constexpr bool has_sram{true};
 }    // namespace configuration
 
 /// Contains the defined address for the chip
+/// @TODO Eliminate the need for this namespace. ONLY the linker should know these values.
+/// The primary reason they are know is due to the MPU and the need to have large address
+/// ranges defined as constexprs for compile time use.
 namespace address {
 /// The Base Address of Flash
 constexpr uintptr_t flash = 0x08'00'00'00UL;
@@ -81,7 +84,7 @@ extern ExternalInterrupts external_interrupts;
 /// @see cortex::m4::InterruptRequest for preceding numbers
 enum class InterruptRequest : int {
     WindowWatchDog = 0U,
-    PowerSupervisior = 1U,      ///< PVD
+    PowerSupervisior = 1U,    ///< PVD
     TamperAndTimeStamp = 2U,
     RealTimeClockWakeUp = 3U,
     Flash = 4U,
@@ -98,7 +101,7 @@ enum class InterruptRequest : int {
     DirectMemoryAccess1Stream4 = 15U,
     DirectMemoryAccess1Stream5 = 16U,
     DirectMemoryAccess1Stream6 = 17U,
-    AnalogToDigitalConverters = 18U, // ADC1, 2, and 3
+    AnalogToDigitalConverters = 18U,    // ADC1, 2, and 3
     ControllerAreaNetwork1_TX = 19U,
     ControllerAreaNetwork1_RX0 = 20U,
     ControllerAreaNetwork1_RX1 = 21U,
@@ -134,7 +137,7 @@ enum class InterruptRequest : int {
     ExternalLine14 = 40U,
     ExternalLine15 = 40U,
     RealTimeClock_Alarm = 41U,
-    UniversalSerialBusOnTheGoFullSpeedWakeUp = 42U, ///< USB OTG FS Wakeup
+    UniversalSerialBusOnTheGoFullSpeedWakeUp = 42U,    ///< USB OTG FS Wakeup
     Timer8_Break = 43U,
     Timer12 = 43U,
     Timer8_Update = 44U,
@@ -143,12 +146,12 @@ enum class InterruptRequest : int {
     Timer14 = 45U,
     Timer8_CaptureCompare = 46U,
     DirectMemoryAccess1Stream7 = 47U,
-    FlexibleStaticMemoryController = 48U, ///< FSMC
-    SerialDataInputOutput = 49U, ///< SDIO
+    FlexibleStaticMemoryController = 48U,    ///< FSMC
+    SerialDataInputOutput = 49U,             ///< SDIO
     Timer5 = 50U,
     SerialPeripheralInterface3 = 51U,
-    UniversalAsynchronousReceiverTransmitter4 = 52U, ///< UART4
-    UniversalAsynchronousReceiverTransmitter5 = 53U, ///< UART5
+    UniversalAsynchronousReceiverTransmitter4 = 52U,    ///< UART4
+    UniversalAsynchronousReceiverTransmitter5 = 53U,    ///< UART5
     Timer6 = 54U,
     DigitalToAnalogConverter1 = 54U,
     DigitalToAnalogConverter2 = 54U,
@@ -164,21 +167,21 @@ enum class InterruptRequest : int {
     ControllerAreaNetwork2_RX0 = 64U,
     ControllerAreaNetwork2_RX1 = 65U,
     ControllerAreaNetwork2_SCE = 66U,
-    UniversalSerialBusOnTheGoFullSpeed = 67U, ///< USB OTG FS
+    UniversalSerialBusOnTheGoFullSpeed = 67U,    ///< USB OTG FS
     DirectMemoryAccess2Stream5 = 68U,
     DirectMemoryAccess2Stream6 = 69U,
     DirectMemoryAccess2Stream7 = 70U,
-    UniversalSynchronousAsynchronousReceiverTransmitter6 = 71U, ///< USART6
+    UniversalSynchronousAsynchronousReceiverTransmitter6 = 71U,    ///< USART6
     InterIntegratedCircuit3_Event = 72U,
     InterIntegratedCircuit3_Error = 73U,
-    UniversalSerialBusOnTheGoHighSpeedEndPoint1Out = 74U, ///< USB OTG HS EP1 Out
-    UniversalSerialBusOnTheGoHighSpeedEndPoint1In = 75U, ///< USB OTG HS EP1 In
-    UniversalSerialBusOnTheGoHighSpeedWakeUp = 76U, ///< USB OTG HS WKUP
-    UniversalSerialBusOnTheGoHighSpeed = 77U, ///< USB OTG HS
-    DigitalCameraInterface = 78U, ///< DCMI
+    UniversalSerialBusOnTheGoHighSpeedEndPoint1Out = 74U,    ///< USB OTG HS EP1 Out
+    UniversalSerialBusOnTheGoHighSpeedEndPoint1In = 75U,     ///< USB OTG HS EP1 In
+    UniversalSerialBusOnTheGoHighSpeedWakeUp = 76U,          ///< USB OTG HS WKUP
+    UniversalSerialBusOnTheGoHighSpeed = 77U,                ///< USB OTG HS
+    DigitalCameraInterface = 78U,                            ///< DCMI
     // ??? = 79U,
     // ??? = 80U,
-    FloatingPointUnit = 81U, ///< FPU
+    FloatingPointUnit = 81U,    ///< FPU
 };
 
 /// Gets a value from the backup ram at an index

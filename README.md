@@ -153,7 +153,7 @@ This configuration sets high level feature switches and constants which do not d
 
 ##### Board Level Configuration
 
-This configuration is low level and contains things which are board specific which are also processor specific. Chip addresses, GPIO configurations, etc are considered at this layer. In the build, the list of supported board configurations is referred to as `LOCAL_BOARDS`.
+This configuration is low level and contains things which are board specific which are also processor specific. Chip features, GPIO configurations, etc are considered at this layer. In the build, the list of supported board configurations is referred to as `LOCAL_BOARDS`.
 
 ##### Modules and their dependencies
 
@@ -316,4 +316,5 @@ Thus only the memory map in the linker needs to know it's real address. If it ne
 [ ] Determinstic builds (ld GUID removal, no __FILE__)
 [x] Add disassembly target to build.
 [ ] Verify all System Linker Register addresses in an On Target Unit Test
+[ ] Eliminate MPU array from C++ and generate in linkerscript at a fixed symbol which is known to the C++ layer.
 ```
