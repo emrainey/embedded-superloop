@@ -209,7 +209,7 @@
         "CMAKE_VERBOSE": "1"
     },
     "cmake.configureArgs": [
-        "--graphviz=jarnax.dot"
+        "--graphviz=embedded-superloop.dot"
     ],
     "cmake.deleteBuildDirOnCleanConfigure": true
 }

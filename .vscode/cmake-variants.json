@@ -1,7 +1,7 @@
 {
     "buildType": {
         "default": "debug",
-        "description": "Variant for Jarnax build kits.",
+        "description": "Variant for Embedded Super Loop build kits.",
         "choices": {
             "debug": {
                 "short": "Debug",

@@ -1,5 +1,5 @@
 # Uncomment this if your project is hosted on GitHub:
-github_url = "https://github.com/emrainey/jarnax/"
+github_url = "https://github.com/emrainey/embedded-superloop/"
 
 [version]
 current = "0.1.50"
@@ -26,7 +26,7 @@ tag_template = "v{new_version}"
 src = "CMakeLists.txt"
 
 [[file]]
-src = "build-support/share/cmake/jarnax/jarnax.cmake"
+src = "build-support/share/cmake/embedded-superloop/embedded-superloop.cmake"
 
 # You can specify a list of commands to
 # run after the files have been patched

@@ -2,7 +2,7 @@
 #define CONFIGURATION_HPP_
 
 /// @file
-/// The Configuration of the jarnax system
+/// The Configuration of the Embedded SuperLoop system
 
 #include <cstdint>
 #include <cstddef>

@@ -1,5 +1,5 @@
 target remote localhost:2331
-file build/jarnax.elf
+file build/cortex-gcc-arm-none-eabi-13/applications/simple/spi-demo-stm32-basic-stm32_f4ve_v2.elf
 load
 layout asm
 set print asm-demangle

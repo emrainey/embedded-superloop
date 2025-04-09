@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(jarnax
+project(embedded-superloop
+        DESCRIPTION "Embedded Superloop"
         VERSION 0.1.50
         LANGUAGES CXX ASM)
 
-set(JARAX_PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+set(EMBEDDED_SUPERLOOP_PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 # include(CMakePrintHelpers)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 set(CMAKE_CXX_STANDARD 20)
@@ -18,18 +19,24 @@ endif()
 
 set(BANNER
 "\n"
-"░        ░░░      ░░░       ░░░   ░░░  ░░░      ░░░  ░░░░  ░\n"
-"▒▒▒▒▒▒▒  ▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒  ▒▒    ▒▒  ▒▒  ▒▒▒▒  ▒▒▒  ▒▒  ▒▒\n"
-"▓▓▓▓▓▓▓  ▓▓  ▓▓▓▓  ▓▓       ▓▓▓  ▓  ▓  ▓▓  ▓▓▓▓  ▓▓▓▓    ▓▓▓\n"
-"█  ████  ██        ██  ███  ███  ██    ██        ███  ██  ██\n"
-"██      ███  ████  ██  ████  ██  ███   ██  ████  ██  ████  █\n"
+"░        ░░  ░░░░  ░░       ░░░        ░░       ░░░       ░░░        ░░       ░░          \n"
+"▒  ▒▒▒▒▒▒▒▒   ▒▒   ▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒  ▒          \n"
+"▓      ▓▓▓▓        ▓▓       ▓▓▓      ▓▓▓▓  ▓▓▓▓  ▓▓  ▓▓▓▓  ▓▓      ▓▓▓▓  ▓▓▓▓  ▓          \n"
+"█  ████████  █  █  ██  ████  ██  ████████  ████  ██  ████  ██  ████████  ████  █          \n"
+"█        ██  ████  ██       ███        ██       ███       ███        ██       ██          \n"
+"                                                                                          \n"
+"░░      ░░░  ░░░░  ░░       ░░░        ░░       ░░░  ░░░░░░░░░      ░░░░      ░░░       ░░\n"
+"▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒  ▒\n"
+"▓▓      ▓▓▓  ▓▓▓▓  ▓▓       ▓▓▓      ▓▓▓▓       ▓▓▓  ▓▓▓▓▓▓▓▓  ▓▓▓▓  ▓▓  ▓▓▓▓  ▓▓       ▓▓\n"
+"███████  ██  ████  ██  ████████  ████████  ███  ███  ████████  ████  ██  ████  ██  ███████\n"
+"██      ████      ███  ████████        ██  ████  ██        ███      ████      ███  ███████\n"
 " A small embedded super loop firmware system for ARM Cortex-M microcontrollers\n"
 "\n"
 )
 
 message(${BANNER})
 
-# Jarnax sets high warning standards
+# This project sets high warning standards, add more as time goes on and compilers improve
 add_library(strict INTERFACE)
 target_compile_options(strict
     INTERFACE
@@ -532,11 +539,11 @@ endif()
 
 # Pulls in each module!
 foreach(module IN LISTS LOCAL_MODULES)
-    add_subdirectory(${JARAX_PROJECT_ROOT}/modules/${module})
+    add_subdirectory(${EMBEDDED_SUPERLOOP_PROJECT_ROOT}/modules/${module})
 endforeach()
 # Pulls in each board!
 foreach(board IN LISTS LOCAL_BOARDS)
-    add_subdirectory(${JARAX_PROJECT_ROOT}/boards/${board})
+    add_subdirectory(${EMBEDDED_SUPERLOOP_PROJECT_ROOT}/boards/${board})
 endforeach()
 # Pulls in each application!
 foreach(app IN LISTS LOCAL_APPLICATIONS)

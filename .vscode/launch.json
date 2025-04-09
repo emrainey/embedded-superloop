@@ -24,9 +24,9 @@
             "launchCompleteCommand": "exec-run"
         },
         {
-            "name": "Cortex-Debug (JLink) Jarnax",
+            "name": "Cortex-Debug (JLink) On Target Tests",
             "cwd": "${workspaceRoot}",
-            "executable": "build/stm32-basic",
+            "executable": "${workspaceFolder}/build/cortex-gcc-arm-none-eabi-13/applications/simple/ontarget-tests-stm32-basic-stm32_f4ve_v2.elf",
             "request": "launch",
             "type": "cortex-debug",
             "servertype": "jlink",
@@ -46,10 +46,10 @@
             ]
         },
         {
-            "name": "(gdb) Jlink Jarnax",
+            "name": "(gdb) Jlink Spi Demo",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/jarnax-demo.elf",
+            "program": "${workspaceFolder}/build/cortex-gcc-arm-none-eabi-13/applications/simple/spi-demo-stm32-basic-stm32_f4ve_v2.elf",
             "args": [],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
@@ -88,7 +88,7 @@
                     "text": "-target-select remote localhost:50000"
                 },
                 {
-                    "text": "-file-exec-and-symbols build/jarnax.elf"
+                    "text": "-file-exec-and-symbols build/cortex-gcc-arm-none-eabi-13/applications/simple/spi-demo-stm32-basic-stm32_f4ve_v2.elf"
                 },
                 {
                     "text": "-interpreter-exec console \"monitor halt\""
@@ -100,7 +100,7 @@
                     "text": "monitor device = STM32F407VE"
                 },
                 {
-                    "text": "load '${workspaceFolder}/build/jarnax.elf'"
+                    "text": "load '${workspaceFolder}/build/cortex-gcc-arm-none-eabi-13/applications/simple/spi-demo-stm32-basic-stm32_f4ve_v2.elf'"
                 },
                 {
                     "text": "-target-download"

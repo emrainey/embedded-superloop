@@ -1,16 +1,17 @@
-# Jarnax
+# (Yet Another) Embedded Super Loop
 
 ![A bare metal firmware superloop](documentation/images/baremetal_firmware_superloop.jpg)
 
-A Super-loop embedded system re-imagined in, at _least_, C++20 and _only_ in C++, on the Cortex M4 architecture. Some minor assembly is unavoidable due to the architecture but C++ standards are still followed with assembly usage.
+An embedded super-loop system re-imagined in, at _least_, C++20 and _only_ in C++, on the Cortex M4 architecture. Some minor assembly is unavoidable due to the architecture but C++ standards are still followed with inline assembler.
 
 ## Purpose
 
-To write a safety oriented (MISRA 23 adjacent) Cortex-M bare-metal system in C++20 or later, with no `C` baggage. This means things like:
+To write a safety oriented (MISRA '23 adjacent) Cortex-M bare-metal system in C++20 or later, with no `C` baggage. This means things like:
 
-* No `C` casts when casting is needed.
-* No `#defines`, including macros. Instead replaced with `inline`d code, `using`s and other C++-isms like `constexpr` and `consteval`.
-* No `CMSIS`. The Cortex System Structures are all defined locally as C++ bit-fields with the proper types _built in_ mainly using inspiration from the [peripheralyzer](https://github.com/emrainey/peripheralyzer) project.
+* Eliminating or never using common `C` baggage:
+  * No `C` casts when casting is needed.
+  * No `#defines`, including macros. Instead replaced with `inline`d code, `using`s and other C++-isms like `constexpr` and `consteval`.
+  * No `CMSIS`. The Cortex System Structures are all defined locally as C++ bit-fields with the proper types _built in_ mainly using inspiration from the [peripheralyzer](https://github.com/emrainey/peripheralyzer) project.
 * No dependence on "manual" linking. This means when the address of some hardware peripheral is required, the _linker_ is the tool which assigns a symbol to it, not the C++ code. This pattern allows the unit test framework to be completely cross 32/64 pointer agnostic.
 * Unit Test Oriented Development. Many parts of low level firmware are eminently testable given the right environment. The guidelines above make it much simplier to do so. When choosing between being behavior focused (clean API) or implementation focused, the default should be behavior focused.
 * All hardware peripheral register sets _shall_ be considered `volatile`, since they really are. This aids in _unit-testing_ as well since (simple) _simulations_ can be written using threads and direct memory access to the `volatile` "registers" (which would just be a RAM resident structure on the host).
@@ -135,7 +136,7 @@ Components are separated into modules which are independent and require build su
 modules/
   core/   - Simple Template Library, common Status object.
   cortex/ - Cortex M Architecture Support
-  jarnax/ - System Library with SuperLoop, Interfaces
+  jarnax/ - System Library with SuperLoop, Interfaces ("system" collides with other libraries)
   memory/ - Generic Memory Library
   native/ - Native Board build for unit testing
   segger/ - Segger debugging library (RTT)
@@ -162,7 +163,7 @@ This configuration is low level and contains things which are board specific whi
 
 For example, the `memory` module doesn't depend on either board level or system level configuration. This has an effect on the module (static library) name generated. When a module doesn't depend on a system configuration it's marked with the `none` name. When a module doesn't depend on a specific board configuration it's marked with the `all` name. Thus, `memory-none-all.a` is the output name for the module.
 
-When a module _does_ depend on either configuration, it's name is incorporated into the name of the module artifact. `jarnax` module for example is built for a specific system configuration and it must know about the board it runs on, thus it's artifact name follows the convention of `<module>-<system-cfg>-<board-cfg>.a` or in a specific case, `jarnax-basic-stm32_f4ve_v2.a`. This module depends on the system level configuration named `basic` and the board configuration for the `stm32_f4ve_v2` board.
+When a module _does_ depend on either configuration, it's name is incorporated into the name of the module artifact. `system` module for example is built for a specific system configuration and it must know about the board it runs on, thus it's artifact name follows the convention of `<module>-<system-cfg>-<board-cfg>.a` or in a specific case, `system-basic-stm32_f4ve_v2.a`. This module depends on the system level configuration named `basic` and the board configuration for the `stm32_f4ve_v2` board.
 
 Applications also follow this pattern, but with a slight variation. Applications have names which may have further variations in the stem.
 
@@ -174,13 +175,13 @@ Where
 
 ### System
 
-System Components and interfaces live in the `jarnax` library and namespace. Generally it's header files and interfaces live in `include/jarnax` and are used by Applications. System source is built in the `modules/jarnax/source/`
+System Components and interfaces live in the `system` library and namespace. Generally it's header files and interfaces live in `include/system` and are used by Applications. System source is built in the `modules/system/source/`
 
 Layout:
 
 * `modules/`
-  * `jarnax/`
-    * `include/jarnax` - only path to `include` is made as a dependency
+  * `system/`
+    * `include/system` - only path to `include` is made as a dependency
     * `source/*.cpp`
 
 ## Drivers
