@@ -9,6 +9,8 @@
 #include "core/Status.hpp"
 
 #ifndef PRIz
+/// The format specifier for size_t
+/// @note This is a workaround for the fact that size_t is not defined in the C++ standard library
 #define PRIz "zu"
 #endif
 

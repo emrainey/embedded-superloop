@@ -1,5 +1,5 @@
-#ifndef SYSTEM_INITIALIZABLE_HPP_
-#define SYSTEM_INITIALIZABLE_HPP_
+#ifndef JARNAX_INITIALIZABLE_HPP_
+#define JARNAX_INITIALIZABLE_HPP_
 
 #include "core/Status.hpp"
 
@@ -20,4 +20,4 @@ protected:
 
 }    // namespace jarnax
 
-#endif    // SYSTEM_INITIALIZABLE_HPP_
+#endif    // JARNAX_INITIALIZABLE_HPP_

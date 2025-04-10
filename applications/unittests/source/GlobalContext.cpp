@@ -12,18 +12,18 @@ using jarnax::SuperLoop;
 class GlobalContext : public Context {
 public:
     GlobalContext()
-        : m_self_test_{}
-        , m_libc_test_{}
-        , m_tick_test_{}
-        , m_stack_test_{}
-        , m_superloop_{jarnax::GetTicker()} {}
+        : self_test_{}
+        , libc_test_{}
+        , tick_test_{}
+        , stack_test_{}
+        , superloop_{jarnax::GetTicker()} {}
 
     Status Initialize(void) override {
         bool result = true;
-        result &= GetSuperLoop().Enlist(m_self_test_);
-        result &= GetSuperLoop().Enlist(m_libc_test_);
-        result &= GetSuperLoop().Enlist(m_tick_test_);
-        result &= GetSuperLoop().Enlist(m_stack_test_);
+        result &= GetSuperLoop().Enlist(self_test_);
+        result &= GetSuperLoop().Enlist(libc_test_);
+        result &= GetSuperLoop().Enlist(tick_test_);
+        result &= GetSuperLoop().Enlist(stack_test_);
         if (result) {
             return core::Status{};
         } else {
@@ -31,15 +31,15 @@ public:
         }
     }
 
-    SuperLoop& GetSuperLoop(void) override { return m_superloop_; }
+    SuperLoop& GetSuperLoop(void) override { return superloop_; }
 
 protected:
     // declare all the unit tests here
-    SelfTest m_self_test_;
-    LibcTest m_libc_test_;
-    TickTest m_tick_test_;
-    StackTest m_stack_test_;
-    jarnax::SuperLoop m_superloop_;
+    SelfTest self_test_;
+    LibcTest libc_test_;
+    TickTest tick_test_;
+    StackTest stack_test_;
+    jarnax::SuperLoop superloop_;
 };
 
 namespace jarnax {

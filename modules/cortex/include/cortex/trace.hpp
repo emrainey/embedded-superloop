@@ -11,15 +11,18 @@ namespace cortex {
 struct InstructionTraceMacrocell final {
     /// A Stimulus Port Register Declaration
     struct StimulusPort final {
+        /// @brief The bitfield definition of the register
         struct Fields final {
             std::uint32_t fifo_ready : 1U;     //!< Used to check when the register is ready again
             std::uint32_t            : 31U;    ///< Reserved field
         };
+        /// @brief The union of the register types
         union ports {
             std::uint8_t u08;     //!< Used to write std::uint8_t
             std::uint16_t u16;    //!< Used to write std::uint16_t
             std::uint32_t u32;    //!< Used to write std::uint32_t
         };
+        /// @brief The union of the register types and the bitfield
         union {
             Fields read;
             ports write;    // typed as SoftwareEventPacket?
@@ -29,21 +32,27 @@ struct InstructionTraceMacrocell final {
     /// A bitfield which controls the Stimulus Fields.
     class StimulusEnable final {
     public:
-        constexpr StimulusEnable() : m_bitfield_{0U} {}
+        /// @brief Default constructor
+        constexpr StimulusEnable()
+            : bitfield_{0U} {}
 
+        /// @param bit The bit to check
+        /// @return True if the bit is enabled
         inline bool is_enabled(std::size_t bit) const volatile {
             std::size_t shift = bit & 0x1FU;
             std::uint32_t mask = (1U << shift);
-            return ((this->m_bitfield_ & mask) != 0U);
+            return ((this->bitfield_ & mask) != 0U);
         }
+        /// Enables a bit in the bitfield
+        /// @param bit The bit to enable
         inline void enable(std::size_t bit) volatile {
             std::size_t shift = bit & 0x1FU;
             std::uint32_t value = (1U << shift);
-            this->m_bitfield_ = this->m_bitfield_ | value;
+            this->bitfield_ = this->bitfield_ | value;
         }
 
     protected:
-        std::uint32_t m_bitfield_;
+        std::uint32_t bitfield_;    ///< The bitfield for the stimulus
     };
 
     /// A bitfield which controls if the port is only accessible in Privilege mode
@@ -52,16 +61,16 @@ struct InstructionTraceMacrocell final {
         inline bool is_privileged(std::size_t bit) const volatile {
             std::size_t shift = bit & 0x1FU;
             std::uint32_t mask = (1U << shift);
-            return ((this->m_bitfield_ & mask) != 0U);
+            return ((this->bitfield_ & mask) != 0U);
         }
         inline void enable(std::size_t bit) volatile {
             std::size_t shift = bit & 0x1FU;
             std::uint32_t value = (1U << shift);
-            this->m_bitfield_ = this->m_bitfield_ | value;
+            this->bitfield_ = this->bitfield_ | value;
         }
 
     protected:
-        std::uint32_t m_bitfield_;
+        std::uint32_t bitfield_;
     };
 
     inline bool is_enabled(std::size_t index) volatile {
@@ -92,6 +101,7 @@ struct InstructionTraceMacrocell final {
 
     /// Control Register
     struct Control final {
+        /// @brief The bitfield definition of the register
         struct Fields final {
             std::uint32_t enable                   : 1U;
             std::uint32_t timestamps               : 1U;
@@ -148,9 +158,13 @@ struct DataWatchAndTrace final {
     };
     /// The Control Register
     struct Control final {
-        Control() : whole{0} {}
-        Control(Control const& other) : whole{other.whole} {}
-        Control(Control volatile& other) : whole{other.whole} {}
+        Control()
+            : whole{0} {}
+        Control(Control const& other)
+            : whole{other.whole} {}
+        Control(Control volatile& other)
+            : whole{other.whole} {}
+        /// @brief The bitfield definition of the register
         struct Fields final {
             std::uint32_t cycle_count_enable                     : 1U;
             std::uint32_t post_counter_reload                    : 4U;
@@ -239,13 +253,15 @@ struct DataWatchAndTrace final {
 /// The Trace Point Interface Unit
 /// @aka TPIU
 struct TracePortInterfaceUnit final {
+    /// @brief The bitfield definition of the register
     struct SupportedParallelPortSizes final {
         std::uint32_t width;
     };
+    /// @brief The bitfield definition of the register
     struct CurrentParallelPortSizes final {
         std::uint32_t width;
     };
-    ///
+    /// @brief The bitfield definition of the register
     struct AsynchronousClockPrescaler final {
         std::uint32_t scaler : 16U;
         std::uint32_t        : 16U;    ///< Reserved field
@@ -256,10 +272,12 @@ struct TracePortInterfaceUnit final {
         AsyncNRZ = 2U,
         Reserved = 3U,
     };
+    /// @brief The bitfield definition of the register
     struct SelectedPinProtocol final {
         Protocol transmit_mode : 2U;
         std::uint32_t          : 30U;    ///< Reserved field
     };
+    /// @brief The bitfield definition of the register
     struct Type final {
         std::uint32_t                             : 6U;    ///< Reserved field
         std::uint32_t fifo_size_power_2           : 3U;
@@ -269,9 +287,7 @@ struct TracePortInterfaceUnit final {
         std::uint32_t                             : 20U;    ///< Reserved field
     };
 
-    inline std::size_t get_swo_clock(std::size_t reference_clock) const {
-        return reference_clock / (asynchronous_clock_prescaler.scaler + 1U);
-    }
+    inline std::size_t get_swo_clock(std::size_t reference_clock) const { return reference_clock / (asynchronous_clock_prescaler.scaler + 1U); }
 
     inline std::size_t get_fifo_size(void) { return (1U << type.fifo_size_power_2); }
 

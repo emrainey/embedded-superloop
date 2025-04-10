@@ -1,6 +1,9 @@
 #ifndef CORE_DOUBLELINK_NODE_HPP_
 #define CORE_DOUBLELINK_NODE_HPP_
 
+/// @file
+/// The Double Linked List Node Template Class
+
 #include <cstdint>
 #include <cstddef>
 #if defined(UNITTEST)
@@ -8,7 +11,10 @@
 #endif    // UNITTEST
 
 namespace core {
+/// The namespace for Double Link List objects
 namespace doublelink {
+/// @brief The double link list node template class.
+/// @tparam TYPE The structure to storage at this location.
 template <typename TYPE>
 class Node {
 public:

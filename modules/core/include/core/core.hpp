@@ -19,28 +19,33 @@
 #include "core/EnumType.hpp"
 #include "core/Intervals.hpp"
 
-// /// A feature flag
-// enum class Feature : std::uint32_t {
-//     Disabled = 0U,
-//     Enabled = 1U,
-// };
+/// @brief Used to indicate of a feature is enabled or disabled
+class Feature {
+public:
+    /// A feature flag
+    enum class Flag : std::uint32_t {
+        Disabled = 0U,
+        Enabled = 1U,
+    };
 
-// /// @brief The global operator for testing a feature flag
-// /// @param feature The flag to test
-// inline explicit operator bool(Feature feature) const {
-//     return feature == Feature::Enabled;
-// }
+    /// @brief The default constructor
+    /// @param value The value to assign
+    consteval Feature(Flag value)
+        : value_{value} {}
 
-// /// An inverted feature flag
-// enum class InvertedFeature : std::uint32_t {
-//     Disabled = 1U,
-//     Enabled = 0U,
-// };
+    /// Used to indicate if the feature is enabled.
+    /// @return True if enabled, false otherwise
+    consteval explicit operator bool() const { return value_ == Flag::Enabled; }
 
-// /// @brief The global operator for testing a feature flag
-// /// @param feature The flag to test
-// inline explicit operator bool(InvertedFeature feature) const {
-//     return feature == InvertedFeature::Enabled;
-// }
+protected:
+    Flag value_;    ///< The value of the feature flag
+};
+
+namespace {    // anonymous
+static constexpr Feature kFeatureTest{Feature::Flag::Enabled};
+static_assert((kFeatureTest), "Feature Test Failed");
+static_assert(bool(kFeatureTest), "Feature Test Failed");
+static_assert((not Feature{Feature::Flag::Disabled}), "Feature Test Failed");
+}    // namespace
 
 #endif    // CORE_HPP_

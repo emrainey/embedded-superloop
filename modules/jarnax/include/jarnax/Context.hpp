@@ -1,5 +1,5 @@
-#ifndef SYSTEM_CONTEXT_HPP_
-#define SYSTEM_CONTEXT_HPP_
+#ifndef JARNAX_CONTEXT_HPP_
+#define JARNAX_CONTEXT_HPP_
 
 /// @file
 /// jarnax::Context Interface
@@ -22,4 +22,4 @@ extern Context& GetContext(void);
 
 }    // namespace jarnax
 
-#endif    // SYSTEM_CONTEXT_HPP_
+#endif    // JARNAX_CONTEXT_HPP_

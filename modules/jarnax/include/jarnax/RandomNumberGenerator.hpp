@@ -1,5 +1,5 @@
-#ifndef SYSTEM_RNG_H
-#define SYSTEM_RNG_H
+#ifndef JARNAX_RNG_H
+#define JARNAX_RNG_H
 
 /// @file
 /// jarnax::RandomNumberGenerator Interface
@@ -19,4 +19,4 @@ protected:
 };
 }    // namespace jarnax
 
-#endif    // SYSTEM_RNG_H
+#endif    // JARNAX_RNG_H

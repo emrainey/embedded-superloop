@@ -36,8 +36,8 @@ public:
 
 protected:
     constexpr static size_t kLimit = 4U;
-    core::Stack<size_t, kLimit> m_stack_;
-    std::size_t m_value_{0U};
+    core::Stack<size_t, kLimit> stack_;
+    std::size_t value_{0U};
 };
 
 #endif    // STACK_UNITTEST_HPP_

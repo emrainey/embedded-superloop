@@ -33,6 +33,7 @@ public:
     virtual void operator=(StorageType const &other) = 0;
 
 protected:
+    /// Do not allow destruction through the interface
     ~Event() = default;
 };
 

@@ -93,12 +93,14 @@ ALWAYS_INLINE inline void wait_for_event_mode(void) {
 #endif
 }
 
+/// The No-Operation instruction
 ALWAYS_INLINE inline void nop(void) {
 #if defined(__arm__)
     asm volatile("nop" :::);
 #endif
 }
 
+/// @brief A set of 4 word sized parameters used in exceptions which typically contains exception related information.
 struct Stacked {
     cortex::word parameters[4];
 };
@@ -334,6 +336,7 @@ ALWAYS_INLINE inline TYPE* get_exception_frame(void) {
     return frame;
 }
 
+/// @brief Saves the context from before the interrupt service routine
 ALWAYS_INLINE inline void interrupt_service_routine_context_save(void) {
 #if defined(__arm__)
     asm volatile("push {r4-r11, lr} \r\n"
@@ -344,6 +347,7 @@ ALWAYS_INLINE inline void interrupt_service_routine_context_save(void) {
 #endif
 }
 
+/// @brief Restores the context after the interrupt service routine
 ALWAYS_INLINE inline void interrupt_service_routine_context_restore(void) {
 #if defined(__arm__)
     asm volatile("pop {r4-r11, pc} \r\n"

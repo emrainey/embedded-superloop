@@ -75,9 +75,9 @@ public:
     Cause GetCause(void) const;
 
 protected:
-    Result m_result_{Result::Success};
-    Cause m_cause_{Cause::Unknown};
-    Location m_location_{0};
+    Result result_{Result::Success};    ///< The result of the operation
+    Cause cause_{Cause::Unknown};       ///< The cause of the result (if any)
+    Location location_{0};              ///< The location of the result
 };
 
 }    // namespace core

@@ -1,5 +1,5 @@
-#ifndef SYSTEM_UNITTEST_HPP_
-#define SYSTEM_UNITTEST_HPP_
+#ifndef JARNAX_UNITTEST_HPP_
+#define JARNAX_UNITTEST_HPP_
 
 /// @file
 /// The UniTest Interface
@@ -62,24 +62,27 @@ public:
 
 /// Used to define an entry in an array of test names.
 /// @see @ref TestName
+/// @note This is an exception to the no-macro rule for UNIT TEST only (on target)
 #define DEFINE_TEST_NAME(name) \
-    { #name, name }
+    {                          \
+        #name, name            \
+    }
 
     static constexpr size_t NumTestNames = to_underlying(EnumType::kMaximum) - to_underlying(EnumType::kMinimum) + 1U;
 
     /// Default Constructor
     UnitTest(char const* const name, TestName const (&test_names)[NumTestNames])
         : Loopable()
-        , m_name_{name}
-        , m_test_index_{IndexOf(EnumType::kMinimum)}
-        , m_test_enum_{EnumType::kMinimum}
-        , m_test_names_{test_names} {
+        , name_{name}
+        , test_index_{IndexOf(EnumType::kMinimum)}
+        , test_enum_{EnumType::kMinimum}
+        , test_names_{test_names} {
         for (size_t i = 0; i < kNumTests; ++i) {
-            m_states_[i] = State::NotEvalutated;
+            states_[i] = State::NotEvalutated;
         }
         for (size_t i = 0; i < RESULT_COUNT; ++i) {
-            m_results_[i].test_enum = EnumType::kMinimum;
-            m_results_[i].test_result = Result::Unknown;
+            results_[i].test_enum = EnumType::kMinimum;
+            results_[i].test_result = Result::Unknown;
         }
     }
 
@@ -90,7 +93,7 @@ public:
         UnderlyingType index = to_underlying(test_enum);
         // if bounds checkout, return State
         if (kMinimum <= index and index <= kMaximum) {
-            return m_states_[index - kMinimum];
+            return states_[index - kMinimum];
         } else {
             // otherwise, it's never been run
             return State::NotEvalutated;
@@ -99,19 +102,19 @@ public:
 
     bool Execute() override {
         bool continue_tests = true;
-        if (m_test_index_ < kMaximum) {
-            if (m_states_[m_test_index_] == State::NotEvalutated) {
-                jarnax::print("%s Running Test %s [%lu] ... ", m_name_, m_test_names_[m_test_index_].name, static_cast<unsigned long>(m_test_index_));
+        if (test_index_ < kMaximum) {
+            if (states_[test_index_] == State::NotEvalutated) {
+                jarnax::print("%s Running Test %s [%lu] ... ", name_, test_names_[test_index_].name, static_cast<unsigned long>(test_index_));
                 // run it
-                m_states_[m_test_index_] = Test(m_test_enum_);
+                states_[test_index_] = Test(test_enum_);
                 // print results
-                if (m_states_[m_test_index_] == State::Skipped) {
+                if (states_[test_index_] == State::Skipped) {
                     jarnax::print("SKIPPED\n");
-                } else if (m_states_[m_test_index_] == State::Completed) {
+                } else if (states_[test_index_] == State::Completed) {
                     jarnax::print("COMPLETED\n");
-                    for (size_t i = 0; i < m_result_index_; ++i) {
-                        if (m_results_[i].test_enum == m_test_enum_) {
-                            jarnax::print("%c", to_underlying(m_results_[i].test_result));
+                    for (size_t i = 0; i < result_index_; ++i) {
+                        if (results_[i].test_enum == test_enum_) {
+                            jarnax::print("%c", to_underlying(results_[i].test_result));
                         }
                     }
                     jarnax::print("\r\n");
@@ -120,9 +123,9 @@ public:
                 }
             }
             // it has run in some way (if not leave it alone)
-            m_test_index_ = (m_test_index_ + kStep);
+            test_index_ = (test_index_ + kStep);
             // go to next enum
-            m_test_enum_ = EnumOf(m_test_index_);
+            test_enum_ = EnumOf(test_index_);
         } else {
             continue_tests = false;
         }
@@ -186,8 +189,8 @@ protected:
         return difference;
     }
 
-    inline EnumType GetEnum(void) const { return m_test_enum_; }
-    inline UnderlyingType GetIndex(void) const { return m_test_index_; }
+    inline EnumType GetEnum(void) const { return test_enum_; }
+    inline UnderlyingType GetIndex(void) const { return test_index_; }
 
 private:
     /// Returns the index of the enumerated value
@@ -206,31 +209,31 @@ private:
     /// failures should never be forgotten,
     /// additional failures or successes will be dropped
     void record(bool volatile& evaluation) {
-        if (m_result_index_ < RESULT_COUNT) {
-            m_result_counts_[m_test_index_]++;    // increment the count
-            m_results_[m_result_index_].test_enum = m_test_enum_;
-            m_results_[m_result_index_].test_result = evaluation ? Result::Passed : Result::Failed;
+        if (result_index_ < RESULT_COUNT) {
+            result_counts_[test_index_]++;    // increment the count
+            results_[result_index_].test_enum = test_enum_;
+            results_[result_index_].test_result = evaluation ? Result::Passed : Result::Failed;
         } else {
-            jarnax::print("Exceeded Result Count of %" PRIz ". Now at %" PRIz "!\r\n", m_result_counts_[m_test_index_], m_result_index_);
+            jarnax::print("Exceeded Result Count of %" PRIz ". Now at %" PRIz "!\r\n", result_counts_[test_index_], result_index_);
         }
-        m_result_index_++;
+        result_index_++;
     }
 
 private:
-    char const* const m_name_;                        ///< The string literal name.
-    UnderlyingType m_test_index_;                     ///< The active test index
-    EnumType m_test_enum_;                            ///< The active enum
-    State m_states_[kNumTests];                       ///< The state of the Test
-    TestName const (&m_test_names_)[NumTestNames];    ///< The list of the test names
-    size_t m_result_counts_[NumTestNames];            ///< The number of results per test enumeration
-    size_t m_result_index_{0U};                       ///< The index of the result
+    char const* const name_;                        ///< The string literal name.
+    UnderlyingType test_index_;                     ///< The active test index
+    EnumType test_enum_;                            ///< The active enum
+    State states_[kNumTests];                       ///< The state of the Test
+    TestName const (&test_names_)[NumTestNames];    ///< The list of the test names
+    size_t result_counts_[NumTestNames];            ///< The number of results per test enumeration
+    size_t result_index_{0U};                       ///< The index of the result
     struct ResultCoorelation {
         EnumType test_enum;
         Result test_result;
     };
-    ResultCoorelation m_results_[RESULT_COUNT];    ///< The results of each test
+    ResultCoorelation results_[RESULT_COUNT];    ///< The results of each test
 };
 
 }    // namespace jarnax
 
-#endif    // SYSTEM_UNITTEST_HPP_
+#endif    // JARNAX_UNITTEST_HPP_

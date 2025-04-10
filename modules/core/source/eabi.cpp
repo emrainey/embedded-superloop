@@ -21,3 +21,4 @@ extern "C" void __cxa_atexit(void (*function)(void *), void *parameter, void *ds
 /// an object is constructed before being used (typically in a threading environment).
 /// In this single-threaded system, this does not need to be defined.
 /// @note Use `-fno-threadsafe-statics` in GCC to disable the need for this function.
+extern "C" void __cxa_guard_acquire();

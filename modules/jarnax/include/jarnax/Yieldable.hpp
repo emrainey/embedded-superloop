@@ -89,7 +89,9 @@ protected:
     /// Prevent construction of Yieldable objects
     ~Yieldable() = default;
 
+    /// The watermark value of the stack
     constexpr static uint32_t kWaterMark{0x55AAAA55};
+
     uint32_t const m_watermark;                  ///< Watermark to check for stack overflow
     alignas(8u) uint8_t m_stack[STACK_SIZE];     ///< Stack for the executable
     void *m_stack_pointer;                       ///< Stack pointer for the executable (when it's not being used)
@@ -103,15 +105,21 @@ private:
     static Yieldable *s_current;                  ///< The currently executing Yieldable
 };
 
+// EXPLICIT STATIC STORAGE
+
+/// @copydoc Yieldable::s_initialized
 template <typename EVENT_TYPE, size_t STACK_SIZE, size_t COUNT>
 bool Yieldable<EVENT_TYPE, STACK_SIZE, COUNT>::s_initialized{false};
 
+/// @copydoc Yieldable::s_yieldable_list
 template <typename EVENT_TYPE, size_t STACK_SIZE, size_t COUNT>
 Yieldable<EVENT_TYPE, STACK_SIZE, COUNT> *Yieldable<EVENT_TYPE, STACK_SIZE, COUNT>::s_yieldable_list[COUNT];
 
+/// @copydoc Yieldable::s_yieldable_count
 template <typename EVENT_TYPE, size_t STACK_SIZE, size_t COUNT>
 size_t Yieldable<EVENT_TYPE, STACK_SIZE, COUNT>::s_yieldable_count{0};
 
+/// @copydoc Yieldable::s_too_many_instances
 template <typename EVENT_TYPE, size_t STACK_SIZE, size_t COUNT>
 bool Yieldable<EVENT_TYPE, STACK_SIZE, COUNT>::s_too_many_instances{false};
 

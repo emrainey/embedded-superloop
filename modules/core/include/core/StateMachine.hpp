@@ -26,14 +26,28 @@ public:
     /// @brief The callback interface for the StateMachine
     class Callback {
     public:
+        /// Called when the StateMachine is entered, only one time.
         virtual void OnEnter() = 0;
+        /// Called when the StateMachine is entered in any given state
+        /// @param state The state being entered
         virtual void OnEntry(StateType state) = 0;
+        /// Called when the StateMachine is cycled in any given state
+        /// @param state The current state of the StateMachine
+        /// @return The next state of the StateMachine. Return the given state to stay in the same state.
         virtual StateType OnCycle(StateType state) = 0;
+        /// Called when the StateMachine is exiting any given state
+        /// @param state The state being exited
         virtual void OnExit(StateType state) = 0;
+        /// Called when transitioning between two given states.
+        /// @warning The StateMachine is not in *any* state when this is called.
+        /// @param from The old state
+        /// @param to The new state
         virtual void OnTransition(StateType from, StateType to) = 0;
+        /// Called when the StateMachine is exiting the final state, only one time.
         virtual void OnExit() = 0;
 
     protected:
+        /// Do not allow destruction through the interface
         ~Callback() = default;
     };
 

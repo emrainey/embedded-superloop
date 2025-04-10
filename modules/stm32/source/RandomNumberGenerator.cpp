@@ -23,9 +23,9 @@ Status RandomNumberGenerator::Initialize(void) {
     while (not stm32::registers::random_number_generator.status.bits.data_ready and counter > 0U) {
         counter--;
     }
-    m_initialized_ = (counter > 0U);
+    initialized_ = (counter > 0U);
     // save the first read (even if not initialized)
-    m_first_ = uint32_t(stm32::registers::random_number_generator.dr);
+    first_ = uint32_t(stm32::registers::random_number_generator.dr);
     return Status{};
 }
 

@@ -1,5 +1,5 @@
-#ifndef SYSTEM_HPP_
-#define SYSTEM_HPP_
+#ifndef JARNAX_SYSTEM_HPP_
+#define JARNAX_SYSTEM_HPP_
 
 /// @file
 /// The System Interface
@@ -98,4 +98,4 @@ void yield(void);
 /// The one global symbol used by the Linker from the code.
 extern "C" NAKED void reset_entry(void);
 
-#endif    // SYSTEM_HPP_
+#endif    // JARNAX_SYSTEM_HPP_

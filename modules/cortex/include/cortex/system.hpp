@@ -26,6 +26,7 @@ struct SystemControlBlock final {
             : whole{other.whole} {}
         CpuIDBase(CpuIDBase volatile& other)
             : whole{other.whole} {}
+        /// @brief The bit field for the CPU ID Base Register
         struct Fields final {
             std::uint32_t revision    : 4;
             std::uint32_t part_number : 12;
@@ -33,13 +34,14 @@ struct SystemControlBlock final {
             std::uint32_t variant     : 4;
             std::uint32_t implementer : 8;
         };
+        /// @brief The union of the bit field and the whole register
         union {
             Fields parts;
             std::uint32_t whole;
         };
-        // Assignment from copy back to registers
+        /// Assignment from copy back to registers
         void operator=(CpuIDBase const& other) volatile { whole = other.whole; }
-        // Copy from volatile register to local copy
+        /// Copy from volatile register to local copy
         void operator=(CpuIDBase volatile& other) { whole = other.whole; }
     };
 
@@ -51,6 +53,8 @@ struct SystemControlBlock final {
             : whole{other.whole} {}
         InterruptControlState(InterruptControlState volatile& other)
             : whole{other.whole} {}
+
+        /// @brief The bit field for the Interrupt Control State Register
         struct Fields final {
             std::uint32_t /* const */ vector_active                     : 9U;
             std::uint32_t                                               : 2U;    ///< Reserved field
@@ -67,13 +71,14 @@ struct SystemControlBlock final {
             std::uint32_t                                               : 2U;    ///< Reserved field
             std::uint32_t trigger_non_maskable                          : 1U;
         };
+        /// @brief The union of the bit field and the whole register
         union {
             Fields parts;
             std::uint32_t whole;
         };
-        // Assignment from copy back to registers
+        /// Assignment from copy back to registers
         void operator=(InterruptControlState const& other) volatile { whole = other.whole; }
-        // Copy from volatile register to local copy
+        /// Copy from volatile register to local copy
         void operator=(InterruptControlState volatile& other) { whole = other.whole; }
     };
     static_assert(sizeof(InterruptControlState) == sizeof(std::uint32_t), "Must be exactly this size");
@@ -86,6 +91,8 @@ struct SystemControlBlock final {
             : whole{other.whole} {}
         ApplicationInterruptResetControl(ApplicationInterruptResetControl volatile& other)
             : whole{other.whole} {}
+
+        /// @brief The bit field for the Application Interrupt Reset and Control Register
         struct Fields final {
             std::uint32_t debug_state_vector_reset        : 1U;
             std::uint32_t debug_state_vector_clear_active : 1U;
@@ -96,19 +103,21 @@ struct SystemControlBlock final {
             std::uint32_t endianess                       : 1U;
             std::uint32_t key                             : 16U;
         };
+        /// @brief The union of the bit field and the whole register
         union {
             Fields parts;
             std::uint32_t whole;
         };
-        // Assignment from copy back to registers
+        /// Assignment from copy back to registers
         void operator=(ApplicationInterruptResetControl const& other) volatile { whole = other.whole; }
-        // Copy from volatile register to local copy
+        /// Copy from volatile register to local copy
         void operator=(ApplicationInterruptResetControl volatile& other) { whole = other.whole; }
     };
     static_assert(sizeof(ApplicationInterruptResetControl) == sizeof(std::uint32_t), "Must be exactly this size");
 
     /// The System Control Register
     struct SystemControl final {
+        /// @brief The bit field for the System Control Register
         struct Fields final {
             std::uint32_t                       : 1U;    ///< Reserved field
             std::uint32_t sleep_on_exit         : 1U;
@@ -116,6 +125,7 @@ struct SystemControlBlock final {
             std::uint32_t                       : 1U;    ///< Reserved field
             std::uint32_t enable_pending_wakeup : 1U;
         };
+        /// @brief The union of the bit field and the whole register
         union {
             Fields parts;
             std::uint32_t whole;
@@ -125,12 +135,16 @@ struct SystemControlBlock final {
 
     /// The Configuration and Control Register
     struct ConfigurationControl final {
+        /// @brief Default constructor
         ConfigurationControl()
             : whole{0} {}
+        /// @brief Copy constructor
         ConfigurationControl(ConfigurationControl const& other)
             : whole{other.whole} {}
+        /// @brief Copy constructor from volatile register
         ConfigurationControl(ConfigurationControl volatile& other)
             : whole{other.whole} {}
+        /// @brief The bit field for the Configuration and Control Register
         struct Fields final {
             std::uint32_t allow_thread_mode_exception_return                     : 1U;
             std::uint32_t allow_unprivileged_access_to_software_trigger          : 1U;
@@ -146,25 +160,28 @@ struct SystemControlBlock final {
             std::uint32_t enable_branch_prediction                               : 1U;
             std::uint32_t                                                        : 13U;    ///< Reserved field
         };
+        /// @brief The union of the bit field and the whole register
         union {
             Fields parts;
             std::uint32_t whole;
         };
-        // Assignment from copy back to registers
+        /// Assignment from copy back to registers
         void operator=(ConfigurationControl const& other) volatile { whole = other.whole; }
-        // Copy from volatile register to local copy
+        /// Copy from volatile register to local copy
         void operator=(ConfigurationControl volatile& other) { whole = other.whole; }
     };
     static_assert(sizeof(ConfigurationControl) == sizeof(std::uint32_t), "Must be exactly this size");
 
     /// The System Handler Priority 1 Register
     struct SystemHandlerPriority1 final {
+        /// @brief The bit field for the System Handler Priority 1 Register
         struct Fields final {
             std::uint32_t priority_memory_management_fault : 8U;
             std::uint32_t priority_bus_fault               : 8U;
             std::uint32_t priority_usage_fault             : 8U;
             std::uint32_t priority_handler_7               : 8U;
         };
+        /// @brief The union of the bit field and the whole register
         union {
             Fields parts;
             std::uint32_t whole;
@@ -192,12 +209,14 @@ struct SystemControlBlock final {
 
     /// The System Handler Control State Register
     struct SystemHandlerControlState final {
+        /// @brief Default constructor
         SystemHandlerControlState()
             : whole{0} {}
         SystemHandlerControlState(SystemHandlerControlState const& other)
             : whole{other.whole} {}
         SystemHandlerControlState(SystemHandlerControlState volatile& other)
             : whole{other.whole} {}
+        /// @brief The bit field for the System Handler Control State Register
         struct Fields final {
             std::uint32_t active_mem_fault          : 1;
             std::uint32_t active_bus_fault          : 1;
@@ -221,25 +240,28 @@ struct SystemControlBlock final {
 
             std::uint32_t : 13;    ///< Reserved field
         };
+        /// @brief The union of the bit field and the whole register
         union {
             Fields bits;
             std::uint32_t whole;
         };
-        // Assignment from copy back to registers
+        /// Assignment from copy back to registers
         void operator=(SystemHandlerControlState const& other) volatile { whole = other.whole; }
-        // Copy from volatile register to local copy
+        /// Copy from volatile register to local copy
         void operator=(SystemHandlerControlState volatile& other) { whole = other.whole; }
     };
     static_assert(sizeof(SystemHandlerControlState) == sizeof(std::uint32_t), "Must be exactly this size");
 
     /// The Configuration Fault Status
     struct ConfigurationFaultStatus final {
+        /// @brief Default constructor
         ConfigurationFaultStatus()
             : whole{0} {}
         ConfigurationFaultStatus(ConfigurationFaultStatus const& other)
             : whole{other.whole} {}
         ConfigurationFaultStatus(ConfigurationFaultStatus volatile& other)
             : whole{other.whole} {}
+        /// @brief The bit field for the Configuration Fault Status Register
         struct Fields final {
             // Memory Management (MMFSR)
             std::uint32_t execute_never                        : 1U;
@@ -269,13 +291,14 @@ struct SystemControlBlock final {
             std::uint32_t divide_by_zero                       : 1U;
             std::uint32_t                                      : 6U;    ///< Reserved field
         };
+        /// @brief The union of the bit field and the whole register
         union {
             Fields bits;
             std::uint32_t whole;
         };
-        // Assignment from copy back to registers
+        /// Assignment from copy back to registers
         void operator=(ConfigurationFaultStatus const& other) volatile { whole = other.whole; }
-        // Copy from volatile register to local copy
+        /// Copy from volatile register to local copy
         void operator=(ConfigurationFaultStatus volatile& other) { whole = other.whole; }
     };
     static_assert(sizeof(ConfigurationFaultStatus) == sizeof(std::uint32_t), "Must be exactly this size");
@@ -288,6 +311,7 @@ struct SystemControlBlock final {
             : whole{other.whole} {}
         HardFaultStatus(HardFaultStatus volatile& other)
             : whole{other.whole} {}
+        /// @brief The bit field for the Hard Fault Status Register
         struct Fields {
             std::uint32_t                   : 1U;    ///< Reserved field
             std::uint32_t vector_table_read : 1U;
@@ -295,13 +319,14 @@ struct SystemControlBlock final {
             std::uint32_t forced            : 1U;
             std::uint32_t debug_event       : 1U;
         };
+        /// @brief The union of the bit field and the whole register
         union {
             Fields bits;
             std::uint32_t whole;
         };
-        // Assignment from copy back to registers
+        /// Assignment from copy back to registers
         void operator=(HardFaultStatus const& other) volatile { whole = other.whole; }
-        // Copy from volatile register to local copy
+        /// Copy from volatile register to local copy
         void operator=(HardFaultStatus volatile& other) { whole = other.whole; }
     };
     static_assert(sizeof(HardFaultStatus) == sizeof(std::uint32_t), "Must be exactly this size");
@@ -314,6 +339,7 @@ struct SystemControlBlock final {
             : whole{other.whole} {}
         DebugFaultStatus(DebugFaultStatus volatile& other)
             : whole{other.whole} {}
+        /// @brief The bit field for the Debug Fault Register
         struct Fields {
             std::uint32_t halted           : 1U;
             std::uint32_t breakpoint       : 1U;
@@ -322,13 +348,14 @@ struct SystemControlBlock final {
             std::uint32_t external         : 1U;
             std::uint32_t                  : 27U;    ///< Reserved field
         };
+        /// @brief The union of the bit field and the whole register
         union {
             Fields bits;
             std::uint32_t whole;
         };
-        // Assignment from copy back to registers
+        /// Assignment from copy back to registers
         void operator=(DebugFaultStatus const& other) volatile { whole = other.whole; }
-        // Copy from volatile register to local copy
+        /// Copy from volatile register to local copy
         void operator=(DebugFaultStatus volatile& other) { whole = other.whole; }
     };
     static_assert(sizeof(DebugFaultStatus) == sizeof(std::uint32_t), "Must be exactly this size");
@@ -357,12 +384,14 @@ struct SystemControlBlock final {
             : whole{other.whole} {}
         CoProcessorAccessControl(CoProcessorAccessControl volatile& other)
             : whole{other.whole} {}
+        /// @brief The access values for the register
         enum class Access : std::uint32_t {
             Denied = 0b00,
             Privileged = 0b01,
             // Reserved = 0b10,
             Full = 0b11,
         };
+        /// @brief The bitfield definition of the register
         struct Fields final {
             Access cp0    : 2U;    ///< Co processor 0
             Access cp1    : 2U;    ///< Co processor 1
@@ -381,9 +410,9 @@ struct SystemControlBlock final {
             Fields bits;
             std::uint32_t whole;
         };
-        // Assignment from copy back to registers
+        /// Assignment from copy back to registers
         void operator=(CoProcessorAccessControl const& other) volatile { whole = other.whole; }
-        // Copy from volatile register to local copy
+        /// Copy from volatile register to local copy
         void operator=(CoProcessorAccessControl volatile& other) { whole = other.whole; }
     };
     static_assert(sizeof(CoProcessorAccessControl) == sizeof(std::uint32_t), "Must be exactly this size");
@@ -445,7 +474,7 @@ struct InterruptControllerType final {
 };
 static_assert(sizeof(InterruptControllerType) == sizeof(std::uint32_t), "Must be this exact size");
 
-// Import the definition of the Auxiliary Control from the Variant
+/// Import the definition of the Auxiliary Control from the Variant
 using AuxiliaryControl = variant::AuxiliaryControl;
 
 /// The special purpose Control Register (CONTROL)
@@ -454,12 +483,14 @@ struct Control final {
         : whole{0U} {}
     Control(cortex::word reg)
         : whole{reg} {}
+    /// @brief The bitfield definition of the register
     struct Fields final {
         modes::Privileged privilege : 1;     ///< Execution Privilege in Thread Mode
         modes::Stack stack          : 1;     ///< 0 is Main, 1 is Process
         std::uint32_t float_active  : 1;     ///< Floating Point Active
         std::uint32_t               : 29;    ///< Reserved field
     };
+    /// @brief The union of the bitfield and the register as a whole.
     union {
         Fields parts;
         cortex::word whole;    ///< This is used via thumb instructions and thus should be a processor word and not a
@@ -470,6 +501,7 @@ struct Control final {
 /// (FPSCR) Floating Point Status and Control Register
 /// @see VMRS and VMSR thumb instructions
 struct FloatingPointStatusControl final {
+    /// @brief The bitfield definition of the register
     struct Fields final {
         std::uint32_t invalid_cumulative        : 1U;
         std::uint32_t divide_by_zero_cumulative : 1U;
@@ -499,6 +531,7 @@ struct FloatingPointStatusControl final {
 struct FloatingPoint final {
     /// (FPCCR) Holds control data for the Floating Point Unit.
     struct ContextControl final {
+        /// @brief The bitfield definition of the register
         struct Fields final {
             std::uint32_t lazy_preservation           : 1U;
             modes::Privileged privilege               : 1U;    ///< (Also know as USER)
@@ -521,6 +554,7 @@ struct FloatingPoint final {
 
     ///  (FPCAR) Holds the location of the Floating Point Context
     struct ContextAddress final {
+        /// @brief The bitfield definition of the register
         struct Fields final {
             std::uint32_t         : 3U;
             std::uint32_t address : 29U;
@@ -533,6 +567,7 @@ struct FloatingPoint final {
 
     /// (FPDSCR) Floating Point Default Control Register
     struct DefaultStatusControl final {
+        /// @brief The bitfield definition of the register
         struct Fields final {
             std::uint32_t                : 22U;
             modes::Rounding rounding     : 2U;
@@ -549,6 +584,7 @@ struct FloatingPoint final {
 
     /// Media and Feature Register 0
     struct MediaFeatures0 final {
+        /// @brief The bitfield definition of the register
         struct Fields final {
             std::uint32_t simd             : 4U;
             std::uint32_t single_precision : 4U;
@@ -567,6 +603,7 @@ struct FloatingPoint final {
 
     /// Media and Feature Register 0
     struct MediaFeatures1 final {
+        /// @brief The bitfield definition of the register
         struct Fields final {
             std::uint32_t flush_to_zero       : 4U;
             std::uint32_t default_nan         : 4U;
@@ -582,6 +619,7 @@ struct FloatingPoint final {
 
     /// Media and Feature Register 0
     struct MediaFeatures2 final {
+        /// @brief The bitfield definition of the register
         struct Fields final {
             std::uint32_t               : 4U;
             std::uint32_t miscellaneous : 4U;
@@ -604,6 +642,7 @@ struct FloatingPoint final {
 
 /// (STIR) The Software Triggered Interrupt Register
 struct SoftwareTriggeredInterrupt final {
+    /// @brief The bitfield definition of the register
     struct Fields final {
         std::uint32_t interrupt : 9U;
         std::uint32_t           : 23U;

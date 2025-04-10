@@ -23,6 +23,7 @@ struct MemoryProtectionUnit {
         Type(Type volatile& other)
             : whole{other.whole} {}
 
+        /// @brief The bitfield definition of the register
         struct Fields final {
             std::uint32_t separate                      : 1U;
             std::uint32_t                               : 7U;    ///< Reserved field
@@ -30,6 +31,7 @@ struct MemoryProtectionUnit {
             std::uint32_t number_of_instruction_regions : 8U;
             std::uint32_t                               : 8U;    ///< Reserved field
         };
+        /// @brief The union of the bitfield and the register as a whole.
         union {
             Fields bits;
             std::uint32_t whole;
@@ -44,12 +46,14 @@ struct MemoryProtectionUnit {
         /// Copy Constructor
         Control(Control volatile& other)
             : whole{other.whole} {}
+        /// @brief The bitfield definition of the register
         struct Fields final {
             std::uint32_t enable                           : 1U;
             std::uint32_t core_handlers_use_mpu            : 1U;
             std::uint32_t default_memory_map_in_privileged : 1U;
             std::uint32_t                                  : 29U;    ///< Reserved field
         };
+        /// @brief The union of the bitfield and the register as a whole.
         union {
             Fields bits;
             std::uint32_t whole;
@@ -136,19 +140,20 @@ struct MemoryProtectionUnit {
     /// The access register
     /// @see MPU_RASR
     struct Access final {
-        // Default Constructor
+        /// Default Constructor
         constexpr Access()
             : whole{0U} {}
-        // Copy Constructor
+        /// Copy Constructor
         constexpr Access(const cortex::MemoryProtectionUnit::Access& other)
             : whole{other.whole} {}
 
+        /// @brief The bitfield definition of the register
         class Fields {    // anonymous
         public:
-            std::uint32_t enable : 1U;
+            std::uint32_t enable : 1U;    //!< Enable the region
 
         private:
-            std::uint32_t pow2_size : 5U;    //!< The power of 2 field. Limited to 0-31 inclusive
+            std::uint32_t pow2_size : 5U;    //!< The power of 2 field. Limited to 0-31 inclusive (do not set directly)
 
         public:
             std::uint32_t                   : 2U;
@@ -196,11 +201,15 @@ struct MemoryProtectionUnit {
     };
     static_assert(sizeof(Access) == sizeof(std::uint32_t), "Must be this size exactly");
 
+    //=======================
+    // MEMORY
+    //=======================
     Type type;
     Control control;
     Region region;
     BaseAddress base;
     Access access;
+    //=======================
 
     /// Returns the number of regions this processor supports
     inline std::uint32_t get_number_of_regions(void) volatile {

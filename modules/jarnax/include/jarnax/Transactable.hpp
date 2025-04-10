@@ -1,6 +1,9 @@
 #ifndef JARNAX_TRANSACTABLE_HPP
 #define JARNAX_TRANSACTABLE_HPP
 
+/// @file
+/// The Transactable Interface
+
 #include <cstdint>
 #include <cstddef>
 #include <limits>
@@ -12,6 +15,7 @@
 namespace jarnax {
 
 namespace debug {
+/// @brief The boolean flag to control debugging States
 static constexpr bool States =
 #if defined(UNITTEST)
     true;
@@ -30,7 +34,7 @@ enum class TransactionState {
 };
 
 /// Item objects which are transacted must inherit from this class. The Transactor will inform the Item about it's different changes in state through
-/// input events in @ref Inform.
+/// input events in @ref Transactable::Inform.
 /// @tparam DERIVED_CLASS The class which is derived from this class.
 /// @tparam ATTEMPT_LIMIT The number of times the transaction can be tried.
 template <typename DERIVED_CLASS, std::size_t ATTEMPT_LIMIT>

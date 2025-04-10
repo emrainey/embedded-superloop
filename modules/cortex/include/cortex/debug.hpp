@@ -48,6 +48,7 @@ struct DebugSystem final {
     };
     /// The Exception Monitor and Control Register
     struct ExceptionMonitorControl final {
+        /// @brief The bitfield definition of the register
         struct Fields final {
             std::uint32_t enable_reset_vector_catch              : 1U;
             std::uint32_t                                        : 3U;    ///< Reserved field
@@ -67,12 +68,15 @@ struct DebugSystem final {
             std::uint32_t enable_trace                           : 1U;
             std::uint32_t                                        : 7U;    ///< Reserved field
         };
+        /// @brief  The union of the register and the bitfield
         union {
             Fields bits;
             std::uint32_t whole;
         };
     };
     static_assert(sizeof(ExceptionMonitorControl) == 4U, "Must be this size");
+
+    // MEMORY
 
     HaltingControl halting_control;
     CoreRegisterSelector core_register_selector;

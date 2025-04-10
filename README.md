@@ -177,6 +177,8 @@ Where
 
 ### Jarnax 🪓
 
+@see <https://www.vikingsofbjornstad.com/Old_Norse_Pronunciation.shtm>
+
 If tools generally supported extended characters, this would be `Járnøx` (yourn-uex) which _may_ mean "iron-axe" in Old Norse. "Jarnax" is the closet anglicization that made sense to me. When speaking it, try to be closer to `Yarn-ax` instead of `Jar-nax`.
 
 System Components and interfaces live in the `jarnax` library and namespace. Generally it's header files and interfaces live in `include/jarnax` and are used by Applications. System source is built in the `modules/jarnax/source/`

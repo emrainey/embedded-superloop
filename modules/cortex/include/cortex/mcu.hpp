@@ -359,9 +359,11 @@ constexpr core::Interval unsorted_memory_regions_array[] = {
     {cortex::address::vendor, cortex::address::vendor + cortex::sizes::vendor - 1U},
 };
 
+/// @brief The unsorted memory regions
 constexpr core::Array<core::Interval, dimof(unsorted_memory_regions_array)> unsorted_memory_regions{unsorted_memory_regions_array};
+/// @brief The sorted memory regions. These were sorted by a constexpr function at compile time.
 constexpr core::Array<core::Interval, dimof(unsorted_memory_regions_array)> sorted_memory_regions = core::Sort(unsorted_memory_regions);
-// static_assert(core::IsSortedAndNonOverlapping(sorted_memory_regions), "Must be sorted and non-overlapping");
+static_assert(core::IsSortedAndNonOverlapping(sorted_memory_regions), "Must be sorted and non-overlapping");
 
 /// Used to determine if an address is valid for the Cortex M processor
 bool IsValidAddress(std::uintptr_t address);

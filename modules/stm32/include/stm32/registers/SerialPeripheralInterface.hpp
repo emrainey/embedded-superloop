@@ -911,15 +911,24 @@ static_assert(offsetof(SerialPeripheralInterface, i2s_prescaler) == 0x20UL, "Mus
 // Ensure the sizeof the entire structure is correct.
 static_assert(sizeof(SerialPeripheralInterface) == 0x400UL, "Must be this exact size");
 
-/// @{The external volatile spiX which is a memory mapped register or peripheral.
+/// The external volatile spiX which is a memory mapped register or peripheral.
 /// @note The address of the peripheral is set either by the linkerscript or by a unit test.
 extern SerialPeripheralInterface volatile spi1;
+/// The external volatile spiX which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
 extern SerialPeripheralInterface volatile spi2;
+/// The external volatile spiX which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
 extern SerialPeripheralInterface volatile spi3;
+/// The external volatile spiX which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
 extern SerialPeripheralInterface volatile spi4;
+/// The external volatile spiX which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
 extern SerialPeripheralInterface volatile spi5;
+/// The external volatile spiX which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
 extern SerialPeripheralInterface volatile spi6;
-/// @}
 }    // namespace registers
 }    // namespace stm32
 #endif    // STM32_REGISTERS_SPI1__HPP_

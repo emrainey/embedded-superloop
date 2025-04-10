@@ -6,12 +6,15 @@
 
 #include <cstdint>
 
-// #pragma message("Linker Symbols")
 #if defined(UNITTEST)
+/// Linker Symbol for the UnitTest
 #define LINKER_TYPED_SYMBOL(symbol, type) extern type *symbol
 #else
+/// Linker Symbol for the On Target
 #define LINKER_TYPED_SYMBOL(symbol, type) extern type symbol[]
 #endif
+/// Used to declare a Linker Symbol in C++ which does not have an explicit type
+/// @note This typically is used to define the linked start and end of various sections in memory like Stack, or Heap
 #define LINKER_SYMBOL(symbol) LINKER_TYPED_SYMBOL(symbol, std::uint32_t)
 
 /// Link Symbol of the VectorTable

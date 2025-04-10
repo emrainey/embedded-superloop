@@ -1,5 +1,8 @@
 #pragma once
 
+/// @file
+/// The BitMapHeap Interface
+
 #include <cstdint>
 #include <cstddef>
 #include <limits>
@@ -10,13 +13,25 @@
 
 namespace core {
 
+/// @brief A simple bitmap heap allocator.
+/// This allocator uses a bitmap to track the allocation of blocks in a static memory area.
+/// @tparam BlockSize
+/// @tparam BlockCount
+/// @tparam MaxAlignment
 template <std::size_t BlockSize, std::size_t BlockCount, std::size_t MaxAlignment = alignof(std::max_align_t)>
 class BitMapHeap : public Allocator {
 public:
+    /// @brief The type of the bitfield used to track the allocation of blocks.
     using BitMapUnit = std::uint32_t;
+    /// @brief The number of bits in the bitfueld unit
     static constexpr std::size_t kBitMapDepth = sizeof(BitMapUnit) * 8U;
+
     static_assert(BlockCount % kBitMapDepth == 0U, "BlockCount must be a multiple of the BitMapUnit type bit depth");
 
+    /// @brief The parameterized constructor
+    /// @param buffer The pointer to base of the buffer to use for the heap
+    /// @param size  The size of the buffer in bytes
+    /// @param upstream The (optional) upstream Allocator to use if the heap is exhausted
     BitMapHeap(void* buffer, std::size_t size, Allocator* upstream = nullptr)
         : buffer_(buffer)
         , size_(size)
@@ -40,6 +55,7 @@ public:
     void debug() { printBitmap(); }
 #endif
 
+    /// Used to indicate if the Heap itself is valid.
     bool IsValid() { return (buffer_ != nullptr) and (size_ > 0U); }
 
     /// @brief The Statistics of the Heap
@@ -51,6 +67,8 @@ public:
         std::size_t count{0U};    ///< The number of allocations
     };
 
+    /// @brief The Statistics of the Heap
+    /// @return The read only reference to the Statistics of the Heap
     Statistics const& GetStatistics() { return stats_; }
 
     void* allocate(std::size_t bytes, std::size_t alignment) override {

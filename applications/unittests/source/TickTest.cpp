@@ -15,11 +15,11 @@ TickTest::State TickTest::Test(EnumType test_enum) {
         return State::Skipped;
     }
     if (test_enum == EnumType::kCollect) {
-        if (m_tick_index_ < kLength) {
+        if (tick_index_ < kLength) {
             jarnax::Ticks tmp = jarnax::GetTicker().GetTicksSinceBoot();
-            if (m_ticks_[m_tick_index_] != tmp) {
-                m_ticks_[m_tick_index_] = tmp;
-                m_tick_index_++;
+            if (ticks_[tick_index_] != tmp) {
+                ticks_[tick_index_] = tmp;
+                tick_index_++;
             }
         } else {
             return State::Completed;
@@ -28,7 +28,7 @@ TickTest::State TickTest::Test(EnumType test_enum) {
         // determine if all ticks are monotonic...
         bool increased = false;
         for (size_t i = 0; i < kLength - 1U; i++) {
-            increased = (m_ticks_[m_tick_index_] < m_ticks_[m_tick_index_ + 1U]);
+            increased = (ticks_[tick_index_] < ticks_[tick_index_ + 1U]);
             Assert(increased, "Value must increase");
         }
     } else {

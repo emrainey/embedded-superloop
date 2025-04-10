@@ -1,10 +1,14 @@
 #ifndef CORE_POOL_HPP
 #define CORE_POOL_HPP
 
+/// @file
+/// The Pool Template class
+
 #include "core/Array.hpp"
 #include "core/Container.hpp"
 
 namespace core {
+/// @brief A Pool is a fixed size array of Containers which can be used to store objects.
 template <typename TYPE, std::size_t CAPACITY>
 class Pool {
 public:
@@ -50,6 +54,8 @@ public:
         return std::numeric_limits<IndexType>::max();
     }
 
+    /// Destructs the TYPE at the given index.
+    /// @param index The index to destruct
     void dismiss(IndexType index) {
         if (index < CAPACITY) {
             used_--;
@@ -58,17 +64,33 @@ public:
         }
     }
 
+    /// Returns a mutable reference to the Container at the index
+    /// @param index The index to the Container
+    /// @return A mutable reference to the Container
     Container<TYPE>& operator[](IndexType index) { return storage_[index]; }
+
+    /// Returns a constant reference to the Container at the index
+    /// @param index The index to the Container
+    /// @return A constant reference to the Container
     Container<TYPE> const& operator[](IndexType index) const { return storage_[index]; }
+
+    /// @return The count of free elements in the Pool
     CountType available() const { return free_; }
+
+    /// @return The count of used elements in the Pool
     CountType count() const { return used_; }
+
+    /// @return The number of elements in the Pool
     constexpr CountType capacity() const { return CAPACITY; }
+
+    /// @param index The index to check
+    /// @return True of the Container at the index is present (constructed)
     bool is_present(IndexType index) const { return bool(storage_[index % CAPACITY]); }
 
 protected:
-    Array<Container<TYPE>, CAPACITY> storage_;
-    CountType used_{0U};
-    CountType free_{CAPACITY};
+    Array<Container<TYPE>, CAPACITY> storage_;    ///< The storage of all containers
+    CountType used_{0U};                          ///< The number of used containers
+    CountType free_{CAPACITY};                    ///< The number of free containers.
 };
 }    // namespace core
 #endif    // CORE_POOL_HPP

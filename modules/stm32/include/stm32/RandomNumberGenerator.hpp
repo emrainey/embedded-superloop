@@ -15,8 +15,8 @@ public:
 
 protected:
     constexpr static std::size_t kInitializeLimit{1000U};    ///< Don't let the object initialize forever.
-    std::uint32_t m_first_{0U};                              ///< The first value read to check for an active generation
-    bool m_initialized_{false};                              ///< True when the object has been initialized.
+    std::uint32_t first_{0U};                                ///< The first value read to check for an active generation
+    bool initialized_{false};                                ///< True when the object has been initialized.
 };
 }    // namespace stm32
 

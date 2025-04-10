@@ -25,9 +25,9 @@ public:
     State Test(EnumType test_enum) override;
 
 protected:
-    constexpr static size_t kLength{20U};      ///< The length of the test arrays
-    size_t m_tick_index_{0U};                  ///< The
-    core::Array<Ticks, kLength> m_ticks_{};    ///< An array
+    constexpr static size_t kLength{20U};    ///< The length of the test arrays
+    size_t tick_index_{0U};                  ///< The
+    core::Array<Ticks, kLength> ticks_{};    ///< An array
 };
 
 #endif    // TICK_UNITTEST_HPP_

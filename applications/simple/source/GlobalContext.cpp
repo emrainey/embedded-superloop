@@ -12,12 +12,12 @@ using jarnax::SuperLoop;
 class GlobalContext : public Context {
 public:
     GlobalContext()
-        : m_task_{}
-        , m_superloop_{jarnax::GetTicker()} {}
+        : task_{}
+        , superloop_{jarnax::GetTicker()} {}
 
     Status Initialize(void) override {
         bool result = true;
-        result &= GetSuperLoop().Enlist(m_task_);
+        result &= GetSuperLoop().Enlist(task_);
         result &= GetSuperLoop().Enlist(jarnax::GetDriverContext().GetSpiDriver());
         if (result) {
             return core::Status{};
@@ -26,11 +26,11 @@ public:
         }
     }
 
-    SuperLoop& GetSuperLoop(void) override { return m_superloop_; }
+    SuperLoop& GetSuperLoop(void) override { return superloop_; }
 
 protected:
-    Task m_task_;
-    jarnax::SuperLoop m_superloop_;
+    Task task_;
+    jarnax::SuperLoop superloop_;
 };
 
 namespace jarnax {

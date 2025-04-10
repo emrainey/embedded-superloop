@@ -6,10 +6,10 @@ namespace jarnax {
 class TickInterface final : public Ticker {
 public:
     TickInterface()
-        : m_bias_{0U} {}
+        : bias_{0U} {}
     Hertz GetTicksPerSecond(void) const override { return cortex::GetTickRate(); }
     Ticks GetTicksSinceBoot(void) const override { return cortex::GetTickCount(); }
-    Ticks GetTicks(void) const override { return cortex::GetTickCount() + m_bias_; }
+    Ticks GetTicks(void) const override { return cortex::GetTickCount() + bias_; }
     Time GetTimeSinceBoot(void) const override {
         auto ticks = GetTicksSinceBoot();
         return core::units::ConvertToSeconds(ticks);
@@ -18,12 +18,12 @@ public:
         auto ticks = GetTicks();
         return core::units::ConvertToSeconds(ticks);
     }
-    void AdjustTicks(Ticks bias) override { m_bias_ = bias; }
+    void AdjustTicks(Ticks bias) override { bias_ = bias; }
 
     bool IsEnabled(void) const override { return cortex::IsTickEnabled(); }
 
 protected:
-    Ticks m_bias_;
+    Ticks bias_;
 };
 
 Ticker& GetTicker(void) {

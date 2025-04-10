@@ -567,7 +567,7 @@ core::Status Driver::Copy(
     return core::Status{core::Result::NotAvailable, core::Cause::Resource};
 }
 
-core::Status Driver::Copy(std::uint8_t* destination, std::uint8_t const* source, std::size_t count) {
+core::Status Driver::Copy(std::uint8_t destination[], std::uint8_t const source[], std::size_t count) {
     return Copy(
         reinterpret_cast<std::uintptr_t>(destination),
         reinterpret_cast<std::uintptr_t>(source),
@@ -576,7 +576,7 @@ core::Status Driver::Copy(std::uint8_t* destination, std::uint8_t const* source,
     );
 }
 
-core::Status Driver::Copy(std::uint16_t* destination, std::uint16_t const* source, std::size_t count) {
+core::Status Driver::Copy(std::uint16_t destination[], std::uint16_t const source[], std::size_t count) {
     return Copy(
         reinterpret_cast<std::uintptr_t>(destination),
         reinterpret_cast<std::uintptr_t>(source),
@@ -585,7 +585,7 @@ core::Status Driver::Copy(std::uint16_t* destination, std::uint16_t const* sourc
     );
 }
 
-core::Status Driver::Copy(std::uint32_t* destination, std::uint32_t const* source, std::size_t count) {
+core::Status Driver::Copy(std::uint32_t destination[], std::uint32_t const source[], std::size_t count) {
     return Copy(
         reinterpret_cast<std::uintptr_t>(destination),
         reinterpret_cast<std::uintptr_t>(source),
