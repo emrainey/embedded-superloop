@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.28)
 
 
-project(embedded-superloop-system
+project(embedded-superloop-jarnax
         VERSION 0.1.50
         LANGUAGES CXX ASM)
 

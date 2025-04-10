@@ -51,6 +51,8 @@ Additionally the design of the firmware is generally
 * When the need for the complexity arrives, StateCharts or State Machines are employed to control the state of some internal hardware or external chip, parser, standard or some gestalt thereof. Use the given templates or better yet, use a 3rd party tool which generates the code _directly_ from the diagrams such as [StateSmith](https://github.com/StateSmith/StateSmith) or itemis' CREATE (previously Yakindu), or Ansys tools or one of many others. Design in good boundary interfaces and Unit Test those State Machines.
 * In a deviation from common portability norms, this project relies on the platform dependent implementation detail of _bitfields_ and _unions_ to implement easy to use _MACRO_-less  and cast-less peripheral interfaces. The `peripheralyzer` project provides some generated tests which then can enforce compliance.
 * When pointers needs to be treated as addresses (for ranges, hardware registers, etc) they should be used as `std::uintptr_t` types to take away the ability the easy dereference them. Dereferencing them would more than likely lead to hard faults.
+* When code generation is needed, keep it very simple and keep it well integrated into the build to prevent build dependency issues.
+* Use modern CMake practices (targets, interfaces, presets, generator syntax)
 
 ## Documentation
 
@@ -136,7 +138,7 @@ Components are separated into modules which are independent and require build su
 modules/
   core/   - Simple Template Library, common Status object.
   cortex/ - Cortex M Architecture Support
-  jarnax/ - System Library with SuperLoop, Interfaces ("system" collides with other libraries)
+  jarnax/ - The system Library with SuperLoop, Interfaces, and the system configuration headers.
   memory/ - Generic Memory Library
   native/ - Native Board build for unit testing
   segger/ - Segger debugging library (RTT)
@@ -163,7 +165,7 @@ This configuration is low level and contains things which are board specific whi
 
 For example, the `memory` module doesn't depend on either board level or system level configuration. This has an effect on the module (static library) name generated. When a module doesn't depend on a system configuration it's marked with the `none` name. When a module doesn't depend on a specific board configuration it's marked with the `all` name. Thus, `memory-none-all.a` is the output name for the module.
 
-When a module _does_ depend on either configuration, it's name is incorporated into the name of the module artifact. `system` module for example is built for a specific system configuration and it must know about the board it runs on, thus it's artifact name follows the convention of `<module>-<system-cfg>-<board-cfg>.a` or in a specific case, `system-basic-stm32_f4ve_v2.a`. This module depends on the system level configuration named `basic` and the board configuration for the `stm32_f4ve_v2` board.
+When a module _does_ depend on either configuration, it's name is incorporated into the name of the module artifact. `jarnax` module for example is built for a specific system configuration and it must know about the board it runs on, thus it's artifact name follows the convention of `<module>-<system-cfg>-<board-cfg>.a` or in a specific case, `jarnax-basic-stm32_f4ve_v2.a`. This module depends on the system level configuration named `basic` and the board configuration for the `stm32_f4ve_v2` board.
 
 Applications also follow this pattern, but with a slight variation. Applications have names which may have further variations in the stem.
 
@@ -173,15 +175,17 @@ Where
 <application> may break down into <name>-<app-cfg>.
 ```
 
-### System
+### Jarnax 🪓
 
-System Components and interfaces live in the `system` library and namespace. Generally it's header files and interfaces live in `include/system` and are used by Applications. System source is built in the `modules/system/source/`
+If tools generally supported extended characters, this would be `Járnøx` (yourn-uex) which _may_ mean "iron-axe" in Old Norse. "Jarnax" is the closet anglicization that made sense to me. When speaking it, try to be closer to `Yarn-ax` instead of `Jar-nax`.
+
+System Components and interfaces live in the `jarnax` library and namespace. Generally it's header files and interfaces live in `include/jarnax` and are used by Applications. System source is built in the `modules/jarnax/source/`
 
 Layout:
 
 * `modules/`
-  * `system/`
-    * `include/system` - only path to `include` is made as a dependency
+  * `jarnax/`
+    * `include/jarnax` - only path to `include` is made as a dependency
     * `source/*.cpp`
 
 ## Drivers

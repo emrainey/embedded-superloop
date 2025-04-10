@@ -37,17 +37,17 @@ void OnProjectLoad (void) {
   Edit.SysVar (VAR_BREAK_AT_THIS_SYMBOL, "jarnax::main");
   Edit.SysVar (VAR_STARTUP_COMPLETION_POINT, "jarnax::entry_after_stack");
   Edit.SysVar (VAR_RTT_ENABLED, 1);
-  //File.Open ("$(ProjectDir)/build/stm32-gcc-arm-none-eabi-13/applications/unittests/jarnax-unittest-stm32-basic-stm32_f4ve_v2.elf");
-  File.Open ("$(ProjectDir)/build/stm32-gcc-arm-none-eabi-13/applications/simple/jarnax-simple-stm32-basic-stm32_f4ve_v2.elf");
+  //File.Open ("$(ProjectDir)/build/stm32-gcc-arm-none-eabi-13/applications/unittests/ontarget-tests-stm32-basic-stm32_f4ve_v2.elf");
+  File.Open ("$(ProjectDir)/build/stm32-gcc-arm-none-eabi-13/applications/simple/spi-demo-stm32-basic-stm32_f4ve_v2.elf");
   Project.AddRTTSearchRange(0x20000000, 0x80000);
   Break.SetOnSrc("reset_entry");
   Break.SetOnSrc("jarnax::entry_after_stack");
   Break.SetOnSrc("jarnax::initialize::on_entry");
   Break.SetOnSrc("jarnax::main");
-  
+
   Window.Add ("Watched Data 1", "ticks_since_boot");
   Window.Add ("Watched Data 1", "timer2_high_order_bits");
-  
+
 }
 
 /*********************************************************************
