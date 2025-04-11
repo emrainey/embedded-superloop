@@ -11,6 +11,7 @@ namespace dma {
 
 /// @brief For the purposes of DMA we create a peripheral which enumerates it's type, instance and some sub-component information.
 struct Peripheral {
+    /// @brief The enumeration of the peripheral types on stm32
     enum class Type : uint8_t {
         None,
         ADC,
@@ -27,6 +28,7 @@ struct Peripheral {
         UART,
         USART,
     };
+    /// @brief The enumeration of the sub-types of the various peripherals
     enum class Sub : std::uint16_t {
         None = 0U,
         RX = (1U << 0U),

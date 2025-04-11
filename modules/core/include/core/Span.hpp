@@ -35,16 +35,28 @@ public:
     /// The Iterator of Constant Type
     using IteratorConst = Pointer_Const;
 
+    /// @brief Default constructor
     Span()
         : pointer_{nullptr}
         , count_{0U} {}
+
+    /// @brief Parameter Constructor
+    /// @param ptr The typed pointer to the data
+    /// @param count The number of elements the pointer points to
     Span(Pointer ptr, IndexType count)
         : pointer_{ptr}
         , count_{count} {}
+
+    /// @brief Parameter Constructor
+    /// @param count The number of elements the pointer points to
+    /// @param ptr The typed pointer to the data
     Span(IndexType count, Pointer ptr)
         : pointer_{ptr}
         , count_{count} {}
 
+    /// @brief The array constructor
+    /// @tparam COUNT The number of elements in the array
+    /// @param _array The reference to the array
     template <IndexType COUNT>
     Span(TYPE (&_array)[COUNT])
         : pointer_{&_array[0U]}
@@ -52,9 +64,16 @@ public:
 
     /// Returns the number of elements of the span.
     SizeType count() const { return count_; }
+
+    /// @return The mutable pointer to the data
     Pointer data() { return pointer_; }
+
+    /// @return The const pointer to the data
     Pointer_Const data() const { return pointer_; }
 
+    /// The index operator
+    /// @param index The index to access. The index is wrapped if larger than the count.
+    /// @return A mutable reference to the element at the index
     ValueType& operator[](IndexType index) {
         if (index < count_) {
             return pointer_[index];
@@ -62,6 +81,9 @@ public:
         return pointer_[index % count_];    // bounded index
     }
 
+    /// The index operator
+    /// @param index The index to access. The index is wrapped if larger than the count.
+    /// @return A const reference to the element at the index
     ValueType const& operator[](IndexType index) const {
         if (index < count_) {
             return pointer_[index];
@@ -80,8 +102,18 @@ public:
     /// Subspan operation
     Span subspan(IndexType offset, IndexType count) { return operator()(offset, count); }
 
+    /// @brief The equality operator
+    /// @param other The other Span to compare
+    /// @return True if the pointer and the count are the same
     bool operator==(Span const& other) const { return (pointer_ == other.pointer_) && (count_ == other.count_); }
+
+    /// @brief The inequality operator
+    /// @param other the other Span to compare
+    /// @return False if the pointer and the count are the same
     bool operator!=(Span const& other) const { return not operator==(other); }
+
+    /// @brief The explicit bool which allows easy checks for validity
+    /// @return True if the count is positive and the pointer is not nullptr.
     explicit operator bool() const { return pointer_ != nullptr and count_ > 0u; }
 
     /// Returns the beginning of the Span
@@ -98,8 +130,8 @@ public:
     IteratorConst end() const { return pointer_ + count_; }
 
 protected:
-    Pointer pointer_;
-    std::size_t count_;
+    Pointer pointer_;      ///< The pointer to the data
+    std::size_t count_;    ///< The number of elements in the Span
 };
 
 }    // namespace core

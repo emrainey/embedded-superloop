@@ -9,6 +9,8 @@
 #endif
 
 namespace core {
+/// @brief The Adelson-Velsky and Landis (AVL) tree is a self-balancing binary search tree. The objects within this space implement a simple version
+/// of the AVL.
 namespace avl {
 
 enum class Side : int {
@@ -22,9 +24,14 @@ enum class Side : int {
 template <Comparible TYPE>    // C++20 Concepts FTW!
 class Node {
 public:
+    /// @brief The balance factor minimum
     static constexpr int BalanceFactorMin{-1};
+
+    /// @brief The balance factor maximum
     static constexpr int BalanceFactorMax{1};
 
+    /// @brief The parameter constructor
+    /// @param value
     Node(const TYPE& value)
         : parent_{nullptr}
         , left_{nullptr}
@@ -33,11 +40,18 @@ public:
         , balance_factor_{0}
         , value_{value} {}
 
+    /// @return The mutable value
     TYPE& Value() { return value_; }
+    /// @brief The const value
     TYPE const& Value() const { return value_; }
+    /// @return The mutable value
     TYPE& operator()() { return Value(); }
+    /// @return The const value
     TYPE const& operator()() const { return Value(); }
 
+    /// Inserts the node into the tree
+    /// @param node The node to insert
+    /// @return True if inserted, false if not
     bool Insert(Node* node) {
         if (node == nullptr) {
             return false;
@@ -48,6 +62,9 @@ public:
         return true;
     }
 
+    /// @brief Finds the value in the tree
+    /// @param value The value to find
+    /// @return The pointer to the Node (which has the value) if found, else nullptr.
     Node* Find(TYPE const& value) {
         auto result = value <=> value_;    // C++20 3-way comparison
         if (result == 0) {
@@ -187,14 +204,25 @@ public:
     }
 
 #if defined(UNITTEST)
+    /// @return The left Node pointer
     Node* Left() const { return left_; }
+    /// @return The right node pointer
     Node* Right() const { return right_; }
+    /// @return The parent node pointer
     Node* Parent() const { return parent_; }
+    /// @return The height of the node in the graph
     int Height() const { return height_; }
+    /// @return The balance factor of this node
     int BalanceFactor() const { return balance_factor_; }
 
+    /// @brief Finds the height of the left node
+    /// @return The height value
     int FindLeftHeight() const { return (left_ != nullptr) ? left_->FindLeftHeight() + 1 : 0; }
 
+    /// @brief Verifies that the node is connected to the parent and that the side is correct.
+    /// @param side The side to check
+    /// @param node The pointer to the node
+    /// @return True if the node is connected to the parent and the side is correct.
     bool VerifySide(Side side, Node* node) const {
         if (side == Side::Left) {
             return left_ == node and left_->parent_ == this;
@@ -204,11 +232,13 @@ public:
         return false;
     }
 
+    /// @brief Prints the node
     friend std::ostream& operator<<(std::ostream& os, Node const& node) {
         return os << "avl::Node " << &node << " Value=" << node.value_ << " H=" << node.Height() << " BF=" << node.BalanceFactor()
                   << " Parent=" << node.parent_ << " Left=" << node.left_ << " Right=" << node.right_;
     }
 
+    /// @brief Prints the tree in order
     void PrintTree() const {
         if (left_ != nullptr) {
             left_->PrintTree();
@@ -369,6 +399,8 @@ private:
         }
     }
 
+    /// @brief Rotates the tree to balance it.
+    /// @param side The side under this node to rotate.
     void Rotate(Side side) {
         Node* leaf = (side == Side::Right) ? left_ : right_;
         if (leaf == nullptr) {

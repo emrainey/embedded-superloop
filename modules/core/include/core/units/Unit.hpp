@@ -44,17 +44,26 @@ protected:
     /// @brief Construct a new Unit object, but only for derived classes
     /// @param v The value of the unit
     constexpr explicit Unit(STORAGE_TYPE v)
-        : value_{v} {}
+        : value_{POWER == 0u ? static_cast<STORAGE_TYPE>(1) : v} {}
+    /// @brief Copy Constructor
+    /// @param other The other mutable value
     constexpr Unit(Unit& other)
         : value_{other.value()} {}
+    /// @brief The copy constructor
+    /// @param other The other const value
     constexpr Unit(Unit const& other)
         : value_{other.value()} {}
+    /// @brief The copy constructor
+    /// @param other The other volatile value
     constexpr Unit(Unit volatile& other)
         : value_{other.value()} {}
+    /// @brief The copy constructor
+    /// @param other The other const volatile value
     constexpr Unit(Unit const volatile& other)
         : value_{other.value()} {}
-    STORAGE_TYPE value_;
-    std::size_t power_{POWER};
+
+    STORAGE_TYPE value_;          ///< The value of the unit
+    std::size_t power_{POWER};    ///< The power of the unit (can be zero)
 };
 
 }    // namespace units

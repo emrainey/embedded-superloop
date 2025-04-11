@@ -25,130 +25,228 @@
 #include "core/units/CubicMeters.hpp"
 
 namespace core {
-
+/// @brief The namespace for the core units of measure and their constants
 namespace units {
 
+/// @brief The number of Ticks in a second
 static constexpr Ticks ticks_per_second{128U};    // 128 ticks per second
 
+/// @brief The unit of Length is Meters
+using Length = Meters;
+/// @brief The unit of Area is Square Meters
 using Area = SquareMeters;
+/// @brief The unit of Volume is Cubic Meters
 using Volume = CubicMeters;
 
-constexpr Area operator*(Meters const& x, Meters const& y) {
+/// @brief Computes an Area from two Lengths
+/// @param x a length
+/// @param y a length
+/// @note It is assumes the lengths are at a right angle to each other
+/// @return The Area
+constexpr Area operator*(Length const& x, Length const& y) {
     return Area{x.value() * y.value()};
 }
 
-constexpr Volume operator*(Meters const& x, Area const& y) {
+/// @brief Computes a Volume from an Area and a Length
+/// @param x a Length
+/// @param y an Area
+/// @note It is assumes the lengths are at a right angle to each other
+/// @return The Volume
+constexpr Volume operator*(Length const& x, Area const& y) {
     return Volume{x.value() * y.value()};
 }
 
-constexpr Volume operator*(Area const& x, Meters const& y) {
+/// @brief Computes a Volume from an Area and a Length
+/// @param x an Area
+/// @param y a Length
+/// @note It is assumes the lengths are at a right angle to each other
+/// @return The Volume
+constexpr Volume operator*(Area const& x, Length const& y) {
     return Volume{x.value() * y.value()};
 }
 
+/// @brief Computes the Voltage from the current and resistance
+/// @param current The current
+/// @param resistance The resistance
+/// @return V = IR
 constexpr Volts operator*(Amperes const& current, Ohms const& resistance) {
     return Volts{current.value() * resistance.value()};
 }
 
+/// @brief Computes the Voltage from the resistance and current
+/// @param resistance The resistance
+/// @param current The current
+/// @return V = IR
+/// @note This is the same as the above but in a different order
 constexpr Volts operator*(Ohms const& resistance, Amperes const& current) {
     return Volts{resistance.value() * current.value()};
 }
 
+/// @brief Computes the current from the voltage and resistance
+/// @param voltage The voltage
+/// @param resistance The resistance
+/// @return I = V/R
 constexpr Amperes operator/(Volts const& voltage, Ohms const& resistance) {
     return Amperes{voltage.value() / resistance.value()};
 }
 
+/// @brief Computes the resistence from the voltage and current
+/// @param voltage The voltage
+/// @param current The current
+/// @return R = V/I
+/// @note This is the same as the above but in a different order
 constexpr Ohms operator/(Volts const& voltage, Amperes const& current) {
     return Ohms{voltage.value() / current.value()};
 }
 
+/// @brief Computes the power from the voltage and current
+/// @param voltage The voltage
+/// @param current The current
+/// @return P = VI
 constexpr Watts operator*(Volts const& voltage, Amperes const& current) {
     return Watts{voltage.value() * current.value()};
 }
 
+/// @brief Computes the power from the current and voltage
+/// @param current The current
+/// @param voltage The voltage
+/// @return P = VI
+/// @note This is the same as the above but in a different order
 constexpr Watts operator*(Amperes const& current, Volts const& voltage) {
     return Watts{current.value() * voltage.value()};
 }
 
+/// @brief Quote Operator for Voltage
 constexpr Volts operator""_V(long double value) {
     return Volts{static_cast<Volts::StorageType>(value)};
 }
 
+/// @brief Quote Operator for milli Volts
 constexpr Volts operator""_mV(long double value) {
     return Volts{static_cast<Volts::StorageType>(value) / 1000.0F};
 }
 
+/// @brief Quote Operator for Amperes
 constexpr Amperes operator""_A(long double value) {
     return Amperes{static_cast<Amperes::StorageType>(value)};
 }
 
+/// @brief Quote Operator for milli Amperes
 constexpr Amperes operator""_mA(long double value) {
     return Amperes{static_cast<Amperes::StorageType>(value) / 1000.0F};
 }
 
+/// @brief Quote Operator for Ohms
+/// @param value The value to convert
+/// @return The Ohm value
 constexpr Ohms operator""_Ohm(long double value) {
     return Ohms{static_cast<Ohms::StorageType>(value)};
 }
 
+/// @brief Quote Operator for kilo Ohms
+/// @param value The value to convert
+/// @return The kilo Ohm value
 constexpr Ohms operator""_kOhm(long double value) {
     return Ohms{static_cast<Ohms::StorageType>(value) * 1000.0F};
 }
 
+/// @brief Quote Operator for Watts
+/// @param value The value to convert
+/// @return The Watt value
 constexpr Watts operator""_W(long double value) {
     return Watts{static_cast<Watts::StorageType>(value)};
 }
 
+/// @brief Quote Operator for kilo Watts
+/// @param value The value to convert
+/// @return The kilo Watt value
 constexpr Watts operator""_mW(long double value) {
     return Watts{static_cast<Watts::StorageType>(value) / 1000.0F};
 }
 
+/// @brief Quote Operator for Hertz
+/// @param value The value to convert
+/// @return The Hertz value
 constexpr Hertz operator""_Hz(unsigned long long value) {
     return Hertz{static_cast<Hertz::StorageType>(value)};
 }
-
+/// @brief Quote Operator for kilo Hertz
+/// @param value The value to convert
+/// @return The kilo Hertz value
 constexpr Hertz operator""_kHz(unsigned long long value) {
     return Hertz{static_cast<Hertz::StorageType>(value) * iso::prefix::kilo};
 }
 
+/// @brief Quote Operator for mega Hertz
+/// @param value The value to convert
+/// @return The mega Hertz value
 constexpr Hertz operator""_MHz(unsigned long long value) {
     return Hertz{static_cast<Hertz::StorageType>(value) * iso::prefix::mega};
 }
 
+/// @brief Quote Operator for Seconds
+/// @param value The floating value to convert
+/// @return The Seconds value
 constexpr Seconds operator""_sec(long double value) {
     return Seconds{static_cast<Seconds::StorageType>(value)};
 }
 
+/// @brief Quote Operator for milli Seconds
+/// @param value The floating point value to convert
+/// @return The Seconds value
 constexpr Seconds operator""_msec(long double value) {
     return Seconds{static_cast<Seconds::StorageType>(value) / 1E3F};
 }
 
+/// @brief Quote Operator for micro Seconds
+/// @param value The floating point value to convert
+/// @return The Seconds value
 constexpr Seconds operator""_usec(long double value) {
     return Seconds{static_cast<Seconds::StorageType>(value) / 1E6F};
 }
 
+/// @brief Quote Operator for nano Seconds
+/// @param value The unsigned value to convert
+/// @return The micro Seconds value
 constexpr MicroSeconds operator""_usec(unsigned long long value) {
     return MicroSeconds{static_cast<MicroSeconds::StorageType>(value)};
 }
 
+/// @brief Quote Operator for Ticks
+/// @param value The value to convert
+/// @return The ticks value
 constexpr Ticks operator""_ticks(unsigned long long value) {
     return Ticks{static_cast<Ticks::StorageType>(value)};
 }
 
+/// @brief Quote Operator for Iota
+/// @param value The value to convert
+/// @return The Iota value
 constexpr Iota operator""_iota(unsigned long long value) {
     return Iota{static_cast<Iota::StorageType>(value)};
 }
 
+/// @brief Converts Seconds to Ticks
+/// @param time The time to convert
+/// @return The Ticks value
 constexpr Ticks ConvertToTicks(Seconds const& time) {
     // e.g. 1/2 seconds = 1/2 * 128 ticks = 64.0 ticks
     float fraction = time.value() * ticks_per_second.value();
     return Ticks{static_cast<Ticks::StorageType>(fraction)};
 }
 
+/// @brief Converts Ticks to Seconds
+/// @param ticks The ticks to convert
+/// @return The Seconds value
 constexpr Seconds ConvertToSeconds(Ticks const& ticks) {
     // e.g. 64 ticks = 64 / 128 seconds = 0.5 seconds
     float fraction = static_cast<Seconds::StorageType>(ticks.value()) / static_cast<Seconds::StorageType>(ticks_per_second.value());
     return Seconds{fraction};
 }
 
+/// @brief Converts Hertz to Seconds
+/// @param frequency The frequency to convert
+/// @return The Seconds value
 constexpr Seconds operator/(float scalar, Hertz const& frequency) {
     float fraction = scalar / static_cast<Seconds::StorageType>(frequency.value());
     return Seconds{fraction};

@@ -21,10 +21,14 @@ struct Interval {
     std::uintptr_t start;    ///< Inclusive Start Address
     std::uintptr_t limit;    ///< Inclusive End Address
 
+    /// @brief Default Constructor
     constexpr Interval()
         : start{0U}
         , limit{0U} {}
 
+    /// @brief The parameterized constructor
+    /// @param _start The inclusive start address
+    /// @param _limit The inclusive end address
     constexpr Interval(std::uintptr_t _start, std::uintptr_t _limit)
         : start{_start}
         , limit{_limit} {
@@ -33,34 +37,58 @@ struct Interval {
 #endif
     }
 
+    /// @brief The copy constructor
+    /// @param other The other Interval to copy
     constexpr Interval(Interval const& other) {
         start = other.start;
         limit = other.limit;
     }
 
+    /// @brief The copy assignment
+    /// @param other The other Interval to copy
+    /// @return The reference to this Interval
     constexpr Interval& operator=(Interval const& other) {
         start = other.start;
         limit = other.limit;
         return *this;
     }
 
+    /// @param address The address to check
+    /// @return True if the address is within the interval, false otherwise
     constexpr bool contains(std::uintptr_t address) const { return (start <= address) and (address <= limit); }
 
+    /// @param other The other interval to check
+    /// @return True if this interval contains the entire other interval, false otherwise.
     constexpr bool contains(Interval const& other) const { return (start <= other.start) and (limit >= other.limit); }
 
     /// When an interval is a subset of another interval.
     constexpr bool subsumes(Interval const& other) const { return other.contains(*this); }
 
+    /// @brief Equality operator
+    /// @param other the other interval to compare
+    /// @return True is the start and limit are identical, false otherwise
     constexpr bool operator==(Interval const& other) const { return (start == other.start) and (limit == other.limit); }
 
+    /// @brief Inequality operator
+    /// @param other The other interval to compare
+    /// @return True if the start and limit are not the same, true otherwise
     constexpr bool operator!=(Interval const& other) const { return not operator==(other); }
 
+    /// @brief Less than operator.
+    /// @param other The other interval
+    /// @return True if our limit is smaller than the other start
     constexpr bool operator<(Interval const& other) const { return (limit < other.start); }
 
+    /// @brief Greater than operator
+    /// @param other The other interval
+    /// @return True if our start is greater than the other limit
     constexpr bool operator>(Interval const& other) const { return (start > other.limit); }
 
     // <= and >= are nonsensical for intervals
 
+    /// @brief Determines if the internal overaps with another interval.
+    /// @param other The other interval
+    /// @return True if the other interval partially overlaps this interval
     constexpr bool overlaps(Interval const& other) const {
         if (other.start < start and start <= other.limit and other.limit < limit) {
             return true;
@@ -75,6 +103,10 @@ struct Interval {
     }
 
 #if defined(UNITTEST)
+    /// @brief Friend Print function for the Interval
+    /// @param os Output stream
+    /// @param interval The interval to print
+    /// @return Output Stream
     friend std::ostream& operator<<(std::ostream& os, Interval const& interval) {
         os << "Interval: [" << interval.start << ", " << interval.limit << "]";
         return os;
@@ -151,21 +183,21 @@ constexpr bool IsSortedAndNonOverlapping(core::Array<Interval, N> const& interva
 /// Performs a SwapSort on the given subset of the array of intervals.
 /// @tparam N The number of elements in the intervals array.
 /// @param intervals The array of intervals to sort.
-/// @param i The index of the first interval to swap.
-/// @param j The index of the second interval to swap.
+/// @param left The index of the first interval to swap.
+/// @param right The index of the second interval to swap.
 template <typename TYPE, std::size_t N>
-constexpr void SwapSort(core::Array<TYPE, N>& data, std::size_t left, std::size_t right) {
+constexpr void SwapSort(core::Array<TYPE, N>& intervals, std::size_t left, std::size_t right) {
     if (left < right) {
         std::size_t mid = left;
         for (std::size_t i = left + 1; i < right; ++i) {
-            if (data[i] < data[left]) {
+            if (intervals[i] < intervals[left]) {
                 mid++;
-                polyfill::swap(data[mid], data[i]);
+                polyfill::swap(intervals[mid], intervals[i]);
             }
         }
-        polyfill::swap(data[left], data[mid]);
-        SwapSort(data, left, mid);
-        SwapSort(data, mid + 1, right);
+        polyfill::swap(intervals[left], intervals[mid]);
+        SwapSort(intervals, left, mid);
+        SwapSort(intervals, mid + 1, right);
     }
 }
 
@@ -174,8 +206,8 @@ constexpr void SwapSort(core::Array<TYPE, N>& data, std::size_t left, std::size_
 /// @param intervals The array of intervals to sort.
 /// @return The sorted array of intervals.
 template <typename TYPE, std::size_t N>
-constexpr core::Array<TYPE, N> Sort(core::Array<TYPE, N> const& data) {
-    auto sorted = data;    // copy
+constexpr core::Array<TYPE, N> Sort(core::Array<TYPE, N> const& intervals) {
+    auto sorted = intervals;    // copy
     SwapSort(sorted, 0, N);
     return sorted;
 }

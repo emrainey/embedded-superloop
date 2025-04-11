@@ -45,24 +45,28 @@ struct Marshal {
 
     /// The call type
     Calls call;
+    /// @brief  The union of argument types. All must be at most the size of the thumb::Stacked
     union Arguments {
-        /// Used with @see Calls::BuiltInSelfTest
+        /// Used with @see Calls::BuiltInSelfTestP
+
         struct BuiltInSelfTest {
-            std::uint32_t arg0;
-            std::uint32_t arg1;
-            std::uint32_t arg2;
-            std::uint32_t arg3;
+            std::uint32_t arg0;    ///< First Arg
+            std::uint32_t arg1;    ///< Second Arg
+            std::uint32_t arg2;    ///< Third Arg
+            std::uint32_t arg3;    ///< Fourth Arg
         };
         // struct Tick {
         //     std::uint64_t* ptr;    ///< Pointer to the location to store the tick value.
         // };
 
         // ====================
-        BuiltInSelfTest bist;
-        // Tick tick;
-        thumb::Stacked generic;
+        BuiltInSelfTest bist;    ///< Built in Self Test Args
+        // Tick tick;               ///< The tick args
+        thumb::Stacked generic;    ///< The stacked arguments
         // ====================
-    } type;
+    } type;    ///< The union of argument types
+
+    static_assert(sizeof(Arguments) == sizeof(thumb::Stacked), "The argument type must be less than or equal to the size of the union");
 };
 
 /// The Status value returned from calls invoked by the Supervisor Call.

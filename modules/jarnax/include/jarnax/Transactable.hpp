@@ -30,7 +30,7 @@ enum class TransactionState {
     Initialized,    ///< The transaction has been initialized, and is ready to be scheduled.
     Queued,         ///< The transaction has been scheduled but has not yet started.
     Running,        ///< The transaction is currently running but has not yet completed.
-    Complete,       ///< The transaction has completed. The result is available from @ref GetStatus.
+    Complete,       ///< The transaction has completed. The result is available from @ref Transactable::GetStatus().
 };
 
 /// Item objects which are transacted must inherit from this class. The Transactor will inform the Item about it's different changes in state through
@@ -40,8 +40,11 @@ enum class TransactionState {
 template <typename DERIVED_CLASS, std::size_t ATTEMPT_LIMIT>
 class Transactable : protected core::StateMachine<TransactionState>, private core::StateMachine<TransactionState>::Callback {
 public:
+    /// @brief The type of the Derived Class
     using DerivedType = DERIVED_CLASS;
 
+    /// @brief Parameterized constructor
+    /// @param timer The reference to the timer
     Transactable(Timer& timer)
         : StateMachine<TransactionState>{*this, TransactionState::Undefined, TransactionState::Complete}
         , derived_{*static_cast<DERIVED_CLASS*>(this)}
@@ -51,6 +54,7 @@ public:
         Reset();
     }
 
+    /// @brief The envent enumeration for the transaction
     enum class Event {
         None,           ///< No event has occurred (after an event has been processed it will be set back to None)
         Initialized,    ///< The transaction has been initialized and is ready for scheduling
@@ -60,6 +64,10 @@ public:
         Completed,      ///< The transaction has completed
     };
 
+    /// @brief Informs the transaction of an event.
+    /// If the event is a completion, the status is set to the completion status will be saved and the RunOnce will be run again to close the machine.
+    /// @param event The input event
+    /// @param status The status to assign to the completion status if the event is Completed
     void Inform(Event event, core::Status status = core::Status{core::Result::NotAvailable, core::Cause::Parameter}) {
         event_ = event;
         if (event_ == Event::Completed) {
@@ -73,10 +81,15 @@ public:
         }
     }
 
+    /// @return True if the transaction is Uninitialized
     bool IsUninitialized() const { return Is(TransactionState::Undefined); }
+    /// @return True if the transaction is Initialized
     bool IsInitialized() const { return Is(TransactionState::Initialized); }
+    /// @return True if the transaction is Queued
     bool IsQueued() const { return Is(TransactionState::Queued); }
+    /// @return True if the transaction is Running
     bool IsRunning() const { return Is(TransactionState::Running); }
+    /// @return True if the transaction is Complete OR Final
     bool IsComplete() const { return Is(TransactionState::Complete) or IsFinal(); }
 
     /// Before the transaction is scheduled, the status is not valid,
@@ -93,6 +106,8 @@ public:
     /// Sets the deadline for the transaction to a non-infinite value.
     void SetDeadline(core::units::MicroSeconds deadline) { deadline_ = deadline; }
 
+    /// Resets the machine back to an Entered state if it was already final
+    /// @return True if the machine is final, false otherwise
     bool Reset() {
         if (IsFinal()) {
             // moves the state back to Uninitialized
@@ -114,6 +129,7 @@ public:
     }
 
 protected:
+    /// @copydoc core::StateMachine<TransactionState>::Callback::OnEnter
     void OnEnter() override {
         // do nothing
         if constexpr (debug::States) {
@@ -121,6 +137,7 @@ protected:
         }
     }
 
+    /// @copydoc core::StateMachine<TransactionState>::Callback::OnExit()
     void OnExit() override {
         // do nothing
         if constexpr (debug::States) {
@@ -128,6 +145,7 @@ protected:
         }
     }
 
+    /// @copydoc core::StateMachine<TransactionState>::Callback::OnEntry(TransactionState)
     void OnEntry(TransactionState state) override {
         if constexpr (debug::States) {
             // std::cout << "Entry State: " << static_cast<int>(state) << std::endl;
@@ -143,6 +161,7 @@ protected:
         }
     }
 
+    /// @copydoc core::StateMachine<TransactionState>::Callback::OnExit(TransactionState)
     void OnExit(TransactionState) override {
         // do nothing
         if constexpr (debug::States) {
@@ -150,6 +169,7 @@ protected:
         }
     }
 
+    /// @copydoc core::StateMachine<TransactionState>::Callback::OnCycle(TransactionState)
     TransactionState OnCycle(TransactionState state) override {
         if constexpr (debug::States) {
             // std::cout << "State: " << static_cast<int>(state) << " Event: " << static_cast<int>(event_) << std::endl;
@@ -195,19 +215,20 @@ protected:
         return state;            // otherwise stay in this state
     }
 
+    /// @copydoc core::StateMachine<TransactionState>::Callback::OnTransition(TransactionState, TransactionState)
     void OnTransition(TransactionState /*from*/, TransactionState /*to*/) override {
         // do nothing
     }
 
-    DerivedType& derived_;
-    Timer& timer_;
-    Event event_;
-    core::Status status_;
-    core::Status completion_status_;
-    std::size_t try_count_;
-    core::units::MicroSeconds start_;
-    core::units::MicroSeconds duration_;
-    core::units::MicroSeconds deadline_;
+    DerivedType& derived_;                  ///< The reference to the derived class
+    Timer& timer_;                          ///< The reference to the timer
+    Event event_;                           ///< The current event
+    core::Status status_;                   ///< The current statis
+    core::Status completion_status_;        ///< The completion status
+    std::size_t try_count_;                 ///< The number of attempts remaining
+    core::units::MicroSeconds start_;       ///< The start time of the transaction
+    core::units::MicroSeconds duration_;    ///< The duration of the transaction
+    core::units::MicroSeconds deadline_;    ///< The deadline for the transaction
 };
 
 }    // namespace jarnax

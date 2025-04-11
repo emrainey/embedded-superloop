@@ -33,15 +33,17 @@ public:
     void Restart(core::units::Iota new_duration);
 
 protected:
+    /// @brief The refernce to the timer
     Timer const& timer_;
     /// @brief Holds the current relative duration of the countdown. This is the ideal value, not adjusted for late expiration.
     core::units::Iota duration_;
     /// @brief This is the absolute value of the when the
     core::units::Iota limit_;
+    /// @brief The last time the countdown was started.
     core::units::Iota last_;
     /// @brief Used to capture how late the expiration was. This will be subtracted from the next duration.
     core::units::Iota delta_late_;
 };
-}
+}    // namespace jarnax
 
-#endif // JARNAX_COUNTDOWN_HPP
+#endif    // JARNAX_COUNTDOWN_HPP

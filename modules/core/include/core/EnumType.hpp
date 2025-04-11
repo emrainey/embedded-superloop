@@ -1,6 +1,9 @@
 #ifndef CORE_ENUMTYPE_HPP_
 #define CORE_ENUMTYPE_HPP_
 
+/// @file
+/// The Enumerated Type Interface
+
 #include "iso.hpp"
 
 namespace core {
@@ -65,7 +68,7 @@ public:
     }
 
 protected:
-    ENUM_TYPE value_;
+    ENUM_TYPE value_;    ///< The value of the enum
 };
 
 }    // namespace core

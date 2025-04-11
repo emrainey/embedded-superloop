@@ -103,6 +103,7 @@ constexpr static uintptr_t vendor = 0xE0100000;
 
 }    // namespace address
 
+/// @brief The sizes of the Ranges of the Processor
 namespace sizes {
 /// Code space is defined as 256 MB
 constexpr static std::uint32_t code = 256U * iso::prefix::mebi;
@@ -128,7 +129,7 @@ constexpr static std::uint32_t private_peripheral = 1U * iso::prefix::mebi;
 /// Vendor System space is defined as 256 MB minus 1 MB
 constexpr static std::uint32_t vendor = (256U * iso::prefix::mebi) - private_peripheral;
 
-/// The collection of the powers of 2 of the sizes
+/// @brief The sizes represented as powers of 2
 namespace power2 {
 
 /// The Power of 2 of the code section
@@ -348,7 +349,7 @@ void enable(void);
 
 /// @brief The Cortex M processor memory regions
 /// @note The order of the regions is important for the MPU
-/// @TODO Construct this table in the linkerscript, not in C++ as we really do not need to know these addresses.
+/// @todo Construct this table in the linkerscript, not in C++ as we really do not need to know these addresses.
 constexpr core::Interval unsorted_memory_regions_array[] = {
     {cortex::address::code, cortex::address::code + cortex::sizes::code - 1U},
     {cortex::address::sram, cortex::address::sram + cortex::sizes::sram - 1U},

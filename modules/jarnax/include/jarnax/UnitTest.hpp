@@ -53,15 +53,18 @@ public:
 
     /// @brief Associates a name with a test enumeration
     struct TestName {
+        /// @brief Default Constructor
+        /// @param n The name of the test (preferable a literal)
+        /// @param te The enumerated type of the test
         TestName(char const* const n, EnumType const te)
             : name{n}
             , test_enum{te} {}
-        char const* const name;
-        EnumType const test_enum;
+        char const* const name;      ///< The name of the test
+        EnumType const test_enum;    ///< The enumerated type of the test
     };
 
 /// Used to define an entry in an array of test names.
-/// @see @ref TestName
+/// @see @ref UnitTest<E,C>::TestName
 /// @note This is an exception to the no-macro rule for UNIT TEST only (on target)
 #define DEFINE_TEST_NAME(name) \
     {                          \
@@ -133,15 +136,23 @@ public:
     }
 
     /// Implemented by unit tests
-    /// @param
+    /// @param e The enumerated type to test
     virtual State Test(EnumType e) = 0;
 
 protected:
+    /// @brief Asserts if the condition is true
+    /// @param condition The condition to assert on
+    /// @param description The description of the test to print if asserted
     void Assert(bool condition, char const* const description = nullptr) {
         (void)description;
         record(condition);
     }
 
+    /// @brief Compares a left hand side and right hand side values.
+    /// @tparam TYPE The Type of the values to compare
+    /// @param lhs The left hand side value
+    /// @param rhs The right hand side value
+    /// @warning Records the result of the equal comparison, does not return a value
     template <typename TYPE>
     void CompareEqual(TYPE const lhs, TYPE const rhs) {
         static_assert(not std::is_floating_point<TYPE>::value, "Can not be a floating point value");
@@ -149,6 +160,11 @@ protected:
         record(result);
     }
 
+    /// @brief Compares a left hand side and right hand side values.
+    /// @tparam TYPE The Type of the values to compare
+    /// @param lhs The left hand side value
+    /// @param rhs The right hand side value
+    /// @warning Records the result of the not equal comparison, does not return a value
     template <typename TYPE>
     void CompareNotEqual(TYPE const lhs, TYPE const rhs) {
         static_assert(not std::is_floating_point<TYPE>::value, "Can not be a floating point value");
@@ -156,16 +172,30 @@ protected:
         record(result);
     }
 
+    /// @brief Compares a left hand side and right hand side float values.
+    /// @param lhs The left hand side value
+    /// @param rhs The right hand side value
+    /// @warning Records the result of the not equal comparison, does not return a value
     void CompareFloatEqual(float lhs, float rhs) {
         bool volatile result = (absolute_difference(lhs, rhs) <= std::numeric_limits<float>::epsilon());
         record(result);
     }
 
+    /// @brief Compares a left hand side and right hand side float values.
+    /// @param lhs The left hand side value
+    /// @param rhs The right hand side value
+    /// @warning Records the result of the not equal comparison, does not return a value
     void CompareFloatNotEqual(float lhs, float rhs) {
         bool volatile result = (absolute_difference(lhs, rhs) > std::numeric_limits<float>::epsilon());
         record(result);
     }
 
+    /// @brief Compares a left hand side and right hand side values.
+    /// @tparam TYPE The Type of the values to compare
+    /// @param lhs The reference to left hand side value
+    /// @param rhs The reference to right hand side value
+    /// @note Can not be used on a float
+    /// @warning Records the result of the not equal comparison, does not return a value
     template <typename TYPE>
     void CompareRefEqual(TYPE const& lhs, TYPE const& rhs) {
         static_assert(not std::is_floating_point<TYPE>::value, "Can not be a floating point value");
@@ -173,6 +203,12 @@ protected:
         record(result);
     }
 
+    /// @brief Compares a left hand side and right hand side values.
+    /// @tparam TYPE The Type of the values to compare
+    /// @param lhs The reference to left hand side value
+    /// @param rhs The reference to right hand side value
+    /// @note Can not be used on a float
+    /// @warning Records the result of the not equal comparison, does not return a value
     template <typename TYPE>
     void CompareRefNotEqual(TYPE const& lhs, TYPE const& rhs) {
         static_assert(not std::is_floating_point<TYPE>::value, "Can not be a floating point value");
@@ -189,7 +225,9 @@ protected:
         return difference;
     }
 
+    /// @return The enum of the test
     inline EnumType GetEnum(void) const { return test_enum_; }
+    /// @return The index of the test
     inline UnderlyingType GetIndex(void) const { return test_index_; }
 
 private:

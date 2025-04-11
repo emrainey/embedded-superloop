@@ -117,8 +117,16 @@ public:
     }
 
 protected:
+    /// @brief Convert bytes to blocks
+    /// @param bytes The desired number of bytes
+    /// @param alignment The alignment of the bytes
+    /// @return The number of blocks needed.
     inline std::size_t bytes_to_blocks(std::size_t bytes, std::size_t alignment) { return (bytes + alignment - 1 + BlockSize - 1) / BlockSize; }
 
+    /// @brief Determines of a pointer and number of bytes is contained in the Heap or not.
+    /// @param p Pointer to memory
+    /// @param bytes The number of bytes which p points to
+    /// @return True if contained, false otherwise.
     inline bool is_contained(void* p, std::size_t bytes) {
         uintptr_t base = reinterpret_cast<uintptr_t>(buffer_);
         uintptr_t offset = reinterpret_cast<uintptr_t>(p) - base;
@@ -126,6 +134,9 @@ protected:
     }
 
 private:
+    /// @brief Finds the first set of free blocks of the given size
+    /// @param blocks The number of desired blocks
+    /// @return The index of the block
     std::size_t findFreeBlocks(std::size_t blocks) {
         std::size_t startBlock = 0;
         std::size_t freeBlocks = 0;
@@ -152,6 +163,9 @@ private:
         return BlockCount;
     }
 
+    /// @brief Marks the block as allocated
+    /// @param startBlock The starting block to mark
+    /// @param blocks The number of blocks to mark
     void markBlocksAsAllocated(std::size_t startBlock, std::size_t blocks) {
         for (std::size_t i = startBlock; i < startBlock + blocks; ++i) {
             std::size_t bitmapIndex = i / kBitMapDepth;
@@ -163,6 +177,9 @@ private:
         stats_.free -= (BlockSize * blocks);
     }
 
+    /// @brief Marks the blocks as free
+    /// @param startBlock The starting block to mark
+    /// @param blocks The number of blocks to mark
     void markBlocksAsFree(std::size_t startBlock, std::size_t blocks) {
         for (std::size_t i = startBlock; i < startBlock + blocks; ++i) {
             std::size_t bitmapIndex = i / kBitMapDepth;
@@ -175,6 +192,7 @@ private:
     }
 
 #if defined(UNITTEST)
+    /// @brief Prints the bitmap for debugging purposes
     void printBitmap() {
         printf(
             "Heap Total: %zu Allocated: %lu Free: %lu Waste:%lu Count: %lu Valid? %s\r\n",

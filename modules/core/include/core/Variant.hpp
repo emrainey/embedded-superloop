@@ -55,6 +55,7 @@ struct type_index_mapper {
 /// @tparam ...TYPES
 template <typename T, typename... TYPES>
 struct type_index_mapper<T, type_list<T, TYPES...>> {
+    /// @brief The zero value
     static constexpr size_t value = 0;
 };
 
@@ -64,6 +65,7 @@ struct type_index_mapper<T, type_list<T, TYPES...>> {
 /// @tparam ...TYPES The set of all types
 template <typename T, typename U, typename... TYPES>
 struct type_index_mapper<T, type_list<U, TYPES...>> {
+    /// @brief The value of the type index
     static constexpr size_t value = 1 + type_index_mapper<T, type_list<TYPES...>>::value;
 };
 

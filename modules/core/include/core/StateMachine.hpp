@@ -20,6 +20,7 @@ template <typename ENUM_TPARAM>
 class StateMachine {
 public:
     static_assert(std::is_enum<ENUM_TPARAM>::value, "ENUM_TPARAM must be an enumerated type");
+    /// @brief The type of the state machine's enum
     using StateType = ENUM_TPARAM;
     static_assert(to_underlying(StateType::Undefined) == 0U, "ENUM_TPARAM must have a Undefined state and it must be zero");
 
@@ -51,6 +52,10 @@ public:
         ~Callback() = default;
     };
 
+    /// @brief The parameter constructor
+    /// @param callback The reference to the callback interface
+    /// @param initial_state The initial state of the StateMachine
+    /// @param final_state The final state of the StateMachine
     StateMachine(Callback& callback, StateType initial_state, StateType final_state)
         : callback_{callback}
         , initial_state_{initial_state}
@@ -59,14 +64,22 @@ public:
         , next_state_{StateType::Undefined}
         , last_state_{StateType::Undefined} {}
 
+    /// @param state The state to query for
+    /// @return True if the machine is in the given state
     bool Is(StateType state) const { return current_state_ == state; }
 
+    /// @param state The state to query for
+    /// @return True if the machine was in the given state preceeding the current state
     bool Was(StateType state) const { return last_state_ == state; }
 
+    /// @param state The state to query for
+    /// @return True if the machine will be in the given state in the next cycle
     bool WillBe(StateType state) const { return next_state_ == state; }
 
+    /// @return True if the StateMachine is in the final state
     bool IsFinal() const { return stopped_; }
 
+    /// @brief Enters the StateMachine if previously Stopped.
     /// Before a State Machine is Entered, it's State is Undefined
     void Enter() {
         if (stopped_) {
@@ -82,6 +95,9 @@ public:
         }
     }
 
+    /// @brief Runs the StateMachine for one cycle.
+    /// This will process the StateMachine if it is not stopped.
+    /// If it is stopped, it will not process the StateMachine.
     void RunOnce() {
         if (not stopped_) {
             cycle_ = true;
@@ -120,16 +136,16 @@ public:
     }
 
 protected:
-    Callback& callback_;
-    StateType initial_state_;
-    StateType final_state_;
-    StateType current_state_;
-    StateType next_state_;
-    StateType last_state_;
-    bool stopped_{true};    ///< We start in the final state
-    bool entry_{false};
-    bool cycle_{false};
-    bool exit_{false};
+    Callback& callback_;         ///< The reference to the callback interface
+    StateType initial_state_;    ///< The initial state of the StateMachine
+    StateType final_state_;      ///< The final state of the StateMachine
+    StateType current_state_;    ///< The current state of the StateMachine
+    StateType next_state_;       ///< The next state of the StateMachine
+    StateType last_state_;       ///< The last state of the StateMachine
+    bool stopped_{true};         ///< We start in the final state
+    bool entry_{false};          ///< The flag to indicate if we are in the entry of the state
+    bool cycle_{false};          ///< The flag to indicate if we are in the cycle of the state
+    bool exit_{false};           ///< The flag to indicate if we are in the exit of the state
 };
 
 }    // namespace core

@@ -1,7 +1,11 @@
 #ifndef CORE_EVENTS_HPP_
 #define CORE_EVENTS_HPP_
 
+/// @file
+/// The Events Namespace and Event Interface
+
 namespace core {
+/// @brief The events Namespace contains objects which are used to transmit events.
 namespace events {
 
 /// @brief An enum which wraps a boolean to provide a more abstracted notion of a flag.
@@ -17,7 +21,9 @@ class Event {
     static_assert(not std::is_same<bool, STORAGE>::value, "Must not be a boolean, use a Flag instead.");
 
 public:
+    /// @brief The Storage Type of the Event
     using StorageType = STORAGE;
+
     /// @brief Used to determine if the Event has been set.
     /// @retval true The value has been set.
     /// @retval false The values has not been set.
@@ -43,24 +49,31 @@ template <typename STORAGE>
 class Single : public Event<STORAGE> {
 public:
     static_assert(std::is_integral<STORAGE>::value or std::is_enum<STORAGE>::value, "Must be an integer type or enumeration");
+    /// @brief The storage type of the Single Event, which reuses the Event's Type
     using StorageType = typename Event<STORAGE>::StorageType;
 
     /// @brief Single Event do not initialize as fired by the default constructor
     Single() = default;
 
     /// @brief Single Event do initialize as fired by the parameterized constructor
-    /// @param initial
+    /// @param initial The initial value of the Event
     Single(StorageType initial)
         : fired_{true}
         , value_{initial} {}
 
+    /// @brief Explicit bool test
     explicit operator bool(void) const override { return fired_; }
 
+    /// @brief Explcit Type cast to the StorageType
+    /// @warning Clears the fired state
     explicit operator StorageType(void) override {
         fired_ = false;
         return value_;
     }
 
+    /// @brief Assignment operator
+    /// @warning Sets the fired state
+    /// @param other The other Event to copy from
     void operator=(StorageType const &other) override {
         fired_ = true;
         value_ = other;
@@ -79,6 +92,7 @@ protected:
 template <typename STORAGE, size_t COUNT>
 class Multiplier : public Event<STORAGE> {
 public:
+    /// @brief The storage type of the Multiplier Event, which reuses the Event's Type
     using StorageType = typename Event<STORAGE>::StorageType;
 
     /// @brief The default constructor does not set the events.
@@ -93,10 +107,14 @@ public:
         }
     }
 
+    /// @brief The explicit bool test
     explicit operator bool(void) const override { return bool(input_); }
 
+    /// @brief The explicit cast operator to the StorageType
     explicit operator StorageType(void) override { return StorageType(input_); }
 
+    /// @brief The assignment operator
+    /// @param other The Storage Type to assign from
     void operator=(StorageType const &other) override {
         input_ = other;
         for (size_t i = 0; i < count_; i++) {
@@ -106,7 +124,7 @@ public:
             }
         }
     }
-
+    /// @brief The hook function to connect a Single Event to this Multiplier Event.
     bool Hook(Event<STORAGE> *other) {
         for (size_t i = count_; i < COUNT; i++) {
             if (outputs_[i] == nullptr) {
@@ -121,9 +139,9 @@ public:
     }
 
 protected:
-    Single<STORAGE> input_;
-    size_t count_{0u};
-    Event<STORAGE> *outputs_[COUNT]{};
+    Single<STORAGE> input_;               ///< The input event
+    size_t count_{0u};                    ///< The number of events connected to this event
+    Event<STORAGE> *outputs_[COUNT]{};    ///< The list of events connected to this event
 };
 
 }    // namespace events

@@ -92,7 +92,7 @@ public:
     }
 
 protected:
-    ValueType buffer_[COUNT]{};
+    ValueType buffer_[COUNT]{};       ///< The buffer to hold the elements
     IndexType head_{0u};              ///< Head index inclusive (only valid when count > 0)
     IndexType tail_{0u};              ///< Tail Index inclusive (only valid when count > 0)
     IndexType const limit_{COUNT};    ///< The "one-past the end" limit to the index. When equal to this value, the

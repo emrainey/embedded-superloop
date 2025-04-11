@@ -14,11 +14,17 @@ namespace core {
 /// @brief A Buffer is a simple wrapper around a pointer to a block of memory which knows it's Allocator.
 template <typename TYPE>
 struct Buffer {
+    /// @brief The type of the Allocator
     using Type = TYPE;
+    /// @brief The pointer to the type
     using Pointer = TYPE*;
+    /// @brief The reference to the type
     using Reference = TYPE&;
+    /// @brief The type used to express sizes
     using Size = std::size_t;
+    /// @brief The type used to express counts
     using Count = std::size_t;
+    /// @brief  The type used to express indices
     using Index = std::size_t;
 
     /// @brief The default allocator to use for the Buffer

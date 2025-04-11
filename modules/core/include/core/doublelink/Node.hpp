@@ -81,7 +81,7 @@ public:
     };
 
     /// Iterates over the list in the forward direction (over the next pointers)
-    /// @param func The function to call for each node.
+    /// @param visitor The function to call for each node.
     void VisitForward(Visitor& visitor) {
         bool visited = not marker_;
         for (Node* node = this; node->marker_ != visited; node = node->next_) {
@@ -91,7 +91,7 @@ public:
     }
 
     /// Iterates over the list in the backward direction (over the prev pointers)
-    /// @param func The function to call for each node.
+    /// @param visitor The function to call for each node.
     void VisitBackward(Visitor& visitor) {
         bool visited = not marker_;
         for (Node* node = this; node->marker_ != visited; node = node->prev_) {
@@ -101,7 +101,7 @@ public:
     }
 
     /// Iterates over the list in the forward direction (over the next pointers)
-    /// @param func The function to call for each const node.
+    /// @param visitor The function to call for each const node.
     void VisitForward(Visitor const& visitor) const {
         bool visited = not marker_;
         for (Node const* node = this; node->marker_ != visited; node = node->next_) {
@@ -111,7 +111,7 @@ public:
     }
 
     /// Iterates over the list in the backward direction (over the prev pointers)
-    /// @param func The function to call for each const node.
+    /// @param visitor The function to call for each const node.
     void VisitBackward(Visitor const& visitor) const {
         bool visited = not marker_;
         for (Node const* node = this; node->marker_ != visited; node = node->prev_) {

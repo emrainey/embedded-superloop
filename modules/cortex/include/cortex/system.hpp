@@ -20,10 +20,15 @@ constexpr static std::uint32_t reset_value = 0x05FA;
 struct SystemControlBlock final {
     /// The CPU Identifier
     struct CpuIDBase final {
+        /// @brief Default constructor
         CpuIDBase()
             : whole{0} {}
+        /// @brief Copy constructor
+        /// @param other
         CpuIDBase(CpuIDBase const& other)
             : whole{other.whole} {}
+        /// @brief Copy constructor for volatile copy
+        /// @param other
         CpuIDBase(CpuIDBase volatile& other)
             : whole{other.whole} {}
         /// @brief The bit field for the CPU ID Base Register
@@ -479,8 +484,11 @@ using AuxiliaryControl = variant::AuxiliaryControl;
 
 /// The special purpose Control Register (CONTROL)
 struct Control final {
+    /// @brief Default constructor
     constexpr Control()
         : whole{0U} {}
+    /// @brief Parameterized constructor
+    /// @param reg The value to put in the register
     Control(cortex::word reg)
         : whole{reg} {}
     /// @brief The bitfield definition of the register
@@ -503,24 +511,25 @@ struct Control final {
 struct FloatingPointStatusControl final {
     /// @brief The bitfield definition of the register
     struct Fields final {
-        std::uint32_t invalid_cumulative        : 1U;
-        std::uint32_t divide_by_zero_cumulative : 1U;
-        std::uint32_t overflow_cumulative       : 1U;
-        std::uint32_t underflow_cumulative      : 1U;
-        std::uint32_t inexact_cumulative        : 1U;
-        std::uint32_t                           : 2U;
-        std::uint32_t input_denormal_cumulative : 1U;
-        std::uint32_t                           : 14U;
-        modes::Rounding rounding                : 2U;
-        std::uint32_t flush_to_zero             : 1U;
-        std::uint32_t default_nan               : 1U;
-        std::uint32_t half_precision            : 1U;
-        std::uint32_t                           : 1U;
-        std::uint32_t overflow                  : 1U;
-        std::uint32_t carry                     : 1U;
-        std::uint32_t zero                      : 1U;
-        std::uint32_t negative                  : 1U;
+        std::uint32_t invalid_cumulative        : 1U;     ///< Invalid Operation
+        std::uint32_t divide_by_zero_cumulative : 1U;     ///< Divide by Zero
+        std::uint32_t overflow_cumulative       : 1U;     ///< Overflow
+        std::uint32_t underflow_cumulative      : 1U;     ///< Underflow cumulative
+        std::uint32_t inexact_cumulative        : 1U;     ///< Inexact cumulative
+        std::uint32_t                           : 2U;     ///< Reserved
+        std::uint32_t input_denormal_cumulative : 1U;     ///< Input denormal cumulative
+        std::uint32_t                           : 14U;    ///< Reserved
+        modes::Rounding rounding                : 2U;     ///< Rounding mode
+        std::uint32_t flush_to_zero             : 1U;     ///< Flush to zero
+        std::uint32_t default_nan               : 1U;     ///< Default NaN
+        std::uint32_t half_precision            : 1U;     ///< Half precision
+        std::uint32_t                           : 1U;     /// Reserved
+        std::uint32_t overflow                  : 1U;     ///< Overflow
+        std::uint32_t carry                     : 1U;     ///< Carry
+        std::uint32_t zero                      : 1U;     ///< Zero
+        std::uint32_t negative                  : 1U;     ///< Negative
     };
+    /// @brief The union of the bitfield and the register as a whole.
     union {
         Fields parts;
         std::uint32_t whole;

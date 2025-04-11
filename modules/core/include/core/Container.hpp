@@ -1,6 +1,9 @@
 #ifndef CORE_CONTAINER_HPP_
 #define CORE_CONTAINER_HPP_
 
+/// @file
+/// The Container Interface
+
 #include <cstddef>
 #include <cstdint>
 #include <type_traits>
@@ -38,6 +41,7 @@ public:
         : storage_{}
         , that_(nullptr) {}
 
+    /// @brief Destructor
     ~Container() { dismiss(); }
 
     /// Constructs a new object in place
@@ -52,6 +56,7 @@ public:
         that_ = new (&storage_[0]) TYPE(std::forward<ARGS>(args)...);
     }
 
+    /// @brief If the object is emplaced, it will be destructed and the pointer set to nullptr
     void dismiss() {
         if (that_) {
             that_->~TYPE();
@@ -73,7 +78,7 @@ public:
         if (that_) {
             return *that_;
         } else {
-            /// this is potentially uninitialized storage!
+            // this is potentially uninitialized or undefined storage!
             return *reinterpret_cast<TYPE*>(&storage_[0]);
         }
     }
@@ -86,11 +91,17 @@ public:
     /// @return the pointer to the object or nullptr if not emplaced
     TYPE* operator->() { return that_; }
 
-    constexpr std::size_t storage_size() const { return sizeof(storage_); }
-    constexpr std::size_t storage_alignment() const { return alignof(TYPE); }
+    /// @return The size of the storage in bytes
+    constexpr SizeType storage_size() const { return sizeof(storage_); }
+
+    /// @return The alignment of the TYPE
+    constexpr SizeType storage_alignment() const { return alignof(TYPE); }
 
 protected:
+    /// @brief The storage for the object
     alignas(alignof(TYPE)) std::uint8_t storage_[sizeof(TYPE)];
+    /// @brief The pointer to the object
+    /// @note This is not a pointer to the storage, but a pointer to the object in the storage, if null the object is not constructed
     TYPE* that_;
 };
 

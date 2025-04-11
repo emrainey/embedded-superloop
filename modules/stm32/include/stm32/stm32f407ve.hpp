@@ -40,6 +40,7 @@ constexpr uintptr_t rcc = 0x40'02'38'00;
 constexpr uintptr_t random_number_generator = 0x50'06'08'00UL;
 }    // namespace address
 
+/// @brief The sizes of the Ranges of the Processor
 namespace sizes {
 /// The Size in Bytes of Flash
 constexpr std::uint32_t flash = 1U * iso::prefix::mebi;
@@ -49,6 +50,7 @@ constexpr std::uint32_t ccm = 64U * iso::prefix::kibi;
 constexpr std::uint32_t sram = (112U + 16U) * iso::prefix::kibi;
 /// The Size in Bytes of Backup SRAM
 constexpr std::uint32_t backup_sram = 4U * iso::prefix::kibi;
+/// @brief The sizes represented as powers of 2
 namespace power2 {
 /// The Power of 2 of the CCM Size
 constexpr std::uint8_t flash = polyfill::log2(stm32::sizes::flash);

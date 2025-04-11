@@ -9,10 +9,10 @@ namespace cortex {
 
 /// @brief The system's memory protected scheme.
 struct MemoryProtectionUnitInitializer {
-    MemoryProtectionUnit::Region region;
-    MemoryProtectionUnit::BaseAddress address;
-    MemoryProtectionUnit::Access access;
-} mpui[kDefaultRegionLimit];
+    MemoryProtectionUnit::Region region;          ///< The region of the MPU
+    MemoryProtectionUnit::BaseAddress address;    ///< The base address of the region
+    MemoryProtectionUnit::Access access;          ///< The access for the region
+} mpui[kDefaultRegionLimit];                      ///< The list of MPU regions for this processor
 
 /// The number of Desired Regions from the initializer
 size_t DesiredRegions;
@@ -76,7 +76,7 @@ void class_globals() {
     //===============================================================================
     std::uint32_t const volatile main_stack_size = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(__main_stack_size));
     if (main_stack_size > 0U) {
-        if (not ::is_power_of_two(main_stack_size)) {
+        if (not::is_power_of_two(main_stack_size)) {
             cortex::spinhalt();
         }
         uintptr_t base_address = reinterpret_cast<uintptr_t>(__main_stack_bottom);
@@ -94,7 +94,7 @@ void class_globals() {
     // the linker script computed the size of the process stack and we pull it in here...
     std::uint32_t const volatile process_stack_size = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(__process_stack_size));
     if (process_stack_size > 0U) {
-        if (not ::is_power_of_two(process_stack_size)) {
+        if (not::is_power_of_two(process_stack_size)) {
             cortex::spinhalt();
         }
         uintptr_t base_address = reinterpret_cast<uintptr_t>(__process_stack_bottom);
@@ -110,7 +110,7 @@ void class_globals() {
     // Read/Write over the Privileged Data, never execute!
     std::uint32_t const volatile privileged_data_size = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(__privileged_data_size));
     if (privileged_data_size > 0U) {
-        if (not ::is_power_of_two(privileged_data_size)) {
+        if (not::is_power_of_two(privileged_data_size)) {
             cortex::spinhalt();
         }
         uintptr_t base_address = reinterpret_cast<uintptr_t>(__privileged_data_start);
