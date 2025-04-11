@@ -12,7 +12,11 @@ void *operator new(std::size_t bytes, uintptr_t address) noexcept {
     return reinterpret_cast<void *>(address);
 }
 
-void operator delete(void*, unsigned int) noexcept {
+void operator delete(void *) noexcept {
+    // do nothing
+}
+
+void operator delete(void *, unsigned int) noexcept {
     // do nothing
 }
 

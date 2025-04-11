@@ -10,6 +10,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_STANARD 17)
 # set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
+# The following definitions control which subdirectories are included in the build, they don't define targets
+# The subdirectories are added in the order they are listed here
 list(APPEND LOCAL_MODULES memory core) # These don't depend on anything
 list(APPEND LOCAL_MODULES cortex stm32 segger jarnax native) # These depend on config and board
 list(APPEND LOCAL_APPLICATIONS unittests simple)

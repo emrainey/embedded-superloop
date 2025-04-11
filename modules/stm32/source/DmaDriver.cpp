@@ -310,9 +310,9 @@ stm32::registers::DirectMemoryAccess::Stream volatile* Driver::Assign(Peripheral
                         used_[number] = true;
                         // assign the Channel!
                         auto* stream = &stm32::registers::direct_memory_access[c].streams[i];
-                        auto configuration = stream->configuration;    // read
-                        configuration.bits.channel_selection = j;      // modify
-                        stream->configuration = configuration;         // write
+                        auto configuration = stream->configuration;                                    // read
+                        configuration.bits.channel_selection = static_cast<std::uint32_t>(j & 0x7);    // modify
+                        stream->configuration = configuration;                                         // write
                         return stream;
                     }
                 }
@@ -501,6 +501,8 @@ core::Status Driver::ClearStreamStatus(size_t number, Flags const& flags) {
 }
 
 void Driver::HandleInterrupt(uint32_t controller, uint32_t stream) {
+    static_cast<void>(controller);
+    static_cast<void>(stream);
 }
 
 core::Status Driver::Copy(
@@ -527,8 +529,8 @@ core::Status Driver::Copy(
         fifo_control.bits.fifo_threshold = stm32::registers::DirectMemoryAccess::Stream::FifoControl::FifoThreshold::Empty;
         fifo_control.bits.fifo_error_interrupt_enable = 0;
         // memory to memory can't use Direct Mode
-        fifo_control.bits.direct_mode_disable = 1;
-        stream->number_of_datum.bits.number_of_datum = count;
+        fifo_control.bits.direct_mode_disable = 1U;
+        stream->number_of_datum.bits.number_of_datum = static_cast<uint32_t>(count & 0xFFFFU);
         // even though it's not a peripheral, we have to use this address
         stream->peripheral_address = reinterpret_cast<std::uintptr_t>(source);
         stream->memory0_address = reinterpret_cast<std::uintptr_t>(destination);
@@ -653,8 +655,8 @@ core::Status Driver::CopyToPeripheral(
     fifo_control.bits.fifo_threshold = stm32::registers::DirectMemoryAccess::Stream::FifoControl::FifoThreshold::Empty;
     fifo_control.bits.fifo_error_interrupt_enable = 0;
     // peripheral to memory
-    fifo_control.bits.direct_mode_disable = 1;
-    stream.number_of_datum.bits.number_of_datum = count;
+    fifo_control.bits.direct_mode_disable = 1U;
+    stream.number_of_datum.bits.number_of_datum = static_cast<uint32_t>(count & 0xFFFFU);
     // even though it's not a peripheral, we have to use this address
     stream.peripheral_address = reinterpret_cast<std::uintptr_t>(destination);
     stream.memory0_address = reinterpret_cast<std::uintptr_t>(source);
@@ -742,7 +744,7 @@ core::Status Driver::CopyFromPeripheral(
     fifo_control.bits.fifo_error_interrupt_enable = 0;
     // peripheral to memory
     fifo_control.bits.direct_mode_disable = 1;
-    stream.number_of_datum.bits.number_of_datum = count;
+    stream.number_of_datum.bits.number_of_datum = static_cast<uint32_t>(count & 0xFFFFU);
     // even though it's not a peripheral, we have to use this address
     stream.peripheral_address = reinterpret_cast<std::uintptr_t>(source);
     stream.memory0_address = reinterpret_cast<std::uintptr_t>(destination);

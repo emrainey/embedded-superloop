@@ -208,7 +208,6 @@ void clocks(ClockConfiguration const& clkcfg) {
     std::uint32_t pllm = clkcfg.pll_m;
     std::uint32_t plln = clkcfg.pll_n;
     std::uint32_t pllp = (clkcfg.pll_p * 2U) + 2U;
-    std::uint32_t ahb_divider = 1U << (clkcfg.ahb_divider + 1U);
     std::uint32_t pllq = clkcfg.pll_q;
     // VCO = F_in * (N/M) but if N *F_in is too large (exceeds 32 bits), then we need to divide first
     clock_tree.pll_vco = (clock_tree.pll_input / pllm) * plln;

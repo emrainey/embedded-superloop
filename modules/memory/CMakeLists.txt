@@ -8,6 +8,8 @@ add_module(NAME memory
         ${CMAKE_CURRENT_SOURCE_DIR}/source/strlen.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+    LIBRARIES
+        strict
     NO_BOARDS
     NO_CONFIGURATIONS
 )

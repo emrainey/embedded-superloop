@@ -52,10 +52,10 @@ core::Status SpiDriver::Initialize(core::units::Hertz peripheral_frequency, core
     control1 = spi_.control1;             // read
     spi_.control1.bits.spi_enable = 0;    // modify
     spi_.control1 = control1;             // write
-
-    control1.bits.clock_polarity = 0;    // first clock transition is the first data capture edge
-    control1.bits.clock_phase = 0;       // first clock transition is the first data capture edge
-    control1.bits.baud_rate = to_underlying(FindClosestDivider(peripheral_frequency, desired_spi_clock_frequency));
+    std::uint32_t baudrate = to_underlying(FindClosestDivider(peripheral_frequency, desired_spi_clock_frequency));
+    control1.bits.clock_polarity = 0;                      // first clock transition is the first data capture edge
+    control1.bits.clock_phase = 0;                         // first clock transition is the first data capture edge
+    control1.bits.baud_rate = (baudrate & 0x7);            // set the baud rate divider
     control1.bits.leader = 1;                              // master mode
     control1.bits.lsbfirst = 0;                            // MSB first
     control1.bits.software_follower_management = 0;        // software slave management (NSS pin is controlled by peripheral)

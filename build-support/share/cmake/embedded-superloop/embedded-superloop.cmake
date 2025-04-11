@@ -71,6 +71,7 @@ endfunction()
 # Add an empty library to handle no configuration
 add_library(configuration-none INTERFACE)
 target_include_directories(configuration-none INTERFACE ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(configuration-none INTERFACE strict)
 
 # Create an interface library per configuration
 foreach (cfg IN LISTS LOCAL_CONFIGURATIONS)

@@ -87,7 +87,6 @@ core::Status Timer::Initialize(core::units::Hertz internal_clock) {
 core::units::Iota Timer::GetIotas(void) const {
     // read the high order bits once
     std::uint32_t high_order_bits;
-    std::uint32_t high_order_bits2;
     std::uint32_t low_order_bits;
     do {
         // read the high order bits again

@@ -5,6 +5,8 @@ add_board(NAME stm32_f4ve_v2
         $<IF:$<BOOL:CMAKE_CROSS_BUILD>,${CMAKE_CURRENT_SOURCE_DIR}/source/symbols.cpp,>
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+    LIBRARIES
+        strict
     VENDOR
         stm32
     GENERIC_MODULES
