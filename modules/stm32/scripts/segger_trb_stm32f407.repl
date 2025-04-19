@@ -72,4 +72,4 @@ dwt: Miscellaneous.DWT @ sysbus 0xE0001000
 
 sysbus:
     init:
-        ApplySVD @scripts/STM32F407.svd
+        ApplySVD @module/stm32/scripts/STM32F407.svd

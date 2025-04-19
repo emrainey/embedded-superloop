@@ -97,14 +97,18 @@ function(add_architecture)
         "${multiples}"
         ${ARGN})
     if (NOT DEFINED ARG_VENDOR)
-        message(FATAL_ERROR "No vendor specified for board ${ARG_NAME}")
+        message(FATAL_ERROR "No vendor specified for architecture ${ARG_NAME}")
     endif()
     foreach (cfg IN LISTS ARG_CONFIGURATIONS)
         set_arch_name(LOCAL_TARGET ${ARG_NAME} ${cfg})
         message("Adding architecture ${LOCAL_TARGET}")
         add_library(${LOCAL_TARGET} INTERFACE)
         target_sources(${LOCAL_TARGET} INTERFACE ${ARG_SOURCES})
-        set_target_properties(${LOCAL_TARGET} PROPERTIES VENDOR ${ARG_VENDOR})
+        set_target_properties(${LOCAL_TARGET} PROPERTIES
+            VENDOR ${ARG_VENDOR}
+            ARCHITECTURE ${ARG_NAME}
+            LINKERSCRIPTS ${CMAKE_CURRENT_SOURCE_DIR}/linkerscripts
+        )
         set_configuration_name(LOCAL_CONFIGURATION ${cfg})
         target_link_libraries(${LOCAL_TARGET} INTERFACE ${LOCAL_CONFIGURATION})
         if (DEFINED ARG_INCLUDES)
@@ -139,7 +143,7 @@ endfunction()
 # A board depends on a vendor which must be set.
 function(add_board)
     set(options "")
-    set(singles NAME VENDOR)
+    set(singles NAME CHIP DEVICE)
     set(multiples SOURCES INCLUDES DEFINES LIBRARIES CONFIGURATIONS GENERIC_MODULES SYSTEM_MODULES BOARD_MODULES MODULES)
     cmake_parse_arguments(
         ARG
@@ -147,8 +151,8 @@ function(add_board)
         "${singles}"
         "${multiples}"
         ${ARGN})
-    if (NOT DEFINED ARG_VENDOR)
-        message(FATAL_ERROR "No vendor specified for board ${ARG_NAME}")
+    if (NOT DEFINED ARG_CHIP)
+        message(FATAL_ERROR "No chip specified for board ${ARG_NAME}")
     endif()
     if (NOT DEFINED ARG_CONFIGURATIONS)
         message(FATAL_ERROR "No configurations specified for module ${ARG_NAME}")
@@ -157,7 +161,13 @@ function(add_board)
         set_board_name(LOCAL_TARGET ${ARG_NAME} ${cfg})
         message("Adding board ${LOCAL_TARGET}")
         add_library(${LOCAL_TARGET} STATIC ${ARG_SOURCES})
-        set_target_properties(${LOCAL_TARGET} PROPERTIES VENDOR ${ARG_VENDOR})
+        set_target_properties(${LOCAL_TARGET} PROPERTIES
+            CHIP ${ARG_CHIP} # The module name of the chip
+            DEVICE ${ARG_DEVICE} # The device name of the chip for tools like JLink, OpenOCD
+            LINKERSCRIPTS ${CMAKE_CURRENT_SOURCE_DIR}/linkerscripts
+            OZONE_TEMPLATE ${CMAKE_CURRENT_SOURCE_DIR}/scripts/Ozone.jdebug.in
+            GDB_CLIENT_TEMPLATE ${CMAKE_CURRENT_SOURCE_DIR}/scripts/client.gdb.in
+        )
         target_link_libraries(${LOCAL_TARGET} PUBLIC configuration-${cfg})
         if (DEFINED ARG_INCLUDES)
             target_include_directories(${LOCAL_TARGET} PUBLIC ${ARG_INCLUDES})
@@ -236,6 +246,9 @@ function(add_module)
             set_target_name(LOCAL_TARGET ${ARG_NAME} ${cfg} ${board})
             message("Adding module ${LOCAL_TARGET}")
             add_library(${LOCAL_TARGET} STATIC ${ARG_SOURCES})
+            set_target_properties(${LOCAL_TARGET} PROPERTIES
+                LINKERSCRIPTS ${CMAKE_CURRENT_SOURCE_DIR}/linkerscripts
+            )
             if (ARG_INCLUDES)
                 target_include_directories(${LOCAL_TARGET} PUBLIC ${ARG_INCLUDES})
             endif()
@@ -257,6 +270,7 @@ function(add_module)
             if (ARG_ARCH)
                 set_arch_name(LOCAL_ARCH ${ARG_ARCH} ${cfg})
                 target_link_libraries(${LOCAL_TARGET} INTERFACE ${LOCAL_ARCH})
+                set_target_properties(${LOCAL_TARGET} PROPERTIES ARCHITECTURE ${ARG_ARCH})
             endif()
             foreach (module IN LISTS ARG_GENERIC_MODULES)
                 set_target_name(_MOD ${module} none all)
@@ -311,12 +325,12 @@ function(add_firmware)
     foreach (cfg IN LISTS ARG_CONFIGURATIONS)
         foreach (board IN LISTS ARG_BOARDS)
             set_board_name(LOCAL_BOARD ${board} ${cfg})
-            get_target_property(BOARD_VENDOR ${LOCAL_BOARD} VENDOR)
+            get_target_property(BOARD_CHIP ${LOCAL_BOARD} CHIP)
             if (NOT ARG_LINKERSCRIPT)
-                set(ARG_LINKERSCRIPT ${CMAKE_SOURCE_DIR}/modules/${BOARD_VENDOR}/linkerscripts/gcc.ld)
+                set(ARG_LINKERSCRIPT ${CMAKE_SOURCE_DIR}/modules/${BOARD_CHIP}/linkerscripts/gcc.ld)
             endif()
             if (CMAKE_CROSS_BUILD)
-                set(LOCAL_TARGET ${ARG_NAME}-${BOARD_VENDOR}-${cfg}-${board})
+                set(LOCAL_TARGET ${ARG_NAME}-${BOARD_CHIP}-${cfg}-${board})
             else()
                 set(LOCAL_TARGET ${ARG_NAME}-native-${cfg}-${board})
             endif()
@@ -359,19 +373,38 @@ function(add_firmware)
                 -fmacro-prefix-map=${CMAKE_SOURCE_DIR}=. # trims __FILE__ to be relative and deterministic
             )
             if (CMAKE_CROSS_BUILD)
+                # Pull the set of linkerscript paths from the board and the chip modules
+                # Sadly, this is a bit of a hack since ld can't handle the -L option correctly.
+                # (It only uses the values stated *before* the -T option)
+                # If it could we would just use the target_link_options() to set the -L options
+                get_target_property(BOARD_LINKERSCRIPTS ${LOCAL_BOARD} LINKERSCRIPTS)
+                get_target_property(CHIP ${LOCAL_BOARD} CHIP) # Get the chip module
+                set_target_name(LOCAL_CHIP ${CHIP} ${cfg} ${board}) # Make the target name for the chip
+                get_target_property(LOCAL_DEVICE ${LOCAL_BOARD} DEVICE)
+                get_target_property(CHIP_LINKERSCRIPTS ${LOCAL_CHIP} LINKERSCRIPTS) # Get the chip linkerscripts
+                get_target_property(ARCH ${LOCAL_CHIP} ARCHITECTURE) # Get the architecture of the chip
+                set_arch_name(LOCAL_ARCH ${ARCH} ${cfg}) # Make the target name for the architecture
+                get_target_property(ARCH_LINKERSCRIPTS ${LOCAL_ARCH} LINKERSCRIPTS) # Get the architecture linkerscripts
                 target_link_options(${LOCAL_TARGET}.elf PRIVATE
-                    -nostdlib
-                    # --spec=nosys
+                    -v -nostdlib
+                    # --specs=nosys
+                    -Wl,-V
+                    -Wl,-L,${ARCH_LINKERSCRIPTS}
+                    -Wl,-L,${BOARD_LINKERSCRIPTS}
+                    -Wl,-L,${CHIP_LINKERSCRIPTS}
                     $<$<CXX_COMPILER_ID:GNU>:-Wl,-T,${ARG_LINKERSCRIPT}>
                     -Wl,-Map,${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.map
                     -Wl,--print-memory-usage
                     # -Wl,--print-map
+                    -Wl,--stats
                     -Wl,-gc-sections
                     -Wl,-cref
                 )
+                # Get the all the .ld files in the linkerscripts directories in order to form dependencies on them
+                file(GLOB_RECURSE LINKERSCRIPTS ${CHIP_LINKERSCRIPTS}/*.ld ${BOARD_LINKERSCRIPTS}/*.ld ${ARCH_LINKERSCRIPTS}/*.ld)
                 # Set the INTERFACE_LINK_DEPENDS property
                 set_target_properties(${LOCAL_TARGET}.elf PROPERTIES
-                    INTERFACE_LINK_DEPENDS "${ARG_LINKERSCRIPT}"
+                    INTERFACE_LINK_DEPENDS "${ARG_LINKERSCRIPT} ${LINKERSCRIPTS}"
                 )
                 # add_dependencies(${ARG_NAME}.elf ${ARG_NAME}-ld-script)
                 set(ARG_ELF ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.elf)
@@ -380,17 +413,30 @@ function(add_firmware)
                     OUTPUT ${ARG_DISASM}
                     DEPENDS ${ARG_ELF}
                     COMMAND ${CMAKE_OBJDUMP} -d ${ARG_ELF} -marm -C -z > ${ARG_DISASM}
-                    COMMENT "Creating Dissembly of ${ARG_ELF}"
+                    COMMENT "Creating Disassembly of ${ARG_ELF}"
                 )
                 # add_dependencies(${ARG_NAME}.elf ${ARG_LINKERSCRIPT})
                 add_custom_target(disassembly-${LOCAL_TARGET} ALL DEPENDS ${ARG_DISASM})
                 # File the relative path from the build directory to the binary
                 file(RELATIVE_PATH LOCAL_TARGET_BINARY_PATH ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.elf)
                 # Generate a debug file for the Ozone debugger for this firmware
-                configure_file(${CMAKE_SOURCE_DIR}/scripts/Ozone.jdebug.in ${CMAKE_SOURCE_DIR}/${LOCAL_TARGET}.jdebug @ONLY)
+                get_target_property(LOCAL_BOARD_OZONE ${LOCAL_BOARD} OZONE_TEMPLATE)
+                configure_file(${LOCAL_BOARD_OZONE} ${CMAKE_SOURCE_DIR}/${LOCAL_TARGET}.jdebug @ONLY)
+                get_target_property(LOCAL_BOARD_GDB_CLIENT ${LOCAL_BOARD} GDB_CLIENT_TEMPLATE)
+                configure_file(${LOCAL_BOARD_GDB_CLIENT} ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.gdb @ONLY)
                 add_custom_target(ozone-${LOCAL_TARGET}
                     COMMAND /Applications/SEGGER/Ozone/Ozone.app/Contents/MacOS/Ozone ${CMAKE_SOURCE_DIR}/${LOCAL_TARGET}.jdebug
                     DEPENDS ${CMAKE_SOURCE_DIR}/${LOCAL_TARGET}.jdebug ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.elf)
+                if (NOT TARGET gdb-server-${LOCAL_DEVICE})
+                    message(STATUS "Adding gdb-server-${LOCAL_DEVICE}")
+                    add_custom_target(gdb-server-${LOCAL_DEVICE}
+                        # Default ports 2331, 2332, 2333
+                        COMMAND JLinkGDBServer -if SWD -device ${LOCAL_DEVICE} -speed 20000 -usb -NoGUI=1 -ir -halt -vd
+                    )
+                endif()
+                add_custom_target(gdb-client-${LOCAL_TARGET}
+                    COMMAND arm-none-eabi-gdb ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.elf -x ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.gdb
+                    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.gdb ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.elf)
             else()
                 target_compile_definitions(${LOCAL_TARGET}.elf
                     PUBLIC
