@@ -15,9 +15,9 @@
 namespace cortex {
 namespace handlers {
 
-/// @brief The wrapping function which is called by each handler
-/// @param isr_number
-ALWAYS_INLINE inline void enter(cortex::exceptions::InterruptServiceRoutine isr_number) {
+/// @brief The wrapping function which is called some handlers.
+/// @param extended_handler The function to call to handle the exception
+ALWAYS_INLINE inline void enter(cortex::exceptions::ExtendedHandler extended_handler) {
 #if defined(UNITTEST)
     cortex::exceptions::ExceptionReturn exc_return = cortex::exceptions::ExceptionReturn::Extract();
     cortex::exceptions::ExtendedFrame *frame;
@@ -27,24 +27,23 @@ ALWAYS_INLINE inline void enter(cortex::exceptions::InterruptServiceRoutine isr_
         frame = reinterpret_cast<cortex::exceptions::ExtendedFrame *>(thumb::get_process_stack_pointer());
     }
     thumb::save_callee_registers();
-    generic(isr_number, frame, exc_return);
+    extended_handler(frame, exc_return);
     thumb::restore_callee_registers();
     exc_return.return_from_exception();    // [[noreturn]]
 #elif defined(__arm__)
     asm volatile(
         "tst lr, #4 \r\n"
         "ite eq \r\n"
-        "mrseq r1, msp \r\n"
-        "mrsne r1, psp \r\n"
+        "mrseq r0, msp \r\n"
+        "mrsne r0, psp \r\n"
         "push {r4-r11, lr} \r\n"
-        // setup r0, r1, r2
-        "mov r0, %0 \r\n"
+        // setup r0, r1
         "mov r2, lr \r\n"
         "bl %[handler] \r\n"
         "pop {r4-r11, pc} \r\n"
-        :                                                              // outputs
-        : "r"(isr_number), [handler] "i"(cortex::handlers::generic)    // inputs
-        :                                                              // clobbers
+        :                                    // outputs
+        : [handler] "i"(extended_handler)    // inputs
+        :                                    // clobbers
     );
 #endif
 }

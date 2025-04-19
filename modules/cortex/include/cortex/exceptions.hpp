@@ -132,7 +132,8 @@ static_assert(sizeof(ExtendedFrame) == 0x64U, "Must be this size exactly");
 /// Also known as EXC_RETURN, this is the value that is placed back in the PC
 /// when the Handler wants to return. Some combinations of flags are invalid.
 struct ExceptionReturn final {
-    constexpr ExceptionReturn() : whole{0xFF'FF'FF'E1UL} {}
+    constexpr ExceptionReturn()
+        : whole{0xFF'FF'FF'E1UL} {}
     struct Fields final {
         std::uint32_t              : 2U;     ///< Reserved
         cortex::modes::Stack stack : 1U;     ///< Chooses between Main (0) and Process (1) Stack
@@ -178,6 +179,9 @@ struct ExceptionReturn final {
 #endif
     }
 };
+
+/// The generic handler for all hardware exceptions
+using ExtendedHandler = void (*)(cortex::exceptions::ExtendedFrame* frame, cortex::exceptions::ExceptionReturn exc_return);
 
 }    // namespace exceptions
 }    // namespace cortex

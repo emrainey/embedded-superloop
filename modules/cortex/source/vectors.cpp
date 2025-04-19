@@ -26,6 +26,9 @@ exceptions::VectorTable const vector_table = {
      handlers::supervisor::pending,
      handlers::tick}
 };
+
+VectorTableStatistics vector_table_statistics;
+
 }    // namespace cortex
 
 // Used by the Linker to declare the entry point

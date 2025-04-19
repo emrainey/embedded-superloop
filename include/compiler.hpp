@@ -4,7 +4,8 @@
 #include <concepts>
 
 /// @file
-/// Contains compiler specific attributes and macros. These should be the only MACROS in the system
+/// Contains compiler specific attributes and macros. These should be the only MACROS in the system due to how the attributes are different on
+/// different compilers.
 
 #if defined(UNITTEST)
 #define ATTRIBUTE(x)

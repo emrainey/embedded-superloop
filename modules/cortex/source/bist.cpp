@@ -34,14 +34,14 @@ bool bist(bool is_system_initialized, bool is_system_configured) {
         result &= built_in_self_test.trigger_memory_management_fault.has_passed;
         built_in_self_test.trigger_memory_management_fault.is_testing = false;
     }
-    if (false and result) {
+    if (result) {
         // @todo bus fault self test
         built_in_self_test.trigger_bus_fault.is_testing = true;
         // read from unaligned and invalid memory
-        // @todo we do trap, which is nice, but we *return* here too! We need to save the address of the source two
+        // we do trap, which is nice, but we *return* here too! We need to save the address of the source two
         // lines down, then restore to that location (modify the LR in the exception frame?)
-        std::uint32_t volatile tmp = *reinterpret_cast<std::uint32_t*>(0xDEADBEEF);
-        (void)tmp;
+        // pretend we ran off the stack
+        __ccm_beg[-1] = 0xDEADBEEF;
         result &= built_in_self_test.trigger_bus_fault.has_passed;
         built_in_self_test.trigger_bus_fault.is_testing = false;
     }
@@ -49,14 +49,10 @@ bool bist(bool is_system_initialized, bool is_system_configured) {
     // @todo usage self test (precise and imprecise errors?)
     if (result) {
         built_in_self_test.trigger_supervisor_call.is_testing = true;
-        // cortex::trigger_supervisor_call();
+        built_in_self_test.trigger_pending_supervisor.is_testing = true;
         cortex::supervisor::bist();
         result &= built_in_self_test.trigger_supervisor_call.has_passed;
         built_in_self_test.trigger_supervisor_call.is_testing = false;
-    }
-    if (false and result) {    // doesn't seem to work at all!
-        built_in_self_test.trigger_pending_supervisor.is_testing = true;
-        cortex::trigger_pending_supervisor();    // >>> should enter, set true and return here <<<
         result &= built_in_self_test.trigger_pending_supervisor.has_passed;
         built_in_self_test.trigger_pending_supervisor.is_testing = false;
     }

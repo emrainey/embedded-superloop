@@ -120,6 +120,7 @@ namespace handlers {
     jarnax::initialize::class_globals();
     // Now The C++ objects have been initialized
     // =============================================
+    vector_table_statistics.entry++;
     // Jump to on_entry and forget this function!
     thumb::jump(__main_stack_top, jarnax::initialize::on_entry);
 }

@@ -83,6 +83,15 @@ struct ExternalInterrupts final {
 /// The chip specific external interrupts table
 extern ExternalInterrupts external_interrupts;
 
+/// Counts the number of times each interrupt has been called
+/// @note This is used to track the number of times each vector table entry has been called
+struct ExternalInterruptStatistics final {
+    std::size_t count[number_of_interrupt_channels]{0U};    ///< Incremented by the interrupt handler per interrupt
+};
+
+/// @brief Each Driver interrupt increments their own count
+extern ExternalInterruptStatistics external_interrupt_statistics;
+
 /// @see cortex::m4::InterruptRequest for preceding numbers
 enum class InterruptRequest : int {
     WindowWatchDog = 0U,
@@ -184,7 +193,9 @@ enum class InterruptRequest : int {
     // ??? = 79U,
     // ??? = 80U,
     FloatingPointUnit = 81U,    ///< FPU
+    _count = 82U,
 };
+static_assert(static_cast<std::size_t>(InterruptRequest::_count) == number_of_interrupt_channels, "The number of interrupts is incorrect");
 
 /// Gets a value from the backup ram at an index
 std::uint32_t get_value(std::uint32_t index);

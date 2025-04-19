@@ -24,7 +24,6 @@ add_architecture(NAME cortex
         ${CMAKE_CURRENT_SOURCE_DIR}/source/handlers/faults/usage.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/handlers/supervisor/call.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/handlers/supervisor/pending.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/handlers/generic.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/handlers/dummy.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/handlers/get_exception_frame.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/supervisor/bist.cpp

@@ -31,6 +31,8 @@ __attribute__((used)) void timer2_isr(void) {
 
     // store the update
     timer2_high_order_bits = count + 1U;
+
+    external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::Timer2)]++;
 }
 
 Timer::Timer(stm32::registers::Timer2 volatile& timer)

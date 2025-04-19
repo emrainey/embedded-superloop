@@ -138,9 +138,21 @@ core::Status SpiDriver::Start(jarnax::spi::Transaction& transaction) {
 }
 
 core::Status SpiDriver::Check(jarnax::spi::Transaction& transaction) {
-    size_t tx_left = tx_dma_stream_.number_of_datum.bits.number_of_datum;
-    size_t rx_left = rx_dma_stream_.number_of_datum.bits.number_of_datum;
-    if (spi_.status.bits.busy or tx_left > 0 or rx_left > 0) {
+    if (transaction.send_size > 0U) {
+        // check the TX stream
+        size_t tx_left = tx_dma_stream_.number_of_datum.bits.number_of_datum;
+        if (tx_left > 0) {
+            return core::Status{core::Result::Busy, core::Cause::State};
+        }
+    }
+    if (transaction.receive_size > 0U) {
+        // check the RX stream
+        size_t rx_left = rx_dma_stream_.number_of_datum.bits.number_of_datum;
+        if (rx_left > 0) {
+            return core::Status{core::Result::Busy, core::Cause::State};
+        }
+    }
+    if (spi_.status.bits.busy) {
         return core::Status{core::Result::Busy, core::Cause::State};
     }
     Cancel(transaction);

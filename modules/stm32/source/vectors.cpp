@@ -28,9 +28,6 @@ extern void dma2_stream5_isr(void);
 extern void dma2_stream6_isr(void);
 extern void dma2_stream7_isr(void);
 
-/// DMA 2 ISR Handler
-extern void dma2_isr(void);
-
 /// Storage location for the extended vector table.
 /// If you need a compile time interrupt setup, do so here.
 LINKER_SECTION(".extended_vectors")
@@ -83,5 +80,8 @@ ExternalInterrupts external_interrupts = {
     cortex::handlers::dummy,
 };
 static_assert(sizeof(external_interrupts) == (stm32::number_of_interrupt_channels * sizeof(void *)), "Must be this value exactly");
+
+// local storage for the external interrupt statistics
+ExternalInterruptStatistics external_interrupt_statistics;
 
 }    // namespace stm32

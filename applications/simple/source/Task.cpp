@@ -79,7 +79,7 @@ bool Task::Execute() {
         jarnax::print("Buffers are different\r\n");
     }
 
-    jarnax::print("Task::Execute: %lu ticks, %lf sec, 0x%lx Iotas: %lu\r\n", ticks.value(), time.value(), random, iotas);
+    jarnax::print("Task::Execute: %lu ticks, %lf sec, %lx Iotas: %lu\r\n", ticks.value(), time.value(), random, iotas);
     DelayForTicks(Ticks{64U});
     if (wakeup_button_.IsPressed()) {
         jarnax::print("Wakeup Pressed\r\n");
@@ -116,6 +116,8 @@ bool Task::Execute() {
         } else {
             jarnax::print("SPI Transaction Failed", status);
         }
+    } else if (spi_transaction_.IsQueued()) {
+        jarnax::print(".");
     } else if (spi_transaction_.IsComplete()) {
         jarnax::print("SPI Transaction Complete\r\n");
         auto span = spi_buffer_.as_span<uint8_t>();
