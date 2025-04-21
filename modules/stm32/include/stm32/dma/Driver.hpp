@@ -177,29 +177,52 @@ constexpr static Peripheral UART8_TX = Peripheral{Peripheral::Type::UART, 8, Per
 /// @brief  Coordinates data transfer between memory and peripherals,
 class Driver : public jarnax::Copier {
 public:
+    /// @brief The default constructor
     Driver();
+    /// @brief The destructor
     ~Driver() = default;
 
+    ///< spread across DMA1 and DMA2
+    static constexpr std::size_t NumStreams{16u};
+    /// @brief The number of streams per controller
+    static constexpr size_t NumStreamsPerController{8U};
+    /// @brief The number of channels per stream
+    static constexpr size_t NumChannelsPerStream{8U};
+
+    /// @brief The summary of the DMA stream's status.
     struct Flags {
-        bool complete;
-        bool half_complete;
-        bool error;
-        bool direct_mode_error;
-        bool fifo_error;
+        bool complete{false};
+        bool half_complete{false};
+        bool error{false};
+        bool direct_mode_error{false};
+        bool fifo_error{false};
+
+        inline void all() {
+            complete = true;
+            half_complete = true;
+            error = true;
+            direct_mode_error = true;
+            fifo_error = true;
+        }
     };
 
     /// @brief Used by constructors to initialize a driver to an exact Stream.
     /// @param periperhal The peripheral to assign the stream from.
-    stm32::registers::DirectMemoryAccess::Stream volatile* Assign(Peripheral periperhal);
+    stm32::registers::DirectMemoryAccess::Stream volatile* Assign(Peripheral const& periperhal);
 
     /// @brief Acquires a DMA "Channel" for use.
     /// @param[out] channel The reference to a pointer to set.
     /// @return
-    core::Status Acquire(stm32::registers::DirectMemoryAccess::Stream volatile*& channel, size_t number);
+    core::Status Acquire(stm32::registers::DirectMemoryAccess::Stream volatile*& channel, size_t number, Peripheral const& peripheral = _);
 
     /// @brief Release a DMA back to the system.
     /// @param channel
     void Release(stm32::registers::DirectMemoryAccess::Stream volatile* channel);
+
+    /// @brief Initialize the DMA Stream
+    /// @param stream The stream to initialize
+    /// @param number The stream number
+    void Initialize(stm32::registers::DirectMemoryAccess::Stream volatile& stream, size_t number, Peripheral const& peripheral);
 
     /// @brief Get the status of the DMA stream.
     /// @param stream Stream Number
@@ -280,13 +303,26 @@ public:
         std::size_t count
     );
 
+    /// @brief Returns the stream index for the given stream.
+    /// @param stream The reference to the stream
+    /// @return The index of the stream or NumStreams if not found.
+    size_t GetStreamIndex(stm32::registers::DirectMemoryAccess::Stream volatile& stream) const;
+
+    constexpr static void GetIndexes(size_t number, size_t& controller, size_t& stream) {
+        controller = number >= NumStreamsPerController ? 1 : 0;
+        stream = number >= NumStreamsPerController ? number - NumStreamsPerController : number;
+    }
+
+    constexpr static size_t GetNumber(size_t controller, size_t stream) { return (controller * NumStreamsPerController) + stream; }
+
 protected:
-    ///< spread across DMA1 and DMA2
-    static constexpr std::size_t NumStreams{16u};
     /// only DMA2 can do memory to memory so the stream number must be >= 8
     static constexpr std::size_t DedicatedMemoryStream{9U};
-    ///< The maximum number of units to copy in a single operation.
+
+    /// The maximum number of units to copy in a single operation.
     static constexpr std::size_t MaximumMemoryCopyUnits{65535U};
+
+    /// @brief Tracks which streams are in use
     bool used_[NumStreams];
 };
 }    // namespace dma

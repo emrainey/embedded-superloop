@@ -8,6 +8,7 @@
 #include "jarnax/Timer.hpp"
 #include "jarnax/Transactable.hpp"
 #include "jarnax/Transactor.hpp"
+#include "jarnax/print.hpp"
 
 namespace jarnax {
 
@@ -103,13 +104,16 @@ public:
         // check the state of the active transaction
         if (active_->IsRunning()) {
             status = driver_.Check(*active_);
+            jarnax::print("Transaction status", status);
             if (status.IsSuccess()) {
+                jarnax::print("Transaction is complete\n");
                 stats_.completed++;
                 stats_.passed++;
                 active_->Inform(TransactionType::Event::Completed, status);
             } else if (status.IsBusy()) {
                 // do nothing
             } else {
+                jarnax::print("Transaction failed\n");
                 // some failure occurred
                 if (active_->GetAttemptsRemaining() > 0) {
                     // goes back to the "IsQueued" state

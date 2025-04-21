@@ -1,21 +1,52 @@
-#include "compiler.hpp"
+#include "board.hpp"
+#include "jarnax/print.hpp"
 #include "stm32/SpiDriver.hpp"
 #include "stm32/registers/ResetAndClockControl.hpp"
 
 namespace stm32 {
 
+SpiDriver* g_spi_instances[3] = {nullptr, nullptr, nullptr};
+
+void spi1_isr(void) {
+    external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::SerialPeripheralInterface1)]++;
+    if (g_spi_instances[0]) {
+        g_spi_instances[0]->HandleInterrupt();
+    }
+}
+
+void spi2_isr(void) {
+    external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::SerialPeripheralInterface2)]++;
+    if (g_spi_instances[1]) {
+        g_spi_instances[1]->HandleInterrupt();
+    }
+}
+
+void spi3_isr(void) {
+    external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::SerialPeripheralInterface3)]++;
+    if (g_spi_instances[2]) {
+        g_spi_instances[2]->HandleInterrupt();
+    }
+}
+
 SpiDriver::SpiDriver(
-    stm32::registers::SerialPeripheralInterface volatile& spi,
-    dma::Driver& dma_driver,
-    stm32::registers::DirectMemoryAccess::Stream volatile& rx_dma_stream,
-    stm32::registers::DirectMemoryAccess::Stream volatile& tx_dma_stream
+    stm32::registers::SerialPeripheralInterface volatile& spi, dma::Driver& dma_driver, dma::Peripheral rx_peripheral, dma::Peripheral tx_peripheral
 )
     : jarnax::spi::Driver{static_cast<jarnax::spi::Transactor&>(*this)}    // initialize the base class by handing off the transactor
     , spi_{spi}
     , dma_driver_{dma_driver}
-    , rx_dma_stream_{rx_dma_stream}
-    , tx_dma_stream_{tx_dma_stream} {
-    // TODO Assert if the & of a stream is nullptr
+    , rx_peripheral_{rx_peripheral}
+    , rx_dma_stream_{*dma_driver_.Assign(rx_peripheral)}
+    , rx_dma_stream_index_{dma::Driver::NumStreams}
+    , tx_peripheral_{tx_peripheral}
+    , tx_dma_stream_{*dma_driver_.Assign(tx_peripheral)}
+    , tx_dma_stream_index_{dma::Driver::NumStreams} {
+    if (&spi == &registers::spi1) {
+        g_spi_instances[0] = this;
+    } else if (&spi == &registers::spi2) {
+        g_spi_instances[1] = this;
+    } else if (&spi == &registers::spi3) {
+        g_spi_instances[2] = this;
+    }
 }
 
 stm32::registers::SerialPeripheralInterface::Control1::BaudRateDivider SpiDriver::FindClosestDivider(
@@ -46,6 +77,17 @@ stm32::registers::SerialPeripheralInterface::Control1::BaudRateDivider SpiDriver
 }
 
 core::Status SpiDriver::Initialize(core::units::Hertz peripheral_frequency, core::units::Hertz desired_spi_clock_frequency) {
+    rx_dma_stream_index_ = dma_driver_.GetStreamIndex(rx_dma_stream_);
+    tx_dma_stream_index_ = dma_driver_.GetStreamIndex(tx_dma_stream_);
+    if (rx_dma_stream_index_ == dma::Driver::NumStreams) {
+        return core::Status{core::Result::NotAvailable, core::Cause::Resource};
+    }
+    if (tx_dma_stream_index_ == dma::Driver::NumStreams) {
+        return core::Status{core::Result::NotAvailable, core::Cause::Resource};
+    }
+    dma_driver_.Initialize(rx_dma_stream_, rx_dma_stream_index_, rx_peripheral_);
+    dma_driver_.Initialize(tx_dma_stream_, tx_dma_stream_index_, tx_peripheral_);
+
     stm32::registers::SerialPeripheralInterface::Control1 control1;
     stm32::registers::SerialPeripheralInterface::Control2 control2;
     // disable at first
@@ -66,9 +108,10 @@ core::Status SpiDriver::Initialize(core::units::Hertz peripheral_frequency, core
     control1.bits.bidirectional_data_mode = 0;             // 2-line unidirectional
     spi_.control1 = control1;                              // write
 
-    control2 = spi_.control2;          // read
-    control2.bits.frame_format = 0;    // motorola SPI format
-    spi_.control2 = control2;          // write
+    control2 = spi_.control2;                    // read
+    control2.bits.follower_output_enable = 1;    // enable the follower output
+    control2.bits.frame_format = 0;              // motorola SPI format
+    spi_.control2 = control2;                    // write
 
     control1 = spi_.control1;        // read
     control1.bits.spi_enable = 1;    // modify
@@ -80,8 +123,15 @@ core::Status SpiDriver::Initialize(core::units::Hertz peripheral_frequency, core
 core::Status SpiDriver::Verify(jarnax::spi::Transaction& transaction) {
     // the coordinator has already checked the generic parts of the transaction we just
     // have to check the SPI specific parts
-    size_t size = transaction.receive_size + transaction.send_size;
-    if (transaction.buffer.size() < size) {
+    size_t total_size = transaction.receive_size + transaction.send_size;
+    jarnax::print(
+        "SPI transaction: TX: %u RX: %u total: %u buffer: %u\n",
+        transaction.send_size,
+        transaction.receive_size,
+        total_size,
+        transaction.buffer.size()
+    );
+    if (transaction.buffer.size() < total_size) {
         return core::Status{core::Result::InvalidValue, core::Cause::Parameter};
     }
     // any combination of CPOL/CPHA is valid
@@ -102,35 +152,36 @@ core::Status SpiDriver::Start(jarnax::spi::Transaction& transaction) {
     control1 = spi_.control1;        // read
     control1.bits.spi_enable = 0;    // modify
     spi_.control1 = control1;        // write
-
+    //=========================================
     // configure the transaction
     control1.bits.data_frame_format = (transaction.use_data_as_bytes) ? 0 : 1;
     control1.bits.crc_enable = (transaction.use_hardware_crc) ? 1 : 0;
     control1.bits.internal_follower_select = 0;
     control1.bits.software_follower_management = 0;
-
+    spi_.control1 = control1;    // write
+    //=========================================
     control2 = spi_.control2;                                       // read
-    control2.bits.transmit_buffer_empty_interrupt_enable = 0;       // No interrupt on TXE
-    control2.bits.receive_buffer_not_empty_interrupt_enable = 0;    // No interrupt on RXNE
-    control2.bits.error_interrupt_enable = 0;                       // No interrupt on errors
+    control2.bits.transmit_buffer_empty_interrupt_enable = 0;       // no interrupt on TXE
+    control2.bits.receive_buffer_not_empty_interrupt_enable = 0;    // no interrupt on RXNE
+    control2.bits.error_interrupt_enable = 1;                       // interrupt on errors
     // enable DMA on the transactions
     control2.bits.receive_dma_enable = 1;
     control2.bits.transmit_dma_enable = 1;
     // if the transaction does not have the chip select set then enable the follower output
     control2.bits.follower_output_enable = (transaction.chip_select == nullptr) ? 0 : 1;
     spi_.control2 = control2;    // write
-
+    //=========================================
     // configure the DMA (TX then RX)
     auto tx_span = transaction.buffer.as_span().subspan(0, transaction.send_size);
     dma_driver_.CopyToPeripheral(tx_dma_stream_, reinterpret_cast<uint32_t volatile*>(&spi_.data.whole), tx_span.data(), transaction.send_size);
     auto rx_span = transaction.buffer.as_span().subspan(transaction.send_size, transaction.receive_size);
     dma_driver_.CopyFromPeripheral(rx_dma_stream_, rx_span.data(), reinterpret_cast<uint32_t volatile*>(&spi_.data.whole), transaction.receive_size);
-
+    //=========================================
     // enable the peripheral
     if (transaction.chip_select != nullptr) {
         transaction.chip_select->Value(false);    // active low chip select
     }
-
+    //=========================================
     // enable the peripheral to start a transaction
     control1.bits.spi_enable = 1;
     spi_.control1 = control1;    // write
@@ -138,25 +189,69 @@ core::Status SpiDriver::Start(jarnax::spi::Transaction& transaction) {
 }
 
 core::Status SpiDriver::Check(jarnax::spi::Transaction& transaction) {
-    if (transaction.send_size > 0U) {
+    core::Status status;
+    dma::Driver::Flags flags;
+    bool fault{false};
+    if (transaction.sent_size != transaction.send_size and transaction.send_size > 0U) {
         // check the TX stream
-        size_t tx_left = tx_dma_stream_.number_of_datum.bits.number_of_datum;
-        if (tx_left > 0) {
-            return core::Status{core::Result::Busy, core::Cause::State};
+        status = dma_driver_.GetStreamStatus(tx_dma_stream_index_, flags);
+        if (status) {
+            jarnax::print(
+                "TX DMA %u flags: %u %u %u %u %u\n",
+                tx_dma_stream_index_,
+                flags.complete,
+                flags.half_complete,
+                flags.error,
+                flags.direct_mode_error,
+                flags.fifo_error
+            );
+            if (flags.complete) {
+                transaction.sent_size = transaction.send_size;
+            } else if (flags.error or flags.direct_mode_error or flags.fifo_error) {
+                fault = true;
+            }
         }
     }
-    if (transaction.receive_size > 0U) {
-        // check the RX stream
-        size_t rx_left = rx_dma_stream_.number_of_datum.bits.number_of_datum;
-        if (rx_left > 0) {
-            return core::Status{core::Result::Busy, core::Cause::State};
+    if (transaction.received_size != transaction.receive_size and transaction.receive_size > 0U) {
+        // check the TX stream
+        status = dma_driver_.GetStreamStatus(rx_dma_stream_index_, flags);
+        if (status) {
+            jarnax::print(
+                "RX DMA %u flags: %u %u %u %u %u\n",
+                rx_dma_stream_index_,
+                flags.complete,
+                flags.half_complete,
+                flags.error,
+                flags.direct_mode_error,
+                flags.fifo_error
+            );
+            if (flags.complete) {
+                transaction.received_size = transaction.receive_size;
+            } else if (flags.error or flags.direct_mode_error or flags.fifo_error) {
+                fault = true;
+            }
         }
     }
+    jarnax::print(
+        "SPI Status %u %u %u %u %u %u %u\n",
+        spi_.status.bits.underrun ? 1 : 0,
+        spi_.status.bits.overrun ? 1 : 0,
+        spi_.status.bits.transmit_buffer_empty ? 1 : 0,
+        spi_.status.bits.receive_buffer_not_empty ? 1 : 0,
+        spi_.status.bits.crc_error ? 1 : 0,
+        spi_.status.bits.mode_fault ? 1 : 0,
+        spi_.status.bits.busy ? 1 : 0
+    );
     if (spi_.status.bits.busy) {
         return core::Status{core::Result::Busy, core::Cause::State};
     }
+
     Cancel(transaction);
-    return core::Status{core::Result::Success, core::Cause::State};
+    if (fault) {
+        return core::Status{core::Result::Failure, core::Cause::Peripheral};
+    } else {
+        return core::Status{core::Result::Success, core::Cause::State};
+    }
 }
 
 core::Status SpiDriver::Cancel(jarnax::spi::Transaction& transaction) {
@@ -175,6 +270,31 @@ core::Status SpiDriver::Cancel(jarnax::spi::Transaction& transaction) {
     }
 
     return core::Status{core::Result::Success, core::Cause::State};
+}
+
+void SpiDriver::HandleInterrupt(void) {
+    registers::SerialPeripheralInterface::Status status = spi_.status;    // read
+    if (status.bits.underrun) {
+        jarnax::print("SPI Underrun\n");
+    }
+    if (status.bits.overrun) {
+        jarnax::print("SPI Overrun\n");
+    }
+    if (status.bits.transmit_buffer_empty) {
+        jarnax::print("SPI TX Buffer Empty\n");
+    }
+    if (status.bits.receive_buffer_not_empty) {
+        jarnax::print("SPI RX Buffer Not Empty\n");
+    }
+    if (status.bits.crc_error) {
+        jarnax::print("SPI CRC Error\n");
+    }
+    if (status.bits.mode_fault) {
+        jarnax::print("SPI Mode Fault\n");
+    }
+    if (status.bits.busy) {
+        jarnax::print("SPI Busy\n");
+    }
 }
 
 }    // namespace stm32

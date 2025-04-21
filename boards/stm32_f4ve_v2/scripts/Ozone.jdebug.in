@@ -25,8 +25,12 @@ void OnProjectLoad(void) {
     Break.SetOnSrc("jarnax::entry_after_stack");
     Break.SetOnSrc("jarnax::initialize::on_entry");
     Break.SetOnSrc("jarnax::main");
-    Window.Add("Data Sampling", "ticks_since_boot");
+    Window.Add("Watched Data 1", "ticks_since_boot");
+    Window.Add("Watched Data 1", "vector_table_statistics");
+    Window.Add("Watched Data 1", "external_interrupt_statistics");
     Edit.RefreshRate("ticks_since_boot", FREQ_1_HZ);
+    Edit.RefreshRate("vector_table_statistics", FREQ_1_HZ);
+    Edit.RefreshRate("external_interrupt_statistics", FREQ_1_HZ);
     // Catch all faults
     Break.SetVectorCatch(0xFF);
 }

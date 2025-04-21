@@ -421,12 +421,14 @@ function(add_firmware)
                 file(RELATIVE_PATH LOCAL_TARGET_BINARY_PATH ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.elf)
                 # Generate a debug file for the Ozone debugger for this firmware
                 get_target_property(LOCAL_BOARD_OZONE ${LOCAL_BOARD} OZONE_TEMPLATE)
-                configure_file(${LOCAL_BOARD_OZONE} ${CMAKE_SOURCE_DIR}/${LOCAL_TARGET}.jdebug @ONLY)
+                set(JDEBUG_FILE ${CMAKE_SOURCE_DIR}/${LOCAL_TARGET}.jdebug)
+                configure_file(${LOCAL_BOARD_OZONE} ${JDEBUG_FILE} @ONLY)
                 get_target_property(LOCAL_BOARD_GDB_CLIENT ${LOCAL_BOARD} GDB_CLIENT_TEMPLATE)
-                configure_file(${LOCAL_BOARD_GDB_CLIENT} ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.gdb @ONLY)
+                set(GDB_FILE ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.gdb)
+                configure_file(${LOCAL_BOARD_GDB_CLIENT} ${GDB_FILE} @ONLY)
                 add_custom_target(ozone-${LOCAL_TARGET}
-                    COMMAND /Applications/SEGGER/Ozone/Ozone.app/Contents/MacOS/Ozone ${CMAKE_SOURCE_DIR}/${LOCAL_TARGET}.jdebug
-                    DEPENDS ${CMAKE_SOURCE_DIR}/${LOCAL_TARGET}.jdebug ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.elf)
+                    COMMAND /Applications/SEGGER/Ozone/Ozone.app/Contents/MacOS/Ozone ${JDEBUG_FILE}
+                    DEPENDS ${JDEBUG_FILE} ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.elf)
                 if (NOT TARGET gdb-server-${LOCAL_DEVICE})
                     message(STATUS "Adding gdb-server-${LOCAL_DEVICE}")
                     add_custom_target(gdb-server-${LOCAL_DEVICE}
@@ -435,8 +437,8 @@ function(add_firmware)
                     )
                 endif()
                 add_custom_target(gdb-client-${LOCAL_TARGET}
-                    COMMAND arm-none-eabi-gdb ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.elf -x ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.gdb
-                    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.gdb ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.elf)
+                    COMMAND arm-none-eabi-gdb ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.elf -x ${GDB_FILE}
+                    DEPENDS ${GDB_FILE} ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.elf)
             else()
                 target_compile_definitions(${LOCAL_TARGET}.elf
                     PUBLIC

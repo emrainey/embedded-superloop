@@ -7,10 +7,12 @@
 
 namespace stm32 {
 
+/// @brief Dedicate a chunk of memory for the DMA buffers
 LINKER_SECTION(".dma_buffer") alignas(alignof(std::max_align_t)) static core::Array<uint8_t, DmaBlockSize * DmaBlockCount> dma_memory;
+/// @brief Manage the DMA buffers with a bitmap allocator
 static core::BitMapHeap<DmaBlockSize, DmaBlockCount> dma_heap_allocator{&dma_memory[0], dma_memory.size()};
 
-/// The Clock configuration for this board.
+/// @brief The Clock configuration for this board.
 ClockConfiguration const default_clock_configuration = {
     /* .use_internal = */ false,
     /* .use_bypass = */ false,
@@ -53,9 +55,7 @@ DriverContext::DriverContext()
     , nrf_ce_{stm32::gpio::Port::B, 6}
     , nrf_irq_{stm32::gpio::Port::B, 8}
     , dma_driver_{}
-    , spi1_rx_dma_stream_{dma_driver_.Assign(stm32::dma::SPI1_RX)}
-    , spi1_tx_dma_stream_{dma_driver_.Assign(stm32::dma::SPI1_TX)}
-    , spi1_driver_{stm32::registers::spi1, dma_driver_, *spi1_rx_dma_stream_, *spi1_tx_dma_stream_} {
+    , spi1_driver_{stm32::registers::spi1, dma_driver_, stm32::dma::SPI1_RX, stm32::dma::SPI1_TX} {
     // construct the driver objects as part of the constructor above.
 }
 
@@ -67,11 +67,11 @@ core::Status DriverContext::Initialize(void) {
     key1_pin_.SetMode(stm32::gpio::Mode::Input).SetResistor(stm32::gpio::Resistor::PullUp);
     error_pin_.SetMode(stm32::gpio::Mode::Output)
         .SetOutputSpeed(stm32::gpio::Speed::Low)
-        .SetOutputType(stm32::gpio::OutputType::PushPull)
+        .SetOutputType(stm32::gpio::OutputType::OpenDrain)
         .SetResistor(stm32::gpio::Resistor::None);
     status_pin_.SetMode(stm32::gpio::Mode::Output)
         .SetOutputSpeed(stm32::gpio::Speed::Low)
-        .SetOutputType(stm32::gpio::OutputType::PushPull)
+        .SetOutputType(stm32::gpio::OutputType::OpenDrain)
         .SetResistor(stm32::gpio::Resistor::None);
     error_indicator_.Inactive();
     status_indicator_.Inactive();
@@ -204,12 +204,12 @@ void drivers(void) {
 namespace jarnax {
 void banner(void) {
     jarnax::print(
-        "                                                                    \r\n"
+        "                  _/                                                \r\n"
         "         _/    _/_/    _/_/_/    _/      _/    _/_/    _/      _/   \r\n"
-        "        _/  _/    _/  _/    _/  _/_/    _/  _/    _/    _/  _/      \r\n"
-        "       _/  _/_/_/_/  _/_/_/    _/  _/  _/  _/_/_/_/      _/         \r\n"
-        "_/    _/  _/    _/  _/    _/  _/    _/_/  _/    _/    _/  _/        \r\n"
-        " _/_/    _/    _/  _/    _/  _/      _/  _/    _/  _/      _/       \r\n"
+        "        _/  _/    _/  _/    _/  _/_/    _/  _/  _/_/    _/  _/      \r\n"
+        "       _/  _/_/_/_/  _/_/_/    _/  _/  _/  _/    _/      _/         \r\n"
+        "_/    _/  _/    _/  _/    _/  _/    _/_/  _/_/  _/    _/  _/        \r\n"
+        " _/_/    _/    _/  _/    _/  _/      _/    _/_/    _/      _/       \r\n"
         " -- %s\r\n",
         jarnax::VersionString
     );

@@ -93,7 +93,7 @@ struct ExternalInterruptStatistics final {
 extern ExternalInterruptStatistics external_interrupt_statistics;
 
 /// @see cortex::m4::InterruptRequest for preceding numbers
-enum class InterruptRequest : int {
+enum class InterruptRequest : std::uint32_t {
     WindowWatchDog = 0U,
     PowerSupervisior = 1U,    ///< PVD
     TamperAndTimeStamp = 2U,

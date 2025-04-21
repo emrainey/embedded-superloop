@@ -1,8 +1,8 @@
 #include "memory.h"
-#include "Task.hpp"
+#include "Demo.hpp"
 #include "board.hpp"
 
-Task::Task()
+Demo::Demo()
     : ticker_{jarnax::GetTicker()}
     , timer_{jarnax::GetTimer()}
     , rng_{jarnax::GetDriverContext().GetRandomNumberGenerator()}
@@ -16,13 +16,13 @@ Task::Task()
     , buffer_one_{}
     , buffer_two_{}
     , flash_cs_{jarnax::GetDriverContext().GetFlashChipSelect()}
-    , spi_buffer_count_{(1U + 4U + 64U + 1U) / 2U}    // 1 byte command, 4 bytes stuffing, 64 bytes data, 1 byte dummy
+    , spi_buffer_count_{(1U + 4U + 64U + 1U) / sizeof(jarnax::spi::DataUnit)}    // 1 byte command, 4 bytes stuffing, 64 bytes data, 1 byte dummy
     , spi_buffer_{}
     , spi_transaction_{timer_}
     , spi_driver_{jarnax::GetDriverContext().GetSpiDriver()} {
 }
 
-void Task::DelayForTicks(jarnax::Ticks ticks) {
+void Demo::DelayForTicks(jarnax::Ticks ticks) {
     jarnax::Ticks start = ticker_.GetTicks();
     jarnax::Ticks now, diff;
     size_t outer_counter{0U};
@@ -35,7 +35,7 @@ void Task::DelayForTicks(jarnax::Ticks ticks) {
     jarnax::print("Counted to %u\r\n", outer_counter);
 }
 
-void Task::ResetTransaction() {
+void Demo::ResetTransaction() {
     spi_transaction_.Reset();
     spi_transaction_.phase = jarnax::spi::ClockPhase::ImmediateEdge;
     spi_transaction_.polarity = jarnax::spi::ClockPolarity::IdleLow;
@@ -54,17 +54,15 @@ void Task::ResetTransaction() {
         auto read_span = spi_data.subspan(5, 64U);
         memory::fill(read_span.data(), 0, read_span.count());
         spi_transaction_.send_size = 5U;
+        spi_transaction_.sent_size = 0U;
         spi_transaction_.receive_size = 64U;
+        spi_transaction_.received_size = 0U;
         spi_transaction_.use_data_as_bytes = true;
         spi_transaction_.Inform(jarnax::spi::Transaction::Event::Initialized);
     }
 }
 
-bool Task::Execute() {
-    if ((GetLoopInfo().system_loop_count & 1) == 0) {
-        // be able to trigger a NMI
-        // jarnax::yield();
-    }
+bool Demo::Execute() {
     jarnax::Ticks ticks = ticker_.GetTicksSinceBoot();
     jarnax::Time time = ticker_.GetTimeSinceBoot();
     uint32_t random = rng_.GetNextRandom();
@@ -79,8 +77,8 @@ bool Task::Execute() {
         jarnax::print("Buffers are different\r\n");
     }
 
-    jarnax::print("Task::Execute: %lu ticks, %lf sec, %lx Iotas: %lu\r\n", ticks.value(), time.value(), random, iotas);
-    DelayForTicks(Ticks{64U});
+    jarnax::print("Demo::Execute: %lu ticks, %lf sec, %lx Iotas: %lu\r\n", ticks.value(), time.value(), random, iotas);
+    DelayForTicks(Ticks{64U});    // waits for 64 ticks
     if (wakeup_button_.IsPressed()) {
         jarnax::print("Wakeup Pressed\r\n");
     }
@@ -118,12 +116,23 @@ bool Task::Execute() {
         }
     } else if (spi_transaction_.IsQueued()) {
         jarnax::print(".");
+    } else if (spi_transaction_.IsRunning()) {
+        jarnax::print("!");
     } else if (spi_transaction_.IsComplete()) {
         jarnax::print("SPI Transaction Complete\r\n");
         auto span = spi_buffer_.as_span<uint8_t>();
         jarnax::print("SPI Buffer Span = %p:%u\r\n", span.data(), span.count());
         span = spi_transaction_.buffer.as_span<uint8_t>();
         jarnax::print("SPI Transaction Buffer Span = %p:%u\r\n", span.data(), span.count());
+        // print the UID (64 bytes, 8 blocks of 8 bytes is ok)
+        auto read_span = spi_transaction_.buffer.as_span<uint8_t>().subspan(5, 64U);
+        jarnax::print("UID:\r\n");
+        for (size_t i = 0U; i < read_span.count(); i++) {
+            if ((i % 8U) == 0U and i != 0U) {
+                jarnax::print("\r\n");
+            }
+            jarnax::print("%02x ", read_span.data()[i]);
+        }
         ResetTransaction();
     }
     return true;

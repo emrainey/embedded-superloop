@@ -13,8 +13,8 @@ public:
     SpiDriver(
         stm32::registers::SerialPeripheralInterface volatile& spi,
         dma::Driver& dma_driver,
-        stm32::registers::DirectMemoryAccess::Stream volatile& rx_dma_stream,
-        stm32::registers::DirectMemoryAccess::Stream volatile& tx_dma_stream
+        dma::Peripheral rx_peripheral,
+        dma::Peripheral tx_peripheral
     );
 
     core::Status Initialize(core::units::Hertz peripheral_frequency, core::units::Hertz desired_spi_clock_frequency);
@@ -23,6 +23,8 @@ public:
         core::units::Hertz peripheral_frequency, core::units::Hertz desired_spi_clock_frequency
     );
 
+    void HandleInterrupt(void);
+
     //+======[ Transactor Interface ]=======================================================+
     core::Status Verify(jarnax::spi::Transaction& transaction) override;
     core::Status Start(jarnax::spi::Transaction& transaction) override;
@@ -30,10 +32,14 @@ public:
     core::Status Cancel(jarnax::spi::Transaction& transaction) override;
 
 protected:
-    stm32::registers::SerialPeripheralInterface volatile& spi_;
+    registers::SerialPeripheralInterface volatile& spi_;
     dma::Driver& dma_driver_;
+    dma::Peripheral rx_peripheral_;
     registers::DirectMemoryAccess::Stream volatile& rx_dma_stream_;
+    size_t rx_dma_stream_index_;
+    dma::Peripheral tx_peripheral_;
     registers::DirectMemoryAccess::Stream volatile& tx_dma_stream_;
+    size_t tx_dma_stream_index_;
 };
 }    // namespace stm32
 

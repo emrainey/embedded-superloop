@@ -28,13 +28,24 @@ extern void dma2_stream5_isr(void);
 extern void dma2_stream6_isr(void);
 extern void dma2_stream7_isr(void);
 
+/// SPI ISR Handler
+extern void spi1_isr(void);
+extern void spi2_isr(void);
+extern void spi3_isr(void);
+
 /// Storage location for the extended vector table.
 /// If you need a compile time interrupt setup, do so here.
 LINKER_SECTION(".extended_vectors")
 ExternalInterrupts external_interrupts = {
     cortex::handlers::dummy,    // 0
-    cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy,
-    cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
     cortex::handlers::dummy,    // 9
     cortex::handlers::dummy,    // 10
     dma1_stream0_isr,           // 11
@@ -47,34 +58,64 @@ ExternalInterrupts external_interrupts = {
     cortex::handlers::dummy,
     cortex::handlers::dummy,    // 19
     cortex::handlers::dummy,    // 20
-    cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy,
-    cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy, timer2_isr,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    timer2_isr,                 // 28
     cortex::handlers::dummy,    // 29
     cortex::handlers::dummy,    // 30
-    cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy,
-    cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    spi1_isr,    // 35
+    spi2_isr,    // 36
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
     cortex::handlers::dummy,    // 39
     cortex::handlers::dummy,    // 40
-    cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy,
-    cortex::handlers::dummy, cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
     dma1_stream7_isr,    // 47
     cortex::handlers::dummy,
     cortex::handlers::dummy,    // 49
     cortex::handlers::dummy,    // 50
-    cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy,
+    spi3_isr,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
     cortex::handlers::dummy,
     dma2_stream0_isr,    // 56
     dma2_stream1_isr,    // 57
     dma2_stream2_isr,    // 58
     dma2_stream3_isr,    // 59
     dma2_stream4_isr,    // 60
-    cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy,
-    cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
     dma2_stream5_isr,    // 68
     dma2_stream6_isr,    // 69
     dma2_stream7_isr,    // 70
-    cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy,
-    cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy, cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
+    cortex::handlers::dummy,
     cortex::handlers::dummy,    // 79
     cortex::handlers::dummy,    // 80
     cortex::handlers::dummy,

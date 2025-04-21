@@ -58,6 +58,8 @@
     } > APB1
 
     PROVIDE(_ZN5stm329registers6timer2E = _stm32_tim2);
+    PROVIDE(_ZN5stm329registers4spi2E = _stm32_spi2_i2s2);
+    PROVIDE(_ZN5stm329registers4spi3E = _stm32_spi3_i2s3);
 
     /* Arm Private Bus 2 */
     .apb2 (NOLOAD) : {
@@ -99,6 +101,9 @@
 
     PROVIDE(_ZN5stm329registers6timer1E = _stm32_tim1);
     PROVIDE(_ZN5stm329registers4spi1E = _stm32_spi1);
+    PROVIDE(_ZN5stm329registers4spi4E = _stm32_spi4);
+    PROVIDE(_ZN5stm329registers4spi5E = _stm32_spi5);
+    PROVIDE(_ZN5stm329registers4spi6E = _stm32_spi6);
 
     /* Arm High Performance Bus 1 */
     .ahb1 (NOLOAD) : {

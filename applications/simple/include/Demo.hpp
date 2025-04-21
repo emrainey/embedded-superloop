@@ -1,5 +1,5 @@
-#ifndef APP_TASK_HPP
-#define APP_TASK_HPP
+#ifndef APP_DEMO_HPP
+#define APP_DEMO_HPP
 
 #include "jarnax.hpp"
 #include "jarnax/CountDown.hpp"
@@ -8,9 +8,9 @@ using jarnax::Loopable;
 using jarnax::LoopInfo;
 using jarnax::Ticks;
 
-class Task final : public jarnax::Loopable {
+class Demo final : public jarnax::Loopable {
 public:
-    Task();
+    Demo();
     void DelayForTicks(Ticks ticks);
     bool Execute() override;
 
@@ -39,4 +39,4 @@ protected:
     jarnax::spi::Driver& spi_driver_;
 };
 
-#endif    // APP_TASK_HPP
+#endif    // APP_DEMO_HPP

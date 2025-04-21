@@ -131,8 +131,6 @@ protected:
     /// The DMA Driver
     stm32::dma::Driver dma_driver_;
     /// The SPI Driver
-    stm32::registers::DirectMemoryAccess::Stream volatile* spi1_rx_dma_stream_;
-    stm32::registers::DirectMemoryAccess::Stream volatile* spi1_tx_dma_stream_;
     stm32::SpiDriver spi1_driver_;
 };
 

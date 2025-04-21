@@ -1,7 +1,7 @@
 
 #include "jarnax/Context.hpp"
 
-#include "Task.hpp"
+#include "Demo.hpp"
 
 using core::Cause;
 using core::Result;
@@ -12,12 +12,12 @@ using jarnax::SuperLoop;
 class GlobalContext : public Context {
 public:
     GlobalContext()
-        : task_{}
+        : demo_{}
         , superloop_{jarnax::GetTicker()} {}
 
     Status Initialize(void) override {
         bool result = true;
-        result &= GetSuperLoop().Enlist(task_);
+        result &= GetSuperLoop().Enlist(demo_);
         result &= GetSuperLoop().Enlist(jarnax::GetDriverContext().GetSpiDriver());
         if (result) {
             return core::Status{};
@@ -29,7 +29,7 @@ public:
     SuperLoop& GetSuperLoop(void) override { return superloop_; }
 
 protected:
-    Task task_;
+    Demo demo_;
     jarnax::SuperLoop superloop_;
 };
 

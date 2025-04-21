@@ -8,6 +8,7 @@
             "${workspaceFolder}/modules/memory/include",
             "${workspaceFolder}/modules/cortex/include",
             "${workspaceFolder}/modules/stm32/include",
+            "${workspaceFolder}/boards/stm32_f4ve_v2/include",
             "${workspaceFolder}/applications/unittests/include",
             "${workspaceFolder}/applications/simple/include"
         ]
@@ -27,7 +28,7 @@
             "defines": [],
             "compilerPath": "/Applications/ARM/bin/arm-none-eabi-g++",
             "intelliSenseMode": "macos-gcc-arm",
-            "cppStandard": "c++14",
+            "cppStandard": "c++20",
             "cStandard": "c17",
             "compilerArgs": [
                 "-nostdlib",
@@ -70,7 +71,7 @@
                 "-fno-exceptions",
                 "-fno-rtti"
             ],
-            "compileCommands": "${workspaceFolder}/build/stm32-gcc-arm-none-eabi-13/compile_commands.json",
+            "compileCommands": "${workspaceFolder}/build/cortex-gcc-arm-none-eabi-13/compile_commands.json",
             "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],

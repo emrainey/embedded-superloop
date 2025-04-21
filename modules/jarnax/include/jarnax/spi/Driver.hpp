@@ -28,7 +28,7 @@ enum class ClockPhase : bool {
 };
 
 /// @brief The Default data unit size of the SPI Driver
-using DataUnit = uint16_t;
+using DataUnit = uint8_t;
 
 /// @brief Defines a CRTP Transactable object for SPI transactions
 class Transaction : public jarnax::Transactable<Transaction, DefaultRetries> {
@@ -61,8 +61,12 @@ public:
     core::Buffer<DataUnit> buffer;
     /// The number of bytes to send
     std::size_t send_size;
+    /// The number of bytes sent
+    std::size_t sent_size;
     /// The number of bytes to receive
     std::size_t receive_size;
+    /// The number of bytes received
+    std::size_t received_size;
 
     void Clear() {
         polarity = ClockPolarity::IdleHigh;
@@ -75,7 +79,9 @@ public:
         use_data_as_bytes = false;
         // don't modify buffer
         send_size = 0U;
+        sent_size = 0U;
         receive_size = 0U;
+        received_size = 0U;
     }
 };
 
