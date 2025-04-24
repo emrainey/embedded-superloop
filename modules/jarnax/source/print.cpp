@@ -15,34 +15,45 @@
 namespace jarnax {
 
 static constexpr unsigned int base2{2u};
+static constexpr unsigned int base8{8u};
 static constexpr unsigned int base10{10u};
 static constexpr unsigned int base16{16u};
+static constexpr unsigned int base64{64u};
 static constexpr unsigned int digit_places_limit{32u};
 static constexpr unsigned int float_fractional_limit{6u};
 
-static unsigned long clamp_to_range(unsigned long value, unsigned long min, unsigned long max) {
+// store these in RAM externally to the function.
+static constexpr size_t PrintfBufferSize{4096U};
+static char printf_buffer[PrintfBufferSize];
+
+template <typename T, typename U>
+static U clamp_to_range(T value, U min, U max) {
     if (value < min) {
         return min;
     } else if (value > max) {
         return max;
     } else {
-        return value;
+        return static_cast<U>(value);
     }
 }
 
-static long clamp_to_range(long value, long min, long max) {
-    if (value < min) {
-        return min;
-    } else if (value > max) {
-        return max;
-    } else {
-        return value;
-    }
-}
+/// @brief Parses the number and prints it in the specified base in the buffer
+/// @tparam T The type of number to parse
+/// @param start The index to start at
+/// @param buffer The buffer to write to
+/// @param num The number to parse
+/// @param base The base to parse the number in
+/// @return The index at the exclusive end of the number
+template <typename T>
+static unsigned long print_number(unsigned long start, char buffer[], T num, unsigned int base) {
+    // the digits cover base 2, base 8 (don't use) base 10, base 12, base 16 and base 64
+    static constexpr char const *const digits =
+        "0123456789abcdef"
+        "ghijklmnopqrstuv"
+        "wxyzABCDEFGHIJKL"
+        "MNOPQRSTUVWXYZ+/";
 
-static unsigned long print_number(unsigned long start, char buffer[], unsigned long num, unsigned int base) {
-    const char *digits = "0123456789abcdef";
-    unsigned int offset = 0;
+    unsigned long offset = 0;
     char backwards_digits[digit_places_limit];    // hold the value temporarily
 
     if (base == base2) {
@@ -54,6 +65,18 @@ static unsigned long print_number(unsigned long start, char buffer[], unsigned l
                 backwards_digits[offset] = digits[num & 1];
                 offset++;
                 num >>= 1;
+            }
+        }
+    }
+    if (base == base8) {
+        if (num < 8) {
+            buffer[start] = digits[num];
+            return start + 1;
+        } else {
+            while (num != 0) {
+                backwards_digits[offset] = digits[num & 7];
+                offset++;
+                num >>= 3;
             }
         }
     }
@@ -81,6 +104,18 @@ static unsigned long print_number(unsigned long start, char buffer[], unsigned l
             }
         }
     }
+    if (base == base64) {
+        if (num < 0x40) {
+            buffer[start] = digits[num];
+            return start + 1;
+        } else {
+            while (num != 0) {
+                backwards_digits[offset] = digits[num & 0x3F];
+                offset++;
+                num >>= 6;
+            }
+        }
+    }
     if (offset > 0) {
         for (unsigned int i = 0; i < offset; i++) {
             buffer[start + i] = backwards_digits[offset - i - 1];
@@ -89,26 +124,29 @@ static unsigned long print_number(unsigned long start, char buffer[], unsigned l
     return start + offset;
 }
 
-static unsigned long print_signed_number(unsigned long start, char buffer[], long num, unsigned int base) {
+/// @brief Parses the number and prints it in the specified base in the buffer
+/// @tparam T The type of number to parse
+/// @param start The index to start at
+/// @param buffer The buffer to write to
+/// @param num The number to parse
+/// @param base The base to parse the number in
+/// @return The index at the exclusive end of the number
+template <typename T>
+static unsigned long print_signed_number(unsigned long start, char buffer[], T num, unsigned int base) {
     if (num < 0) {
         buffer[start] = '-';
-        return print_number(start + 1, buffer, static_cast<unsigned long>(-num), base);
+        return print_number(start + 1, buffer, -num, base);
     } else {
-        return print_number(start, buffer, static_cast<unsigned long>(num), base);
+        return print_number(start, buffer, num, base);
     }
 }
 
-void print(const char *format, ...) {
-    va_list args;
-    va_start(args, format);
+constexpr bool is_digit(char c) {
+    return (c >= '0' && c <= '9');
+}
 
-    // store these in RAM externally to the function.
-    static constexpr size_t PRINTF_BUFFER_SIZE{4096U};
-    static char buffer[PRINTF_BUFFER_SIZE];
-    static unsigned long index;
-
-    // always start back at zero
-    index = 0;
+static unsigned long vsnprint(char buffer[], size_t buffer_size, const char *format, va_list args) {
+    unsigned long index = 0U;    // always start back at zero
 
     while (*format) {
         if (*format == '%') {
@@ -120,12 +158,12 @@ void print(const char *format, ...) {
             if (*format == 'l') {
                 long_modifier = true;
                 format++;
+                // Handle %ll modifier
                 if (*format == 'l') {
                     longlong_modifier = true;
                     format++;
                 }
             }
-            static_cast<void>(longlong_modifier);    // can't use for now
 
             // Handle %h modifiers
             bool halfhalf_modifier = false;
@@ -146,10 +184,31 @@ void print(const char *format, ...) {
                 format++;
             }
 
+            // Handle leading zero modifier
+            // bool leading_zero = false;
+            // if (*format == '0') {
+            //     leading_zero = true;
+            //     format++;
+            // }
+            // bool specific_digits = false;
+            // if (is_digit(*format)) {
+            //     specific_digits = true;
+            //     unsigned int digits = 0;
+            //     while (is_digit(*format)) {
+            //         digits = digits * 10 + (*format - '0');
+            //         format++;
+            //     }
+            //     if (digits > digit_places_limit) {
+            //         digits = digit_places_limit;
+            //     }
+            // }
+            // (void)leading_zero;       // @TODO unused
+            // (void)specific_digits;    // @TODO unused
+
             switch (*format) {
                 case 's': {
                     const char *str = va_arg(args, const char *);
-                    while (((*str) != '\0') && index < (PRINTF_BUFFER_SIZE - 1)) {
+                    while (((*str) != '\0') && index < (buffer_size - 1)) {
                         buffer[index++] = *str;
                         ++str;
                     }
@@ -157,56 +216,82 @@ void print(const char *format, ...) {
                 }
                 case 'd':
                 case 'i': {
-                    long num;
-                    if (long_modifier) {
-                        num = va_arg(args, long);
+                    if (longlong_modifier) {
+                        int64_t num = va_arg(args, int64_t);
+                        num = clamp_to_range(num, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
+                        index = print_signed_number(index, buffer, num, base10);
+                    } else if (long_modifier) {
+                        int32_t num = va_arg(args, int32_t);
+                        num = clamp_to_range(num, std::numeric_limits<int32_t>::min(), std::numeric_limits<int32_t>::max());
+                        index = print_signed_number(index, buffer, num, base10);
                     } else if (half_modifier) {
-                        num = va_arg(args, int);
-                        num = clamp_to_range(num, std::numeric_limits<int16_t>::min(), std::numeric_limits<int16_t>::max());
+                        int value = static_cast<int16_t>(va_arg(args, int));
+                        int16_t num = clamp_to_range(value, std::numeric_limits<int16_t>::min(), std::numeric_limits<int16_t>::max());
+                        index = print_signed_number(index, buffer, num, base10);
                     } else if (halfhalf_modifier) {
-                        num = va_arg(args, int);
-                        num = clamp_to_range(num, std::numeric_limits<int8_t>::min(), std::numeric_limits<int8_t>::max());
+                        int value = va_arg(args, int);
+                        int8_t num = clamp_to_range(value, std::numeric_limits<int8_t>::min(), std::numeric_limits<int8_t>::max());
+                        index = print_signed_number(index, buffer, num, base10);
                         // } else if (size_modifier) {
-                        //     num = va_arg(args, ssize_t);
+                        //     ssize_t value = va_arg(args, ssize_t);
+                        //     num = clamp_to_range(value, std::numeric_limits<ssize_t>::min(), std::numeric_limits<ssize_t>::max());
+                        //     index = print_signed_number(index, buffer, num, base10);
                     } else {
-                        num = va_arg(args, int);
+                        auto num = va_arg(args, int);
+                        index = print_signed_number(index, buffer, num, base10);
                     }
-                    index = print_signed_number(index, buffer, num, base10);
                     break;
                 }
                 case 'u': {
-                    unsigned long num;
-                    if (long_modifier) {
-                        num = va_arg(args, unsigned long);
-                        // } else if (longlong_modifier) {
-                        //     num = va_arg(args, unsigned long long);
+                    if (longlong_modifier) {
+                        uint64_t num = va_arg(args, uint64_t);
+                        num = clamp_to_range(num, std::numeric_limits<uint64_t>::min(), std::numeric_limits<uint64_t>::max());
+                        index = print_number(index, buffer, num, base10);
+                    } else if (long_modifier) {
+                        uint32_t num = va_arg(args, uint32_t);
+                        num = clamp_to_range(num, std::numeric_limits<uint32_t>::min(), std::numeric_limits<uint32_t>::max());
+                        index = print_number(index, buffer, num, base10);
                     } else if (half_modifier) {
-                        num = va_arg(args, unsigned int);
-                        num = clamp_to_range(num, std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max());
+                        unsigned int value = va_arg(args, unsigned int);
+                        uint16_t num = clamp_to_range(value, std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max());
+                        index = print_number(index, buffer, num, base10);
                     } else if (halfhalf_modifier) {
-                        num = va_arg(args, unsigned int);
-                        num = clamp_to_range(num, std::numeric_limits<uint8_t>::min(), std::numeric_limits<uint8_t>::max());
+                        unsigned int value = va_arg(args, unsigned int);
+                        uint8_t num = clamp_to_range(value, std::numeric_limits<uint8_t>::min(), std::numeric_limits<uint8_t>::max());
+                        index = print_number(index, buffer, num, base10);
                     } else if (size_modifier) {
-                        num = va_arg(args, size_t);
+                        size_t num = va_arg(args, size_t);
+                        index = print_number(index, buffer, num, base10);
                     } else {
-                        num = va_arg(args, unsigned int);
+                        unsigned int num = va_arg(args, unsigned int);
+                        index = print_number(index, buffer, num, base10);
                     }
-                    index = print_number(index, buffer, num, base10);
                     break;
                 }
                 case 'x': {
-                    unsigned long num;
                     buffer[index++] = '0';
                     buffer[index++] = 'x';
-                    if (long_modifier) {
-                        num = va_arg(args, unsigned long);
+                    if (longlong_modifier) {
+                        uint64_t num = va_arg(args, uint64_t);
+                        index = print_number(index, buffer, num, base16);
+                    } else if (long_modifier) {
+                        uint32_t num = va_arg(args, unsigned long);    // 32 bits
+                        index = print_number(index, buffer, num, base16);
                     } else if (half_modifier) {
-                        num = va_arg(args, unsigned int);
-                        num = clamp_to_range(num, std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max());
+                        unsigned int value = va_arg(args, unsigned int);
+                        uint16_t num = clamp_to_range(value, std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max());
+                        index = print_number(index, buffer, num, base16);
+                    } else if (halfhalf_modifier) {
+                        unsigned int value = va_arg(args, unsigned int);
+                        uint8_t num = clamp_to_range(value, std::numeric_limits<uint8_t>::min(), std::numeric_limits<uint8_t>::max());
+                        index = print_number(index, buffer, num, base16);
+                    } else if (size_modifier) {
+                        size_t num = va_arg(args, size_t);
+                        index = print_number(index, buffer, num, base16);
                     } else {
-                        num = va_arg(args, unsigned int);
+                        uint32_t num = va_arg(args, unsigned int);
+                        index = print_number(index, buffer, num, base16);
                     }
-                    index = print_number(index, buffer, num, base16);
                     break;
                 }
                 case 'p': {
@@ -251,25 +336,51 @@ void print(const char *format, ...) {
                     break;
             }
         } else {
-            if (index < (PRINTF_BUFFER_SIZE - 1)) {
+            if (index < (buffer_size - 1)) {
                 buffer[index++] = *format;
             }
         }
         format++;
     }
 
-    va_end(args);
-
     // FIXME determine if we've run over.
 
     // null terminate the string
+    if (index >= buffer_size) {
+        index = buffer_size - 1;
+    }
     buffer[index] = '\0';
+    return index;
+}
+
+static void vprint(const char *format, va_list args) {
+    unsigned long count = vsnprint(printf_buffer, PrintfBufferSize, format, args);
+
     if (use_rtt_for_printf) {
-        rtt::control_block.GetUp(rtt::Index{0}).Write(index, buffer);
+        rtt::control_block.GetUp(rtt::Index{0}).Write(count, printf_buffer);
     }
     if (use_swo_for_printf) {
-        cortex::swo::emit(cortex::swo::Port::System, buffer);
+        cortex::swo::emit(cortex::swo::Port::System, printf_buffer);
     }
+    if (use_uart_for_printf) {
+        // @TODO add uart::write(buffer, count);
+    }
+    if (use_logger_for_printf) {
+        // @TODO add complex network logging
+    }
+#if defined(UNIT_TESTS)
+    if (use_system_printf) {
+        // UNIT TESTS
+        vsnprintf(printf_buffer, PrintfBufferSize, format, args);
+    }
+#endif
+}
+
+void print(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+    vprint(format, args);
+    va_end(args);
 }
 
 void print(char const *const source, core::Status status) {
@@ -280,6 +391,50 @@ void print(char const *const source, core::Status status) {
         to_underlying(status.GetCause()),
         status.GetLocation()
     );
+}
+
+class SimplePrinter : public jarnax::Printer {
+public:
+    SimplePrinter()
+        : buffer_{} {
+        operator()("SimplePrinter Initialized\r\n");
+    }
+
+    void operator()(const char *format, ...) const override {
+        va_list args;
+        va_start(args, format);
+        unsigned long count = vsnprint(buffer_, PrintfBufferSize, format, args);
+        va_end(args);
+
+        if (use_rtt_for_printf) {
+            rtt::control_block.GetUp(rtt::Index{0}).Write(count, buffer_);
+        }
+        if (use_swo_for_printf) {
+            cortex::swo::emit(cortex::swo::Port::System, buffer_);
+        }
+        if (use_uart_for_printf) {
+            // @TODO add uart::write(buffer, count);
+        }
+        if (use_logger_for_printf) {
+            // @TODO add complex network logging
+        }
+#if defined(UNIT_TESTS)
+        if (use_system_printf) {
+            // UNIT TESTS
+            vsnprintf(buffer_, PrintfBufferSize, format, args);
+        }
+#endif
+    }
+
+    void operator()(char const *const source, core::Status status) const override { print(source, status); }
+
+private:
+    mutable char buffer_[PrintfBufferSize];    ///< The buffer to write to
+};
+
+Printer &GetPrinter() {
+    static SimplePrinter simple;
+    return simple;
 }
 
 }    // namespace jarnax

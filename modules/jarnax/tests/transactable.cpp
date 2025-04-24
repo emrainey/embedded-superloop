@@ -10,8 +10,6 @@ using namespace core::units;
 
 namespace jarnax {
 
-
-
 static constexpr std::size_t Attempts = 3u;
 
 class DummyTransaction : public Transactable<DummyTransaction, Attempts> {

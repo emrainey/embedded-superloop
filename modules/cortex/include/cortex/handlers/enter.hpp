@@ -31,6 +31,7 @@ ALWAYS_INLINE inline void enter(cortex::exceptions::ExtendedHandler extended_han
     thumb::restore_callee_registers();
     exc_return.return_from_exception();    // [[noreturn]]
 #elif defined(__arm__)
+    // volatile == do not optimize the assembly
     asm volatile(
         "tst lr, #4 \r\n"
         "ite eq \r\n"
@@ -38,12 +39,13 @@ ALWAYS_INLINE inline void enter(cortex::exceptions::ExtendedHandler extended_han
         "mrsne r0, psp \r\n"
         "push {r4-r11, lr} \r\n"
         // setup r0, r1
-        "mov r2, lr \r\n"
+        "mov r1, lr \r\n"
         "bl %[handler] \r\n"
         "pop {r4-r11, pc} \r\n"
         :                                    // outputs
         : [handler] "i"(extended_handler)    // inputs
-        :                                    // clobbers
+        : "r0", "r1", "cc", "memory"         // clobbers
+        // :    // clobbers
     );
 #endif
 }

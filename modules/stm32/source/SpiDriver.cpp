@@ -7,6 +7,8 @@ namespace stm32 {
 
 SpiDriver* g_spi_instances[3] = {nullptr, nullptr, nullptr};
 
+// Declare instances of the templates so that they have debugging symbols
+
 void spi1_isr(void) {
     external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::SerialPeripheralInterface1)]++;
     if (g_spi_instances[0]) {
@@ -298,3 +300,10 @@ void SpiDriver::HandleInterrupt(void) {
 }
 
 }    // namespace stm32
+
+namespace jarnax {
+// Declare the specializations for the Transactor and Coordinator
+template class Transactable<spi::Transaction, spi::DefaultRetries>;
+template class Transactor<spi::Transaction>;
+template class Coordinator<spi::Transaction, spi::DefaultQueueDepth>;
+}    // namespace jarnax

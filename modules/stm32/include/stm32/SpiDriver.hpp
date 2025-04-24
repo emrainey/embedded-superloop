@@ -8,6 +8,7 @@
 #include "stm32/registers/SerialPeripheralInterface.hpp"
 
 namespace stm32 {
+
 class SpiDriver : public jarnax::spi::Driver, private jarnax::spi::Transactor {
 public:
     SpiDriver(

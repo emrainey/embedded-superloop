@@ -357,8 +357,8 @@ void Driver::Initialize(stm32::registers::DirectMemoryAccess::Stream volatile& s
         configuration.bits.data_transfer_direction =
             stm32::registers::DirectMemoryAccess::Stream::Configuration::DataTransferDirection::MemoryToMemory;
     }
-    uint32_t channel = GetChannelFromStreamPeripheral(number, peripheral);
-    jarnax::print("DMA Stream %u assigned to channel %lu\n", number, channel);
+    size_t channel = GetChannelFromStreamPeripheral(number, peripheral);
+    jarnax::print("DMA Stream %u assigned to channel %" PRIz "\n", number, channel);
     configuration.bits.channel_selection = (channel & 0x3U);    // mask to prevent overflow
     stream.configuration = configuration;                       // write
     // ========================================

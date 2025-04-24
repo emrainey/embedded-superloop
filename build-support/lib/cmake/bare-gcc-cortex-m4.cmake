@@ -41,7 +41,9 @@ add_compile_options(
     -fomit-frame-pointer
     -fstack-usage
     -Wstack-usage=32768
-    -ggdb3 -O1
+    # -fno-inline
+    -ggdb3 # -g3
+    -O1
 )
 
 message(STATUS "Enable reproducible build flags")

@@ -28,6 +28,8 @@ namespace jarnax {    // Choices for Jarnax
 /// Alias the namespace from STM32 as our vendor
 constexpr static bool use_rtt_for_printf = true;
 constexpr static bool use_swo_for_printf = false;
+constexpr static bool use_uart_for_printf = false;
+constexpr static bool use_logger_for_printf = false;
 }    // namespace jarnax
 
 namespace stm32 {    // Choices for STM32

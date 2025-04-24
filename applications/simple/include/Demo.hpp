@@ -15,7 +15,7 @@ public:
     bool Execute() override;
 
 protected:
-    void ResetTransaction(void);
+    void InitializeTransaction(void);
 
     jarnax::Ticker& ticker_;
     jarnax::Timer& timer_;

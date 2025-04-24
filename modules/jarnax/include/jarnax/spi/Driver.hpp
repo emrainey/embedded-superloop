@@ -7,6 +7,7 @@
 #include "core/Buffer.hpp"
 
 namespace jarnax {
+
 namespace spi {
 
 /// @brief The default number of retries
@@ -41,6 +42,7 @@ public:
         , crc_polynomial{0x7U}    // default CRC-7
         , use_hardware_crc{false}
         , use_data_as_bytes{false}
+        , buffer{}
         , send_size{0U}
         , receive_size{0U} {}
 
@@ -68,6 +70,17 @@ public:
     /// The number of bytes received
     std::size_t received_size;
 
+    bool IsEmpty() const { return buffer.IsEmpty(); }
+
+    /// @brief Moves the buffer into the transaction
+    /// @param buf The buffer to move into the transaction
+    void Assign(core::Buffer<DataUnit>&& buf) { buffer = std::move(buf); }
+
+    /// @brief Removes the buffer from the transaction and returns it to the caller
+    /// @return A container of the buffer
+    /// @post @ref Release() must be called to release the transaction
+    core::Buffer<DataUnit> Relinquish(void) { return std::move(buffer); }
+
     void Clear() {
         polarity = ClockPolarity::IdleHigh;
         phase = ClockPhase::FirstAfterEdge;
@@ -77,7 +90,7 @@ public:
         crc_polynomial = 0x7U;    // default CRC-7
         use_hardware_crc = false;
         use_data_as_bytes = false;
-        // don't modify buffer
+        buffer.~Buffer();    // calls the destructor, resets pointers to null/0 if not done already
         send_size = 0U;
         sent_size = 0U;
         receive_size = 0U;
@@ -88,14 +101,12 @@ public:
 using Transactor = jarnax::Transactor<spi::Transaction>;
 using Coordinator = jarnax::Coordinator<spi::Transaction, DefaultQueueDepth>;
 
-/// The SPI Driver Interface is a Transactor of SPI Transactions and the Coordinator of the SPI Transactions
+/// The SPI Driver Interface has a Transactor of SPI Transactions and is a Coordinator of the SPI Transactions
 class Driver : public Coordinator {
 public:
     Driver(spi::Transactor& tr)
         : Coordinator{tr} {}
 };
-
 }    // namespace spi
 }    // namespace jarnax
-
 #endif    // JARNAX_SPI_DRIVER_HPP

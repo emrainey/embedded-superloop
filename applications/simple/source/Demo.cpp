@@ -35,17 +35,27 @@ void Demo::DelayForTicks(jarnax::Ticks ticks) {
     jarnax::print("Counted to %u\r\n", outer_counter);
 }
 
-void Demo::ResetTransaction() {
-    spi_transaction_.Reset();
+void Demo::InitializeTransaction() {
+    // allocates the buffer
+    spi_buffer_ = core::Buffer<jarnax::spi::DataUnit>{spi_buffer_count_, jarnax::GetDriverContext().GetDmaAllocator()};
+    if (spi_buffer_.IsEmpty()) {
+        jarnax::print("SPI Buffer Allocation Failed\r\n");
+    } else {
+        jarnax::print("SPI Buffer Allocated\r\n");
+    }
+    auto span = spi_buffer_.as_span<uint8_t>();
+    jarnax::print("SPI Buffer Span = %p:%u\r\n", span.data(), span.count());
+
     spi_transaction_.phase = jarnax::spi::ClockPhase::ImmediateEdge;
     spi_transaction_.polarity = jarnax::spi::ClockPolarity::IdleLow;
     spi_transaction_.use_hardware_crc = false;
     spi_transaction_.chip_select = &flash_cs_;
-    if (spi_transaction_.buffer.IsEmpty()) {
-        spi_transaction_.buffer = std::move(spi_buffer_);
+    if (spi_transaction_.IsEmpty()) {
+        spi_transaction_.Assign(std::move(spi_buffer_));
     }
-    if (not spi_transaction_.buffer.IsEmpty()) {
+    if (not spi_transaction_.IsEmpty()) {
         auto spi_data = spi_transaction_.buffer.as_span<uint8_t>();
+        jarnax::print("SPI Transaction Buffer Span = %p:%u\r\n", spi_data.data(), spi_data.count());
         spi_data.data()[0] = 0x4b;    // read UID
         spi_data.data()[1] = 0x00;    // stuffing
         spi_data.data()[2] = 0x00;    // stuffing
@@ -94,46 +104,43 @@ bool Demo::Execute() {
     } else {
         error_indicator_.Inactive();
     }
-    if (spi_transaction_.IsUninitialized()) {
-        // allocates the buffer
-        spi_buffer_ = core::Buffer<jarnax::spi::DataUnit>{spi_buffer_count_, jarnax::GetDriverContext().GetDmaAllocator()};
-        if (spi_buffer_.IsEmpty()) {
-            jarnax::print("SPI Buffer Allocation Failed\r\n");
-        } else {
-            jarnax::print("SPI Buffer Allocated\r\n");
-        }
-        auto span = spi_buffer_.as_span<uint8_t>();
-        jarnax::print("SPI Buffer Span = %p:%u\r\n", span.data(), span.count());
-        span = spi_transaction_.buffer.as_span<uint8_t>();
-        jarnax::print("SPI Transaction Buffer Span = %p:%u\r\n", span.data(), span.count());
-        ResetTransaction();
-    } else if (spi_transaction_.IsInitialized()) {
-        core::Status status = spi_driver_.Schedule(&spi_transaction_);
-        if (status) {
-            jarnax::print("SPI Transaction Scheduled\r\n");
-        } else {
-            jarnax::print("SPI Transaction Failed", status);
-        }
-    } else if (spi_transaction_.IsQueued()) {
-        jarnax::print(".");
-    } else if (spi_transaction_.IsRunning()) {
-        jarnax::print("!");
-    } else if (spi_transaction_.IsComplete()) {
-        jarnax::print("SPI Transaction Complete\r\n");
-        auto span = spi_buffer_.as_span<uint8_t>();
-        jarnax::print("SPI Buffer Span = %p:%u\r\n", span.data(), span.count());
-        span = spi_transaction_.buffer.as_span<uint8_t>();
-        jarnax::print("SPI Transaction Buffer Span = %p:%u\r\n", span.data(), span.count());
-        // print the UID (64 bytes, 8 blocks of 8 bytes is ok)
-        auto read_span = spi_transaction_.buffer.as_span<uint8_t>().subspan(5, 64U);
-        jarnax::print("UID:\r\n");
-        for (size_t i = 0U; i < read_span.count(); i++) {
-            if ((i % 8U) == 0U and i != 0U) {
-                jarnax::print("\r\n");
+
+    if (spi_transaction_.IsResetable()) {
+        spi_transaction_.Reset();
+    } else {
+        if (spi_transaction_.IsUninitialized()) {
+            InitializeTransaction();
+        } else if (spi_transaction_.IsInitialized()) {
+            core::Status status = spi_driver_.Schedule(&spi_transaction_);
+            if (status) {
+                jarnax::print("SPI Transaction Scheduled\r\n");
+            } else {
+                jarnax::print("SPI Transaction Failed", status);
             }
-            jarnax::print("%02x ", read_span.data()[i]);
+        } else if (spi_transaction_.IsQueued()) {
+            jarnax::print(".");
+        } else if (spi_transaction_.IsRunning()) {
+            jarnax::print("!");
+        } else if (spi_transaction_.IsComplete()) {
+            jarnax::print("SPI Transaction Complete\r\n");
+            spi_buffer_ = spi_transaction_.Relinquish();
+            auto span = spi_buffer_.as_span<uint8_t>();
+            // now we hold the buffer
+            jarnax::print("SPI Transaction Buffer Span = %p:%u\r\n", span.data(), span.count());
+            // print the UID (64 bytes, 8 blocks of 8 bytes is ok)
+            auto read_span = spi_buffer_.as_span<uint8_t>().subspan(5, 64U);
+            jarnax::print("UID:\r\n");
+            for (size_t i = 0U; i < read_span.count(); i++) {
+                if ((i % 8U) == 0U and i != 0U) {
+                    jarnax::print("\r\n");
+                }
+                jarnax::print("%hhx ", read_span.data()[i]);
+            }
+            jarnax::print("\r\n");
+            spi_buffer_.~Buffer();    // deallocates the buffer
+            // release the transaction (clears values, deallocates the buffer, etc)
+            spi_transaction_.Release();
         }
-        ResetTransaction();
     }
     return true;
 }
