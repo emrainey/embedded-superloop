@@ -15,6 +15,7 @@ Pin::Pin(Port port, uint8_t index)
 
 Pin& Pin::SetMode(Mode mode) {
     auto pin_mode = general_purpose_input_output[to_underlying(port_)].mode;               // read
+    pin_mode.whole &= ~(0b11U << (index_ * 2U));                                           // modify
     pin_mode.whole |= static_cast<std::uint32_t>(to_underlying(mode) << (index_ * 2U));    // modify
     general_purpose_input_output[to_underlying(port_)].mode = pin_mode;                    // write
     return *this;
@@ -22,11 +23,12 @@ Pin& Pin::SetMode(Mode mode) {
 
 Mode Pin::GetMode() const {
     auto mode = general_purpose_input_output[to_underlying(port_)].mode;    // read
-    return static_cast<Mode>((mode.whole >> (index_ * 2)) & 0b11);          // extract
+    return static_cast<Mode>((mode.whole >> (index_ * 2U)) & 0b11);         // extract
 }
 
 Pin& Pin::SetOutputSpeed(Speed speed) {
     auto output_speed = general_purpose_input_output[to_underlying(port_)].output_speed;        // read
+    output_speed.whole &= ~(0b11U << (index_ * 2U));                                            // modify
     output_speed.whole |= static_cast<std::uint32_t>(to_underlying(speed) << (index_ * 2U));    // modify
     general_purpose_input_output[to_underlying(port_)].output_speed = output_speed;             // write
     return *this;
@@ -39,6 +41,7 @@ Speed Pin::GetOutputSpeed() const {
 
 Pin& Pin::SetOutputType(OutputType type) {
     auto output_type = general_purpose_input_output[to_underlying(port_)].output_type;    // read
+    output_type.whole &= ~static_cast<std::uint32_t>(1U << index_);                       // modify
     output_type.whole |= static_cast<std::uint32_t>(to_underlying(type) << index_);       // modify
     general_purpose_input_output[to_underlying(port_)].output_type = output_type;         // write
     return *this;
@@ -51,6 +54,7 @@ OutputType Pin::GetOutputType() const {
 
 Pin& Pin::SetResistor(Resistor type) {
     auto pull = general_purpose_input_output[to_underlying(port_)].pullup_pulldown;    // read
+    pull.whole &= ~(0b11U << (index_ * 2U));                                           // modify
     pull.whole |= static_cast<std::uint32_t>(to_underlying(type) << (index_ * 2U));    // modify
     general_purpose_input_output[to_underlying(port_)].pullup_pulldown = pull;         // write
     return *this;
@@ -77,8 +81,12 @@ void Pin::Value(bool value) {
     Mode mode = GetMode();
     if (mode == Mode::Output) {
         auto output = general_purpose_input_output[to_underlying(port_)].output_data;    // read
-        output.whole |= static_cast<std::uint32_t>(value << index_);                     // modify
-        general_purpose_input_output[to_underlying(port_)].output_data = output;         // write
+        if (value) {
+            output.whole |= static_cast<std::uint32_t>(1 << index_);    // modify
+        } else {
+            output.whole &= ~static_cast<std::uint32_t>(1 << index_);    // modify
+        }
+        general_purpose_input_output[to_underlying(port_)].output_data = output;    // write
     } else {
         // nothing happens
     }
@@ -90,10 +98,12 @@ Pin& Pin::SetAlternative(uint8_t value) {
         value &= 0xFU;    // only 4 bits are allowed
         if (index_ < 8) {
             auto alt_func_low = general_purpose_input_output[to_underlying(port_)].alt_func_low;    // read
+            alt_func_low.whole &= ~(0xFU << (index_ * 4U));                                         // modify
             alt_func_low.whole |= static_cast<std::uint32_t>(value << (index_ * 4U));               // modify
             general_purpose_input_output[to_underlying(port_)].alt_func_low = alt_func_low;         // write
         } else {
             auto alt_func_high = general_purpose_input_output[to_underlying(port_)].alt_func_high;    // read
+            alt_func_high.whole &= ~(0xFU << ((index_ - 8) * 4U));                                    // modify
             alt_func_high.whole |= static_cast<std::uint32_t>(value << ((index_ - 8) * 4U));          // modify
             general_purpose_input_output[to_underlying(port_)].alt_func_high = alt_func_high;         // write
         }

@@ -20,8 +20,8 @@ ClockConfiguration const default_clock_configuration = {
     /* .ahb_divider = */ 0b0000,          // /1
     /* .low_speed_divider = */ 0b101,     // /4
     /* .high_speed_divider = */ 0b100,    // /2
-    /* .mcu_clock1_divider = */ 2,
-    /* .mcu_clock2_divider = */ 2,
+    /* .mcu_clock1_divider = */ 0b111,    // /5
+    /* .mcu_clock2_divider = */ 0b111,    // /5
     /* .rtc_divider = */ 8,
     /* .pll_m = */ 8,
     /* .pll_n = */ 336,
@@ -37,7 +37,8 @@ DriverContext::DriverContext()
     : timer_{stm32::registers::timer2}
     , random_number_generator_{}
     , wakeup_pin_{stm32::gpio::Port::A, 0}
-    , mc0_pin_{stm32::gpio::Port::A, 8}
+    , mco1_pin_{stm32::gpio::Port::A, 8}
+    , mco2_pin_{stm32::gpio::Port::C, 9}
     , key0_pin_{stm32::gpio::Port::E, 4}
     , key1_pin_{stm32::gpio::Port::E, 3}
     , error_pin_{stm32::gpio::Port::A, 6}
@@ -62,11 +63,12 @@ DriverContext::DriverContext()
 core::Status DriverContext::Initialize(void) {
     core::Status status;
     wakeup_pin_.SetMode(stm32::gpio::Mode::Input).SetResistor(stm32::gpio::Resistor::PullDown);
-    mc0_pin_.SetOutputSpeed(stm32::gpio::Speed::VeryHigh).SetMode(stm32::gpio::Mode::AlternateFunction).SetAlternative(0);    // Alt 0 is MCO1
+    mco1_pin_.SetOutputSpeed(stm32::gpio::Speed::VeryHigh).SetMode(stm32::gpio::Mode::AlternateFunction).SetAlternative(0);    // Alt 0 is MCO1
+    mco2_pin_.SetOutputSpeed(stm32::gpio::Speed::VeryHigh).SetMode(stm32::gpio::Mode::AlternateFunction).SetAlternative(0);    // Alt 0 is MCO2
     key0_pin_.SetMode(stm32::gpio::Mode::Input).SetResistor(stm32::gpio::Resistor::PullUp);
     key1_pin_.SetMode(stm32::gpio::Mode::Input).SetResistor(stm32::gpio::Resistor::PullUp);
     error_pin_.SetMode(stm32::gpio::Mode::Output)
-        .SetOutputSpeed(stm32::gpio::Speed::Low)
+        .SetOutputSpeed(stm32::gpio::Speed::Medium)
         .SetOutputType(stm32::gpio::OutputType::OpenDrain)
         .SetResistor(stm32::gpio::Resistor::None);
     status_pin_.SetMode(stm32::gpio::Mode::Output)
@@ -75,21 +77,33 @@ core::Status DriverContext::Initialize(void) {
         .SetResistor(stm32::gpio::Resistor::None);
     error_indicator_.Inactive();
     status_indicator_.Inactive();
-    spi1_mosi_.SetMode(stm32::gpio::Mode::AlternateFunction).SetOutputSpeed(stm32::gpio::Speed::High).SetAlternative(5);    // Alt 5 is SPI1
-    spi1_miso_.SetMode(stm32::gpio::Mode::AlternateFunction).SetOutputSpeed(stm32::gpio::Speed::High).SetAlternative(5);    // Alt 5 is SPI1
-    spi1_sclk_.SetMode(stm32::gpio::Mode::AlternateFunction).SetOutputSpeed(stm32::gpio::Speed::High).SetAlternative(5);    // Alt 5 is SPI1
+    spi1_mosi_.SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
+        .SetOutputType(stm32::gpio::OutputType::PushPull)
+        .SetMode(stm32::gpio::Mode::AlternateFunction)
+        .SetAlternative(5)
+        .SetResistor(stm32::gpio::Resistor::None);    // Alt 5 is SPI1
+    spi1_miso_.SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
+        .SetOutputType(stm32::gpio::OutputType::PushPull)
+        .SetMode(stm32::gpio::Mode::AlternateFunction)
+        .SetAlternative(5)
+        .SetResistor(stm32::gpio::Resistor::None);    // Alt 5 is SPI1
+    spi1_sclk_.SetOutputType(stm32::gpio::OutputType::PushPull)
+        .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
+        .SetMode(stm32::gpio::Mode::AlternateFunction)
+        .SetAlternative(5)
+        .SetResistor(stm32::gpio::Resistor::None);    // Alt 5 is SPI1
     flash_cs_.SetMode(stm32::gpio::Mode::Output)
-        .SetOutputSpeed(stm32::gpio::Speed::High)
+        .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
         .SetOutputType(stm32::gpio::OutputType::PushPull)
-        .SetResistor(stm32::gpio::Resistor::PullUp);
+        .SetResistor(stm32::gpio::Resistor::None);
     nrf_cs_.SetMode(stm32::gpio::Mode::Output)
-        .SetOutputSpeed(stm32::gpio::Speed::High)
+        .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
         .SetOutputType(stm32::gpio::OutputType::PushPull)
-        .SetResistor(stm32::gpio::Resistor::PullUp);
+        .SetResistor(stm32::gpio::Resistor::None);
     nrf_ce_.SetMode(stm32::gpio::Mode::Output)
-        .SetOutputSpeed(stm32::gpio::Speed::High)
+        .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
         .SetOutputType(stm32::gpio::OutputType::PushPull)
-        .SetResistor(stm32::gpio::Resistor::PullUp);
+        .SetResistor(stm32::gpio::Resistor::None);
     nrf_irq_.SetMode(stm32::gpio::Mode::Input).SetResistor(stm32::gpio::Resistor::PullUp);
 
     stm32::registers::ResetAndClockControl::AHB1PeripheralClockEnable ahb1_enable;

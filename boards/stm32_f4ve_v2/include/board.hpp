@@ -110,7 +110,8 @@ protected:
     /// The Random Number Generator
     stm32::RandomNumberGenerator random_number_generator_;
     stm32::gpio::Pin wakeup_pin_;
-    stm32::gpio::Pin mc0_pin_;    ///< Clock output
+    stm32::gpio::Pin mco1_pin_;    ///< Clock output
+    stm32::gpio::Pin mco2_pin_;    ///< Clock output
     stm32::gpio::Pin key0_pin_;
     stm32::gpio::Pin key1_pin_;
     stm32::gpio::Pin error_pin_;

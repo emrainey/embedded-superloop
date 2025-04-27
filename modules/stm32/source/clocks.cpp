@@ -153,13 +153,11 @@ void clocks(ClockConfiguration const& clkcfg) {
     config.bits.apb_high_speed_divider = clkcfg.high_speed_divider;
     if (clkcfg.use_internal) {
         config.bits.micro_controller_clock_1_source = ResetAndClockControl::Configuration::Clock1Source::HighSpeedInternal;
-        config.bits.micro_controller_clock_1_divider = 0b111;    //  /5
     } else {
         config.bits.micro_controller_clock_1_source = ResetAndClockControl::Configuration::Clock1Source::HighSpeedExternal;
-        config.bits.micro_controller_clock_1_divider = 0b111;    //  /5
     }
     config.bits.micro_controller_clock_1_divider = clkcfg.mcu_clock1_divider;
-    config.bits.micro_controller_clock_2_source = ResetAndClockControl::Configuration::Clock2Source::PhaseLockLoop;
+    config.bits.micro_controller_clock_2_source = ResetAndClockControl::Configuration::Clock2Source::SystemClock;
     config.bits.micro_controller_clock_2_divider = clkcfg.mcu_clock2_divider;
     config.bits.rtc_divider = clkcfg.rtc_divider;
 
