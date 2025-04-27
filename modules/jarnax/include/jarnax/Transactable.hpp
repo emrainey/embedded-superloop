@@ -93,7 +93,7 @@ public:
         }
     }
 
-    /// @brief Runs the state machine until the comppleted transaction is finalized.
+    /// @brief Runs the state machine until the completed transaction is finalized.
     void Release() {
         if (IsFinal()) {
             // do nothing
