@@ -97,6 +97,7 @@ core::Status SpiDriver::Initialize(core::units::Hertz peripheral_frequency, core
     spi_.control1.bits.spi_enable = 0;    // modify
     spi_.control1 = control1;             // write
     std::uint32_t baudrate = to_underlying(FindClosestDivider(peripheral_frequency, desired_spi_clock_frequency));
+    jarnax::print("SPI Baudrate: %" PRIu32 " Clock Rate: %lu\n", baudrate, peripheral_frequency.value() / (1U << baudrate));
     control1.bits.clock_polarity = 0;                      // first clock transition is the first data capture edge
     control1.bits.clock_phase = 0;                         // first clock transition is the first data capture edge
     control1.bits.baud_rate = (baudrate & 0x7);            // set the baud rate divider
@@ -116,7 +117,7 @@ core::Status SpiDriver::Initialize(core::units::Hertz peripheral_frequency, core
     spi_.control2 = control2;                    // write
 
     control1 = spi_.control1;        // read
-    control1.bits.spi_enable = 1;    // modify
+    control1.bits.spi_enable = 0;    // modify
     spi_.control1 = control1;        // write
 
     return core::Status{core::Result::Success, core::Cause::State};
@@ -176,7 +177,7 @@ core::Status SpiDriver::Start(jarnax::spi::Transaction& transaction) {
     // configure the DMA (TX then RX)
     auto tx_span = transaction.buffer.as_span().subspan(0, transaction.send_size);
     dma_driver_.CopyToPeripheral(tx_dma_stream_, reinterpret_cast<uint32_t volatile*>(&spi_.data.whole), tx_span.data(), transaction.send_size);
-    auto rx_span = transaction.buffer.as_span().subspan(transaction.send_size, transaction.receive_size);
+    auto rx_span = transaction.buffer.as_span().subspan(0, transaction.receive_size);
     dma_driver_.CopyFromPeripheral(rx_dma_stream_, rx_span.data(), reinterpret_cast<uint32_t volatile*>(&spi_.data.whole), transaction.receive_size);
     //=========================================
     // enable the peripheral

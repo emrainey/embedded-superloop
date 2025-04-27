@@ -77,7 +77,7 @@ struct Buffer {
     /// Move Assignment is allowed
     Buffer& operator=(Buffer&& other) {
         if (this != &other) {
-            this->~Buffer();
+            this->Release();
             pointer_ = other.pointer_;
             count_ = other.count_;
             allocator_ = other.allocator_;
@@ -88,13 +88,7 @@ struct Buffer {
     }
 
     /// Deallocates the memory if it is not empty
-    ~Buffer() {
-        if (not IsEmpty()) {
-            allocator_.deallocate(pointer_, size(), alignof(Type));
-            pointer_ = nullptr;
-            count_ = 0U;
-        }
-    }
+    ~Buffer() { Release(); }
 
     /// @return True if the count is zero
     bool IsEmpty() const { return count() == 0U; }
@@ -125,6 +119,15 @@ struct Buffer {
         static_assert(alignof(OtherType) <= alignof(Type), "Alignment of OtherType must be less than or equal to Type");
         static_assert(sizeof(OtherType) <= sizeof(Type), "Size of OtherType must be less than or equal to Type");
         return Span<OtherType const>{reinterpret_cast<OtherType const*>(pointer_), (count_ * sizeof(Type)) / sizeof(OtherType)};
+    }
+
+    /// @brief Releases any held memory and sets the internal state to empty
+    void Release() {
+        if (not IsEmpty()) {
+            allocator_.deallocate(pointer_, size(), alignof(Type));
+            pointer_ = nullptr;
+            count_ = 0U;
+        }
     }
 
 protected:

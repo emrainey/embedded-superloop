@@ -90,7 +90,7 @@ public:
         crc_polynomial = 0x7U;    // default CRC-7
         use_hardware_crc = false;
         use_data_as_bytes = false;
-        buffer.~Buffer();    // calls the destructor, resets pointers to null/0 if not done already
+        buffer.Release();
         send_size = 0U;
         sent_size = 0U;
         receive_size = 0U;
