@@ -56,8 +56,14 @@ DriverContext::DriverContext()
     , nrf_ce_{stm32::gpio::Port::B, 6}
     , nrf_irq_{stm32::gpio::Port::B, 8}
     , dma_driver_{}
-    , spi1_driver_{stm32::registers::spi1, dma_driver_, stm32::dma::SPI1_RX, stm32::dma::SPI1_TX} {
+    , spi1_driver_{stm32::registers::spi1, dma_driver_, stm32::dma::SPI1_RX, stm32::dma::SPI1_TX}
+    , winbond_driver_{timer_, spi1_driver_, flash_cs_, GetDmaAllocator()} {
     // construct the driver objects as part of the constructor above.
+}
+
+DriverContext::~DriverContext() {
+    // destruct the driver objects in the destructor below.
+    winbond_driver_.~Driver();
 }
 
 core::Status DriverContext::Initialize(void) {
@@ -143,7 +149,9 @@ core::Status DriverContext::Initialize(void) {
     status = random_number_generator_.Initialize();
     status = timer_.Initialize(stm32::GetClockTree().tim_clk);
     jarnax::print("Feature Clock is %lu\r\n", stm32::GetClockTree().fclk.value());
-    status = spi1_driver_.Initialize(stm32::GetClockTree().fclk, winbond::spi_clock_frequency);
+    status = spi1_driver_.Initialize(stm32::GetClockTree().fclk, ::winbond::spi_clock_frequency);
+
+    status = winbond_driver_.Initialize();
 
     return status;
 }
@@ -190,6 +198,10 @@ jarnax::gpio::Output& DriverContext::GetFlashChipSelect() {
 
 core::Allocator& DriverContext::GetDmaAllocator() {
     return stm32::dma_heap_allocator;
+}
+
+jarnax::winbond::Driver& DriverContext::GetWinbondDriver() {
+    return winbond_driver_;
 }
 
 DriverContext& GetDriverContext() {

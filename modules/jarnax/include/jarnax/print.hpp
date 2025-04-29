@@ -6,7 +6,7 @@
 
 #include "compiler.hpp"
 #include <cinttypes>
-#include "core/Status.hpp"
+#include "core/Printer.hpp"
 
 #ifndef PRIz
 /// The format specifier for size_t
@@ -27,23 +27,6 @@ void print(char const* const source, core::Status status);
 /// @param format The format string.
 /// @param ... The variadic arguments.
 void print(const char* format, ...) ATTRIBUTE((format(printf, 1, 2)));
-
-/// @brief A class which is able to print to come debugging mechanism.
-/// This interface does not specify how the printing is done, but it is expected that the derived class will implement the print function.
-class Printer {
-public:
-    /// @brief The print function
-    virtual void operator()(const char* format, ...) const ATTRIBUTE((format(printf, 2, 3))) = 0;
-
-    /// @brief The print function for Status objects
-    virtual void operator()(char const* const source, core::Status status) const = 0;
-
-protected:
-    ~Printer() = default;    ///< Inaccessible Destructor
-};
-
-/// @brief The function to get the default printer object.
-Printer& GetPrinter();
 
 }    // namespace jarnax
 

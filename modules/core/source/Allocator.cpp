@@ -12,9 +12,9 @@ namespace core {
 Allocator& GetDefaultAllocator() noexcept {
     static constexpr size_t AlignmentSize = alignof(std::max_align_t);
     alignas(AlignmentSize) static uint8_t heap_storage[DEFAULT_ALLOCATION_BLOCK_SIZE * DEFAULT_ALLOCATION_BLOCK_COUNT];
-    static BitMapHeap<DEFAULT_ALLOCATION_BLOCK_SIZE, DEFAULT_ALLOCATION_BLOCK_COUNT, AlignmentSize> defaultAllocator{
+    static BitMapHeap<DEFAULT_ALLOCATION_BLOCK_SIZE, DEFAULT_ALLOCATION_BLOCK_COUNT, AlignmentSize> default_allocator{
         heap_storage, sizeof(heap_storage)
     };
-    return defaultAllocator;
+    return default_allocator;
 }
 }    // namespace core

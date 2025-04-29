@@ -1,8 +1,16 @@
 #ifndef APP_DEMO_HPP
 #define APP_DEMO_HPP
 
-#include "jarnax.hpp"
+#include <memory.hpp>
 #include "jarnax/CountDown.hpp"
+#include "jarnax/Loopable.hpp"
+#include "jarnax/Timer.hpp"
+#include "jarnax/Ticker.hpp"
+#include "jarnax/RandomNumberGenerator.hpp"
+#include "jarnax/Indicator.hpp"
+#include "jarnax/Button.hpp"
+#include "jarnax/Copier.hpp"
+#include "jarnax/winbond/Driver.hpp"
 #include "core/Allocator.hpp"
 
 using jarnax::Loopable;
@@ -17,7 +25,6 @@ public:
 
 protected:
     void InitializeTransaction(void);
-    void SpiLoop(void);
     void KeyLoop(void);
     void CopierTest(void);
 
@@ -30,19 +37,13 @@ protected:
     jarnax::Button& key0_button_;
     jarnax::Button& key1_button_;
     jarnax::Copier& copier_;
+    jarnax::winbond::Driver& winbond_driver_;
 
     jarnax::CountDown countdown_;
 
     uint8_t buffer_one_[256U];
     uint8_t buffer_two_[256U];
     bool buffer_test_{false};
-
-    jarnax::gpio::Output& flash_cs_;
-    size_t spi_buffer_count_;
-    core::Buffer<jarnax::spi::DataUnit> spi_buffer_;
-    jarnax::spi::Transaction spi_transaction_;
-    jarnax::spi::Driver& spi_driver_;
-    jarnax::CountDown spi_countdown_;
 };
 
 #endif    // APP_DEMO_HPP

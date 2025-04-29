@@ -28,6 +28,7 @@ add_module(NAME jarnax
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SuperLoop.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CountDown.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/StopWatch.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/WinbondDriver.cpp
         $<IF:$<BOOL:CMAKE_CROSS_BUILD>,${CMAKE_CURRENT_SOURCE_DIR}/source/main.cpp,> # Only build in on target builds
     LIBRARIES
         strict jarnax-interfaces

@@ -65,7 +65,7 @@ public:
         Completed = 14,      ///< The transaction has completed
     };
 
-    void Print(Printer& printer) const {
+    void Print(core::Printer& printer) const {
         printer(
             "Transactable State: %d:%d:%d, Event: %d, Attempts Remaining: %" PRIz ", Duration: %" PRIu64 " us Deadline: %" PRIu64 " \n",
             static_cast<int>(last_state_),
@@ -200,7 +200,7 @@ protected:
     TransactionState OnCycle(TransactionState state) override {
         if constexpr (debug::States) {
             jarnax::print("Transactable::OnCycle: %d w/ event=%d\n", static_cast<int>(state), static_cast<int>(event_));
-            Print(jarnax::GetPrinter());
+            Print(core::GetPrinter());
         }
         if (state == TransactionState::Undefined) {
             if (event_ == Event::Initialized) {

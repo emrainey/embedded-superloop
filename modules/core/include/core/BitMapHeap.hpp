@@ -10,8 +10,18 @@
 #include <core/Array.hpp>
 #include <core/Allocator.hpp>
 #include <core/Buffer.hpp>
+#include <core/Printer.hpp>
 
 namespace core {
+namespace debug {
+/// @brief The boolean flag to control debugging Heap
+static constexpr bool Heap =
+#if defined(UNITTEST)
+    true;
+#else
+    false;
+#endif
+}    // namespace debug
 
 /// @brief A simple bitmap heap allocator.
 /// This allocator uses a bitmap to track the allocation of blocks in a static memory area.
@@ -23,7 +33,7 @@ class BitMapHeap : public Allocator {
 public:
     /// @brief The type of the bitfield used to track the allocation of blocks.
     using BitMapUnit = std::uint32_t;
-    /// @brief The number of bits in the bitfueld unit
+    /// @brief The number of bits in the bitfield unit
     static constexpr std::size_t kBitMapDepth = sizeof(BitMapUnit) * 8U;
 
     static_assert(BlockCount % kBitMapDepth == 0U, "BlockCount must be a multiple of the BitMapUnit type bit depth");
@@ -81,37 +91,53 @@ public:
         }
         std::size_t blocks = bytes_to_blocks(bytes, alignment);
         std::size_t startBlock = findFreeBlocks(blocks);
-        if (startBlock == BlockCount) {    // no available memory
+        void* pointer = nullptr;
+        if (startBlock == BlockCount) {    // no available memory to fit the request
             if (upstream_) {
-                return upstream_->allocate(bytes, alignment);
+                pointer = upstream_->allocate(bytes, alignment);
             } else {
                 return nullptr;
             }
         }
-        markBlocksAsAllocated(startBlock, blocks);
-        stats_.waste += (blocks * BlockSize) - bytes;
-        std::size_t offset = startBlock * BlockSize;
-        std::size_t alignedOffset = (offset + alignment - 1) & ~(alignment - 1);
-        return static_cast<char*>(buffer_) + alignedOffset;
+        if (pointer == nullptr) {
+            markBlocksAsAllocated(startBlock, blocks);
+            stats_.waste += (blocks * BlockSize) - bytes;
+            std::size_t offset = startBlock * BlockSize;
+            std::size_t alignedOffset = (offset + alignment - 1) & ~(alignment - 1);
+            pointer = static_cast<char*>(buffer_) + alignedOffset;
+            GetPrinter()("%p: Allocated %zu bytes at %p (offset=%zu)\r\n", reinterpret_cast<void*>(this), bytes, pointer, offset);
+        }
+        return pointer;
     }
 
-    void deallocate(void* p, std::size_t bytes, std::size_t alignment) noexcept override {
+    /// @brief Deallocates the memory allocated by the Heap
+    /// @param pointer The pointer to the memory to deallocate
+    /// @param bytes The number of bytes to deallocate
+    /// @param alignment The alignment of the memory
+    /// @note This will only deallocate memory that was allocated by this Heap. If the pointer is not contained in the Heap, it will call the upstream
+    /// Allocator.
+    /// @note This will not deallocate memory that was allocated by the upstream Allocator.
+    void deallocate(void* pointer, std::size_t bytes, std::size_t alignment) noexcept override {
         if (buffer_ == nullptr or size_ == 0) {
+            // pass this on in case this means something to another allocator.
+            GetPrinter()("%p: Tried to deallocate %zu bytes at %p\r\n", reinterpret_cast<void*>(this), bytes, pointer);
             if (upstream_) {
-                upstream_->deallocate(p, bytes, alignment);
+                upstream_->deallocate(pointer, bytes, alignment);
             }
             return;
         }
-        bool contained = is_contained(p, bytes);
+        bool contained = is_contained(pointer, bytes);
         if (contained) {
-            std::size_t offset = reinterpret_cast<uintptr_t>(p) - reinterpret_cast<uintptr_t>(buffer_);
+            std::size_t offset = reinterpret_cast<uintptr_t>(pointer) - reinterpret_cast<uintptr_t>(buffer_);
             std::size_t startBlock = offset / BlockSize;
             std::size_t blocks = (bytes + alignment - 1 + BlockSize - 1) / BlockSize;
+            GetPrinter()("%p: Deallocated %zu bytes at %p (offset %zu)\r\n", reinterpret_cast<void*>(this), bytes, pointer, offset);
             stats_.waste -= (blocks * BlockSize) - bytes;
             markBlocksAsFree(startBlock, blocks);
         } else {
+            GetPrinter()("%p: Passing deallocation of %zu bytes at %p\r\n", reinterpret_cast<void*>(this), bytes, pointer);
             if (upstream_) {
-                upstream_->deallocate(p, bytes, alignment);
+                upstream_->deallocate(pointer, bytes, alignment);
             }
         }
     }
@@ -127,9 +153,10 @@ protected:
     /// @param p Pointer to memory
     /// @param bytes The number of bytes which p points to
     /// @return True if contained, false otherwise.
-    inline bool is_contained(void* p, std::size_t bytes) {
+    inline bool is_contained(void* pointer, std::size_t bytes) {
         uintptr_t base = reinterpret_cast<uintptr_t>(buffer_);
-        uintptr_t offset = reinterpret_cast<uintptr_t>(p) - base;
+        uintptr_t offset = reinterpret_cast<uintptr_t>(pointer) - base;
+        GetPrinter()("%p: Checking if %p is contained in %p:%zu with offset %zu\r\n", reinterpret_cast<void*>(this), pointer, buffer_, size_, offset);
         return offset < size_ and offset + bytes <= size_;
     }
 

@@ -28,9 +28,13 @@ void OnProjectLoad(void) {
     Window.Add("Watched Data 1", "ticks_since_boot");
     Window.Add("Watched Data 1", "vector_table_statistics");
     Window.Add("Watched Data 1", "external_interrupt_statistics");
+    Window.Add("Watched Data 1", "dma_heap_allocator");
+    Window.Add("Watched Data 1", "default_allocator");
     Edit.RefreshRate("ticks_since_boot", FREQ_1_HZ);
     Edit.RefreshRate("vector_table_statistics", FREQ_1_HZ);
     Edit.RefreshRate("external_interrupt_statistics", FREQ_1_HZ);
+    Edit.RefreshRate("dma_heap_allocator", FREQ_1_HZ);
+    Edit.RefreshRate("default_allocator", FREQ_1_HZ);
     // Catch all faults
     Break.SetVectorCatch(0xFF);
 }

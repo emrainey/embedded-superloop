@@ -14,7 +14,7 @@ add_board(NAME stm32_f4ve_v2
     GENERIC_MODULES
         memory
     MODULES
-        stm32 segger
+        stm32 segger jarnax
     CONFIGURATIONS
         ${LOCAL_CONFIGURATIONS}
 )

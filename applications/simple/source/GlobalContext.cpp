@@ -19,6 +19,7 @@ public:
         bool result = true;
         result &= GetSuperLoop().Enlist(demo_);
         result &= GetSuperLoop().Enlist(jarnax::GetDriverContext().GetSpiDriver());
+        result &= GetSuperLoop().Enlist(jarnax::GetDriverContext().GetWinbondDriver());
         if (result) {
             return core::Status{};
         } else {

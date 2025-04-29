@@ -8,8 +8,19 @@
 
 #include <core/Span.hpp>
 #include <core/Allocator.hpp>
+#include <core/Printer.hpp>
 
 namespace core {
+
+namespace debug {
+/// @brief The boolean flag to control debugging Buffer
+static constexpr bool Buffer =
+#if defined(UNITTEST)
+    true;
+#else
+    false;
+#endif
+}    // namespace debug
 
 /// @brief A Buffer is a simple wrapper around a pointer to a block of memory which knows it's Allocator.
 template <typename TYPE>
@@ -30,23 +41,19 @@ struct Buffer {
     /// @brief The default allocator to use for the Buffer
     /// @note Uses the default allocator
     Buffer()
-        : allocator_{GetDefaultAllocator()}
-        , pointer_{nullptr}
-        , count_{0U} {}
+        : Buffer{0U, GetDefaultAllocator()} {}
 
     /// @brief The parameter allocator to use for the Buffer
     /// @param allocator The allocator to use for the Buffer
     Buffer(Allocator& allocator)
-        : allocator_{allocator}
-        , pointer_{nullptr}
-        , count_{0U} {}
+        : Buffer{0U, allocator} {}
 
     /// @brief The parameter allocator and count to use for the Buffer
     /// @param count The number of elements to allocate
     /// @param allocator The allocator to use for the Buffer
     Buffer(Count count, Allocator& allocator)
-        : allocator_{allocator}
-        , pointer_{reinterpret_cast<Pointer>(allocator_.allocate(count * sizeof(Type), alignof(Type)))}
+        : allocator_{&allocator}
+        , pointer_{reinterpret_cast<Pointer>(allocator_ ? allocator_->allocate(count * sizeof(Type), alignof(Type)) : nullptr)}
         , count_{count} {
         if (pointer_ == nullptr) {
             count_ = 0U;
@@ -78,11 +85,11 @@ struct Buffer {
     Buffer& operator=(Buffer&& other) {
         if (this != &other) {
             this->Release();
-            pointer_ = other.pointer_;
-            count_ = other.count_;
-            allocator_ = other.allocator_;
-            other.pointer_ = nullptr;
-            other.count_ = 0U;
+            allocator_ = other.allocator_;    // use their allocator
+            pointer_ = other.pointer_;        // take their pointer
+            count_ = other.count_;            // take their count
+            other.pointer_ = nullptr;         // set their pointer to null
+            other.count_ = 0U;                // set their count to zero
         }
         return *this;
     }
@@ -124,14 +131,14 @@ struct Buffer {
     /// @brief Releases any held memory and sets the internal state to empty
     void Release() {
         if (not IsEmpty()) {
-            allocator_.deallocate(pointer_, size(), alignof(Type));
+            allocator_->deallocate(pointer_, size(), alignof(Type));
             pointer_ = nullptr;
             count_ = 0U;
         }
     }
 
 protected:
-    Allocator& allocator_;    ///< The reference to the allocator
+    Allocator* allocator_;    ///< The pointer to the allocator (it can be reassigned)
     Pointer pointer_;         ///< The pointer to the allocated memory
     Count count_;             ///< The count of the number of elements allocated
 };

@@ -15,6 +15,7 @@
 #include "stm32/Indicator.hpp"
 #include "stm32/SpiDriver.hpp"
 #include "stm32/RandomNumberGenerator.hpp"
+#include "jarnax/winbond/Driver.hpp"
 
 /// RTT features
 namespace rtt {
@@ -50,7 +51,7 @@ using core::units::operator""_MHz;
 /// The size of the flash chip in bytes
 constexpr static std::size_t flash_size = 16_MiB;
 /// @brief The maximum clock frequency of the SPI bus for Read Operations on the Flash W25Q16JV
-constexpr static core::units::Hertz spi_clock_frequency{50_MHz};
+constexpr static core::units::Hertz spi_clock_frequency{10_MHz};
 }    // namespace winbond
 
 namespace jarnax {
@@ -71,6 +72,8 @@ public:
     DriverContext(DriverContext&&) = delete;
     /// The move assignment operator
     DriverContext& operator=(DriverContext&&) = delete;
+    /// Destructor
+    ~DriverContext();
 
     /// Returns a reference to the Timer
     jarnax::Timer& GetTimer();
@@ -105,6 +108,9 @@ public:
     /// Returns the DMA Allocator
     core::Allocator& GetDmaAllocator();
 
+    /// Returns the Winbond Driver
+    jarnax::winbond::Driver& GetWinbondDriver();
+
 protected:
     stm32::Timer timer_;
     /// The Random Number Generator
@@ -135,6 +141,8 @@ protected:
     stm32::dma::Driver dma_driver_;
     /// The SPI Driver
     stm32::SpiDriver spi1_driver_;
+    /// The Winbond Driver
+    jarnax::winbond::Driver winbond_driver_;
 };
 
 /// Gets the reference to the DriverContext

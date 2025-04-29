@@ -6,6 +6,7 @@
 
 #include <cstdint>
 #include <cstddef>
+#include <utility>
 #if defined(UNITTEST)
 #include <iostream>
 #endif    // UNITTEST

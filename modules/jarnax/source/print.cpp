@@ -393,14 +393,14 @@ void print(char const *const source, core::Status status) {
     );
 }
 
-class SimplePrinter : public jarnax::Printer {
+class SimplePrinter : public core::Printer {
 public:
     SimplePrinter()
         : buffer_{} {
         operator()("SimplePrinter Initialized\r\n");
     }
 
-    void operator()(const char *format, ...) const override {
+    void operator()(const char *const format, ...) const override {
         va_list args;
         va_start(args, format);
         unsigned long count = vsnprint(buffer_, PrintfBufferSize, format, args);
@@ -432,9 +432,13 @@ private:
     mutable char buffer_[PrintfBufferSize];    ///< The buffer to write to
 };
 
+}    // namespace jarnax
+
+namespace core {
+
 Printer &GetPrinter() {
-    static SimplePrinter simple;
+    static jarnax::SimplePrinter simple;
     return simple;
 }
 
-}    // namespace jarnax
+}    // namespace core
