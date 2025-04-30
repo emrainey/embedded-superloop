@@ -63,7 +63,6 @@ DriverContext::DriverContext()
 
 DriverContext::~DriverContext() {
     // destruct the driver objects in the destructor below.
-    winbond_driver_.~Driver();
 }
 
 core::Status DriverContext::Initialize(void) {

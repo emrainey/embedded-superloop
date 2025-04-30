@@ -275,7 +275,7 @@ static unsigned long vsnprint(char buffer[], size_t buffer_size, const char *for
                         uint64_t num = va_arg(args, uint64_t);
                         index = print_number(index, buffer, num, base16);
                     } else if (long_modifier) {
-                        uint32_t num = va_arg(args, unsigned long);    // 32 bits
+                        uint32_t num = va_arg(args, uint32_t);    // 32 bits
                         index = print_number(index, buffer, num, base16);
                     } else if (half_modifier) {
                         unsigned int value = va_arg(args, unsigned int);

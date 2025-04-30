@@ -1,5 +1,6 @@
 #include <memory.hpp>
 #include <jarnax/winbond/Driver.hpp>
+#include <winbond.hpp>
 
 /// @file
 /// The Winbond Flash Driver over SPI

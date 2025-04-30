@@ -99,6 +99,7 @@ host_unit_test(NAME test-events
 host_unit_test(NAME test-heap
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/heap.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/print.cpp
     LIBRARIES
         strict core-none-all
     CATCH2
