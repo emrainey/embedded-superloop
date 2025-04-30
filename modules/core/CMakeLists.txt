@@ -107,3 +107,13 @@ host_unit_test(NAME test-heap
     NO_CONFIGURATIONS
     NO_BOARDS
 )
+
+host_unit_test(NAME test-fraction
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/fraction.cpp
+    LIBRARIES
+        strict core-none-all
+    GOOGLETEST
+    NO_CONFIGURATIONS
+    NO_BOARDS
+)
