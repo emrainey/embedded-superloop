@@ -10,7 +10,7 @@ void on_entry(void) {
     cortex::initialize::faults();
     // now turn on interrupts (so we can check if configured in the exceptions)
     thumb::interrupts::enable();
-    if /* constexpr */ (enable_access_to_fpu) {
+    if constexpr (enable_access_to_fpu) {
         // Initialize FPU
         cortex::initialize::fpu();
     }
@@ -28,7 +28,7 @@ void on_entry(void) {
     // run the bist and collect a result *before* we drop privilege
     is_system_functional = cortex::bist(is_system_initialized, is_system_configured);
     // drop from elevated mode if configured
-    if (not cortex::run_in_privileged_mode_only) {
+    if constexpr (not cortex::run_in_privileged_mode_only) {
         cortex::supervisor::deescalate();    // drop from Privileged
     }
     jarnax::print("System is %s\r\n", is_system_functional ? "Functional" : "Non-Functional");

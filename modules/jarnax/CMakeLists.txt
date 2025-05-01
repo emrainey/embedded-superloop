@@ -12,24 +12,32 @@ target_include_directories(jarnax-interfaces INTERFACE
 
 add_module(NAME jarnax
     SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/initialize/on_entry.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/initialize/zero_bss.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/initialize/static_constructors.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/initialize/static_destructors.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/initialize/load_data.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/initialize/watermark_stack.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/initialize/simple_globals.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/initialize/class_globals.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/configure.cpp
+        # The startup code
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/on_entry.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/zero_bss.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/static_constructors.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/static_destructors.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/load_data.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/watermark_stack.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/simple_globals.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/class_globals.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/jump.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/configure.cpp
+        # System Functions
         ${CMAKE_CURRENT_SOURCE_DIR}/source/reset.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/print.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/ticker.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/yield.cpp
+        $<IF:$<BOOL:CMAKE_CROSS_BUILD>,${CMAKE_CURRENT_SOURCE_DIR}/source/main.cpp,> # Only build in on target builds
+        # System Classes
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/Ticker.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SuperLoop.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CountDown.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/StopWatch.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/WinbondDriver.cpp
-        $<IF:$<BOOL:CMAKE_CROSS_BUILD>,${CMAKE_CURRENT_SOURCE_DIR}/source/main.cpp,> # Only build in on target builds
+        # Drivers
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/WinbondDriver.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/WinbondStateMachine.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/include # Internal includes
     LIBRARIES
         strict jarnax-interfaces
     GENERIC_MODULES

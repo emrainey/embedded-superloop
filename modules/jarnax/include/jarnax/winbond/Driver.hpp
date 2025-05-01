@@ -12,12 +12,13 @@
 #include <jarnax/spi/Driver.hpp>
 #include <jarnax/Timer.hpp>
 #include <jarnax/CountDown.hpp>
+#include <jarnax/winbond/WinbondStateMachine.hpp>
 
 namespace jarnax {
 namespace winbond {
 
 /// @brief The Winbond Flash Driver over SPI
-class Driver : public jarnax::Loopable {
+class Driver : public jarnax::Loopable, protected jarnax::winbond::Listener, protected jarnax::winbond::Executor {
 public:
     /// @brief Parameterized constructor
     Driver(Timer& timer, spi::Driver& driver, gpio::Output& chip_select, core::Allocator& dma_allocator);
@@ -32,7 +33,18 @@ public:
     //==========================
 
 protected:
-    core::Status Reinitialize(void);
+    /// @brief Reinitializes the transaction
+    /// @param instruction
+    /// @return
+    core::Status Reinitialize(winbond::Instruction instruction);
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // StateMachine Callbacks
+    core::Status Command(winbond::Instruction instruction) override;
+    bool IsComplete(void) const override;
+    core::Status GetStatus(void) const override;
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    void OnEvent(Event event, core::Status status) override;
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
     /// @brief The reference to the local printer
     core::Printer& printer_;
@@ -52,6 +64,8 @@ protected:
     core::Buffer<spi::DataUnit> buffer_;
     /// @brief The countdown for the startup time
     jarnax::CountDown startup_countdown_;
+    /// @brief The StateMachine for the Winbond driver
+    jarnax::winbond::WinbondStateMachine state_machine_;
 };
 }    // namespace winbond
 }    // namespace jarnax

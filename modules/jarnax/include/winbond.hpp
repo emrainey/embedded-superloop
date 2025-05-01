@@ -6,7 +6,9 @@
 
 namespace winbond {
 
+/// @brief The Winbond Flash Driver over SPI Instructions
 enum class Instruction : std::uint8_t {
+    None = 0x00U,              ///< No instruction
     ManufacturerID = 0xEFU,    ///< Read Manufacturer and Device ID
     DeviceID1 = 0xABU,         ///< Read Device ID 1
     DeviceID2 = 0x90U,         ///< Read Device ID 2
@@ -68,16 +70,33 @@ enum class MetadataByte : char {
     Status = 's',
 };
 
+/// @brief Address is 3 bytes, MSB order
+/// @details The address is used to identify the location in the memory
 struct Address {
-    uint8_t address[3U];
+    using Type = uint32_t;    ///< Type is a 24-bit unsigned integer but stored in a 32-bit unsigned integer
+    uint8_t address[3U];      ///< Address is 3 bytes, MSB order
 
-    inline uint32_t GetAddress() const {
-        return (static_cast<uint32_t>(address[0U]) << 16U) | (static_cast<uint32_t>(address[1U]) << 8U) | address[2U];
+    /// @brief Parameter constructor
+    /// @param addr The address to be assigned
+    /// @code Address addr{0x123456U}; @endcode
+    constexpr explicit Address(Type addr)
+        : address{
+              static_cast<uint8_t>((addr >> 16U) & 0xFFU), static_cast<uint8_t>((addr >> 8U) & 0xFFU), static_cast<uint8_t>((addr >> 0U) & 0xFFU)
+          } {}
+
+    /// @brief Used when assigning the address struct to a Type type
+    /// @code Type addr = Address{0x12, 0x34, 0x56}; @endcode
+    constexpr explicit operator Type() const {
+        return (static_cast<Type>(address[0U]) << 16U) | (static_cast<Type>(address[1U]) << 8U) | address[2U];
     }
-    inline void SetAddress(uint32_t addr) {
+
+    /// @brief Used when assigning a Type value to the address struct
+    /// @code Address addr = 0x123456U; @endcode
+    constexpr Address& operator=(Type const addr) {
         address[0U] = static_cast<uint8_t>((addr >> 16U) & 0xFFU);
         address[1U] = static_cast<uint8_t>((addr >> 8U) & 0xFFU);
-        address[2U] = static_cast<uint8_t>(addr & 0xFFU);
+        address[2U] = static_cast<uint8_t>((addr >> 0U) & 0xFFU);
+        return *this;
     }
 };
 
@@ -103,7 +122,7 @@ struct Format {
     union {
         Empty empty;
         ID<3U> id;
-        Address address_only;
+        Address address_only;    ///< Used with Reading Data or Erasing
         Data<1U> one_data;
         Data<2U> two_data;
         uint8_t raw[6U];

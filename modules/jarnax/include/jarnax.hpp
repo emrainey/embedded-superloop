@@ -2,7 +2,8 @@
 #define JARNAX_HPP_
 
 /// @file
-/// @todo Please rename from Jarnax!
+/// Járnøx System Header
+/// @details This file includes all the necessary headers for the Járnøx system.
 
 #include "memory.hpp"
 #include "core/core.hpp"

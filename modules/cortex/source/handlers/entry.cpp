@@ -92,7 +92,7 @@ namespace handlers {
     }
 
     // == STACK IS NOW VALID ============
-    thumb::jump(__main_stack_top, cortex::handlers::entry_after_stack);
+    jarnax::jump(__main_stack_top, cortex::handlers::entry_after_stack);
 }
 
 [[noreturn]] void entry_after_stack(void) {
