@@ -1,19 +1,18 @@
-#ifndef WINBOND_HPP
-#define WINBOND_HPP
+#ifndef W25Q16BV_HPP
+#define W25Q16BV_HPP
 
 #include <cstdint>
 #include <cstddef>
 
-namespace winbond {
+namespace w25q16bv {
+
+static constexpr uint8_t ManufacturerID = 0xEFU;    ///< Manufacturer ID (for Winbond)
+static constexpr uint8_t DeviceID = 0x14U;          ///< Device ID (for W25Q16BV)
+static constexpr uint16_t JEDEC_ID = 0x4015U;       ///< Device ID via JEDEC (for W25Q16BV)
 
 /// @brief The Winbond Flash Driver over SPI Instructions
 enum class Instruction : std::uint8_t {
-    None = 0x00U,              ///< No instruction
-    ManufacturerID = 0xEFU,    ///< Read Manufacturer and Device ID
-    DeviceID1 = 0xABU,         ///< Read Device ID 1
-    DeviceID2 = 0x90U,         ///< Read Device ID 2
-    DeviceID3 = 0x92U,         ///< Read Device ID 3
-    DeviceID4 = 0x94U,         ///< Read Device ID 4
+    None = 0x00U,    ///< No instruction
     // --==--==--==--==--==--==--==--==--==--==--==--==--
     WriteEnable = 0x06U,              ///< Write Enable
     VolatileSRWriteEnable = 0x50U,    ///< Volatile Status Register Write Enable
@@ -21,8 +20,8 @@ enum class Instruction : std::uint8_t {
     // --==--==--==--==--==--==--==--==--==--==--==--==--
     ReleasePowerDown = 0xABU,    ///< Release Power Down
     Manufacturer = 0x90U,        ///< Manufacturer ID
-    JEDED_ID = 0x9FU,            ///< JEDEC ID
-    ReadUniqueID = 0x4BU,        ///< Read Unique ID
+    GetJedecId = 0x9FU,          ///< JEDEC ID
+    ReadUniqueId = 0x4BU,        ///< Read Unique ID
     // --==--==--==--==--==--==--==--==--==--==--==--==--
     ReadData = 0x03U,        ///< Read Data
     FastReadData = 0x0BU,    ///< Fast Read Data
@@ -58,16 +57,6 @@ enum class Instruction : std::uint8_t {
     // --==--==--==--==--==--==--==--==--==--==--==--==--
     EnableReset = 0x66U,    ///< Enable Reset
     ResetDevice = 0x99U,    ///< Reset Device
-};
-
-enum class MetadataByte : char {
-    Zero = '0',
-    NotUsed = 'n',
-    Dummy = 'y',
-    Address = 'a',
-    Data = 'd',
-    Lock = 'l',
-    Status = 's',
 };
 
 /// @brief Address is 3 bytes, MSB order
@@ -130,6 +119,25 @@ struct Format {
 };
 static_assert(sizeof(Format) == 7U, "Format is not 7 bytes");
 
-}    // namespace winbond
+struct Status {
+    union {
+        struct {
+            uint16_t busy                 : 1;    ///< Busy bit
+            uint16_t write_enable_latch   : 1;    ///< Write Enable Latch bit
+            uint16_t block_protect        : 3;    ///< Block Protect bits
+            uint16_t top_bottom           : 1;    ///< Status Register 2 bit
+            uint16_t sector_protect       : 1;    ///< Sector Protect bit
+            uint16_t status_protect       : 2;    ///< Status Register Protect bit
+            uint16_t quad_enable          : 1;    ///< Reserved
+            uint16_t                      : 5;    ///< Reserved
+            uint16_t erase_suspend_status : 1;    ///< Reserved
+        } bits;
+        uint8_t u08[2];     ///< Raw bytes
+        uint16_t u16[1];    ///< Raw word
+    } fields;
+};
+static_assert(sizeof(Status) == 2U, "Status is 16 bit");
 
-#endif    // WINBOND_HPP
+}    // namespace w25q16bv
+
+#endif    // W25Q16BV_HPP

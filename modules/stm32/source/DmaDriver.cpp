@@ -568,7 +568,7 @@ void Driver::HandleInterrupt(uint32_t controller, uint32_t stream) {
     auto status = GetStreamStatus(number, flags);
     if (status) {
         jarnax::print(
-            "DMA Interrupt: %" PRIu32 ", %" PRIu32 " status: %u %u %u %u %u\n",
+            "DMA Interrupt: %" PRIu32 ", %" PRIu32 " status: c:%u h:%u e:%u dme:%u fe:%u\n",
             controller,
             stream,
             flags.complete,
@@ -745,9 +745,9 @@ core::Status Driver::CopyToPeripheral(
     // ========================================
     stream.number_of_datum.bits.number_of_datum = static_cast<uint32_t>(count & 0xFFFFU);
     // ========================================
-    stream.peripheral_address = reinterpret_cast<std::uintptr_t>(destination);    // peripheral address
+    stream.peripheral_address = destination;    // peripheral address
     // ========================================
-    stream.memory0_address = reinterpret_cast<std::uintptr_t>(source);    // memory address
+    stream.memory0_address = source;    // memory address
     // ========================================
     configuration.bits.current_target = 0;               // use memory 0
     configuration.bits.peripheral_increment_mode = 0;    // do not increment the peripheral address
@@ -762,8 +762,9 @@ core::Status Driver::CopyToPeripheral(
     configuration.bits.direct_mode_error_interrupt_enable = 1;
     configuration.bits.transfer_error_interrupt_enable = 1;
     configuration.bits.half_transfer_interrupt_enable = 0;
-    configuration.bits.transfer_complete_interrupt_enable = 0;
-    stream.configuration = configuration;    // write it out so we can see the settings
+    configuration.bits.transfer_complete_interrupt_enable = 0;    // Poll mode
+    stream.configuration = configuration;                         // write it out so we can see the settings
+    jarnax::print("Copying %p <= %p, %u elements\n", reinterpret_cast<void*>(destination), reinterpret_cast<void*>(source), count);
     // ========================================
     configuration.bits.stream_enable = 1;    // enable
     stream.configuration = configuration;    // write
@@ -856,6 +857,7 @@ core::Status Driver::CopyFromPeripheral(
     configuration.bits.half_transfer_interrupt_enable = 0;
     configuration.bits.transfer_complete_interrupt_enable = 0;
     stream.configuration = configuration;    // write it out so we can see the settings
+    jarnax::print("Copying %p => %p, %u elements\n", reinterpret_cast<void*>(source), reinterpret_cast<void*>(destination), count);
     // ========================================
     configuration.bits.stream_enable = 1;    // enable
     stream.configuration = configuration;    // write

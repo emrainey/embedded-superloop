@@ -7,6 +7,7 @@
 #include "compiler.hpp"
 #include <cinttypes>
 #include "core/Printer.hpp"
+#include "core/Span.hpp"
 
 #ifndef PRIz
 /// The format specifier for size_t
@@ -27,6 +28,22 @@ void print(char const* const source, core::Status status);
 /// @param format The format string.
 /// @param ... The variadic arguments.
 void print(const char* format, ...) ATTRIBUTE((format(printf, 1, 2)));
+
+template <typename T>
+void print(core::Span<T> const& span) {
+    print("Span: %p:%zu\r\n", span.data(), span.count());
+    for (size_t i = 0U; i < span.count(); i++) {
+        bool is_first = ((i % 8U) == 0U);
+        if (is_first) {
+            if (i != 0U) {
+                print("\r\n");
+            }
+            print("[%x]", i);
+        }
+        print("%hhx ", span.data()[i]);
+    }
+    print("\r\n");
+}
 
 }    // namespace jarnax
 

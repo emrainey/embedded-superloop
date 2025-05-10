@@ -6,7 +6,8 @@ void OnProjectLoad(void) {
     Debug.SetResetMode(RM_RESET_HALT);
     Project.SetTraceSource("SWO");
     Project.SetDevice("STM32F407VE");
-    Project.SetHostIF("USB", "");
+    // Project.SetHostIF("USB", "");
+    Project.SetHostIF("IP", "192.168.0.3");
     Project.SetTargetIF("SWD");
     Project.SetTIFSpeed("20 MHz");
     Project.AddSvdFile("$(InstallDir)/Config/CPU/Cortex-M4F.svd");

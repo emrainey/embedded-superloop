@@ -15,7 +15,7 @@ namespace core {
 /// @brief Implements a State Machine via a callback interface and a given State Enumeration.
 /// The order of callbacks is: Enter() -> OnEnter(), OnEntry(initial_state)
 /// Then during the cycle: OnCycle(current_state) -> OnExit(last_state) -> OnTransition(last_state, next_state) -> OnEntry(next_state)
-/// @tparam ENUM_TPARAM The state enumeration. It must have an `Undefined` value.
+/// @tparam ENUM_TPARAM The state enumeration. It must have an `Undefined` value (which can not be the initial state or the final state)
 template <typename ENUM_TPARAM>
 class StateMachine {
 public:
@@ -62,7 +62,17 @@ public:
         , final_state_{final_state}
         , current_state_{StateType::Undefined}
         , next_state_{StateType::Undefined}
-        , last_state_{StateType::Undefined} {}
+        , last_state_{StateType::Undefined} {
+        if (initial_state == final_state) {
+            malformed_ = true;
+        }
+        if (initial_state == StateType::Undefined) {
+            malformed_ = true;
+        }
+        if (final_state == StateType::Undefined) {
+            malformed_ = true;
+        }
+    }
 
     /// @param state The state to query for
     /// @return True if the machine is in the given state
@@ -79,9 +89,17 @@ public:
     /// @return True if the StateMachine is in the final state
     bool IsFinal() const { return stopped_; }
 
+    /// @return True if the StateMachine is malformed
+    /// @details A malformed state machine is one that has an initial state that is the same as the final state or
+    ///          has an initial state or final state that is Undefined. A malformed state machine will not run and will not enter.
+    bool IsMalformed() const { return malformed_; }
+
     /// @brief Enters the StateMachine if previously Stopped.
     /// Before a State Machine is Entered, it's State is Undefined
     void Enter() {
+        if (malformed_) {
+            return;
+        }
         if (stopped_) {
             current_state_ = initial_state_;
             next_state_ = initial_state_;
@@ -99,6 +117,9 @@ public:
     /// This will process the StateMachine if it is not stopped.
     /// If it is stopped, it will not process the StateMachine.
     void RunOnce() {
+        if (malformed_) {
+            return;
+        }
         if (not stopped_) {
             cycle_ = true;
             StateType state = callback_.OnCycle(current_state_);
@@ -146,6 +167,7 @@ protected:
     bool entry_{false};          ///< The flag to indicate if we are in the entry of the state
     bool cycle_{false};          ///< The flag to indicate if we are in the cycle of the state
     bool exit_{false};           ///< The flag to indicate if we are in the exit of the state
+    bool malformed_{false};      ///< The flag to indicate if the state machine is malformed
 };
 
 }    // namespace core

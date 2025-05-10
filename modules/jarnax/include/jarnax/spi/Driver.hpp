@@ -65,6 +65,8 @@ public:
     std::size_t send_size;
     /// The number of bytes sent
     std::size_t sent_size;
+    /// The offset to the location to start receiving data
+    std::size_t receive_offset;
     /// The number of bytes to receive
     std::size_t receive_size;
     /// The number of bytes received
@@ -93,6 +95,7 @@ public:
         buffer.Release();
         send_size = 0U;
         sent_size = 0U;
+        receive_offset = 0U;
         receive_size = 0U;
         received_size = 0U;
     }

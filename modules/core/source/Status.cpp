@@ -27,7 +27,7 @@ Status::operator bool(void) const {
 }
 
 bool Status::operator==(const Status& rhs) const {
-    return (result_ == rhs.result_) and (cause_ == rhs.cause_) and (location_ == rhs.location_);
+    return (result_ == rhs.result_) and (cause_ == rhs.cause_);
 }
 
 bool Status::operator!=(const Status& rhs) const {

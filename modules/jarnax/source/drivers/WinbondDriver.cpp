@@ -1,6 +1,6 @@
 #include <memory.hpp>
 #include <jarnax/winbond/Driver.hpp>
-#include <winbond.hpp>
+#include <w25q16bv.hpp>
 
 /// @file
 /// The Winbond Flash Driver over SPI
@@ -8,6 +8,29 @@
 
 namespace jarnax {
 namespace winbond {
+
+/// This is a no-op function to be used as a callback for instruction that do not
+/// require additional data to be written to the buffer.
+class Empty : public Functor {
+public:
+    void operator()(core::Span<uint8_t>&) override {
+        // do nothing
+    }
+};
+
+class Addresser : public Functor {
+public:
+    Addresser(w25q16bv::Address& address)
+        : address_{address} {}
+    void operator()(core::Span<uint8_t>& data) override {
+        data[1U] = address_.address[0U];
+        data[2U] = address_.address[1U];
+        data[3U] = address_.address[2U];
+    }
+
+protected:
+    w25q16bv::Address address_;
+};
 
 Driver::Driver(Timer& timer, spi::Driver& driver, gpio::Output& chip_select, core::Allocator& dma_allocator)
     : Loopable()
@@ -20,7 +43,9 @@ Driver::Driver(Timer& timer, spi::Driver& driver, gpio::Output& chip_select, cor
     , transaction_{timer_}
     , buffer_{buffer_size_, dma_allocator}
     , startup_countdown_{timer_, core::units::Iota{30U}}    // 30 microseconds
-    , state_machine_{*this, *this} {
+    , state_machine_{*this, *this}
+    , powered_{false}
+    , last_instruction_{Instruction::None} {
 }
 
 Driver::~Driver() {
@@ -28,19 +53,18 @@ Driver::~Driver() {
 }
 
 core::Status Driver::Initialize(void) {
-    state_machine_.Initialize();
-    state_machine_.Process(winbond::Event::None);
-    return Reinitialize(winbond::Instruction::None);
+    state_machine_.Initialize();    // Enters the Detection state
+    return core::Status{core::Result::Success, core::Cause::State};
 }
 
-core::Status Driver::Reinitialize(winbond::Instruction instruction) {
+core::Status Driver::Reinitialize(Instruction instruction, size_t write_size, size_t read_size, Functor& functor) {
     // allocates the buffer and releases the old one if it's still there
-    buffer_ = core::Buffer<jarnax::spi::DataUnit>{buffer_size_, dma_allocator_};
+    if (buffer_.IsEmpty()) {
+        buffer_ = core::Buffer<jarnax::spi::DataUnit>{buffer_size_, dma_allocator_};
+    }
     if (buffer_.IsEmpty()) {
         printer_("SPI Buffer Allocation Failed\r\n");
         return core::Status{core::Result::NotEnough, core::Cause::Resource};
-    } else {
-        printer_("SPI Buffer Allocated\r\n");
     }
     transaction_.phase = jarnax::spi::ClockPhase::ImmediateEdge;
     transaction_.polarity = jarnax::spi::ClockPolarity::IdleLow;
@@ -53,26 +77,28 @@ core::Status Driver::Reinitialize(winbond::Instruction instruction) {
         auto data = transaction_.buffer.as_span<uint8_t>();
         printer_("SPI Transaction Buffer Span = %p:%u\r\n", data.data(), data.count());
         memory::fill(data.data(), 0, data.count());
-        auto write_span = data.subspan(0U, 8U);
-        write_span.data()[0] = to_underlying(instruction);
-        // TODO, look up the value
-        transaction_.send_size = 1U;    // 1 byte for the instruction
+        auto write_span = data.subspan(0U, write_size);
+        write_span[0U] = static_cast<uint8_t>(instruction);
+        last_instruction_ = instruction;
+        functor(write_span);
+        transaction_.send_size = write_size;
         transaction_.sent_size = 0U;
-        // TODO look up the value
-        transaction_.receive_size = 0U;    // 0 bytes for the instruction
+        transaction_.receive_offset = 16U;
+        transaction_.receive_size = read_size;
         transaction_.received_size = 0U;
         transaction_.use_data_as_bytes = true;
         transaction_.Inform(jarnax::spi::Transaction::Event::Initialized);
     }
-    return core::Status{core::Result::Success, core::Cause::Unknown};
+    return core::Status{core::Result::Success, core::Cause::Resource};
 }
 
 bool Driver::Execute(void) {
-    if (startup_countdown_.IsExpired()) {
-        // TODO, check if the chip is powered on
-        // TODO, check if the chip is present
-        state_machine_.Process(winbond::Event::PowerOn);
-        // startup_countdown_.Reset();
+    if (not powered_) {
+        if (startup_countdown_.IsExpired()) {
+            state_machine_.Process(winbond::Event::PowerOn);
+        }
+    } else {
+        state_machine_.Process(winbond::Event::None);
     }
     return true;
 }
@@ -85,9 +111,20 @@ core::Status Driver::Command(winbond::Instruction instruction) {
         status = core::Status{core::Result::NotReady, core::Cause::State};
     }
     if (transaction_.IsUninitialized()) {
-        Reinitialize(instruction);
-    } else {
-        status = core::Status{core::Result::NotAvailable, core::Cause::State};
+        Empty empty;
+        // Addresser address{w25q16bv::Address{}};
+
+        if (instruction == winbond::Instruction::ReleasePowerDown) {
+            Reinitialize(instruction, 4U, 1U, empty);    // should return the Device ID for the W25Q16BV?
+        } else if (instruction == winbond::Instruction::PowerDown) {
+            Reinitialize(instruction, 1U, 0U, empty);
+        } else if (instruction == winbond::Instruction::EnableReset) {
+            Reinitialize(instruction, 1U, 0U, empty);
+        } else if (instruction == winbond::Instruction::ResetDevice) {
+            Reinitialize(instruction, 1U, 0U, empty);
+        } else {
+            status = core::Status{core::Result::NotAvailable, core::Cause::State};
+        }
     }
     if (transaction_.IsInitialized()) {
         status = driver_.Schedule(&transaction_);
@@ -109,8 +146,37 @@ bool Driver::IsComplete(void) const {
     return false;
 }
 
-core::Status Driver::GetStatus(void) const {
-    return transaction_.GetStatus();
+core::Status Driver::GetStatusAndData(void) {
+    core::Status status = transaction_.GetStatus();
+    if (status.IsSuccess()) {
+        auto span = transaction_.buffer.as_span<uint8_t>();
+        // get the sent instruction
+        w25q16bv::Instruction instruction = last_instruction_;
+        auto read_span = span.subspan(transaction_.receive_offset, transaction_.send_size + transaction_.receive_size);
+        printer_("SPI Transaction Read Span = %p:%u\r\n", read_span.data(), read_span.count());
+        jarnax::print(read_span);
+        if (instruction == w25q16bv::Instruction::ReleasePowerDown) {
+            uint8_t device_id = read_span[0U];
+            printer_("Device ID = %hhx\r\n", device_id);
+        } else if (instruction == w25q16bv::Instruction::GetJedecId) {
+            printer_("JEDEC ID:\r\n");
+            for (size_t i = 0U; i < read_span.count(); i++) {
+                if ((i % 8U) == 0U and i != 0U) {
+                    printer_("\r\n");
+                }
+                printer_("%hhx ", read_span.data()[i]);
+            }
+            printer_("\r\n");
+        } else {
+            printer_("Instruction %hhx\r\n", to_underlying(instruction));
+        }
+    }
+    return status;
+}
+
+bool Driver::IsPresent(void) const {
+    // TODO find a way to use the board definitions to know if the build is using a board where it's present
+    return true;
 }
 
 void Driver::OnEvent(Event event, core::Status status) {
@@ -120,8 +186,12 @@ void Driver::OnEvent(Event event, core::Status status) {
         printer_("OnEvent Exited\r\n");
     } else if (event == Event::PowerOn) {
         printer_("OnEvent PowerOn\r\n");
+        powered_ = true;
     } else if (event == Event::PowerOff) {
         printer_("OnEvent PowerOff\r\n");
+        powered_ = false;
+    } else if (event == Event::Reset) {
+        printer_("OnEvent Reset\r\n");
     } else if (event == Event::Faulted) {
         printer_("OnEvent Faulted\r\n");
     }

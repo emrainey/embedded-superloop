@@ -93,6 +93,7 @@ private:
 
 TEST_CASE("StateMachine - Basics") {
     StateMachineFixture sm;
+    REQUIRE(not sm.IsMalformed());
     REQUIRE(sm.Is(State::Undefined));
     REQUIRE(sm.IsFinal());
     sm.Enter();

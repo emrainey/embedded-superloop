@@ -51,7 +51,7 @@ using core::units::operator""_MHz;
 /// The size of the flash chip in bytes
 constexpr static std::size_t flash_size = 16_MiB;
 /// @brief The maximum clock frequency of the SPI bus for Read Operations on the Flash W25Q16JV
-constexpr static core::units::Hertz spi_clock_frequency{10_MHz};
+constexpr static core::units::Hertz spi_clock_frequency{40_MHz};
 }    // namespace winbond
 
 namespace jarnax {

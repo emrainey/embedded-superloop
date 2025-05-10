@@ -27,11 +27,12 @@ static constexpr bool States =
 
 /// @brief  The state of the transaction
 enum class TransactionState {
-    Undefined = 0,      ///< The transaction has not been initialized (required by StateMachine)
-    Initialized = 1,    ///< The transaction has been initialized, and is ready to be scheduled.
-    Queued = 2,         ///< The transaction has been scheduled but has not yet started.
-    Running = 3,        ///< The transaction is currently running but has not yet completed.
-    Complete = 4,       ///< The transaction has completed. The result is available from @ref Transactable::GetStatus().
+    Undefined = 0,        ///< The transaction has not been initialized (required by StateMachine)
+    Uninitialized = 1,    ///< The transaction has not been initialized
+    Initialized = 2,      ///< The transaction has been initialized, and is ready to be scheduled.
+    Queued = 3,           ///< The transaction has been scheduled but has not yet started.
+    Running = 4,          ///< The transaction is currently running but has not yet completed.
+    Complete = 5,         ///< The transaction has completed. The result is available from @ref Transactable::GetStatus().
 };
 
 /// Item objects which are transacted must inherit from this class. The Transactor will inform the Item about it's different changes in state through
@@ -47,7 +48,7 @@ public:
     /// @brief Parameterized constructor
     /// @param timer The reference to the timer
     Transactable(Timer& timer)
-        : StateMachine<TransactionState>{*this, TransactionState::Undefined, TransactionState::Complete}
+        : StateMachine<TransactionState>{*this, TransactionState::Uninitialized, TransactionState::Complete}
         , derived_{*static_cast<DERIVED_CLASS*>(this)}
         , timer_{timer}
         , status_{core::Result::NotInitialized, core::Cause::State}
@@ -107,7 +108,7 @@ public:
     }
 
     /// @return True if the transaction is Uninitialized
-    bool IsUninitialized() const { return Is(TransactionState::Undefined); }
+    bool IsUninitialized() const { return Is(TransactionState::Uninitialized); }
     /// @return True if the transaction is Initialized
     bool IsInitialized() const { return Is(TransactionState::Initialized); }
     /// @return True if the transaction is Queued
@@ -202,7 +203,7 @@ protected:
             jarnax::print("Transactable::OnCycle: %d w/ event=%d\n", static_cast<int>(state), static_cast<int>(event_));
             Print(core::GetPrinter());
         }
-        if (state == TransactionState::Undefined) {
+        if (state == TransactionState::Uninitialized) {
             if (event_ == Event::Initialized) {
                 return TransactionState::Initialized;
             }

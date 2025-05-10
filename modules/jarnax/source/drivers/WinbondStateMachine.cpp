@@ -4,7 +4,7 @@ namespace jarnax {
 namespace winbond {
 
 WinbondStateMachine::WinbondStateMachine(Listener& listener, Executor& executor)
-    : core::StateMachine<State>{*this, State::Undefined, State::Error}
+    : core::StateMachine<State>{*this, State::Detection, State::Error}
     , listener_{listener}
     , executor_{executor}
     , event_{Event::None}
@@ -12,20 +12,28 @@ WinbondStateMachine::WinbondStateMachine(Listener& listener, Executor& executor)
 }
 
 void WinbondStateMachine::Initialize(void) {
-    // Call the OnEnter() method
     event_ = Event::None;
     status_ = core::Status{core::Result::Success, core::Cause::State};
-    OnEnter();
+    Enter();    // enter the StateMachine
+}
+
+bool WinbondStateMachine::IsReady(void) const {
+    // Check if the StateMachine is in a state which can take commands
+    return Is(State::Waiting);
 }
 
 void WinbondStateMachine::Process(Event event) {
-    // input event processing
-    event_ = event;
-    // cycle & input processing from queries to the functional APIs
-    // This will call through the StateMachine to process the event
-    // and call the Callbacks below
-    RunOnce();
-    // outputs happen in the form of callbacks to the listener and to functional APIs
+    if (not IsFinal()) {
+        // capture the input
+        event_ = event;
+        // This will call through the StateMachine to process the event
+        // and call the Callbacks below
+        // we are not in the final state
+        RunOnce();
+        // outputs happen in the form of callbacks to the listener and to functional APIs
+    } else {
+        listener_.OnEvent(Event::Finalized, core::Status{core::Result::Failure, core::Cause::State});
+    }
 }
 
 void WinbondStateMachine::OnEnter() {
@@ -33,7 +41,7 @@ void WinbondStateMachine::OnEnter() {
 }
 
 void WinbondStateMachine::OnEntry(State state) {
-    if (state == State::Undefined) {
+    if (state == State::Detection) {
         // we don't know if the chip exists or if it's powered or what
     } else if (state == State::PowerUp) {
         // Send the Release Power Down command
@@ -41,8 +49,14 @@ void WinbondStateMachine::OnEntry(State state) {
     } else if (state == State::PowerDown) {
         // Send the Power Down Command
         status_ = executor_.Command(Instruction::PowerDown);
+    } else if (state == State::EnableReset) {
+        // Send the Enable Reset Command
+        status_ = executor_.Command(Instruction::EnableReset);
+    } else if (state == State::Reset) {
+        // Send the Reset Command
+        status_ = executor_.Command(Instruction::ResetDevice);
     } else if (state == State::Waiting) {
-        // do nothing
+        // do nothing, wait for events
     } else if (state == State::Error) {
         // We're entering the Final State, something went very wrong
         // status_ should have the failure cause
@@ -51,33 +65,65 @@ void WinbondStateMachine::OnEntry(State state) {
 }
 
 State WinbondStateMachine::OnCycle(State state) {
-    if (state == State::Undefined) {
+    if (state == State::Detection) {
         // Check if the chip is present, powered and ready
+        if (executor_.IsPresent()) {
+            state = State::Waiting;
+        } else {
+            status_ = core::Status{core::Result::NotSupported, core::Cause::Hardware};
+            state = State::Error;
+        }
     } else if (state == State::PowerUp or state == State::PowerDown) {
         // Check for Completion of the Power Down Command
         if (executor_.IsComplete()) {
             // Check the status of the command
-            status_ = executor_.GetStatus();
+            status_ = executor_.GetStatusAndData();
             if (status_.IsSuccess()) {
-                // Move to the PowerDown state
-                state = State::PowerDown;
+                // Move to the Waiting state for another command
+                state = State::Waiting;
             } else {
                 // Move to the Error state
                 state = State::Error;
             }
         }
+    } else if (state == State::EnableReset) {
+        // Check for Completion of the Reset Command
+        if (executor_.IsComplete()) {
+            status_ = executor_.GetStatusAndData();
+            if (status_.IsSuccess()) {
+                state = State::Reset;
+            } else {
+                state = State::Error;
+            }
+        }
+    } else if (state == State::Reset) {
+        // Check for Completion of the Reset Command
+        if (executor_.IsComplete()) {
+            status_ = executor_.GetStatusAndData();
+            if (status_.IsSuccess()) {
+                state = State::Waiting;
+            } else {
+                state = State::Error;
+            }
+        }
     } else if (state == State::Waiting) {
         // do nothing
+        if (event_ == Event::PowerOn) {
+            state = State::PowerUp;
+        } else if (event_ == Event::PowerOff) {
+            state = State::PowerDown;
+        } else if (event_ == Event::Reset) {
+            state = State::EnableReset;
+        }
     } else if (state == State::Error) {
         // In the Final State, something went very wrong
-        // we should only do this once then Exit()
-        status_ = core::Status{core::Result::Failure, core::Cause::State};
+        // we should only do this once then become Final
     }
     return state;
 }
 
 void WinbondStateMachine::OnExit(State state) {
-    if (state == State::Undefined) {
+    if (state == State::Detection) {
         // do nothing
     } else if (state == State::PowerUp) {
         listener_.OnEvent(Event::PowerOn, status_);
@@ -85,9 +131,7 @@ void WinbondStateMachine::OnExit(State state) {
         listener_.OnEvent(Event::PowerOff, status_);
     } else if (state == State::Waiting) {
         // do nothing
-    } else if (state == State::Error) {
-        // do nothing
-    }
+    }    // else if (state == State::Error) {}
 }
 
 void WinbondStateMachine::OnTransition(State from, State to) {

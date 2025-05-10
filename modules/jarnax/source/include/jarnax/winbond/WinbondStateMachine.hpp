@@ -3,18 +3,21 @@
 
 #include "core/Printer.hpp"
 #include "core/StateMachine.hpp"
-#include "winbond.hpp"
+#include "w25q16bv.hpp"
 
 namespace jarnax {
 namespace winbond {
 
-using Instruction = ::winbond::Instruction;    ///< The Winbond Instruction type
+using Instruction = ::w25q16bv::Instruction;    ///< The Winbond Instruction type
 
 enum class State : std::uint8_t {
-    Undefined = 0U,    ///< The undefined state, will be the initial state
+    Undefined = 0U,    ///< The undefined state, required by StateMachine
+    Detection,         ///< The state where the chip is detected
+    Waiting,           ///< The waiting state for Commands
     PowerUp,           ///< Sends the Power Up Command (Release Power Down)
     PowerDown,         ///< Sends the Power Down Command
-    Waiting,           ///< The waiting state for Commands
+    EnableReset,       ///< Enables reset state
+    Reset,             ///< The reset state
     Error,             ///< The error state, will be the Final State
 };
 
@@ -23,8 +26,16 @@ enum class Event : std::uint16_t {
     Entered = 0x0001U,     ///< The StateMachine has been Entered
     Exited = 0xDEADU,      ///< The StateMachine has been Exited
     PowerOn = 0x0A15U,     ///< The power on event
+    Reset = 0xAAAAU,       ///< The reset event
+    Identify = 0xFACEU,    ///< The identify event
+
+    ReadPage = 0x2222U,     ///< The read page event
+    WritePage = 0x3333U,    ///< The write page event
+    ErasePage = 0x4444U,    ///< The erase page event
+
     PowerOff = 0x0FFFU,    ///< The power off event
     Faulted = 0xBEEF,      ///< The fault event
+    Finalized = 0xFFFFU    ///< The machine is finalized and can not be started
 };
 
 /// @brief The listener interface for the StateMachine
@@ -48,9 +59,16 @@ public:
     /// @details This is called when the StateMachine has a command to report.
     /// @param instruction The instruction to send
     virtual core::Status Command(winbond::Instruction instruction) = 0;
+
     /// @brief Is the command complete?
     virtual bool IsComplete(void) const = 0;
-    virtual core::Status GetStatus(void) const = 0;
+
+    /// @brief Get the status of the command after it is complete
+    /// @return core::Status
+    virtual core::Status GetStatusAndData(void) = 0;
+
+    /// @return True if the Winbond chip is present in the system.
+    virtual bool IsPresent(void) const = 0;
 
 protected:
     ~Executor() = default;
@@ -73,6 +91,9 @@ public:
     /// @param event The event to be processed
     /// @details This will call the StateMachine to process the event.
     void Process(Event event);
+
+    /// @brief Called to determine if the StateMachine is in a state which can take commands
+    bool IsReady(void) const;
 
 protected:
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

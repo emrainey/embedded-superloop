@@ -39,57 +39,57 @@ struct DirectMemoryAccess final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Stream x FIFO error interrupt flag (x=3..0) (FEIF0)
-            uint32_t fifo_error_interrupt0        : 1;    // bit 0
+            uint32_t const fifo_error_interrupt0        : 1;    // bit 0
             /// (reserved)
-            uint32_t                              : 1;    // bit 1
+            uint32_t                                    : 1;    // bit 1
             /// Stream x direct mode error interrupt flag (x=3..0) (DMEIF0)
-            uint32_t direct_mode_error_interrupt0 : 1;    // bit 2
+            uint32_t const direct_mode_error_interrupt0 : 1;    // bit 2
             /// Stream x transfer error interrupt flag (x=3..0) (TEIF0)
-            uint32_t transfer_error_interrupt0    : 1;    // bit 3
+            uint32_t const transfer_error_interrupt0    : 1;    // bit 3
             /// Stream x half transfer interrupt flag (x=3..0) (HTIF0)
-            uint32_t half_transfer_interrupt0     : 1;    // bit 4
+            uint32_t const half_transfer_interrupt0     : 1;    // bit 4
             /// Stream x transfer complete interrupt flag (x = 3..0) (TCIF0)
-            uint32_t transfer_complete_interrupt0 : 1;    // bit 5
+            uint32_t const transfer_complete_interrupt0 : 1;    // bit 5
             /// Stream x FIFO error interrupt flag (x=3..0) (FEIF1)
-            uint32_t fifo_error_interrupt1        : 1;    // bit 6
+            uint32_t const fifo_error_interrupt1        : 1;    // bit 6
             /// (reserved)
-            uint32_t                              : 1;    // bit 7
+            uint32_t                                    : 1;    // bit 7
             /// Stream x direct mode error interrupt flag (x=3..0) (DMEIF1)
-            uint32_t direct_mode_error_interrupt1 : 1;    // bit 8
+            uint32_t const direct_mode_error_interrupt1 : 1;    // bit 8
             /// Stream x transfer error interrupt flag (x=3..0) (TEIF1)
-            uint32_t transfer_error_interrupt1    : 1;    // bit 9
+            uint32_t const transfer_error_interrupt1    : 1;    // bit 9
             /// Stream x half transfer interrupt flag (x=3..0) (HTIF1)
-            uint32_t half_transfer_interrupt1     : 1;    // bit 10
+            uint32_t const half_transfer_interrupt1     : 1;    // bit 10
             /// Stream x transfer complete interrupt flag (x = 3..0) (TCIF1)
-            uint32_t transfer_complete_interrupt1 : 1;    // bit 11
+            uint32_t const transfer_complete_interrupt1 : 1;    // bit 11
             /// (reserved)
-            uint32_t                              : 4;    // bits 12:15
+            uint32_t                                    : 4;    // bits 12:15
             /// Stream x FIFO error interrupt flag (x=3..0) (FEIF2)
-            uint32_t fifo_error_interrupt2        : 1;    // bit 16
+            uint32_t const fifo_error_interrupt2        : 1;    // bit 16
             /// (reserved)
-            uint32_t                              : 1;    // bit 17
+            uint32_t                                    : 1;    // bit 17
             /// Stream x direct mode error interrupt flag (x=3..0) (DMEIF2)
-            uint32_t direct_mode_error_interrupt2 : 1;    // bit 18
+            uint32_t const direct_mode_error_interrupt2 : 1;    // bit 18
             /// Stream x transfer error interrupt flag (x=3..0) (TEIF2)
-            uint32_t transfer_error_interrupt2    : 1;    // bit 19
+            uint32_t const transfer_error_interrupt2    : 1;    // bit 19
             /// Stream x half transfer interrupt flag (x=3..0) (HTIF2)
-            uint32_t half_transfer_interrupt2     : 1;    // bit 20
+            uint32_t const half_transfer_interrupt2     : 1;    // bit 20
             /// Stream x transfer complete interrupt flag (x = 3..0) (TCIF2)
-            uint32_t transfer_complete_interrupt2 : 1;    // bit 21
+            uint32_t const transfer_complete_interrupt2 : 1;    // bit 21
             /// Stream x FIFO error interrupt flag (x=3..0) (FEIF3)
-            uint32_t fifo_error_interrupt3        : 1;    // bit 22
+            uint32_t const fifo_error_interrupt3        : 1;    // bit 22
             /// (reserved)
-            uint32_t                              : 1;    // bit 23
+            uint32_t                                    : 1;    // bit 23
             /// Stream x direct mode error interrupt flag (x=3..0) (DMEIF3)
-            uint32_t direct_mode_error_interrupt3 : 1;    // bit 24
+            uint32_t const direct_mode_error_interrupt3 : 1;    // bit 24
             /// Stream x transfer error interrupt flag (x=3..0) (TEIF3)
-            uint32_t transfer_error_interrupt3    : 1;    // bit 25
+            uint32_t const transfer_error_interrupt3    : 1;    // bit 25
             /// Stream x half transfer interrupt flag (x=3..0) (HTIF3)
-            uint32_t half_transfer_interrupt3     : 1;    // bit 26
+            uint32_t const half_transfer_interrupt3     : 1;    // bit 26
             /// Stream x transfer complete interrupt flag (x = 3..0) (TCIF3)
-            uint32_t transfer_complete_interrupt3 : 1;    // bit 27
+            uint32_t const transfer_complete_interrupt3 : 1;    // bit 27
             /// (reserved)
-            uint32_t                              : 4;    // bits 28:31
+            uint32_t                                    : 4;    // bits 28:31
         };
         //+=MEMORY======================================+
         union {
@@ -145,57 +145,57 @@ struct DirectMemoryAccess final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Stream x FIFO error interrupt flag (x=7..4) (FEIF4)
-            uint32_t fifo_error_interrupt4        : 1;    // bit 0
+            uint32_t const fifo_error_interrupt4        : 1;    // bit 0
             /// (reserved)
-            uint32_t                              : 1;    // bit 1
+            uint32_t                                    : 1;    // bit 1
             /// Stream x direct mode error interrupt flag (x=7..4) (DMEIF4)
-            uint32_t direct_mode_error_interrupt4 : 1;    // bit 2
+            uint32_t const direct_mode_error_interrupt4 : 1;    // bit 2
             /// Stream x transfer error interrupt flag (x=7..4) (TEIF4)
-            uint32_t transfer_error_interrupt4    : 1;    // bit 3
+            uint32_t const transfer_error_interrupt4    : 1;    // bit 3
             /// Stream x half transfer interrupt flag (x=7..4) (HTIF4)
-            uint32_t half_transfer_interrupt4     : 1;    // bit 4
+            uint32_t const half_transfer_interrupt4     : 1;    // bit 4
             /// Stream x transfer complete interrupt flag (x=7..4) (TCIF4)
-            uint32_t transfer_complete_interrupt4 : 1;    // bit 5
+            uint32_t const transfer_complete_interrupt4 : 1;    // bit 5
             /// Stream x FIFO error interrupt flag (x=7..4) (FEIF5)
-            uint32_t fifo_error_interrupt5        : 1;    // bit 6
+            uint32_t const fifo_error_interrupt5        : 1;    // bit 6
             /// (reserved)
-            uint32_t                              : 1;    // bit 7
+            uint32_t                                    : 1;    // bit 7
             /// Stream x direct mode error interrupt flag (x=7..4) (DMEIF5)
-            uint32_t direct_mode_error_interrupt5 : 1;    // bit 8
+            uint32_t const direct_mode_error_interrupt5 : 1;    // bit 8
             /// Stream x transfer error interrupt flag (x=7..4) (TEIF5)
-            uint32_t transfer_error_interrupt5    : 1;    // bit 9
+            uint32_t const transfer_error_interrupt5    : 1;    // bit 9
             /// Stream x half transfer interrupt flag (x=7..4) (HTIF5)
-            uint32_t half_transfer_interrupt5     : 1;    // bit 10
+            uint32_t const half_transfer_interrupt5     : 1;    // bit 10
             /// Stream x transfer complete interrupt flag (x=7..4) (TCIF5)
-            uint32_t transfer_complete_interrupt5 : 1;    // bit 11
+            uint32_t const transfer_complete_interrupt5 : 1;    // bit 11
             /// (reserved)
-            uint32_t                              : 4;    // bits 12:15
+            uint32_t                                    : 4;    // bits 12:15
             /// Stream x FIFO error interrupt flag (x=7..4) (FEIF6)
-            uint32_t fifo_error_interrupt6        : 1;    // bit 16
+            uint32_t const fifo_error_interrupt6        : 1;    // bit 16
             /// (reserved)
-            uint32_t                              : 1;    // bit 17
+            uint32_t                                    : 1;    // bit 17
             /// Stream x direct mode error interrupt flag (x=7..4) (DMEIF6)
-            uint32_t direct_mode_error_interrupt6 : 1;    // bit 18
+            uint32_t const direct_mode_error_interrupt6 : 1;    // bit 18
             /// Stream x transfer error interrupt flag (x=7..4) (TEIF6)
-            uint32_t transfer_error_interrupt6    : 1;    // bit 19
+            uint32_t transfer_error_interrupt6          : 1;    // bit 19
             /// Stream x half transfer interrupt flag (x=7..4) (HTIF6)
-            uint32_t half_transfer_interrupt6     : 1;    // bit 20
+            uint32_t const half_transfer_interrupt6     : 1;    // bit 20
             /// Stream x transfer complete interrupt flag (x=7..4) (TCIF6)
-            uint32_t transfer_complete_interrupt6 : 1;    // bit 21
+            uint32_t const transfer_complete_interrupt6 : 1;    // bit 21
             /// Stream x FIFO error interrupt flag (x=7..4) (FEIF7)
-            uint32_t fifo_error_interrupt7        : 1;    // bit 22
+            uint32_t const fifo_error_interrupt7        : 1;    // bit 22
             /// (reserved)
-            uint32_t                              : 1;    // bit 23
+            uint32_t                                    : 1;    // bit 23
             /// Stream x direct mode error interrupt flag (x=7..4) (DMEIF7)
-            uint32_t direct_mode_error_interrupt7 : 1;    // bit 24
+            uint32_t const direct_mode_error_interrupt7 : 1;    // bit 24
             /// Stream x transfer error interrupt flag (x=7..4) (TEIF7)
-            uint32_t transfer_error_interrupt7    : 1;    // bit 25
+            uint32_t const transfer_error_interrupt7    : 1;    // bit 25
             /// Stream x half transfer interrupt flag (x=7..4) (HTIF7)
-            uint32_t half_transfer_interrupt7     : 1;    // bit 26
+            uint32_t const half_transfer_interrupt7     : 1;    // bit 26
             /// Stream x transfer complete interrupt flag (x=7..4) (TCIF7)
-            uint32_t transfer_complete_interrupt7 : 1;    // bit 27
+            uint32_t const transfer_complete_interrupt7 : 1;    // bit 27
             /// (reserved)
-            uint32_t                              : 4;    // bits 28:31
+            uint32_t                                    : 4;    // bits 28:31
         };
         //+=MEMORY======================================+
         union {

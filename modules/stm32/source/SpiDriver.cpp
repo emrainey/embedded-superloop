@@ -92,29 +92,42 @@ core::Status SpiDriver::Initialize(core::units::Hertz peripheral_frequency, core
 
     stm32::registers::SerialPeripheralInterface::Control1 control1;
     stm32::registers::SerialPeripheralInterface::Control2 control2;
+
+    std::uint32_t setting = to_underlying(FindClosestDivider(peripheral_frequency, desired_spi_clock_frequency));
     // disable at first
-    control1 = spi_.control1;             // read
-    spi_.control1.bits.spi_enable = 0;    // modify
-    spi_.control1 = control1;             // write
-    std::uint32_t baudrate = to_underlying(FindClosestDivider(peripheral_frequency, desired_spi_clock_frequency));
-    jarnax::print("SPI Baudrate: %" PRIu32 " Clock Rate: %lu\n", baudrate, peripheral_frequency.value() / (1U << baudrate));
+    control1 = spi_.control1;                              // read
+    spi_.control1.bits.spi_enable = 0;                     // modify
+    spi_.control1 = control1;                              // write
     control1.bits.clock_polarity = 0;                      // first clock transition is the first data capture edge
     control1.bits.clock_phase = 0;                         // first clock transition is the first data capture edge
-    control1.bits.baud_rate = (baudrate & 0x7);            // set the baud rate divider
+    control1.bits.baud_rate = (setting & 0x7);             // set the baud rate divider
     control1.bits.leader = 1;                              // master mode
     control1.bits.lsbfirst = 0;                            // MSB first
     control1.bits.software_follower_management = 0;        // software slave management (NSS pin is controlled by peripheral)
+    control1.bits.internal_follower_select = 0;            // internal slave select
     control1.bits.rxonly = 0;                              // full duplex
-    control1.bits.data_frame_format = 1;                   // 16-bit data frame format
+    control1.bits.data_frame_format = 0;                   // 16-bit data frame format
     control1.bits.crc_enable = 0;                          // CRC calculation disabled
     control1.bits.bidirectional_data_output_enable = 0;    // (ignored)
-    control1.bits.bidirectional_data_mode = 0;             // 2-line unidirectional
+    control1.bits.bidirectional_data_mode = 0;             // 2-line bidirectional
     spi_.control1 = control1;                              // write
 
+    auto divider = control1.baud_rate_divider();
+    jarnax::print(
+        "Peripheral: %" PRIu32 " SPI Divider: %" PRIu32 " Clock Rate: %lu\n",
+        peripheral_frequency.value(),
+        divider,
+        peripheral_frequency.value() / divider
+    );
+
     control2 = spi_.control2;                    // read
-    control2.bits.follower_output_enable = 1;    // enable the follower output
+    control2.bits.follower_output_enable = 0;    // don't enable the follower output
     control2.bits.frame_format = 0;              // motorola SPI format
     spi_.control2 = control2;                    // write
+
+    stm32::registers::SerialPeripheralInterface::InterIntegratedCircuitSoundConfiguration i2c_cfg = spi_.i2s_configuration;    // read
+    i2c_cfg.bits.i2smod = 0;                                                                                                   // disable the I2S
+    spi_.i2s_configuration = i2c_cfg;                                                                                          // write
 
     control1 = spi_.control1;        // read
     control1.bits.spi_enable = 0;    // modify
@@ -161,6 +174,8 @@ core::Status SpiDriver::Start(jarnax::spi::Transaction& transaction) {
     control1.bits.crc_enable = (transaction.use_hardware_crc) ? 1 : 0;
     control1.bits.internal_follower_select = 0;
     control1.bits.software_follower_management = 0;
+    control1.bits.clock_polarity = (transaction.polarity == jarnax::spi::ClockPolarity::IdleHigh) ? 1 : 0;
+    control1.bits.clock_phase = (transaction.phase == jarnax::spi::ClockPhase::FirstAfterEdge) ? 1 : 0;
     spi_.control1 = control1;    // write
     //=========================================
     control2 = spi_.control2;                                       // read
@@ -172,13 +187,14 @@ core::Status SpiDriver::Start(jarnax::spi::Transaction& transaction) {
     control2.bits.transmit_dma_enable = 1;
     // if the transaction does not have the chip select set then enable the follower output
     control2.bits.follower_output_enable = (transaction.chip_select == nullptr) ? 0 : 1;
-    spi_.control2 = control2;    // write
+    control2.bits.frame_format = 0;    // motorola SPI format
+    spi_.control2 = control2;          // write
     //=========================================
     // configure the DMA (TX then RX)
     auto tx_span = transaction.buffer.as_span().subspan(0, transaction.send_size);
-    dma_driver_.CopyToPeripheral(tx_dma_stream_, reinterpret_cast<uint32_t volatile*>(&spi_.data.whole), tx_span.data(), transaction.send_size);
-    auto rx_span = transaction.buffer.as_span().subspan(0, transaction.receive_size);
-    dma_driver_.CopyFromPeripheral(rx_dma_stream_, rx_span.data(), reinterpret_cast<uint32_t volatile*>(&spi_.data.whole), transaction.receive_size);
+    dma_driver_.CopyToPeripheral(tx_dma_stream_, reinterpret_cast<uint32_t volatile*>(&spi_.data.whole), tx_span.data(), tx_span.count());
+    auto rx_span = transaction.buffer.as_span().subspan(transaction.receive_offset, transaction.send_size + transaction.receive_size);
+    dma_driver_.CopyFromPeripheral(rx_dma_stream_, rx_span.data(), reinterpret_cast<uint32_t volatile*>(&spi_.data.whole), rx_span.count());
     //=========================================
     // enable the peripheral
     if (transaction.chip_select != nullptr) {
@@ -200,7 +216,7 @@ core::Status SpiDriver::Check(jarnax::spi::Transaction& transaction) {
         status = dma_driver_.GetStreamStatus(tx_dma_stream_index_, flags);
         if (status) {
             jarnax::print(
-                "TX DMA %u flags: %u %u %u %u %u\n",
+                "TX DMA[%u] flags: c:%u h:%u e:%u dme:%u fe:%u\n",
                 tx_dma_stream_index_,
                 flags.complete,
                 flags.half_complete,
@@ -220,7 +236,7 @@ core::Status SpiDriver::Check(jarnax::spi::Transaction& transaction) {
         status = dma_driver_.GetStreamStatus(rx_dma_stream_index_, flags);
         if (status) {
             jarnax::print(
-                "RX DMA %u flags: %u %u %u %u %u\n",
+                "RX DMA[%u] flags: c:%u h:%u e:%u dme:%u fe:%u\n",
                 rx_dma_stream_index_,
                 flags.complete,
                 flags.half_complete,
@@ -236,7 +252,7 @@ core::Status SpiDriver::Check(jarnax::spi::Transaction& transaction) {
         }
     }
     jarnax::print(
-        "SPI Status %u %u %u %u %u %u %u\n",
+        "SPI Status u:%u o:%u tbe:%u rbne:%u crce:%u mf:%u b:%u\n",
         spi_.status.bits.underrun ? 1 : 0,
         spi_.status.bits.overrun ? 1 : 0,
         spi_.status.bits.transmit_buffer_empty ? 1 : 0,
@@ -281,7 +297,9 @@ void SpiDriver::HandleInterrupt(void) {
         jarnax::print("SPI Underrun\n");
     }
     if (status.bits.overrun) {
-        jarnax::print("SPI Overrun\n");
+        registers::SerialPeripheralInterface::Data data = spi_.data;    // read
+        jarnax::print("SPI Overrun, read %x\n", data.bits.data);
+        status = spi_.status;    // read
     }
     if (status.bits.transmit_buffer_empty) {
         jarnax::print("SPI TX Buffer Empty\n");
