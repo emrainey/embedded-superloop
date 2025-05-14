@@ -45,4 +45,58 @@ TEST_CASE("Span - Subspan feature", "[span]") {
         auto subspan = spanArray(5, 2);    // Offset is equal to the count
         REQUIRE(subspan.count() == 0);     // Subspan is empty
     }
+
+    SECTION("Resize Span") {
+        spanArray.resize(3);
+        REQUIRE(spanArray.count() == 3);
+        REQUIRE(spanArray[0] == 1);
+        REQUIRE(spanArray[1] == 2);
+        REQUIRE(spanArray[2] == 3);
+    }
+}
+
+TEST_CASE("Span - Constructors") {
+    int arr[] = {1, 2, 3, 4, 5};
+    core::Span<int> spanArray{arr, 5};
+
+    SECTION("Default constructor") {
+        core::Span<int> emptySpan;
+        REQUIRE(emptySpan.count() == 0);
+    }
+
+    SECTION("Constructor with pointer and size") {
+        core::Span<int> spanFromPointer(arr, 5);
+        REQUIRE(spanFromPointer.count() == 5);
+        REQUIRE(spanFromPointer[0] == 1);
+    }
+
+    SECTION("Copy Constructor") {
+        core::Span<int> copiedSpan(spanArray);
+        REQUIRE(copiedSpan.count() == 5);
+        REQUIRE(copiedSpan[0] == 1);
+    }
+
+    SECTION("Copy Assignment") {
+        core::Span<int> copiedSpan;
+        copiedSpan = spanArray;
+        REQUIRE(copiedSpan.count() == 5);
+        REQUIRE(copiedSpan[0] == 1);
+    }
+
+    SECTION("Move Constructor") {
+        core::Span<int> spanArray2{arr, 5};
+        core::Span<int> movedSpan(std::move(spanArray2));
+        REQUIRE(movedSpan.count() == 5);
+        REQUIRE(movedSpan[0] == 1);
+        REQUIRE(spanArray2.count() == 0);    // Original span should be empty after move
+    }
+
+    SECTION("Move Assignment") {
+        core::Span<int> spanArray2{arr, 5};
+        core::Span<int> movedSpan;
+        movedSpan = std::move(spanArray2);
+        REQUIRE(movedSpan.count() == 5);
+        REQUIRE(movedSpan[0] == 1);
+        REQUIRE(spanArray2.count() == 0);    // Original span should be empty after move
+    }
 }

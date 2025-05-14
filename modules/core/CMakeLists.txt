@@ -38,7 +38,7 @@ foreach (combo IN LISTS UNIT_COMBOS)
 endforeach()
 
 # Creates the core module, doesn't depend on any configuration or board.
-# Any configiration must be passed in as DEFINES
+# Any configuration must be passed in as DEFINES
 add_module(NAME core
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/source/new.cpp
@@ -52,6 +52,8 @@ add_module(NAME core
     DEFINES
         DEFAULT_ALLOCATION_BLOCK_SIZE=32
         DEFAULT_ALLOCATION_BLOCK_COUNT=1024
+    MODULES
+        memory
     LIBRARIES
         configuration-none
     NO_CONFIGURATIONS

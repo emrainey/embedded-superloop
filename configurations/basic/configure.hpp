@@ -97,6 +97,7 @@ constexpr static bool has_static_constructors{true};
 
 /// Enables access to the FPU at runtime.
 constexpr static bool enable_access_to_fpu{true};
+
 }    // namespace jarnax
 
 #endif    // CONFIGURATION_HPP_

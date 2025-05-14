@@ -49,6 +49,9 @@ public:
     /// The number of active elements
     constexpr SizeType Count() const { return count_; }
 
+    /// The amount of free space in the Ring
+    constexpr SizeType Spaces() const { return Capacity() - Count(); }
+
     /// @brief Returns the active size in bytes of the Ring.
     /// @return The number of bytes consumed by the active elements.
     constexpr SizeType Size() const { return count_ * sizeof(ValueType); }

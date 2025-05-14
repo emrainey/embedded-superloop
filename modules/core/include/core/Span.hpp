@@ -6,6 +6,7 @@
 
 #include <cstdint>
 #include <cstddef>
+#include <strings.hpp>
 
 namespace core {
 
@@ -62,8 +63,50 @@ public:
         : pointer_{&_array[0U]}
         , count_{COUNT} {}
 
+    /// @brief Copy constructor
+    /// @param other The Span to copy from
+    Span(Span const& other)
+        : pointer_{other.pointer_}
+        , count_{other.count_} {}
+
+    /// @brief Move constructor
+    /// @param other The Span to move from
+    Span(Span&& other) noexcept
+        : pointer_{other.pointer_}
+        , count_{other.count_} {
+        other.pointer_ = nullptr;
+        other.count_ = 0U;
+    }
+
+    /// @brief Copy assignment operator
+    /// @param other The Span to copy from
+    /// @return Reference to this Span
+    Span& operator=(Span const& other) {
+        if (this != &other) {
+            pointer_ = other.pointer_;
+            count_ = other.count_;
+        }
+        return *this;
+    }
+
+    /// @brief Move assignment operator
+    /// @param other The Span to move from
+    /// @return Reference to this Span
+    Span& operator=(Span&& other) noexcept {
+        if (this != &other) {
+            pointer_ = other.pointer_;
+            count_ = other.count_;
+            other.pointer_ = nullptr;
+            other.count_ = 0U;
+        }
+        return *this;
+    }
+
     /// Returns the number of elements of the span.
     SizeType count() const { return count_; }
+
+    /// @return True if the Span is empty (no elements), false otherwise
+    bool IsEmpty() const { return count_ == 0U; }
 
     /// @return The mutable pointer to the data
     Pointer data() { return pointer_; }
@@ -102,6 +145,16 @@ public:
     /// Subspan operation
     Span subspan(IndexType offset, IndexType count) { return operator()(offset, count); }
 
+    /// Resize this span to a new size which can only be equal to or smaller than the current size.
+    /// @param count The new size of the span
+    /// @return A refernce to this span
+    Span& resize(IndexType count) {
+        if (count < count_) {
+            count_ = count;
+        }
+        return *this;
+    }
+
     /// @brief The equality operator
     /// @param other The other Span to compare
     /// @return True if the pointer and the count are the same
@@ -133,6 +186,14 @@ protected:
     Pointer pointer_;      ///< The pointer to the data
     std::size_t count_;    ///< The number of elements in the Span
 };
+
+/// @brief A helper function to create a Span from a string literal
+/// @param literal A string literal
+/// @return A Span of the string literal
+/// @note The string literal is converted to a uint8_t pointer and the NUL terminator is not included in the Span's count
+inline Span<uint8_t const> SpanFrom(char const* const literal) {
+    return Span<uint8_t const>{reinterpret_cast<uint8_t const*>(literal), strings::length(literal)};
+}
 
 }    // namespace core
 
