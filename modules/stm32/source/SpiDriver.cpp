@@ -41,7 +41,8 @@ SpiDriver::SpiDriver(
     , rx_dma_stream_index_{dma::Driver::NumStreams}
     , tx_peripheral_{tx_peripheral}
     , tx_dma_stream_{*dma_driver_.Assign(tx_peripheral)}
-    , tx_dma_stream_index_{dma::Driver::NumStreams} {
+    , tx_dma_stream_index_{dma::Driver::NumStreams}
+    , transaction_{nullptr} {
     if (&spi == &registers::spi1) {
         g_spi_instances[0] = this;
     } else if (&spi == &registers::spi2) {
@@ -140,13 +141,15 @@ core::Status SpiDriver::Verify(jarnax::spi::Transaction& transaction) {
     // the coordinator has already checked the generic parts of the transaction we just
     // have to check the SPI specific parts
     size_t total_size = transaction.receive_size + transaction.send_size;
-    jarnax::print(
-        "SPI transaction: TX: %u RX: %u total: %u buffer: %u\n",
-        transaction.send_size,
-        transaction.receive_size,
-        total_size,
-        transaction.buffer.size()
-    );
+    if constexpr (jarnax::debug::spi) {
+        jarnax::print(
+            "SPI transaction: TX: %u RX: %u total: %u buffer: %u\n",
+            transaction.send_size,
+            transaction.receive_size,
+            total_size,
+            transaction.buffer.size()
+        );
+    }
     if (transaction.buffer.size() < total_size) {
         return core::Status{core::Result::InvalidValue, core::Cause::Parameter};
     }
@@ -182,19 +185,35 @@ core::Status SpiDriver::Start(jarnax::spi::Transaction& transaction) {
     control2.bits.transmit_buffer_empty_interrupt_enable = 0;       // no interrupt on TXE
     control2.bits.receive_buffer_not_empty_interrupt_enable = 0;    // no interrupt on RXNE
     control2.bits.error_interrupt_enable = 1;                       // interrupt on errors
-    // enable DMA on the transactions
-    control2.bits.receive_dma_enable = 1;
-    control2.bits.transmit_dma_enable = 1;
+    if constexpr (stm32::use_dma_for_spi) {
+        if (transaction.send_size > 0U) {
+            control2.bits.transmit_dma_enable = 1;
+            control2.bits.receive_dma_enable = 0;
+        } else if (transaction.receive_size > 0U) {
+            control2.bits.transmit_dma_enable = 0;
+            control2.bits.receive_dma_enable = 1;
+        }
+    } else {
+        control2.bits.transmit_dma_enable = 0;
+        control2.bits.receive_dma_enable = 0;
+    }
     // if the transaction does not have the chip select set then enable the follower output
     control2.bits.follower_output_enable = (transaction.chip_select == nullptr) ? 0 : 1;
     control2.bits.frame_format = 0;    // motorola SPI format
     spi_.control2 = control2;          // write
     //=========================================
+    transaction_ = &transaction;    // assign the transaction to the driver
+    //=========================================
     // configure the DMA (TX then RX)
-    auto tx_span = transaction.buffer.as_span().subspan(0, transaction.send_size);
-    dma_driver_.CopyToPeripheral(tx_dma_stream_, reinterpret_cast<uint32_t volatile*>(&spi_.data.whole), tx_span.data(), tx_span.count());
-    auto rx_span = transaction.buffer.as_span().subspan(transaction.receive_offset, transaction.send_size + transaction.receive_size);
-    dma_driver_.CopyFromPeripheral(rx_dma_stream_, rx_span.data(), reinterpret_cast<uint32_t volatile*>(&spi_.data.whole), rx_span.count());
+    if (transaction.send_size > 0U) {
+        auto tx_span = transaction.buffer.as_span().subspan(0, transaction.send_size);
+        dma_driver_.CopyToPeripheral(tx_dma_stream_, reinterpret_cast<uint32_t volatile*>(&spi_.data.whole), tx_span.data(), tx_span.count());
+        dma_driver_.Start(tx_dma_stream_);    // start the DMA stream, TXE will cause the write to happen
+    } else if (transaction.send_size == 0U) {
+        auto rx_span = transaction.buffer.as_span().subspan(transaction.receive_offset, transaction.send_size + transaction.receive_size);
+        dma_driver_.CopyFromPeripheral(rx_dma_stream_, rx_span.data(), reinterpret_cast<uint32_t volatile*>(&spi_.data.whole), rx_span.count());
+        dma_driver_.Start(rx_dma_stream_);    // start the DMA stream, RXNE will cause the read to happen
+    }
     //=========================================
     // enable the peripheral
     if (transaction.chip_select != nullptr) {
@@ -204,6 +223,8 @@ core::Status SpiDriver::Start(jarnax::spi::Transaction& transaction) {
     // enable the peripheral to start a transaction
     control1.bits.spi_enable = 1;
     spi_.control1 = control1;    // write
+
+    //=========================================
     return core::Status{core::Result::Success, core::Cause::State};
 }
 
@@ -215,15 +236,17 @@ core::Status SpiDriver::Check(jarnax::spi::Transaction& transaction) {
         // check the TX stream
         status = dma_driver_.GetStreamStatus(tx_dma_stream_index_, flags);
         if (status) {
-            jarnax::print(
-                "TX DMA[%u] flags: c:%u h:%u e:%u dme:%u fe:%u\n",
-                tx_dma_stream_index_,
-                flags.complete,
-                flags.half_complete,
-                flags.error,
-                flags.direct_mode_error,
-                flags.fifo_error
-            );
+            if constexpr (jarnax::debug::spi) {
+                jarnax::print(
+                    "SPI TX DMA[%u] flags: c:%u h:%u e:%u dme:%u fe:%u\n",
+                    tx_dma_stream_index_,
+                    flags.complete,
+                    flags.half_complete,
+                    flags.error,
+                    flags.direct_mode_error,
+                    flags.fifo_error
+                );
+            }
             if (flags.complete) {
                 transaction.sent_size = transaction.send_size;
             } else if (flags.error or flags.direct_mode_error or flags.fifo_error) {
@@ -235,15 +258,17 @@ core::Status SpiDriver::Check(jarnax::spi::Transaction& transaction) {
         // check the TX stream
         status = dma_driver_.GetStreamStatus(rx_dma_stream_index_, flags);
         if (status) {
-            jarnax::print(
-                "RX DMA[%u] flags: c:%u h:%u e:%u dme:%u fe:%u\n",
-                rx_dma_stream_index_,
-                flags.complete,
-                flags.half_complete,
-                flags.error,
-                flags.direct_mode_error,
-                flags.fifo_error
-            );
+            if constexpr (jarnax::debug::spi) {
+                jarnax::print(
+                    "SPI RX DMA[%u] flags: c:%u h:%u e:%u dme:%u fe:%u\n",
+                    rx_dma_stream_index_,
+                    flags.complete,
+                    flags.half_complete,
+                    flags.error,
+                    flags.direct_mode_error,
+                    flags.fifo_error
+                );
+            }
             if (flags.complete) {
                 transaction.received_size = transaction.receive_size;
             } else if (flags.error or flags.direct_mode_error or flags.fifo_error) {
@@ -251,16 +276,19 @@ core::Status SpiDriver::Check(jarnax::spi::Transaction& transaction) {
             }
         }
     }
-    jarnax::print(
-        "SPI Status u:%u o:%u tbe:%u rbne:%u crce:%u mf:%u b:%u\n",
-        spi_.status.bits.underrun ? 1 : 0,
-        spi_.status.bits.overrun ? 1 : 0,
-        spi_.status.bits.transmit_buffer_empty ? 1 : 0,
-        spi_.status.bits.receive_buffer_not_empty ? 1 : 0,
-        spi_.status.bits.crc_error ? 1 : 0,
-        spi_.status.bits.mode_fault ? 1 : 0,
-        spi_.status.bits.busy ? 1 : 0
-    );
+    if constexpr (jarnax::debug::spi) {
+        registers::SerialPeripheralInterface::Status status_reg = spi_.status;    // read
+        jarnax::print(
+            "SPI Status u:%u o:%u tbe:%u rbne:%u crce:%u mf:%u b:%u\n",
+            status_reg.bits.underrun,
+            status_reg.bits.overrun,
+            status_reg.bits.transmit_buffer_empty,
+            status_reg.bits.receive_buffer_not_empty,
+            status_reg.bits.crc_error,
+            status_reg.bits.mode_fault,
+            status_reg.bits.busy
+        );
+    }
     if (spi_.status.bits.busy) {
         return core::Status{core::Result::Busy, core::Cause::State};
     }
@@ -293,28 +321,30 @@ core::Status SpiDriver::Cancel(jarnax::spi::Transaction& transaction) {
 
 void SpiDriver::HandleInterrupt(void) {
     registers::SerialPeripheralInterface::Status status = spi_.status;    // read
-    if (status.bits.underrun) {
-        jarnax::print("SPI Underrun\n");
+    if constexpr (jarnax::debug::spi_isr) {
+        jarnax::print(
+            "SPI ISR Status: %" PRIx32 " u:%u o:%u tbe:%u rbne:%u crce:%u mf:%u b:%u\n",
+            status.whole,
+            status.bits.underrun,
+            status.bits.overrun,
+            status.bits.transmit_buffer_empty,
+            status.bits.receive_buffer_not_empty,
+            status.bits.crc_error,
+            status.bits.mode_fault,
+            status.bits.busy
+        );
     }
     if (status.bits.overrun) {
         registers::SerialPeripheralInterface::Data data = spi_.data;    // read
         jarnax::print("SPI Overrun, read %x\n", data.bits.data);
         status = spi_.status;    // read
     }
+
     if (status.bits.transmit_buffer_empty) {
-        jarnax::print("SPI TX Buffer Empty\n");
-    }
-    if (status.bits.receive_buffer_not_empty) {
-        jarnax::print("SPI RX Buffer Not Empty\n");
-    }
-    if (status.bits.crc_error) {
-        jarnax::print("SPI CRC Error\n");
-    }
-    if (status.bits.mode_fault) {
-        jarnax::print("SPI Mode Fault\n");
-    }
-    if (status.bits.busy) {
-        jarnax::print("SPI Busy\n");
+        // disable TXE interrupt in Control2
+        // registers::SerialPeripheralInterface::Control2 control2 = spi_.control2;    // read
+        // control2.bits.transmit_buffer_empty_interrupt_enable = 0;                   // disable TXE interrupt
+        // spi_.control2 = control2;                                                   // write
     }
 }
 

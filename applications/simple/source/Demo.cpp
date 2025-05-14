@@ -5,6 +5,7 @@
 Demo::Demo()
     : ticker_{jarnax::GetTicker()}
     , timer_{jarnax::GetTimer()}
+    , usart_driver_{jarnax::GetDriverContext().GetDebugDriver()}
     , rng_{jarnax::GetDriverContext().GetRandomNumberGenerator()}
     , error_indicator_{jarnax::GetDriverContext().GetErrorIndicator()}
     , status_indicator_{jarnax::GetDriverContext().GetStatusIndicator()}
@@ -71,6 +72,8 @@ bool Demo::Execute() {
         error_indicator_.Active();
         DelayForTicks(Ticks{64U});
         error_indicator_.Inactive();
+        auto hello = core::SpanFrom("Hello World\r\n");
+        usart_driver_.Enqueue(hello);
         countdown_.Reset();
     }
     return true;

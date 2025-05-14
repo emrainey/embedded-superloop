@@ -10,7 +10,7 @@
 namespace cortex {
 
 /// @brief The default number of regions allowed on a Cortex M processor
-constexpr static size_t kDefaultRegionLimit{16U};
+constexpr static size_t kDefaultRegionLimit{8U};
 
 /// The Memory Protection Unit
 struct MemoryProtectionUnit {

@@ -14,6 +14,8 @@
 #include "stm32/Button.hpp"
 #include "stm32/Indicator.hpp"
 #include "stm32/SpiDriver.hpp"
+#include "stm32/UartDriver.hpp"
+#include "stm32/UsartDriver.hpp"
 #include "stm32/RandomNumberGenerator.hpp"
 #include "jarnax/winbond/Driver.hpp"
 
@@ -26,11 +28,18 @@ constexpr static size_t kDownwardBufferSize{16u};
 }    // namespace rtt
 
 namespace jarnax {    // Choices for Jarnax
-/// Alias the namespace from STM32 as our vendor
 constexpr static bool use_rtt_for_printf = true;
 constexpr static bool use_swo_for_printf = false;
 constexpr static bool use_uart_for_printf = false;
 constexpr static bool use_logger_for_printf = false;
+namespace debug {
+constexpr static bool spi{true};
+constexpr static bool spi_isr{false};
+constexpr static bool usart{true};
+constexpr static bool usart_isr{false};
+constexpr static bool dma{true};
+constexpr static bool dma_isr{false};
+}    // namespace debug
 }    // namespace jarnax
 
 namespace stm32 {    // Choices for STM32
@@ -40,9 +49,21 @@ constexpr static Hertz high_speed_external_oscillator_frequency = 8_MHz;
 /// The number of iota per second (based on the ClockTree)
 constexpr static std::uint32_t iota_per_microsecond = 1U;
 /// Number of bytes per DMA block for the Drivers
-static constexpr size_t DmaBlockSize{32U};
+constexpr static size_t DmaBlockSize{32U};
 /// Number of DMA blocks for the Drivers
-static constexpr size_t DmaBlockCount{32U};
+constexpr static size_t DmaBlockCount{32U};
+/// The Baud Rate for the USART1
+constexpr static std::uint32_t usart1_baud_rate = 115200U;
+/// The UxART TX DMA Buffer Size
+constexpr static std::uint32_t usart_tx_dma_buffer_size = 128U;
+/// The UxART RX DMA Buffer Size
+constexpr static std::uint32_t usart_rx_dma_buffer_size = 128U;
+/// The USART TX DMA Switch
+constexpr static bool use_dma_for_usart_tx{false};
+/// The USART RX DMA Switch
+constexpr static bool use_dma_for_usart_rx{false};
+/// Enables use of the DMA for SPI transfers
+constexpr static bool use_dma_for_spi{true};
 }    // namespace stm32
 
 namespace winbond {
@@ -51,7 +72,7 @@ using core::units::operator""_MHz;
 /// The size of the flash chip in bytes
 constexpr static std::size_t flash_size = 16_MiB;
 /// @brief The maximum clock frequency of the SPI bus for Read Operations on the Flash W25Q16JV
-constexpr static core::units::Hertz spi_clock_frequency{40_MHz};
+constexpr static core::units::Hertz spi_clock_frequency{50_MHz};
 }    // namespace winbond
 
 namespace jarnax {
@@ -102,6 +123,9 @@ public:
     /// Returns the SPI Driver
     jarnax::spi::Driver& GetSpiDriver();
 
+    /// Returns the debug USART Driver
+    jarnax::usart::Driver& GetDebugDriver();
+
     /// Returns the Flash Chip Select
     jarnax::gpio::Output& GetFlashChipSelect();
 
@@ -143,6 +167,10 @@ protected:
     stm32::SpiDriver spi1_driver_;
     /// The Winbond Driver
     jarnax::winbond::Driver winbond_driver_;
+    /// USART1
+    stm32::gpio::Pin usart1_tx_;
+    stm32::gpio::Pin usart1_rx_;
+    stm32::UsartDriver usart1_driver_;
 };
 
 /// Gets the reference to the DriverContext

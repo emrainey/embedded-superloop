@@ -34,6 +34,14 @@ SerialPeripheralInterface volatile spi4;
 SerialPeripheralInterface volatile spi5;
 SerialPeripheralInterface volatile spi6;
 DirectMemoryAccess volatile direct_memory_access[NumberOfDmaControllers];
+UniversalSynchronousAsynchronousReceiverTransmitter volatile usart1;
+UniversalSynchronousAsynchronousReceiverTransmitter volatile usart2;
+UniversalSynchronousAsynchronousReceiverTransmitter volatile usart3;
+UniversalSynchronousAsynchronousReceiverTransmitter volatile usart6;
+UniversalAsynchronousReceiverTransmitter volatile uart4;
+UniversalAsynchronousReceiverTransmitter volatile uart5;
+UniversalAsynchronousReceiverTransmitter volatile uart7;
+UniversalAsynchronousReceiverTransmitter volatile uart8;
 }    // namespace registers
 }    // namespace stm32
 

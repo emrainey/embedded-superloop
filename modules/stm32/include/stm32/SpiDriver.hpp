@@ -32,7 +32,20 @@ public:
     core::Status Check(jarnax::spi::Transaction& transaction) override;
     core::Status Cancel(jarnax::spi::Transaction& transaction) override;
 
+    struct Statistics {
+        uint32_t underrun{0U};      ///< The number of underrun errors
+        uint32_t overrun{0U};       ///< The number of overrun errors
+        uint32_t crc_error{0U};     ///< The number of CRC errors
+        uint32_t mode_fault{0U};    ///< The number of mode faults
+
+        uint32_t bytes_received{0U};       ///< The number of bytes received
+        uint32_t bytes_transmitted{0U};    ///< The number of bytes transmitted
+    };
+
+    inline Statistics const& GetStatistics(void) const { return statistics_; }
+
 protected:
+    Statistics statistics_;    ///< The statistics for the SPI peripheral
     registers::SerialPeripheralInterface volatile& spi_;
     dma::Driver& dma_driver_;
     dma::Peripheral rx_peripheral_;
@@ -41,6 +54,8 @@ protected:
     dma::Peripheral tx_peripheral_;
     registers::DirectMemoryAccess::Stream volatile& tx_dma_stream_;
     size_t tx_dma_stream_index_;
+    /// @brief  The current transaction which may need to be altered by an interrupt
+    jarnax::spi::Transaction* transaction_;
 };
 }    // namespace stm32
 

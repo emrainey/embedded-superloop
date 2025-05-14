@@ -1,6 +1,7 @@
 #include "board.hpp"
 #include "segger/rtt.hpp"
 #include "jarnax.hpp"
+#include "strings.hpp"
 #include "core/BitMapHeap.hpp"
 #include "stm32/RandomNumberGenerator.hpp"
 #include "stm32/Timer.hpp"
@@ -57,7 +58,10 @@ DriverContext::DriverContext()
     , nrf_irq_{stm32::gpio::Port::B, 8}
     , dma_driver_{}
     , spi1_driver_{stm32::registers::spi1, dma_driver_, stm32::dma::SPI1_RX, stm32::dma::SPI1_TX}
-    , winbond_driver_{timer_, spi1_driver_, flash_cs_, GetDmaAllocator()} {
+    , winbond_driver_{timer_, spi1_driver_, flash_cs_, GetDmaAllocator()}
+    , usart1_tx_{stm32::gpio::Port::A, 9}
+    , usart1_rx_{stm32::gpio::Port::A, 10}
+    , usart1_driver_{stm32::registers::usart1, dma_driver_, stm32::dma::USART1_RX, stm32::dma::USART1_TX, GetDmaAllocator()} {
     // construct the driver objects as part of the constructor above.
 }
 
@@ -82,25 +86,23 @@ core::Status DriverContext::Initialize(void) {
         .SetResistor(stm32::gpio::Resistor::None);
     error_indicator_.Inactive();
     status_indicator_.Inactive();
-    spi1_mosi_.SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
-        .SetOutputType(stm32::gpio::OutputType::PushPull)
-        .SetMode(stm32::gpio::Mode::AlternateFunction)
-        .SetAlternative(5)
-        .SetResistor(stm32::gpio::Resistor::None);    // Alt 5 is SPI1
-    spi1_miso_.SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
-        .SetOutputType(stm32::gpio::OutputType::PushPull)
-        .SetMode(stm32::gpio::Mode::AlternateFunction)
-        .SetAlternative(5)
-        .SetResistor(stm32::gpio::Resistor::None);    // Alt 5 is SPI1
-    spi1_sclk_.SetOutputType(stm32::gpio::OutputType::PushPull)
+    spi1_mosi_.SetMode(stm32::gpio::Mode::AlternateFunction)
+        .SetAlternative(5)    // Alt 5 is SPI1
         .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
-        .SetMode(stm32::gpio::Mode::AlternateFunction)
-        .SetAlternative(5)
-        .SetResistor(stm32::gpio::Resistor::None);    // Alt 5 is SPI1
+        .SetOutputType(stm32::gpio::OutputType::PushPull);
+    spi1_miso_.SetMode(stm32::gpio::Mode::AlternateFunction)
+        .SetAlternative(5)    // Alt 5 is SPI1
+        .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
+        .SetOutputType(stm32::gpio::OutputType::OpenDrain);
+    spi1_sclk_.SetMode(stm32::gpio::Mode::AlternateFunction)
+        .SetAlternative(5)    // Alt 5 is SPI1
+        .SetOutputType(stm32::gpio::OutputType::PushPull)
+        .SetOutputSpeed(stm32::gpio::Speed::VeryHigh);
     flash_cs_.SetMode(stm32::gpio::Mode::Output)
         .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
         .SetOutputType(stm32::gpio::OutputType::PushPull)
-        .SetResistor(stm32::gpio::Resistor::None);
+        .SetResistor(stm32::gpio::Resistor::None)
+        .Value(true);    // CS is active low
     nrf_cs_.SetMode(stm32::gpio::Mode::Output)
         .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
         .SetOutputType(stm32::gpio::OutputType::PushPull)
@@ -110,6 +112,14 @@ core::Status DriverContext::Initialize(void) {
         .SetOutputType(stm32::gpio::OutputType::PushPull)
         .SetResistor(stm32::gpio::Resistor::None);
     nrf_irq_.SetMode(stm32::gpio::Mode::Input).SetResistor(stm32::gpio::Resistor::PullUp);
+    usart1_tx_.SetMode(stm32::gpio::Mode::AlternateFunction)
+        .SetAlternative(7)    // Alt 7 is USART1
+        .SetOutputSpeed(stm32::gpio::Speed::High)
+        .SetOutputType(stm32::gpio::OutputType::PushPull);
+    usart1_rx_.SetMode(stm32::gpio::Mode::AlternateFunction)
+        .SetAlternative(7)    // Alt 7 is USART1
+        .SetOutputSpeed(stm32::gpio::Speed::High)
+        .SetOutputType(stm32::gpio::OutputType::PushPull);
 
     stm32::registers::ResetAndClockControl::AHB1PeripheralClockEnable ahb1_enable;
     stm32::registers::ResetAndClockControl::AHB2PeripheralClockEnable ahb2_enable;
@@ -129,29 +139,80 @@ core::Status DriverContext::Initialize(void) {
     reset.bits.random_number_generator_reset = 0U;
     stm32::registers::reset_and_clock_control.ahb2_peripheral_reset = reset;    // write
 
-    // enable clock (from APB1) for Timer2
+    // enable the APB1 peripherals in the Reset and Clock Control register
     apb1_enable = stm32::registers::reset_and_clock_control.apb1_peripheral_clock_enable;    // read
     apb1_enable.bits.tim2en = 1U;
     stm32::registers::reset_and_clock_control.apb1_peripheral_clock_enable = apb1_enable;    // write
 
-    // enable the DMA1 and DMA2 in the Reset and Clock Control register
+    // enable the AHB1 peripherals in the Reset and Clock Control register
     ahb1_enable = stm32::registers::reset_and_clock_control.ahb1_peripheral_clock_enable;    // read
     ahb1_enable.bits.dma1en = 1;                                                             // modify
     ahb1_enable.bits.dma2en = 1;                                                             // modify
     stm32::registers::reset_and_clock_control.ahb1_peripheral_clock_enable = ahb1_enable;    // write
 
-    // enable the SPI peripheral in the Reset and Clock Control register
+    // enable the ABP2 peripherals in the Reset and Clock Control register
     apb2_enable = stm32::registers::reset_and_clock_control.apb2_peripheral_clock_enable;    // read
     apb2_enable.bits.spi1en = 1;                                                             // modify
+    apb2_enable.bits.usart1en = 1;                                                           // modify
     stm32::registers::reset_and_clock_control.apb2_peripheral_clock_enable = apb2_enable;    // write
 
-    status = random_number_generator_.Initialize();
-    status = timer_.Initialize(stm32::GetClockTree().tim_clk);
-    jarnax::print("Feature Clock is %lu\r\n", stm32::GetClockTree().fclk.value());
-    status = spi1_driver_.Initialize(stm32::GetClockTree().fclk, ::winbond::spi_clock_frequency);
+    jarnax::print(
+        "Feature Clock is %lu\r\n"
+        "APB1 Clock is %lu\r\n"
+        "APB2 Clock is %lu\r\n",
+        stm32::GetClockTree().fclk.value(),
+        stm32::GetClockTree().apb1_peripheral.value(),
+        stm32::GetClockTree().apb2_peripheral.value()
+    );
+    do {
+        // RNG
+        status = random_number_generator_.Initialize();
+        if (not status.IsSuccess()) {
+            jarnax::print("RNG failed to initialize\r\n");
+            break;
+        }
+        // TIMER2
+        status = timer_.Initialize(stm32::GetClockTree().tim_clk);
+        if (not status.IsSuccess()) {
+            jarnax::print("TIMER2 failed to initialize\r\n");
+            break;
+        }
+        // SPI1
+        status = spi1_driver_.Initialize(stm32::GetClockTree().apb2_peripheral, ::winbond::spi_clock_frequency);
+        if (not status.IsSuccess()) {
+            jarnax::print("SPI1 failed to initialize\r\n");
+            break;
+        }
 
-    status = winbond_driver_.Initialize();
+        // USART1
+        status = usart1_driver_.Initialize(stm32::GetClockTree().apb2_peripheral);    // APB2 Clock for USART1 and 6
+        if (not status.IsSuccess()) {
+            jarnax::print("USART1 failed to initialize\r\n");
+            break;
+        }
+        status = usart1_driver_.Configure(stm32::usart1_baud_rate, false, 1);
+        if (not status.IsSuccess()) {
+            jarnax::print("USART1 failed to configure\r\n");
+            break;
+        }
 
+        // force out
+        break;
+    } while (true);
+
+    if (not status.IsSuccess()) {
+        cortex::spinhalt();
+    }
+
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // External Devices have to be done after the buses are initialized
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    while (status.IsSuccess()) {
+        status = winbond_driver_.Initialize();
+        // force out
+        break;
+    }
     return status;
 }
 
@@ -189,6 +250,10 @@ jarnax::Copier& DriverContext::GetCopier() {
 
 jarnax::spi::Driver& DriverContext::GetSpiDriver() {
     return spi1_driver_;
+}
+
+jarnax::usart::Driver& DriverContext::GetDebugDriver() {
+    return usart1_driver_;
 }
 
 jarnax::gpio::Output& DriverContext::GetFlashChipSelect() {

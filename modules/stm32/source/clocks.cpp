@@ -217,8 +217,8 @@ void clocks(ClockConfiguration const& clkcfg) {
     clock_tree.fclk = clock_tree.sysclk / GetAHBDivider(clkcfg.ahb_divider);
     clock_tree.hclk = clock_tree.fclk;
     clock_tree.system_timer = clock_tree.fclk / 8U;
-    clock_tree.apbx_peripheral = clock_tree.hclk / GetAPB1Divider(clkcfg.low_speed_divider);
-    clock_tree.apbx_timer = clock_tree.hclk / GetAPB2Divider(clkcfg.high_speed_divider);
+    clock_tree.apb1_peripheral = clock_tree.hclk / GetAPB1Divider(clkcfg.low_speed_divider);
+    clock_tree.apb2_peripheral = clock_tree.hclk / GetAPB2Divider(clkcfg.high_speed_divider);
     clock_tree.rtc = clock_tree.high_speed_external / clkcfg.rtc_divider;
     clock_tree.tim_clk = clock_tree.hclk;
     // clock_tree.rng = clock_tree.sysclk;

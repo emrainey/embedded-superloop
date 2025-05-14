@@ -10,6 +10,7 @@
 #include "jarnax/Indicator.hpp"
 #include "jarnax/Button.hpp"
 #include "jarnax/Copier.hpp"
+#include "jarnax/usart/Driver.hpp"
 #include "jarnax/winbond/Driver.hpp"
 #include "core/Allocator.hpp"
 
@@ -30,6 +31,7 @@ protected:
 
     jarnax::Ticker& ticker_;
     jarnax::Timer& timer_;
+    jarnax::usart::Driver& usart_driver_;
     jarnax::RandomNumberGenerator& rng_;
     jarnax::Indicator& error_indicator_;
     jarnax::Indicator& status_indicator_;

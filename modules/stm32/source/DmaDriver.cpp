@@ -327,7 +327,11 @@ stm32::registers::DirectMemoryAccess::Stream volatile* Driver::Assign(Peripheral
                     if (peripheral == dma_endpoints[controller][index][channel]) {
                         used_[number] = true;
                         // assign the Channel!
-                        jarnax::print("Assigning DMA Stream: %u on controller: %u (%u) (will be channel %u)\n", index, controller, number, channel);
+                        if constexpr (jarnax::debug::dma) {
+                            jarnax::print(
+                                "Assigning DMA Stream: %u on controller: %u (%u) (will be channel %u)\n", index, controller, number, channel
+                            );
+                        }
                         return &stm32::registers::direct_memory_access[controller].streams[index];
                     }
                 }
@@ -358,7 +362,9 @@ void Driver::Initialize(stm32::registers::DirectMemoryAccess::Stream volatile& s
             stm32::registers::DirectMemoryAccess::Stream::Configuration::DataTransferDirection::MemoryToMemory;
     }
     size_t channel = GetChannelFromStreamPeripheral(number, peripheral);
-    jarnax::print("DMA Stream %u assigned to channel %" PRIz "\n", number, channel);
+    if constexpr (jarnax::debug::dma) {
+        jarnax::print("DMA Stream %u assigned to channel %" PRIz "\n", number, channel);
+    }
     configuration.bits.channel_selection = (channel & 0x3U);    // mask to prevent overflow
     stream.configuration = configuration;                       // write
     // ========================================
@@ -380,7 +386,9 @@ core::Status Driver::Acquire(stm32::registers::DirectMemoryAccess::Stream volati
         used_[number] = true;
         size_t c{0U}, i{0U};
         GetIndexes(number, c, i);
-        jarnax::print("Acquiring DMA Stream: %u on controller: %u (%u)\n", i, c, number);
+        if constexpr (jarnax::debug::dma) {
+            jarnax::print("Acquiring DMA Stream: %u on controller: %u (%u)\n", i, c, number);
+        }
         Initialize(stm32::registers::direct_memory_access[c].streams[i], number, peripheral);
         // assign the output stream
         stream = &stm32::registers::direct_memory_access[c].streams[i];
@@ -567,19 +575,21 @@ void Driver::HandleInterrupt(uint32_t controller, uint32_t stream) {
     dma::Driver::Flags flags;
     auto status = GetStreamStatus(number, flags);
     if (status) {
-        jarnax::print(
-            "DMA Interrupt: %" PRIu32 ", %" PRIu32 " status: c:%u h:%u e:%u dme:%u fe:%u\n",
-            controller,
-            stream,
-            flags.complete,
-            flags.half_complete,
-            flags.error,
-            flags.direct_mode_error,
-            flags.fifo_error
-        );
-        // clear the status, except the completions flags
-        flags.complete = false;
-        flags.half_complete = false;
+        if constexpr (jarnax::debug::dma_isr) {
+            jarnax::print(
+                "DMA Interrupt: %" PRIu32 ", %" PRIu32 " status: c:%u h:%u e:%u dme:%u fe:%u\n",
+                controller,
+                stream,
+                flags.complete,
+                flags.half_complete,
+                flags.error,
+                flags.direct_mode_error,
+                flags.fifo_error
+            );
+        }
+        if (flags.complete) {
+            Stop(stm32::registers::direct_memory_access[controller].streams[stream]);
+        }
         ClearStreamStatus(number, flags);
     }
 }
@@ -762,13 +772,11 @@ core::Status Driver::CopyToPeripheral(
     configuration.bits.direct_mode_error_interrupt_enable = 1;
     configuration.bits.transfer_error_interrupt_enable = 1;
     configuration.bits.half_transfer_interrupt_enable = 0;
-    configuration.bits.transfer_complete_interrupt_enable = 0;    // Poll mode
-    stream.configuration = configuration;                         // write it out so we can see the settings
-    jarnax::print("Copying %p <= %p, %u elements\n", reinterpret_cast<void*>(destination), reinterpret_cast<void*>(source), count);
-    // ========================================
-    configuration.bits.stream_enable = 1;    // enable
-    stream.configuration = configuration;    // write
-
+    configuration.bits.transfer_complete_interrupt_enable = 1;
+    stream.configuration = configuration;    // write it out so we can see the settings
+    if constexpr (jarnax::debug::dma) {
+        jarnax::print("Configured Copy %p <= %p, %u elements\n", reinterpret_cast<void*>(destination), reinterpret_cast<void*>(source), count);
+    }
     return core::Status{};
 }
 
@@ -855,14 +863,26 @@ core::Status Driver::CopyFromPeripheral(
     configuration.bits.direct_mode_error_interrupt_enable = 1;
     configuration.bits.transfer_error_interrupt_enable = 1;
     configuration.bits.half_transfer_interrupt_enable = 0;
-    configuration.bits.transfer_complete_interrupt_enable = 0;
+    configuration.bits.transfer_complete_interrupt_enable = 1;
     stream.configuration = configuration;    // write it out so we can see the settings
-    jarnax::print("Copying %p => %p, %u elements\n", reinterpret_cast<void*>(source), reinterpret_cast<void*>(destination), count);
-    // ========================================
-    configuration.bits.stream_enable = 1;    // enable
-    stream.configuration = configuration;    // write
-
+    if constexpr (jarnax::debug::dma) {
+        jarnax::print("Configured Copy %p => %p, %u elements\n", reinterpret_cast<void*>(source), reinterpret_cast<void*>(destination), count);
+    }
     return core::Status{};
+}
+
+void Driver::Start(stm32::registers::DirectMemoryAccess::Stream volatile& stream) {
+    // enable the stream
+    stm32::registers::DirectMemoryAccess::Stream::Configuration configuration = stream.configuration;    // read
+    configuration.bits.stream_enable = 1;                                                                // enable
+    stream.configuration = configuration;                                                                // write
+}
+
+void Driver::Stop(stm32::registers::DirectMemoryAccess::Stream volatile& stream) {
+    // enable the stream
+    stm32::registers::DirectMemoryAccess::Stream::Configuration configuration = stream.configuration;    // read
+    configuration.bits.stream_enable = 0;                                                                // enable
+    stream.configuration = configuration;                                                                // write
 }
 
 }    // namespace dma

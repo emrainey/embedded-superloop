@@ -10,6 +10,8 @@
 #include "stm32/registers/Timer2.hpp"
 #include "stm32/registers/DirectMemoryAccess.hpp"
 #include "stm32/registers/SerialPeripheralInterface.hpp"
+#include "stm32/registers/UniversalSynchronousAsynchronousReceiverTransmitter.hpp"
+#include "stm32/registers/UniversalAsynchronousReceiverTransmitter.hpp"
 
 /// The ST Micro 32 Namespace
 namespace stm32 {
@@ -30,8 +32,8 @@ struct ClockTree {
     Hertz fclk;               ///< The frequency of the cortex free running clock
     Hertz hclk;               ///< The frequency of the AHB bus, DMA and Core Memory (HCLK)
     Hertz system_timer;       ///< The frequency of the Cortex SYSTICK
-    Hertz apbx_peripheral;    ///< The frequency of the APB1 bus (low speed)
-    Hertz apbx_timer;         ///< The frequency of the APB2 bus (high speed)
+    Hertz apb1_peripheral;    ///< The frequency of the APB1 bus (low speed)
+    Hertz apb2_peripheral;    ///< The frequency of the APB2 bus (high speed)
     Hertz pll_i2s;
     Hertz pll_48ck;
     Hertz rtc;

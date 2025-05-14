@@ -156,10 +156,6 @@ constexpr static Peripheral USART2_RX = Peripheral{Peripheral::Type::USART, 2, P
 constexpr static Peripheral USART2_TX = Peripheral{Peripheral::Type::USART, 2, Peripheral::Sub::TX};
 constexpr static Peripheral USART3_RX = Peripheral{Peripheral::Type::USART, 3, Peripheral::Sub::RX};
 constexpr static Peripheral USART3_TX = Peripheral{Peripheral::Type::USART, 3, Peripheral::Sub::TX};
-constexpr static Peripheral USART4_RX = Peripheral{Peripheral::Type::USART, 4, Peripheral::Sub::RX};
-constexpr static Peripheral USART4_TX = Peripheral{Peripheral::Type::USART, 4, Peripheral::Sub::TX};
-constexpr static Peripheral USART5_RX = Peripheral{Peripheral::Type::USART, 5, Peripheral::Sub::RX};
-constexpr static Peripheral USART5_TX = Peripheral{Peripheral::Type::USART, 5, Peripheral::Sub::TX};
 constexpr static Peripheral USART6_RX = Peripheral{Peripheral::Type::USART, 6, Peripheral::Sub::RX};
 constexpr static Peripheral USART6_TX = Peripheral{Peripheral::Type::USART, 6, Peripheral::Sub::TX};
 
@@ -246,6 +242,7 @@ public:
     /// @param source The UNIT_TYPE source array
     /// @param count The number of units to copy.
     /// @return
+    /// @post Start()
     template <typename UNIT_TYPE>
     core::Status CopyToPeripheral(
         stm32::registers::DirectMemoryAccess::Stream volatile& stream, uint32_t volatile* destination, UNIT_TYPE const source[], size_t count
@@ -257,6 +254,7 @@ public:
     /// @param source The source address
     /// @param count The number of units to copy.
     /// @return
+    /// @post Start()
     core::Status CopyToPeripheral(
         stm32::registers::DirectMemoryAccess::Stream volatile& stream,
         std::uintptr_t destination,
@@ -272,6 +270,7 @@ public:
     /// @param source The peripheral address
     /// @param count The number of units to copy.
     /// @return
+    /// @post Start()
     template <typename UNIT_TYPE>
     core::Status CopyFromPeripheral(
         stm32::registers::DirectMemoryAccess::Stream volatile& stream, UNIT_TYPE destination[], uint32_t volatile const* source, size_t count
@@ -283,6 +282,7 @@ public:
     /// @param source The source address
     /// @param count The number of units to copy.
     /// @return
+    /// @post Start()
     core::Status CopyFromPeripheral(
         stm32::registers::DirectMemoryAccess::Stream volatile& stream,
         std::uintptr_t destination,
@@ -314,6 +314,14 @@ public:
     }
 
     constexpr static size_t GetNumber(size_t controller, size_t stream) { return (controller * NumStreamsPerController) + stream; }
+
+    /// @brief Starts the DMA stream.
+    /// @param stream The stream to start
+    void Start(stm32::registers::DirectMemoryAccess::Stream volatile& stream);
+
+    /// @brief Stop the DMA stream.
+    /// @param stream The stream to stop
+    void Stop(stm32::registers::DirectMemoryAccess::Stream volatile& stream);
 
 protected:
     /// only DMA2 can do memory to memory so the stream number must be >= 8

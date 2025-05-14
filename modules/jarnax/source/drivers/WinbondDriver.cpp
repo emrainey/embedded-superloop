@@ -198,26 +198,5 @@ void Driver::OnEvent(Event event, core::Status status) {
     printer_("OnEvent", status);
 }
 
-// printer_("SPI Transaction Complete\r\n");
-// buffer_ = transaction_.Relinquish();
-// // now we hold the buffer
-// if (not buffer_.IsEmpty()) {
-//     // print the UID (64 bytes, 8 blocks of 8 bytes is ok)
-//     auto read_span = buffer_.as_span<uint8_t>().subspan(0U, 3U);
-//     printer_("SPI Transaction Read Span = %p:%u\r\n", read_span.data(), read_span.count());
-//     printer_("JEDEC ID:\r\n");
-//     for (size_t i = 0U; i < read_span.count(); i++) {
-//         if ((i % 8U) == 0U and i != 0U) {
-//             printer_("\r\n");
-//         }
-//         printer_("%hhx ", read_span.data()[i]);
-//     }
-//     printer_("\r\n");
-// }
-// // hand it back
-// transaction_.buffer = std::move(buffer_);
-// // release the transaction (clears values, deallocates the buffer if it had it, etc)
-// transaction_.Release();
-
 }    // namespace winbond
 }    // namespace jarnax

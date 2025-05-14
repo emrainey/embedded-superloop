@@ -17,11 +17,12 @@ namespace jarnax {
 
 namespace debug {
 /// @brief The boolean flag to control debugging States
-static constexpr bool States =
 #if defined(UNITTEST)
-    true;
+static constexpr bool States = true;
+static constexpr bool Inform = true;
 #else
-    false;
+static constexpr bool States = false;
+static constexpr bool Inform = false;
 #endif
 }    // namespace debug
 
@@ -84,7 +85,9 @@ public:
     /// @param event The input event
     /// @param status The status to assign to the completion status if the event is Completed
     void Inform(Event event, core::Status status = core::Status{core::Result::NotAvailable, core::Cause::Parameter}) {
-        jarnax::print("Transactable::Inform: %d\n", static_cast<int>(event));
+        if constexpr (debug::Inform) {
+            jarnax::print("Transactable::Inform: %d\n", static_cast<int>(event));
+        }
         if (not IsFinal()) {
             event_ = event;
             if (event_ == Event::Completed) {
