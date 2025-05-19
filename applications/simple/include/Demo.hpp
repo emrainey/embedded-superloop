@@ -49,7 +49,6 @@ protected:
     jarnax::usart::Driver& usart_driver_;
     jarnax::RandomNumberGenerator& rng_;
     jarnax::Indicator& error_indicator_;
-    jarnax::Indicator& status_indicator_;
     jarnax::Button& wakeup_button_;
     jarnax::Button& key0_button_;
     jarnax::Button& key1_button_;

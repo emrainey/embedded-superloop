@@ -122,6 +122,7 @@ core::Status Driver::Reinitialize(Instruction instruction, size_t write_size, si
         transaction_.receive_size = read_size;
         transaction_.received_size = 0U;
         transaction_.use_data_as_bytes = true;
+        transaction_.SetDeadline(timer_.GetMicroseconds() + core::units::MicroSeconds{10'000U});    // now + 10ms
         transaction_.Inform(jarnax::spi::Transaction::Event::Initialized);
     }
     return core::Status{core::Result::Success, core::Cause::Resource};

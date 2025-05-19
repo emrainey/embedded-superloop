@@ -1,5 +1,6 @@
 
 #include "jarnax/Context.hpp"
+#include "jarnax/Monitor.hpp"
 
 #include "Demo.hpp"
 
@@ -13,10 +14,12 @@ class GlobalContext : public Context {
 public:
     GlobalContext()
         : demo_{}
+        , monitor_{jarnax::GetDriverContext().GetTimer(), jarnax::GetDriverContext().GetStatusIndicator(), jarnax::GetDriverContext().GetErrorIndicator()}
         , superloop_{jarnax::GetTicker()} {}
 
     Status Initialize(void) override {
         bool result = true;
+        result &= GetSuperLoop().Enlist(monitor_);
         result &= GetSuperLoop().Enlist(demo_);
         result &= GetSuperLoop().Enlist(jarnax::GetDriverContext().GetSpiDriver());
         result &= GetSuperLoop().Enlist(jarnax::GetDriverContext().GetWinbondDriver());
@@ -31,6 +34,7 @@ public:
 
 protected:
     Demo demo_;
+    jarnax::Monitor monitor_;
     jarnax::SuperLoop superloop_;
 };
 

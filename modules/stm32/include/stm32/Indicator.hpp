@@ -23,14 +23,16 @@ public:
     /// @param level The level of the indicator to use as it's "ON" state
     Indicator(stm32::gpio::Pin& pin, Level level);
 
-    /// @brief Activate the indicator
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // Overrides
     void Active() override;
-
-    /// @brief Deactivate the indicator
     void Inactive() override;
+    void Toggle() override;
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 protected:
     Level level_;              ///< The level of the indicator to use as it's "ON" state
+    bool state_;               ///< The current state of the indicator
     stm32::gpio::Pin& pin_;    ///< The reference to the pin
 };
 }    // namespace stm32

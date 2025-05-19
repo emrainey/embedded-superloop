@@ -10,6 +10,7 @@ class Indicator {
 public:
     virtual void Active() = 0;
     virtual void Inactive() = 0;
+    virtual void Toggle() = 0;
 
 protected:
     ~Indicator() = default;

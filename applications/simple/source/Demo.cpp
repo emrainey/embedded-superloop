@@ -10,7 +10,6 @@ Demo::Demo()
     , usart_driver_{jarnax::GetDriverContext().GetDebugDriver()}
     , rng_{jarnax::GetDriverContext().GetRandomNumberGenerator()}
     , error_indicator_{jarnax::GetDriverContext().GetErrorIndicator()}
-    , status_indicator_{jarnax::GetDriverContext().GetStatusIndicator()}
     , wakeup_button_{jarnax::GetDriverContext().GetWakeupButton()}
     , key0_button_{jarnax::GetDriverContext().GetButton0()}
     , key1_button_{jarnax::GetDriverContext().GetButton1()}
@@ -98,8 +97,6 @@ DemoState Demo::OnCycle(DemoState state) {
             uint32_t random = rng_.GetNextRandom();
             std::uint32_t iotas = static_cast<std::uint32_t>(timer_.GetIotas().value());
             jarnax::print("Demo::Execute: %lu ticks, %lf sec, %lx Iotas: %lu\r\n", ticks.value(), time.value(), random, iotas);
-            status_indicator_.Active();
-            status_indicator_.Inactive();
             countdown_.Reset();
         }
     } else if (state == DemoState::Error) {
