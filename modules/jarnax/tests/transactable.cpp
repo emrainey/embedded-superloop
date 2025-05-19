@@ -28,7 +28,6 @@ public:
         return;
     }
 
-    void GetOnWithIt() { RunOnce(); }
     bool IsFinal() const { return Transactable<DummyTransaction, Attempts>::IsFinal(); }
 
     std::size_t id_;
@@ -61,7 +60,8 @@ TEST_CASE("Transactable") {
         REQUIRE(dummy.GetStatus() == core::Status{core::Result::Success, core::Cause::Unknown});
         // we need to transition from Complete to Final so that the Reset will work.
         REQUIRE(not dummy.IsFinal());
-        dummy.GetOnWithIt();
+        dummy.Inform(DummyTransaction::Event::Discard);
+        dummy.Inform(DummyTransaction::Event::Discard);
         REQUIRE(dummy.IsFinal());
         //======================================================================
         REQUIRE(dummy.Reset());
@@ -84,6 +84,17 @@ TEST_CASE("Transactable") {
         REQUIRE(dummy.GetAttemptsRemaining() == Attempts - 1);
         REQUIRE(dummy.GetDuration().value() == 7U);
         REQUIRE(dummy.GetStatus() == core::Status{core::Result::Success, core::Cause::Unknown});
+        //======================================================================
+        SECTION("Recycle") {
+            dummy.Inform(DummyTransaction::Event::Recycle);
+            REQUIRE(dummy.IsUninitialized());
+            REQUIRE(dummy.GetStatus() == core::Status{core::Result::NotInitialized, core::Cause::State});
+            REQUIRE(not dummy.IsFinal());
+        }
+        SECTION("Discard") {
+            dummy.Inform(DummyTransaction::Event::Discard);
+            REQUIRE(dummy.IsFinal());
+        }
     }
     SECTION("Retry") {
         dummy.Initialize(3);

@@ -23,6 +23,7 @@ public:
     Addresser(w25q16bv::Address& address)
         : address_{address} {}
     void operator()(core::Span<uint8_t>& data) override {
+        // instruction goes into data[0U]
         data[1U] = address_.address[0U];
         data[2U] = address_.address[1U];
         data[3U] = address_.address[2U];
@@ -30,6 +31,14 @@ public:
 
 protected:
     w25q16bv::Address address_;
+};
+
+class Reseter : public Functor {
+public:
+    void operator()(core::Span<uint8_t>& data) override {
+        // instruction goes into data[0U]
+        data[1U] = to_underlying(::w25q16bv::Instruction::ResetDevice);
+    }
 };
 
 Driver::Driver(Timer& timer, spi::Driver& driver, gpio::Output& chip_select, core::Allocator& dma_allocator)
@@ -45,7 +54,8 @@ Driver::Driver(Timer& timer, spi::Driver& driver, gpio::Output& chip_select, cor
     , startup_countdown_{timer_, core::units::Iota{30U}}    // 30 microseconds
     , state_machine_{*this, *this}
     , powered_{false}
-    , last_instruction_{Instruction::None} {
+    , last_instruction_{Instruction::None}
+    , next_event_{Event::None} {
 }
 
 Driver::~Driver() {
@@ -57,6 +67,30 @@ core::Status Driver::Initialize(void) {
     return core::Status{core::Result::Success, core::Cause::State};
 }
 
+void Driver::PowerUp(void) {
+    if (not powered_) {
+        next_event_ = Event::Reset;
+    }
+}
+
+bool Driver::IsPowered(void) const {
+    return powered_;
+}
+
+bool Driver::IsIdentified(void) const {
+    return identified_;
+}
+
+bool Driver::IsReady(void) const {
+    return powered_ and identified_;
+}
+
+void Driver::PowerDown(void) {
+    if (powered_) {
+        next_event_ = Event::PowerOff;
+    }
+}
+
 core::Status Driver::Reinitialize(Instruction instruction, size_t write_size, size_t read_size, Functor& functor) {
     // allocates the buffer and releases the old one if it's still there
     if (buffer_.IsEmpty()) {
@@ -66,13 +100,14 @@ core::Status Driver::Reinitialize(Instruction instruction, size_t write_size, si
         printer_("SPI Buffer Allocation Failed\r\n");
         return core::Status{core::Result::NotEnough, core::Cause::Resource};
     }
-    transaction_.phase = jarnax::spi::ClockPhase::ImmediateEdge;
-    transaction_.polarity = jarnax::spi::ClockPolarity::IdleLow;
+    transaction_.phase = jarnax::spi::ClockPhase::FirstAfterEdge;
+    transaction_.polarity = jarnax::spi::ClockPolarity::IdleHigh;
     transaction_.use_hardware_crc = false;
     transaction_.chip_select = &chip_select_;
     if (transaction_.IsEmpty()) {
         transaction_.Assign(std::move(buffer_));
     }
+
     if (not transaction_.IsEmpty()) {
         auto data = transaction_.buffer.as_span<uint8_t>();
         printer_("SPI Transaction Buffer Span = %p:%u\r\n", data.data(), data.count());
@@ -93,12 +128,11 @@ core::Status Driver::Reinitialize(Instruction instruction, size_t write_size, si
 }
 
 bool Driver::Execute(void) {
-    if (not powered_) {
-        if (startup_countdown_.IsExpired()) {
-            state_machine_.Process(winbond::Event::PowerOn);
-        }
-    } else {
-        state_machine_.Process(winbond::Event::None);
+    // only allow processing the state machine if the startup timer is expired
+    if (startup_countdown_.IsExpired()) {
+        jarnax::print("%s Processing Event %d\r\n", __func__, to_underlying(next_event_));
+        state_machine_.Process(next_event_);
+        next_event_ = Event::None;
     }
     return true;
 }
@@ -114,14 +148,15 @@ core::Status Driver::Command(winbond::Instruction instruction) {
         Empty empty;
         // Addresser address{w25q16bv::Address{}};
 
-        if (instruction == winbond::Instruction::ReleasePowerDown) {
-            Reinitialize(instruction, 4U, 1U, empty);    // should return the Device ID for the W25Q16BV?
+        if (instruction == winbond::Instruction::EnableReset) {
+            Reseter reseter;
+            status = Reinitialize(instruction, 2U, 0U, reseter);
+        } else if (instruction == winbond::Instruction::ReleasePowerDown) {
+            status = Reinitialize(instruction, 4U, 0U, empty);
         } else if (instruction == winbond::Instruction::PowerDown) {
-            Reinitialize(instruction, 1U, 0U, empty);
-        } else if (instruction == winbond::Instruction::EnableReset) {
-            Reinitialize(instruction, 1U, 0U, empty);
-        } else if (instruction == winbond::Instruction::ResetDevice) {
-            Reinitialize(instruction, 1U, 0U, empty);
+            status = Reinitialize(instruction, 3U, 0U, empty);
+        } else if (instruction == winbond::Instruction::ReadUniqueId) {
+            status = Reinitialize(instruction, 5U, 13U, empty);
         } else {
             status = core::Status{core::Result::NotAvailable, core::Cause::State};
         }
@@ -139,11 +174,8 @@ core::Status Driver::Command(winbond::Instruction instruction) {
     return status;
 }
 
-bool Driver::IsComplete(void) const {
-    if (transaction_.IsComplete()) {
-        return true;
-    }
-    return false;
+bool Driver::IsCommandComplete(void) const {
+    return transaction_.IsComplete();
 }
 
 core::Status Driver::GetStatusAndData(void) {
@@ -167,9 +199,26 @@ core::Status Driver::GetStatusAndData(void) {
                 printer_("%hhx ", read_span.data()[i]);
             }
             printer_("\r\n");
+        } else if (instruction == w25q16bv::Instruction::ReadUniqueId) {
+            printer_("Unique ID:\r\n");
+            for (size_t i = 0U; i < read_span.count(); i++) {
+                if ((i % 8U) == 0U and i != 0U) {
+                    printer_("\r\n");
+                }
+                printer_("%hhx ", read_span.data()[i]);
+            }
+            printer_("\r\n");
+        } else if (instruction == w25q16bv::Instruction::PowerDown) {
+            printer_("Power Down\r\n");
+        } else if (instruction == w25q16bv::Instruction::EnableReset) {
+            printer_("Enable Reset\r\n");
+        } else if (instruction == w25q16bv::Instruction::ResetDevice) {
+            printer_("Reset Device\r\n");
         } else {
             printer_("Instruction %hhx\r\n", to_underlying(instruction));
         }
+        // we've gotten the data out of the transaction, so we can recycle it
+        transaction_.Inform(jarnax::spi::Transaction::Event::Recycle, status);
     }
     return status;
 }
@@ -180,22 +229,19 @@ bool Driver::IsPresent(void) const {
 }
 
 void Driver::OnEvent(Event event, core::Status status) {
-    if (event == Event::Entered) {
-        printer_("OnEvent Entered\r\n");
-    } else if (event == Event::Exited) {
-        printer_("OnEvent Exited\r\n");
-    } else if (event == Event::PowerOn) {
-        printer_("OnEvent PowerOn\r\n");
+    if (event == Event::PowerOn) {
         powered_ = true;
     } else if (event == Event::PowerOff) {
-        printer_("OnEvent PowerOff\r\n");
+        identified_ = false;
         powered_ = false;
-    } else if (event == Event::Reset) {
-        printer_("OnEvent Reset\r\n");
     } else if (event == Event::Faulted) {
-        printer_("OnEvent Faulted\r\n");
+        // nothing to do here
+    } else if (event == Event::Identify) {
+        identified_ = true;
+        // TODO print ID numbers
     }
-    printer_("OnEvent", status);
+    printer_("OnEvent passed %x\r\n", to_underlying(event));
+    printer_("OnEvent had status ", status);
 }
 
 }    // namespace winbond

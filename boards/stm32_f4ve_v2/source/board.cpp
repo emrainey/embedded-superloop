@@ -93,11 +93,11 @@ core::Status DriverContext::Initialize(void) {
     spi1_miso_.SetMode(stm32::gpio::Mode::AlternateFunction)
         .SetAlternative(5)    // Alt 5 is SPI1
         .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
-        .SetOutputType(stm32::gpio::OutputType::OpenDrain);
+        .SetOutputType(stm32::gpio::OutputType::PushPull);
     spi1_sclk_.SetMode(stm32::gpio::Mode::AlternateFunction)
         .SetAlternative(5)    // Alt 5 is SPI1
-        .SetOutputType(stm32::gpio::OutputType::PushPull)
-        .SetOutputSpeed(stm32::gpio::Speed::VeryHigh);
+        .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
+        .SetOutputType(stm32::gpio::OutputType::PushPull);
     flash_cs_.SetMode(stm32::gpio::Mode::Output)
         .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
         .SetOutputType(stm32::gpio::OutputType::PushPull)

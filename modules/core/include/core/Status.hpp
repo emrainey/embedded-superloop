@@ -21,7 +21,7 @@ enum class Result : std::int8_t {
     NotInitialized = 9,     ///< Not initialized
     NotAvailable = 10,      ///< Not available
     Timeout = 11,           ///< A timeout occurred
-    ExceededLimit = 12,     ///< A limit has been exceeded
+    ExceededLimit = 12,     ///< A counted limit has been exceeded (not a timeout)
     NotImplemented = 13,    ///< The feature is not implemented
 };
 

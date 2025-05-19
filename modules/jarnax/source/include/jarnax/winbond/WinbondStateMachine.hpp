@@ -13,28 +13,28 @@ using Instruction = ::w25q16bv::Instruction;    ///< The Winbond Instruction typ
 enum class State : std::uint8_t {
     Undefined = 0U,    ///< The undefined state, required by StateMachine
     Detection,         ///< The state where the chip is detected
-    Waiting,           ///< The waiting state for Commands
-    PowerUp,           ///< Sends the Power Up Command (Release Power Down)
-    PowerDown,         ///< Sends the Power Down Command
-    EnableReset,       ///< Enables reset state
     Reset,             ///< The reset state
+    PowerUp,           ///< Sends the Power Up Command (Release Power Down)
+    Identify,          ///< The identify state
+    Waiting,           ///< The waiting state for Commands
+    PowerDown,         ///< Sends the Power Down Command
     Error,             ///< The error state, will be the Final State
 };
 
 enum class Event : std::uint16_t {
-    None = 0x0000U,        ///< No event
-    Entered = 0x0001U,     ///< The StateMachine has been Entered
-    Exited = 0xDEADU,      ///< The StateMachine has been Exited
-    PowerOn = 0x0A15U,     ///< The power on event
-    Reset = 0xAAAAU,       ///< The reset event
-    Identify = 0xFACEU,    ///< The identify event
+    None = 0x0000U,    ///< No event
+    Entered,           ///< The StateMachine has been Entered
+    Exited,            ///< The StateMachine has been Exited
+    Reset,             ///< The reset event
+    PowerOn,           ///< The power on event
+    Identify,          ///< The identify event
 
-    ReadPage = 0x2222U,     ///< The read page event
-    WritePage = 0x3333U,    ///< The write page event
-    ErasePage = 0x4444U,    ///< The erase page event
+    ReadPage,     ///< The read page event
+    WritePage,    ///< The write page event
+    ErasePage,    ///< The erase page event
 
-    PowerOff = 0x0FFFU,    ///< The power off event
-    Faulted = 0xBEEF,      ///< The fault event
+    PowerOff,              ///< The power off event
+    Faulted,               ///< The fault event
     Finalized = 0xFFFFU    ///< The machine is finalized and can not be started
 };
 
@@ -60,8 +60,8 @@ public:
     /// @param instruction The instruction to send
     virtual core::Status Command(winbond::Instruction instruction) = 0;
 
-    /// @brief Is the command complete?
-    virtual bool IsComplete(void) const = 0;
+    /// @brief Is the command done?
+    virtual bool IsCommandComplete(void) const = 0;
 
     /// @brief Get the status of the command after it is complete
     /// @return core::Status
@@ -105,6 +105,8 @@ protected:
     void OnTransition(State from, State to) override;
     void OnExit() override;
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    /// @brief Helper to handle the transactions
+    State WhenTransactionDone(State state, State on_success, State on_failure);
     Listener& listener_;
     Executor& executor_;
     Event event_;

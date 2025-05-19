@@ -28,12 +28,12 @@ static constexpr bool Inform = false;
 
 /// @brief  The state of the transaction
 enum class TransactionState {
-    Undefined = 0,        ///< The transaction has not been initialized (required by StateMachine)
+    Undefined = 0,        ///< The transaction is in an undefined state (required by StateMachine)
     Uninitialized = 1,    ///< The transaction has not been initialized
     Initialized = 2,      ///< The transaction has been initialized, and is ready to be scheduled.
     Queued = 3,           ///< The transaction has been scheduled but has not yet started.
     Running = 4,          ///< The transaction is currently running but has not yet completed.
-    Complete = 5,         ///< The transaction has completed. The result is available from @ref Transactable::GetStatus().
+    Complete = 5,         ///< The transaction has completed. The result is available from @ref Transactable::GetStatus()
 };
 
 /// Item objects which are transacted must inherit from this class. The Transactor will inform the Item about it's different changes in state through
@@ -49,9 +49,10 @@ public:
     /// @brief Parameterized constructor
     /// @param timer The reference to the timer
     Transactable(Timer& timer)
-        : StateMachine<TransactionState>{*this, TransactionState::Uninitialized, TransactionState::Complete}
+        : StateMachine<TransactionState>{*this, TransactionState::Uninitialized}
         , derived_{*static_cast<DERIVED_CLASS*>(this)}
         , timer_{timer}
+        , done_{false}
         , status_{core::Result::NotInitialized, core::Cause::State}
         , try_count_{ATTEMPT_LIMIT} {
         Reset();
@@ -64,7 +65,9 @@ public:
         Scheduled = 11,      ///< The transaction has been scheduled
         Start = 12,          ///< The transaction has been started
         Retry = 13,          ///< The transaction is being retried
-        Completed = 14,      ///< The transaction has completed
+        Completed = 14,      ///< The transaction has completed, must be Recycled or Finalized
+        Recycle = 15,        ///< The transaction will be recycled, it will go back to the Uninitialized state
+        Discard = 16,        ///< The transaction will be discarded (unusable). It will have to be externally @ref Reset to be used again.
     };
 
     void Print(core::Printer& printer) const {
@@ -86,7 +89,7 @@ public:
     /// @param status The status to assign to the completion status if the event is Completed
     void Inform(Event event, core::Status status = core::Status{core::Result::NotAvailable, core::Cause::Parameter}) {
         if constexpr (debug::Inform) {
-            jarnax::print("Transactable::Inform: %d\n", static_cast<int>(event));
+            jarnax::print("Transactable::Inform: %d (Final? %s)\n", static_cast<int>(event), IsFinal() ? "true" : "false");
         }
         if (not IsFinal()) {
             event_ = event;
@@ -94,19 +97,6 @@ public:
                 completion_status_ = status;
             }
             RunOnce();
-        }
-    }
-
-    /// @brief Runs the state machine until the completed transaction is finalized.
-    void Release() {
-        if (IsFinal()) {
-            // do nothing
-        } else {
-            // run the state machine until it is final
-            while (IsComplete() and not IsFinal()) {
-                derived_.Clear();
-                RunOnce();
-            }
         }
     }
 
@@ -118,7 +108,7 @@ public:
     bool IsQueued() const { return Is(TransactionState::Queued); }
     /// @return True if the transaction is Running
     bool IsRunning() const { return Is(TransactionState::Running); }
-    /// @return True if the transaction is Complete OR Final
+    /// @return True if the transaction is Complete
     bool IsComplete() const { return Is(TransactionState::Complete); }
     /// @return True if the transaction can be Reset
     bool IsResetable() const { return StateMachine<TransactionState>::IsFinal(); }
@@ -141,13 +131,6 @@ public:
     /// @return True if the machine is final, false otherwise
     bool Reset() {
         if (IsFinal()) {
-            // moves the state back to Uninitialized
-            status_ = core::Status{core::Result::NotInitialized, core::Cause::State};
-            try_count_ = ATTEMPT_LIMIT;
-            start_ = core::units::MicroSeconds{0U};
-            duration_ = core::units::MicroSeconds{0U};
-            deadline_ = core::units::MicroSeconds{std::numeric_limits<core::units::MicroSeconds::StorageType>::max()};
-            derived_.Clear();
             Enter();
             return true;
         } else {
@@ -160,6 +143,15 @@ public:
     }
 
 protected:
+    void InternalInitialize() {
+        status_ = core::Status{core::Result::NotInitialized, core::Cause::State};
+        try_count_ = ATTEMPT_LIMIT;
+        start_ = core::units::MicroSeconds{0U};
+        duration_ = core::units::MicroSeconds{0U};
+        deadline_ = core::units::MicroSeconds{std::numeric_limits<core::units::MicroSeconds::StorageType>::max()};
+        derived_.Clear();
+    }
+
     /// @copydoc core::StateMachine<TransactionState>::Callback::OnEnter
     void OnEnter() override {
         // do nothing
@@ -168,20 +160,14 @@ protected:
         }
     }
 
-    /// @copydoc core::StateMachine<TransactionState>::Callback::OnExit()
-    void OnExit() override {
-        // do nothing
-        if constexpr (debug::States) {
-            jarnax::print("Transactable::OnExit\n");
-        }
-    }
-
     /// @copydoc core::StateMachine<TransactionState>::Callback::OnEntry(TransactionState)
     void OnEntry(TransactionState state) override {
         if constexpr (debug::States) {
             jarnax::print("Transactable::OnEntry: %d\n", static_cast<int>(state));
         }
-        if (state == TransactionState::Initialized) {
+        if (state == TransactionState::Uninitialized) {
+            InternalInitialize();
+        } else if (state == TransactionState::Initialized) {
             status_ = core::Status{core::Result::NotReady, core::Cause::State};
         } else if (state == TransactionState::Running) {
             try_count_--;
@@ -192,14 +178,6 @@ protected:
         }
     }
 
-    /// @copydoc core::StateMachine<TransactionState>::Callback::OnExit(TransactionState)
-    void OnExit(TransactionState state) override {
-        // do nothing
-        if constexpr (debug::States) {
-            jarnax::print("Transactable::OnExit: %d\n", static_cast<int>(state));
-        }
-    }
-
     /// @copydoc core::StateMachine<TransactionState>::Callback::OnCycle(TransactionState)
     TransactionState OnCycle(TransactionState state) override {
         if constexpr (debug::States) {
@@ -207,6 +185,7 @@ protected:
             Print(core::GetPrinter());
         }
         if (state == TransactionState::Uninitialized) {
+            // wait for the external event which indicates that the class has been externally initialized too
             if (event_ == Event::Initialized) {
                 return TransactionState::Initialized;
             }
@@ -241,10 +220,22 @@ protected:
                 return TransactionState::Complete;
             }
         } else if (state == TransactionState::Complete) {
-            // do nothing, final state
+            if (event_ == Event::Recycle) {
+                return TransactionState::Uninitialized;
+            } else if (event_ == Event::Discard) {
+                return TransactionState::Undefined;    // finalize the state machine
+            }
         }
         event_ = Event::None;    // reset the event
         return state;            // otherwise stay in this state
+    }
+
+    /// @copydoc core::StateMachine<TransactionState>::Callback::OnExit(TransactionState)
+    void OnExit(TransactionState state) override {
+        // do nothing
+        if constexpr (debug::States) {
+            jarnax::print("Transactable::OnExit: %d\n", static_cast<int>(state));
+        }
     }
 
     /// @copydoc core::StateMachine<TransactionState>::Callback::OnTransition(TransactionState, TransactionState)
@@ -254,10 +245,19 @@ protected:
         }
     }
 
+    /// @copydoc core::StateMachine<TransactionState>::Callback::OnExit()
+    void OnExit() override {
+        // do nothing
+        if constexpr (debug::States) {
+            jarnax::print("Transactable::OnExit\n");
+        }
+    }
+
     DerivedType& derived_;                  ///< The reference to the derived class
     Timer& timer_;                          ///< The reference to the timer
+    bool done_;                             ///< The flag to indicate if the transaction is done (i.e. has onCycled Completed)
     Event event_;                           ///< The current event
-    core::Status status_;                   ///< The current statis
+    core::Status status_;                   ///< The current status
     core::Status completion_status_;        ///< The completion status
     std::size_t try_count_;                 ///< The number of attempts remaining
     core::units::MicroSeconds start_;       ///< The start time of the transaction

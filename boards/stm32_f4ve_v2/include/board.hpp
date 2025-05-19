@@ -63,7 +63,7 @@ constexpr static bool use_dma_for_usart_tx{false};
 /// The USART RX DMA Switch
 constexpr static bool use_dma_for_usart_rx{false};
 /// Enables use of the DMA for SPI transfers
-constexpr static bool use_dma_for_spi{true};
+constexpr static bool use_dma_for_spi{false};
 }    // namespace stm32
 
 namespace winbond {
@@ -72,7 +72,7 @@ using core::units::operator""_MHz;
 /// The size of the flash chip in bytes
 constexpr static std::size_t flash_size = 16_MiB;
 /// @brief The maximum clock frequency of the SPI bus for Read Operations on the Flash W25Q16JV
-constexpr static core::units::Hertz spi_clock_frequency{50_MHz};
+constexpr static core::units::Hertz spi_clock_frequency{21_MHz};
 }    // namespace winbond
 
 namespace jarnax {

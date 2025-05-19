@@ -14,7 +14,7 @@ class MockDriver : public winbond::Listener, public winbond::Executor {
 public:
     MOCK_METHOD(void, OnEvent, (winbond::Event event, core::Status status), ());
     MOCK_METHOD(core::Status, Command, (winbond::Instruction instruction), ());
-    MOCK_METHOD(bool, IsComplete, (), (const));
+    MOCK_METHOD(bool, IsCommandComplete, (), (const));
     MOCK_METHOD(core::Status, GetStatusAndData, (), ());
     MOCK_METHOD(bool, IsPresent, (), (const));
 };
@@ -37,33 +37,44 @@ public:
         ::testing::Mock::VerifyAndClearExpectations(&state_machine_);
     }
 
-    void Detect() {
+    void Startup() {
         EXPECT_CALL(mock_driver_, IsPresent()).WillOnce(Return(true));
+        EXPECT_CALL(mock_driver_, Command(winbond::Instruction::EnableReset))
+            .WillOnce(Return(core::Status{core::Result::Success, core::Cause::State}));
         state_machine_.Process(winbond::Event::None);
-        // should be in Waiting
-        ASSERT_TRUE(state_machine_.IsReady());
+        ASSERT_FALSE(state_machine_.IsReady());
         Verify();
-    }
-
-    void PowerOn() {
-        // called by the entry of PowerOn
+        // called the the oncycle
+        EXPECT_CALL(mock_driver_, IsCommandComplete()).WillOnce(Return(false));
+        state_machine_.Process(winbond::Event::None);
+        Verify();
+        //==========================
+        // called the the oncycle
+        EXPECT_CALL(mock_driver_, IsCommandComplete()).WillOnce(Return(true));
+        EXPECT_CALL(mock_driver_, GetStatusAndData()).WillOnce(Return(core::Status{core::Result::Success, core::Cause::Hardware}));
+        EXPECT_CALL(mock_driver_, OnEvent(winbond::Event::Reset, core::Status{core::Result::Success, core::Cause::Hardware}));
         EXPECT_CALL(mock_driver_, Command(winbond::Instruction::ReleasePowerDown))
             .WillOnce(Return(core::Status{core::Result::Success, core::Cause::State}));
-        state_machine_.Process(winbond::Event::PowerOn);
-        Verify();
-        //==========================
-        // called the the oncycle
-        EXPECT_CALL(mock_driver_, IsComplete()).WillOnce(Return(false));
         state_machine_.Process(winbond::Event::None);
         Verify();
         //==========================
         // called the the oncycle
-        EXPECT_CALL(mock_driver_, IsComplete()).WillOnce(Return(true));
+        EXPECT_CALL(mock_driver_, IsCommandComplete()).WillOnce(Return(true));
         EXPECT_CALL(mock_driver_, GetStatusAndData()).WillOnce(Return(core::Status{core::Result::Success, core::Cause::Hardware}));
         EXPECT_CALL(mock_driver_, OnEvent(winbond::Event::PowerOn, core::Status{core::Result::Success, core::Cause::Hardware}));
+        EXPECT_CALL(mock_driver_, Command(winbond::Instruction::ReadUniqueId))
+            .WillOnce(Return(core::Status{core::Result::Success, core::Cause::State}));
         state_machine_.Process(winbond::Event::None);
-        ASSERT_TRUE(state_machine_.IsReady());    // should be in Waiting
         Verify();
+        //==========================
+        // called the the oncycle
+        EXPECT_CALL(mock_driver_, IsCommandComplete()).WillOnce(Return(true));
+        EXPECT_CALL(mock_driver_, GetStatusAndData()).WillOnce(Return(core::Status{core::Result::Success, core::Cause::Hardware}));
+        EXPECT_CALL(mock_driver_, OnEvent(winbond::Event::Identify, core::Status{core::Result::Success, core::Cause::Hardware}));
+        state_machine_.Process(winbond::Event::None);
+        Verify();
+        //==========================
+        ASSERT_TRUE(state_machine_.IsReady());    // should be in Waiting
     }
 
     void PowerOff() {
@@ -73,32 +84,12 @@ public:
         Verify();
         //==========================
         // called the the oncycle
-        EXPECT_CALL(mock_driver_, IsComplete()).WillOnce(Return(false));
+        EXPECT_CALL(mock_driver_, IsCommandComplete()).WillOnce(Return(false));
         state_machine_.Process(winbond::Event::None);
         Verify();
         //==========================
         // called the the oncycle
-        EXPECT_CALL(mock_driver_, IsComplete()).WillOnce(Return(true));
-        EXPECT_CALL(mock_driver_, GetStatusAndData()).WillOnce(Return(core::Status{core::Result::Success, core::Cause::Hardware}));
-        EXPECT_CALL(mock_driver_, OnEvent(winbond::Event::PowerOff, core::Status{core::Result::Success, core::Cause::Hardware}));
-        state_machine_.Process(winbond::Event::None);
-        ASSERT_TRUE(state_machine_.IsReady());    // should be in Waiting
-        Verify();
-    }
-
-    void Reset() {
-        // called by the entry of PowerOff
-        EXPECT_CALL(mock_driver_, Command(winbond::Instruction::PowerDown)).WillOnce(Return(core::Status{core::Result::Success, core::Cause::State}));
-        state_machine_.Process(winbond::Event::PowerOff);
-        Verify();
-        //==========================
-        // called the the oncycle
-        EXPECT_CALL(mock_driver_, IsComplete()).WillOnce(Return(false));
-        state_machine_.Process(winbond::Event::None);
-        Verify();
-        //==========================
-        // called the the oncycle
-        EXPECT_CALL(mock_driver_, IsComplete()).WillOnce(Return(true));
+        EXPECT_CALL(mock_driver_, IsCommandComplete()).WillOnce(Return(true));
         EXPECT_CALL(mock_driver_, GetStatusAndData()).WillOnce(Return(core::Status{core::Result::Success, core::Cause::Hardware}));
         EXPECT_CALL(mock_driver_, OnEvent(winbond::Event::PowerOff, core::Status{core::Result::Success, core::Cause::Hardware}));
         state_machine_.Process(winbond::Event::None);
@@ -116,11 +107,7 @@ TEST_F(TestWinbondStateMachine, EmptySetup) {
 
 TEST_F(TestWinbondStateMachine, PowerCycle) {
     //==========================
-    Detect();
-    //==========================
-    PowerOn();
-    //==========================
-    Reset();
+    Startup();
     //==========================
     PowerOff();
     //==========================

@@ -131,6 +131,7 @@ public:
         }
         // if it's completed, forget the active transaction
         if (active_->IsComplete()) {
+            jarnax::print("Forgetting transaction %p\n", reinterpret_cast<void*>(active_));
             active_ = nullptr;
         }
         return true;

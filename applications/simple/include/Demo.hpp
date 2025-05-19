@@ -18,16 +18,31 @@ using jarnax::Loopable;
 using jarnax::LoopInfo;
 using jarnax::Ticks;
 
-class Demo final : public jarnax::Loopable {
+enum class DemoState : std::uint8_t {
+    Undefined = 0U,
+    StartUp,
+    KeyLoop,
+    CopierTest,
+    Idle,
+    Error,
+};
+
+class Demo final : public jarnax::Loopable, protected core::StateMachine<DemoState>::Callback {
 public:
     Demo();
-    void DelayForTicks(Ticks ticks);
     bool Execute() override;
 
 protected:
     void InitializeTransaction(void);
     void KeyLoop(void);
     void CopierTest(void);
+
+    void OnEnter() override;
+    void OnEntry(DemoState state) override;
+    DemoState OnCycle(DemoState state) override;
+    void OnExit(DemoState state) override;
+    void OnTransition(DemoState from, DemoState to) override;
+    void OnExit() override;
 
     jarnax::Ticker& ticker_;
     jarnax::Timer& timer_;
@@ -46,6 +61,7 @@ protected:
     uint8_t buffer_one_[256U];
     uint8_t buffer_two_[256U];
     bool buffer_test_{false};
+    core::StateMachine<DemoState> state_machine_;
 };
 
 #endif    // APP_DEMO_HPP

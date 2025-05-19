@@ -27,7 +27,8 @@ public:
     /// @brief The callback interface for the StateMachine
     class Callback {
     public:
-        /// Called when the StateMachine is entered, only one time.
+        /// Called when the StateMachine is entered
+        /// @note This is called only one time per lifecycle.
         virtual void OnEnter() = 0;
         /// Called when the StateMachine is entered in any given state
         /// @param state The state being entered
@@ -35,16 +36,18 @@ public:
         /// Called when the StateMachine is cycled in any given state
         /// @param state The current state of the StateMachine
         /// @return The next state of the StateMachine. Return the given state to stay in the same state.
+        /// @retval State::Undefined to stop the StateMachine. This will then call OnExit() and stop the StateMachine.
         virtual StateType OnCycle(StateType state) = 0;
         /// Called when the StateMachine is exiting any given state
         /// @param state The state being exited
         virtual void OnExit(StateType state) = 0;
         /// Called when transitioning between two given states.
-        /// @warning The StateMachine is not in *any* state when this is called.
+        /// @warning The StateMachine is not in *any* state when this is called, i.e. it is in StateType::Undefined.
         /// @param from The old state
         /// @param to The new state
         virtual void OnTransition(StateType from, StateType to) = 0;
-        /// Called when the StateMachine is exiting the final state, only one time.
+        /// Called when the StateMachine is exiting the final state.
+        /// @note This is called only one time per lifecycle.
         virtual void OnExit() = 0;
 
     protected:
@@ -56,20 +59,13 @@ public:
     /// @param callback The reference to the callback interface
     /// @param initial_state The initial state of the StateMachine
     /// @param final_state The final state of the StateMachine
-    StateMachine(Callback& callback, StateType initial_state, StateType final_state)
+    StateMachine(Callback& callback, StateType initial_state)
         : callback_{callback}
         , initial_state_{initial_state}
-        , final_state_{final_state}
         , current_state_{StateType::Undefined}
         , next_state_{StateType::Undefined}
         , last_state_{StateType::Undefined} {
-        if (initial_state == final_state) {
-            malformed_ = true;
-        }
         if (initial_state == StateType::Undefined) {
-            malformed_ = true;
-        }
-        if (final_state == StateType::Undefined) {
             malformed_ = true;
         }
     }
@@ -78,15 +74,7 @@ public:
     /// @return True if the machine is in the given state
     bool Is(StateType state) const { return current_state_ == state; }
 
-    /// @param state The state to query for
-    /// @return True if the machine was in the given state preceeding the current state
-    bool Was(StateType state) const { return last_state_ == state; }
-
-    /// @param state The state to query for
-    /// @return True if the machine will be in the given state in the next cycle
-    bool WillBe(StateType state) const { return next_state_ == state; }
-
-    /// @return True if the StateMachine is in the final state
+    /// @return True if the StateMachine is final
     bool IsFinal() const { return stopped_; }
 
     /// @return True if the StateMachine is malformed
@@ -101,15 +89,17 @@ public:
             return;
         }
         if (stopped_) {
+            stopped_ = false;
             current_state_ = initial_state_;
             next_state_ = initial_state_;
             last_state_ = initial_state_;
-            cycle_ = false;
-            exit_ = false;
-            stopped_ = false;
+            // unconditionally call the enter function
             callback_.OnEnter();
+            // unconditionally call the state entry function
             callback_.OnEntry(initial_state_);
-            entry_ = false;
+            should_entry_ = false;
+            should_cycle_ = true;
+            should_exit_ = false;
         }
     }
 
@@ -121,53 +111,59 @@ public:
             return;
         }
         if (not stopped_) {
-            cycle_ = true;
-            StateType state = callback_.OnCycle(current_state_);
-            if (current_state_ != final_state_) {
-                if (state != current_state_) {
-                    next_state_ = state;
-                    exit_ = true;
-                }
-            } else {
-                // we hit the final state
-                exit_ = true;
+            StateType next_desired_state = StateType::Undefined;
+            if (should_cycle_) {
+                next_desired_state = callback_.OnCycle(current_state_);
+                should_cycle_ = false;
+            }
+            if (next_desired_state == StateType::Undefined) {
+                should_exit_ = true;
                 stopped_ = true;
+            } else if (next_desired_state != current_state_) {
+                // going to another state
+                should_exit_ = true;
+                next_state_ = next_desired_state;
             }
-            cycle_ = false;
-            if (exit_) {
+            if (should_exit_) {
                 last_state_ = current_state_;
+                // if Is, Was or WillBe is called, they should be correct
                 callback_.OnExit(last_state_);
-                // set this after so that any state checks will be ok in OnExit
+                // now change the state
                 current_state_ = StateType::Undefined;
-                // now we're not in a state
-                callback_.OnTransition(last_state_, next_state_);
-                exit_ = false;
-                entry_ = true;
+                if (not stopped_) {
+                    // now we're not in a state, inform the transition
+                    callback_.OnTransition(last_state_, next_state_);
+                    should_entry_ = true;
+                }
+                should_exit_ = false;
             }
-            if (entry_ and not stopped_) {
+            if (should_entry_ and not stopped_) {
                 current_state_ = next_state_;
-                callback_.OnEntry(current_state_);
-                entry_ = false;
+                // if Is, Was or WillBe is called, they should be correct
+                callback_.OnEntry(next_state_);
+                should_entry_ = false;
             }
 
             if (stopped_) {
                 callback_.OnExit();
+                // the state machine is now final
+            } else {
+                should_cycle_ = true;
             }
         }
     }
 
 protected:
-    Callback& callback_;         ///< The reference to the callback interface
-    StateType initial_state_;    ///< The initial state of the StateMachine
-    StateType final_state_;      ///< The final state of the StateMachine
-    StateType current_state_;    ///< The current state of the StateMachine
-    StateType next_state_;       ///< The next state of the StateMachine
-    StateType last_state_;       ///< The last state of the StateMachine
-    bool stopped_{true};         ///< We start in the final state
-    bool entry_{false};          ///< The flag to indicate if we are in the entry of the state
-    bool cycle_{false};          ///< The flag to indicate if we are in the cycle of the state
-    bool exit_{false};           ///< The flag to indicate if we are in the exit of the state
-    bool malformed_{false};      ///< The flag to indicate if the state machine is malformed
+    Callback& callback_;               ///< The reference to the callback interface
+    StateType const initial_state_;    ///< The initial state of the StateMachine
+    StateType current_state_;          ///< The current state of the StateMachine
+    StateType next_state_;             ///< The next state of the StateMachine
+    StateType last_state_;             ///< The last state of the StateMachine
+    bool stopped_{true};               ///< We start in the final state
+    bool should_entry_{false};         ///< The flag to indicate if we are in the entry of the state
+    bool should_cycle_{false};         ///< The flag to indicate if we are in the cycle of the state
+    bool should_exit_{false};          ///< The flag to indicate if we are in the exit of the state
+    bool malformed_{false};            ///< The flag to indicate if the state machine is malformed
 };
 
 }    // namespace core

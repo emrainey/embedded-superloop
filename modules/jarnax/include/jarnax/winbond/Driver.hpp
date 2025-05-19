@@ -42,6 +42,12 @@ public:
     bool Execute(void) override;
     //==========================
 
+    void PowerUp(void);
+    bool IsPowered(void) const;
+    bool IsIdentified(void) const;
+    bool IsReady(void) const;
+    void PowerDown(void);
+
 protected:
     /// @brief Reinitializes the transaction
     /// @param instruction The instruction to send
@@ -53,7 +59,7 @@ protected:
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // StateMachine Callbacks
     core::Status Command(winbond::Instruction instruction) override;
-    bool IsComplete(void) const override;
+    bool IsCommandComplete(void) const override;
     core::Status GetStatusAndData(void) override;
     bool IsPresent(void) const override;
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -82,8 +88,12 @@ protected:
     jarnax::winbond::WinbondStateMachine state_machine_;
     /// @brief Shortcut to know if the chip is powered
     bool powered_;
+    /// @brief Shortcut to know if the chip is identified
+    bool identified_;
     /// @brief The last Instruction
     Instruction last_instruction_;
+    /// The next event to send to the state machine
+    jarnax::winbond::Event next_event_;
 };
 }    // namespace winbond
 }    // namespace jarnax

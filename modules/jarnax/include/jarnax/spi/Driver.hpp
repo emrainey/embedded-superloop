@@ -36,8 +36,8 @@ class Transaction : public jarnax::Transactable<Transaction, DefaultRetries> {
 public:
     Transaction(jarnax::Timer& timer)
         : jarnax::Transactable<Transaction, DefaultRetries>{timer}
-        , polarity{ClockPolarity::IdleHigh}
-        , phase{ClockPhase::FirstAfterEdge}
+        , polarity{ClockPolarity::IdleLow}
+        , phase{ClockPhase::ImmediateEdge}
         , chip_select{nullptr}
         , crc_polynomial{0x7U}    // default CRC-7
         , use_hardware_crc{false}
@@ -63,15 +63,17 @@ public:
     core::Buffer<DataUnit> buffer;
     /// The number of bytes to send
     std::size_t send_size;
-    /// The number of bytes sent
+    /// The number of bytes that have sent
     std::size_t sent_size;
     /// The offset to the location to start receiving data
     std::size_t receive_offset;
     /// The number of bytes to receive
     std::size_t receive_size;
-    /// The number of bytes received
+    /// The number of bytes that have been received
     std::size_t received_size;
 
+    /// @brief Indicates if the transaction is empty
+    /// @return True if the transaction buffer is empty
     bool IsEmpty() const { return buffer.IsEmpty(); }
 
     /// @brief Moves the buffer into the transaction
@@ -84,8 +86,8 @@ public:
     core::Buffer<DataUnit> Relinquish(void) { return std::move(buffer); }
 
     void Clear() {
-        polarity = ClockPolarity::IdleHigh;
-        phase = ClockPhase::FirstAfterEdge;
+        polarity = ClockPolarity::IdleLow;
+        phase = ClockPhase::ImmediateEdge;
         if (chip_select) {
             chip_select->Value(true);    // almost all SPI devices are active low
         }
