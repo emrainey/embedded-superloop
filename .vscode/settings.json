@@ -111,7 +111,15 @@
         "print": "cpp",
         "*.in": "cpp",
         "regex": "cpp",
-        "version": "cpp"
+        "version": "cpp",
+        "cassert": "cpp",
+        "ccomplex": "cpp",
+        "cerrno": "cpp",
+        "cfloat": "cpp",
+        "ciso646": "cpp",
+        "climits": "cpp",
+        "ctgmath": "cpp",
+        "cstdbool": "cpp"
     },
     "cSpell.allowCompoundWords": true,
     "cSpell.dictionaryDefinitions": [

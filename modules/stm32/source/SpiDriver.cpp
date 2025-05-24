@@ -35,6 +35,8 @@ SpiDriver::SpiDriver(
     stm32::registers::SerialPeripheralInterface volatile& spi, dma::Driver& dma_driver, dma::Peripheral rx_peripheral, dma::Peripheral tx_peripheral
 )
     : jarnax::spi::Driver{static_cast<jarnax::spi::Transactor&>(*this)}    // initialize the base class by handing off the transactor
+    , jarnax::spi::Transactor{}
+    , statistics_{}
     , spi_{spi}
     , dma_driver_{dma_driver}
     , rx_peripheral_{rx_peripheral}

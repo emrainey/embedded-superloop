@@ -21,6 +21,7 @@ public:
         bool result = true;
         result &= GetSuperLoop().Enlist(monitor_);
         result &= GetSuperLoop().Enlist(demo_);
+        result &= GetSuperLoop().Enlist(jarnax::GetDriverContext().GetI2cDriver());
         result &= GetSuperLoop().Enlist(jarnax::GetDriverContext().GetSpiDriver());
         result &= GetSuperLoop().Enlist(jarnax::GetDriverContext().GetWinbondDriver());
         if (result) {

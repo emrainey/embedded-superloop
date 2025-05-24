@@ -13,6 +13,7 @@
 #include "stm32/Timer.hpp"
 #include "stm32/Button.hpp"
 #include "stm32/Indicator.hpp"
+#include "stm32/I2CDriver.hpp"
 #include "stm32/SpiDriver.hpp"
 #include "stm32/UartDriver.hpp"
 #include "stm32/UsartDriver.hpp"
@@ -33,6 +34,8 @@ constexpr static bool use_swo_for_printf = false;
 constexpr static bool use_uart_for_printf = false;
 constexpr static bool use_logger_for_printf = false;
 namespace debug {
+constexpr static bool i2c{true};
+constexpr static bool i2c_isr{false};
 constexpr static bool spi{true};
 constexpr static bool spi_isr{false};
 constexpr static bool usart{true};
@@ -49,21 +52,29 @@ constexpr static Hertz high_speed_external_oscillator_frequency = 8_MHz;
 /// The number of iota per second (based on the ClockTree)
 constexpr static std::uint32_t iota_per_microsecond = 1U;
 /// Number of bytes per DMA block for the Drivers
-constexpr static size_t DmaBlockSize{32U};
+constexpr static size_t DmaBlockSize{64U};
 /// Number of DMA blocks for the Drivers
 constexpr static size_t DmaBlockCount{32U};
+
 /// The Baud Rate for the USART1
 constexpr static std::uint32_t usart1_baud_rate = 115200U;
+/// The Bus Rate for the I2C1
+constexpr static core::units::Hertz i2c1_bus_frequency = 400_kHz;
+
 /// The UxART TX DMA Buffer Size
 constexpr static std::uint32_t usart_tx_dma_buffer_size = 128U;
 /// The UxART RX DMA Buffer Size
 constexpr static std::uint32_t usart_rx_dma_buffer_size = 128U;
+/// The I2C DMA Buffer Size
+constexpr static std::uint32_t i2c_dma_buffer_size = 256U;
 /// The USART TX DMA Switch
 constexpr static bool use_dma_for_usart_tx{false};
 /// The USART RX DMA Switch
 constexpr static bool use_dma_for_usart_rx{false};
 /// Enables use of the DMA for SPI transfers
 constexpr static bool use_dma_for_spi{false};
+/// Enables use of the DMA for I2C transfers
+constexpr static bool use_dma_for_i2c{false};
 }    // namespace stm32
 
 namespace winbond {
@@ -120,6 +131,9 @@ public:
     /// Returns the Copier
     jarnax::Copier& GetCopier();
 
+    /// Returns the I2C Driver
+    jarnax::i2c::Driver& GetI2cDriver();
+
     /// Returns the SPI Driver
     jarnax::spi::Driver& GetSpiDriver();
 
@@ -158,11 +172,15 @@ protected:
     stm32::gpio::Pin spi1_miso_;
     stm32::gpio::Pin spi1_sclk_;
     stm32::gpio::Pin flash_cs_;
-    stm32::gpio::Pin nrf_cs_;
-    stm32::gpio::Pin nrf_ce_;
-    stm32::gpio::Pin nrf_irq_;
+    // stm32::gpio::Pin nrf_cs_;
+    // stm32::gpio::Pin nrf_ce_;
+    // stm32::gpio::Pin nrf_irq_;
     /// The DMA Driver
     stm32::dma::Driver dma_driver_;
+    /// The I2C Driver
+    stm32::gpio::Pin i2c1_scl_;
+    stm32::gpio::Pin i2c1_sda_;
+    stm32::I2CDriver i2c1_driver_;
     /// The SPI Driver
     stm32::SpiDriver spi1_driver_;
     /// The Winbond Driver

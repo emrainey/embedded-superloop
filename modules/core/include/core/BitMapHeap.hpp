@@ -57,8 +57,11 @@ public:
             buffer_ = nullptr;
             size_ = 0U;
         }
-        stats_.size = BlockSize * BlockCount;
-        stats_.free = stats_.size;
+        stats_.size_bytes = BlockSize * BlockCount;
+        stats_.free_blocks = stats_.size_bytes / BlockSize;
+        stats_.used_blocks = 0U;
+        stats_.waste_bytes = 0U;
+        stats_.count = BlockCount;
     }
 
 #if defined(UNITTEST)
@@ -70,11 +73,11 @@ public:
 
     /// @brief The Statistics of the Heap
     struct Statistics {
-        std::size_t size{0U};     ///< The total size of the Heap
-        std::size_t used{0U};     ///< The number of used blocks
-        std::size_t free{0U};     ///< The number of free blocks
-        std::size_t waste{0U};    ///< The number of wasted bytes (overage from alignment or block size mismatches)
-        std::size_t count{0U};    ///< The number of allocations
+        std::size_t size_bytes{0U};     ///< The total size of the Heap
+        std::size_t used_blocks{0U};    ///< The number of used blocks
+        std::size_t free_blocks{0U};    ///< The number of free blocks
+        std::size_t waste_bytes{0U};    ///< The number of wasted bytes (overage from alignment or block size mismatches)
+        std::size_t count{0U};          ///< The number of allocations
     };
 
     /// @brief The Statistics of the Heap
@@ -86,22 +89,36 @@ public:
             if (upstream_) {
                 return upstream_->allocate(bytes, alignment);
             } else {
+                GetPrinter()("FATAL: [%p] Buffer for allocations is misconfigured\r\n", reinterpret_cast<void*>(this));
                 return nullptr;
             }
+        }
+        if (bytes == 0 or alignment == 0 or alignment > MaxAlignment) {
+            GetPrinter()(
+                "FATAL: [%p] Invalid allocation request of %zu bytes with alignment %zu\r\n", reinterpret_cast<void*>(this), bytes, alignment
+            );
+            return nullptr;
         }
         std::size_t blocks = bytes_to_blocks(bytes, alignment);
         std::size_t startBlock = findFreeBlocks(blocks);
         void* pointer = nullptr;
         if (startBlock == BlockCount) {    // no available memory to fit the request
             if (upstream_) {
-                pointer = upstream_->allocate(bytes, alignment);
+                return upstream_->allocate(bytes, alignment);
             } else {
+                GetPrinter()(
+                    "FATAL: [%p] Not enough free blocks (%u) available for allocation of %zu:%u bytes\r\n",
+                    reinterpret_cast<void*>(this),
+                    stats_.free_blocks,
+                    bytes / BlockSize,
+                    alignment
+                );
                 return nullptr;
             }
         }
         if (pointer == nullptr) {
             markBlocksAsAllocated(startBlock, blocks);
-            stats_.waste += (blocks * BlockSize) - bytes;
+            stats_.waste_bytes += (blocks * BlockSize) - bytes;
             std::size_t offset = startBlock * BlockSize;
             std::size_t alignedOffset = (offset + alignment - 1) & ~(alignment - 1);
             pointer = static_cast<char*>(buffer_) + alignedOffset;
@@ -132,7 +149,7 @@ public:
             std::size_t startBlock = offset / BlockSize;
             std::size_t blocks = (bytes + alignment - 1 + BlockSize - 1) / BlockSize;
             GetPrinter()("%p: Deallocated %zu bytes at %p (offset %zu)\r\n", reinterpret_cast<void*>(this), bytes, pointer, offset);
-            stats_.waste -= (blocks * BlockSize) - bytes;
+            stats_.waste_bytes -= (blocks * BlockSize) - bytes;
             markBlocksAsFree(startBlock, blocks);
         } else {
             GetPrinter()("%p: Passing deallocation of %zu bytes at %p\r\n", reinterpret_cast<void*>(this), bytes, pointer);
@@ -200,8 +217,8 @@ private:
             bitmap_[bitmapIndex] |= (1u << bitIndex);
         }
         stats_.count++;
-        stats_.used += (BlockSize * blocks);
-        stats_.free -= (BlockSize * blocks);
+        stats_.used_blocks += blocks;
+        stats_.free_blocks = blocks;
     }
 
     /// @brief Marks the blocks as free
@@ -214,8 +231,8 @@ private:
             bitmap_[bitmapIndex] &= ~(1u << bitIndex);
         }
         stats_.count--;
-        stats_.used -= (BlockSize * blocks);
-        stats_.free += (BlockSize * blocks);
+        stats_.used_blocks -= blocks;
+        stats_.free_blocks += blocks;
     }
 
 #if defined(UNITTEST)

@@ -52,11 +52,13 @@ DriverContext::DriverContext()
     , spi1_mosi_{stm32::gpio::Port::B, 5}
     , spi1_miso_{stm32::gpio::Port::B, 4}
     , spi1_sclk_{stm32::gpio::Port::B, 3}
-    , flash_cs_{stm32::gpio::Port::B, 0}
-    , nrf_cs_{stm32::gpio::Port::B, 7}
-    , nrf_ce_{stm32::gpio::Port::B, 6}
-    , nrf_irq_{stm32::gpio::Port::B, 8}
+    , flash_cs_{stm32::gpio::Port::B, 0}    // , nrf_cs_{stm32::gpio::Port::B, 7}
+                                            // , nrf_ce_{stm32::gpio::Port::B, 6}
+                                            // , nrf_irq_{stm32::gpio::Port::B, 8}
     , dma_driver_{}
+    , i2c1_scl_{stm32::gpio::Port::B, 8}
+    , i2c1_sda_{stm32::gpio::Port::B, 9}
+    , i2c1_driver_{stm32::registers::i2c1, dma_driver_, stm32::dma::I2C1_RX, stm32::dma::I2C1_TX}
     , spi1_driver_{stm32::registers::spi1, dma_driver_, stm32::dma::SPI1_RX, stm32::dma::SPI1_TX}
     , winbond_driver_{timer_, spi1_driver_, flash_cs_, GetDmaAllocator()}
     , usart1_tx_{stm32::gpio::Port::A, 9}
@@ -86,6 +88,14 @@ core::Status DriverContext::Initialize(void) {
         .SetResistor(stm32::gpio::Resistor::None);
     error_indicator_.Inactive();
     status_indicator_.Inactive();
+    i2c1_scl_.SetMode(stm32::gpio::Mode::AlternateFunction)
+        .SetAlternative(4)    // Alt 4 is I2C1
+        .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
+        .SetOutputType(stm32::gpio::OutputType::PushPull);
+    i2c1_sda_.SetMode(stm32::gpio::Mode::AlternateFunction)
+        .SetAlternative(4)    // Alt 4 is I2C1
+        .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
+        .SetOutputType(stm32::gpio::OutputType::OpenDrain);
     spi1_mosi_.SetMode(stm32::gpio::Mode::AlternateFunction)
         .SetAlternative(5)    // Alt 5 is SPI1
         .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
@@ -103,15 +113,15 @@ core::Status DriverContext::Initialize(void) {
         .SetOutputType(stm32::gpio::OutputType::PushPull)
         .SetResistor(stm32::gpio::Resistor::None)
         .Value(true);    // CS is active low
-    nrf_cs_.SetMode(stm32::gpio::Mode::Output)
-        .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
-        .SetOutputType(stm32::gpio::OutputType::PushPull)
-        .SetResistor(stm32::gpio::Resistor::None);
-    nrf_ce_.SetMode(stm32::gpio::Mode::Output)
-        .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
-        .SetOutputType(stm32::gpio::OutputType::PushPull)
-        .SetResistor(stm32::gpio::Resistor::None);
-    nrf_irq_.SetMode(stm32::gpio::Mode::Input).SetResistor(stm32::gpio::Resistor::PullUp);
+    // nrf_cs_.SetMode(stm32::gpio::Mode::Output)
+    //     .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
+    //     .SetOutputType(stm32::gpio::OutputType::PushPull)
+    //     .SetResistor(stm32::gpio::Resistor::None);
+    // nrf_ce_.SetMode(stm32::gpio::Mode::Output)
+    //     .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
+    //     .SetOutputType(stm32::gpio::OutputType::PushPull)
+    //     .SetResistor(stm32::gpio::Resistor::None);
+    // nrf_irq_.SetMode(stm32::gpio::Mode::Input).SetResistor(stm32::gpio::Resistor::PullUp);
     usart1_tx_.SetMode(stm32::gpio::Mode::AlternateFunction)
         .SetAlternative(7)    // Alt 7 is USART1
         .SetOutputSpeed(stm32::gpio::Speed::High)
@@ -141,7 +151,8 @@ core::Status DriverContext::Initialize(void) {
 
     // enable the APB1 peripherals in the Reset and Clock Control register
     apb1_enable = stm32::registers::reset_and_clock_control.apb1_peripheral_clock_enable;    // read
-    apb1_enable.bits.tim2en = 1U;
+    apb1_enable.bits.tim2en = 1U;                                                            // modify
+    apb1_enable.bits.i2c1en = 1U;                                                            // modify
     stm32::registers::reset_and_clock_control.apb1_peripheral_clock_enable = apb1_enable;    // write
 
     // enable the AHB1 peripherals in the Reset and Clock Control register
@@ -177,6 +188,13 @@ core::Status DriverContext::Initialize(void) {
             jarnax::print("TIMER2 failed to initialize\r\n");
             break;
         }
+        // I2C1
+        status = i2c1_driver_.Initialize(stm32::GetClockTree().apb1_peripheral, ::stm32::i2c1_bus_frequency);
+        if (not status.IsSuccess()) {
+            jarnax::print("I2C1 failed to initialize\r\n");
+            break;
+        }
+
         // SPI1
         status = spi1_driver_.Initialize(stm32::GetClockTree().apb2_peripheral, ::winbond::spi_clock_frequency);
         if (not status.IsSuccess()) {
@@ -246,6 +264,10 @@ jarnax::Button& DriverContext::GetButton1() {
 
 jarnax::Copier& DriverContext::GetCopier() {
     return dma_driver_;
+}
+
+jarnax::i2c::Driver& DriverContext::GetI2cDriver() {
+    return i2c1_driver_;
 }
 
 jarnax::spi::Driver& DriverContext::GetSpiDriver() {

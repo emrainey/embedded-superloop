@@ -85,11 +85,10 @@ struct Buffer {
     Buffer& operator=(Buffer&& other) {
         if (this != &other) {
             this->Release();
-            allocator_ = other.allocator_;    // use their allocator
-            pointer_ = other.pointer_;        // take their pointer
-            count_ = other.count_;            // take their count
-            other.pointer_ = nullptr;         // set their pointer to null
-            other.count_ = 0U;                // set their count to zero
+            pointer_ = other.pointer_;    // take their pointer
+            count_ = other.count_;        // take their count
+            other.pointer_ = nullptr;     // set their pointer to null
+            other.count_ = 0U;            // set their count to zero
         }
         return *this;
     }
@@ -138,9 +137,9 @@ struct Buffer {
     }
 
 protected:
-    Allocator* allocator_;    ///< The pointer to the allocator (it can be reassigned)
-    Pointer pointer_;         ///< The pointer to the allocated memory
-    Count count_;             ///< The count of the number of elements allocated
+    Allocator* const allocator_;    ///< The pointer to the allocator (it can be reassigned)
+    Pointer pointer_;               ///< The pointer to the allocated memory
+    Count count_;                   ///< The count of the number of elements allocated
 };
 
 }    // namespace core

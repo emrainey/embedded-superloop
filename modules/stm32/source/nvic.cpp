@@ -18,6 +18,12 @@ void nvic(void) {
     cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream0), 2);    // SPI1_RX
     cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream3), 2);    // SPI1_TX
 
+    // enable the I2C1 event and error interrupts
+    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::InterIntegratedCircuit1_Event));
+    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::InterIntegratedCircuit1_Event), 3);
+    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::InterIntegratedCircuit1_Error));
+    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::InterIntegratedCircuit1_Error), 3);
+
     // enable the SPI1 interrupt and the DMA interrupts for SPI1_RX and SPI1_TX
     cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::SerialPeripheralInterface1));
     cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::SerialPeripheralInterface1), 3);

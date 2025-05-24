@@ -70,6 +70,9 @@
     PROVIDE(_ZN5stm329registers5uart5E = _stm32_uart5);
     PROVIDE(_ZN5stm329registers5uart7E = _stm32_uart7);
     PROVIDE(_ZN5stm329registers5uart8E = _stm32_uart8);
+    PROVIDE(_ZN5stm329registers4i2c1E = _stm32_i2c1);
+    PROVIDE(_ZN5stm329registers4i2c2E = _stm32_i2c2);
+    PROVIDE(_ZN5stm329registers4i2c3E = _stm32_i2c3);
 
     /* Arm Private Bus 2 */
     .apb2 (NOLOAD) : {

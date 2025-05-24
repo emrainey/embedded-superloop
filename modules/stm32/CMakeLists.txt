@@ -10,6 +10,7 @@ add_module(NAME stm32
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Button.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/RandomNumberGenerator.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/DmaDriver.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/I2CDriver.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SpiDriver.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/UartDriver.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/UsartDriver.cpp

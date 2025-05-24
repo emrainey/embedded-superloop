@@ -5,9 +5,9 @@
 
 namespace jarnax {
 
-#define assertion(condition)                                 \
-    {                                                        \
-        Assertion _assertion{condition, __FILE__, __LINE__}; \
+#define assertion(condition)                                         \
+    {                                                                \
+        jarnax::Assertion _assertion{condition, __FILE__, __LINE__}; \
     }
 
 /// @brief A class to hold the assertion result as well as the filename/line number.

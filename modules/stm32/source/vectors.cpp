@@ -51,6 +51,16 @@ extern void usart3_isr(void);
 /// USART6 ISR Handler
 extern void usart6_isr(void);
 
+/// I2C1 ISR Handler
+extern void i2c1_event_isr(void);
+extern void i2c1_error_isr(void);
+/// I2C2 ISR Handler
+extern void i2c2_event_isr(void);
+extern void i2c2_error_isr(void);
+/// I2C3 ISR Handler
+extern void i2c3_event_isr(void);
+extern void i2c3_error_isr(void);
+
 /// Storage location for the extended vector table.
 /// If you need a compile time interrupt setup, do so here.
 LINKER_SECTION(".extended_vectors")
@@ -86,10 +96,10 @@ ExternalInterrupts external_interrupts = {
     timer2_isr,                 // 28
     cortex::handlers::dummy,    // 29
     cortex::handlers::dummy,    // 30
-    cortex::handlers::dummy,
-    cortex::handlers::dummy,
-    cortex::handlers::dummy,
-    cortex::handlers::dummy,
+    i2c1_event_isr,             // 31
+    i2c1_error_isr,             // 32
+    i2c2_event_isr,             // 33
+    i2c2_error_isr,             // 34
     spi1_isr,                   // 35
     spi2_isr,                   // 36
     usart1_isr,                 // 37
@@ -127,8 +137,8 @@ ExternalInterrupts external_interrupts = {
     dma2_stream6_isr,    // 69
     dma2_stream7_isr,    // 70
     usart6_isr,          // 71
-    cortex::handlers::dummy,
-    cortex::handlers::dummy,
+    i2c3_event_isr,      // 72
+    i2c3_error_isr,      // 73
     cortex::handlers::dummy,
     cortex::handlers::dummy,
     cortex::handlers::dummy,
