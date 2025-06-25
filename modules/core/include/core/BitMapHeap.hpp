@@ -61,7 +61,7 @@ public:
         stats_.free_blocks = stats_.size_bytes / BlockSize;
         stats_.used_blocks = 0U;
         stats_.waste_bytes = 0U;
-        stats_.count = BlockCount;
+        stats_.count = 0U;
     }
 
 #if defined(UNITTEST)
@@ -218,7 +218,7 @@ private:
         }
         stats_.count++;
         stats_.used_blocks += blocks;
-        stats_.free_blocks = blocks;
+        stats_.free_blocks -= blocks;
     }
 
     /// @brief Marks the blocks as free
@@ -240,10 +240,10 @@ private:
     void printBitmap() {
         printf(
             "Heap Total: %zu Allocated: %lu Free: %lu Waste:%lu Count: %lu Valid? %s\r\n",
-            stats_.size,
-            stats_.used,
-            stats_.free,
-            stats_.waste,
+            stats_.size_bytes,
+            stats_.used_blocks,
+            stats_.free_blocks,
+            stats_.waste_bytes,
             stats_.count,
             IsValid() ? "yes" : "no"
         );

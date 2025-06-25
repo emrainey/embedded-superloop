@@ -13,7 +13,7 @@
 #include "stm32/Timer.hpp"
 #include "stm32/Button.hpp"
 #include "stm32/Indicator.hpp"
-#include "stm32/I2CDriver.hpp"
+#include "stm32/i2c/Driver.hpp"
 #include "stm32/SpiDriver.hpp"
 #include "stm32/UartDriver.hpp"
 #include "stm32/UsartDriver.hpp"
@@ -180,7 +180,7 @@ protected:
     /// The I2C Driver
     stm32::gpio::Pin i2c1_scl_;
     stm32::gpio::Pin i2c1_sda_;
-    stm32::I2CDriver i2c1_driver_;
+    stm32::i2c::Driver i2c1_driver_;
     /// The SPI Driver
     stm32::SpiDriver spi1_driver_;
     /// The Winbond Driver

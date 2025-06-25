@@ -36,8 +36,8 @@ void uart8_isr(void) {
 UartDriver::UartDriver(
     registers::UniversalAsynchronousReceiverTransmitter volatile& uart,
     dma::Driver& dma_driver,
-    dma::Peripheral rx_peripheral,
-    dma::Peripheral tx_peripheral,
+    jarnax::Peripheral rx_peripheral,
+    jarnax::Peripheral tx_peripheral,
     core::Allocator& dma_allocator
 )
     : uart_{uart}

@@ -1,6 +1,7 @@
 #include "memory.h"
 #include "Demo.hpp"
 #include "board.hpp"
+#include "ssd1306.hpp"
 #include "jarnax/Assertion.hpp"
 
 using namespace core::units;
@@ -53,43 +54,43 @@ void Demo::CopierTest() {
     }
 }
 
-void Demo::TestI2CWrite(void) {
-    if (i2c_transaction_.IsUninitialized()) {
-        jarnax::print("I2C Transaction is uninitialized\r\n");
-        i2c_transaction_.address.small.read = 0U;
-        i2c_transaction_.address.small.address = 0x3DU;    // SSD1306
-        i2c_transaction_.send_size = sizeof(buffer_one_);
-        i2c_transaction_.receive_size = 0U;
-        i2c_transaction_.receive_offset = 0U;
-        assertion(not i2c_buffer_.IsEmpty());
-        i2c_transaction_.buffer = std::move(i2c_buffer_);
-        // tell it that we've initialized the transaction, now it can be queued
-        i2c_transaction_.Inform(jarnax::i2c::Transaction::Event::Initialized);
-    }
-    if (i2c_transaction_.IsInitialized()) {
-        jarnax::print("I2C Transaction is initialized\r\n");
-        core::Status status = i2c_driver_.Schedule(&i2c_transaction_);
-        if (status.IsSuccess()) {
-            jarnax::print("I2C Transaction scheduled successfully\r\n");
-        } else {
-            jarnax::print("I2C Transaction scheduling failed\r\n", status);
+void Demo::TestI2C(void) {
+    if (i2c_countdown_.IsExpired()) {
+        jarnax::print("I2C Countdown expired, resetting transaction\r\n");
+        if (i2c_transaction_.IsUninitialized()) {
+            jarnax::print("I2C Transaction is uninitialized\r\n");
+            i2c_transaction_.address.small.read = 0U;
+            i2c_transaction_.address.small.address = ::ssd1306::DefaultAddress;
+            i2c_transaction_.desired_count = sizeof(buffer_one_);
+            i2c_transaction_.actual_count = 0U;
+            assertion(not i2c_buffer_.IsEmpty());
+            i2c_transaction_.buffer = std::move(i2c_buffer_);
+            // tell it that we've initialized the transaction, now it can be queued
+            i2c_transaction_.Inform(jarnax::i2c::Transaction::Event::Initialized);
         }
-    }
-    if (i2c_transaction_.IsComplete()) {
-        jarnax::print("I2C Transaction is complete\r\n");
-        i2c_buffer_ = i2c_transaction_.Relinquish();
-        if (i2c_buffer_.IsEmpty()) {
-            jarnax::print("I2C Transaction buffer is empty\r\n");
-            // TODO Add assert here!
-        } else {
-            jarnax::print("I2C Transaction buffer size: %zu received %u\r\n", i2c_buffer_.count(), i2c_transaction_.received_size);
-            auto read_span = i2c_buffer_.as_span().subspan(i2c_transaction_.receive_offset, i2c_transaction_.receive_size);
-            for (std::size_t i = 0; i < read_span.count(); i++) {
-                jarnax::print("Buffer[%zu]: %02X\r\n", i, read_span[i]);
+        if (i2c_transaction_.IsInitialized()) {
+            jarnax::print("I2C Transaction is initialized\r\n");
+            core::Status status = i2c_driver_.Schedule(&i2c_transaction_);
+            if (status.IsSuccess()) {
+                jarnax::print("I2C Transaction scheduled successfully\r\n");
+            } else {
+                jarnax::print("I2C Transaction scheduling failed\r\n", status);
             }
         }
-        // this will move it back to the Uninitialized state
-        i2c_transaction_.Inform(jarnax::i2c::Transaction::Event::Recycle);
+        if (i2c_transaction_.IsComplete()) {
+            jarnax::print("I2C Transaction is complete\r\n");
+            i2c_buffer_ = i2c_transaction_.Relinquish();
+            if (i2c_transaction_.address.small.read == 1) {
+                jarnax::print("I2C Transaction buffer size: %zu received %u\r\n", i2c_buffer_.count(), i2c_transaction_.actual_count);
+                auto read_span = i2c_buffer_.as_span().subspan(0, i2c_transaction_.actual_count);
+                for (std::size_t i = 0; i < read_span.count(); i++) {
+                    jarnax::print("Buffer[%zu]: %02X\r\n", i, read_span[i]);
+                }
+            }
+            // this will move it back to the Uninitialized state
+            i2c_transaction_.Inform(jarnax::i2c::Transaction::Event::Recycle);
+        }
+        i2c_countdown_.Reset();
     }
 }
 
@@ -124,7 +125,7 @@ void Demo::OnEntry(DemoState state) {
 DemoState Demo::OnCycle(DemoState state) {
     jarnax::print("Demo::OnCycle: %u\r\n", static_cast<std::uint8_t>(state));
     if (state == DemoState::StartUp) {
-        TestI2CWrite();
+        TestI2C();
         if (winbond_driver_.IsReady()) {
             state = DemoState::KeyLoop;
         }

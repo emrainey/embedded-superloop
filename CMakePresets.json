@@ -21,6 +21,33 @@
             }
         },
         {
+            "name": "on-target",
+            "hidden": true,
+            "inherits": "common",
+            "displayName": "On Target Build",
+            "description": "Builds the project on the target device, using the toolchain file",
+            "cacheVariables": {
+                "BUILD_SHARED_LIBS": "OFF",
+                "BUILD_UNIT_TESTS": "OFF",
+                "BUILD_DOCUMENTATION": "ON",
+                "BUILD_COVERAGE": "OFF",
+                "BUILD_CROSS_TARGET": "ON"
+            }
+        },
+        {
+            "name": "on-host",
+            "inherits": "common",
+            "displayName": "Host Build",
+            "description": "Builds the project on the host machine, using the toolchain file",
+            "cacheVariables": {
+                "BUILD_SHARED_LIBS": "OFF",
+                "BUILD_UNIT_TESTS": "ON",
+                "BUILD_DOCUMENTATION": "OFF",
+                "BUILD_COVERAGE": "ON",
+                "BUILD_CROSS_TARGET": "OFF"
+            }
+        },
+        {
             "name": "strict",
             "hidden": true,
             "warnings": {
@@ -51,20 +78,21 @@
             "name": "cortex-m4",
             "hidden": true,
             "displayName": "cortex-m4",
-            "inherits": "common",
+            "inherits": "on-target",
             "description": "Configuration for Cortex M4",
             "toolchainFile": "${sourceDir}/build-support/lib/cmake/bare-gcc-cortex-m4.cmake"
         },
         {
             "name": "native-gcc",
             "hidden": true,
-            "inherits": "common",
+            "inherits": "on-host",
             "displayName": "Native GCC Toolchain",
             "toolchainFile": "${sourceDir}/build-support/lib/cmake/native-gcc.cmake"
         },
         {
             "name": "native-clang",
-            "inherits": "common",
+            "hidden": true,
+            "inherits": "on-host",
             "displayName": "Native Clang Toolchain",
             "description": "Uses the default clang in your path",
             "toolchainFile": "${sourceDir}/build-support/lib/cmake/native-clang.cmake"
@@ -72,7 +100,7 @@
         {
             "name": "native-llvm",
             "hidden": true,
-            "inherits": "common",
+            "inherits": "on-host",
             "displayName": "Native LLVM Toolchain",
             "toolchainFile": "${sourceDir}/build-support/lib/cmake/native-llvm.cmake"
         }

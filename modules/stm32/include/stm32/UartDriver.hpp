@@ -18,8 +18,8 @@ public:
     UartDriver(
         registers::UniversalAsynchronousReceiverTransmitter volatile& uart,
         dma::Driver& dma_driver,
-        dma::Peripheral rx_peripheral,
-        dma::Peripheral tx_peripheral,
+        jarnax::Peripheral rx_peripheral,
+        jarnax::Peripheral tx_peripheral,
         core::Allocator& dma_allocator
     );
 
@@ -37,11 +37,11 @@ protected:
     /// The DMA Driver
     dma::Driver& dma_driver_;
     /// The RX peripheral for the DMA Driver
-    dma::Peripheral rx_peripheral_;
+    jarnax::Peripheral rx_peripheral_;
     registers::DirectMemoryAccess::Stream volatile& rx_dma_stream_;
     size_t rx_dma_stream_index_;
     /// The TX peripheral for the DMA Driver
-    dma::Peripheral tx_peripheral_;
+    jarnax::Peripheral tx_peripheral_;
     registers::DirectMemoryAccess::Stream volatile& tx_dma_stream_;
     size_t tx_dma_stream_index_;
     /// @brief The Allocator for use with DMA memory

@@ -106,190 +106,171 @@ void dma2_stream7_isr() {
 
 namespace dma {
 
-/// @brief Determine if the two peripherals are the same or if they are contained within each other.
-/// @param lhs
-/// @param rhs
-/// @return
-constexpr bool operator==(Peripheral const& lhs, Peripheral const& rhs) {
-    // the type and instance must match, but the sub can be a subset or superset
-    bool type_match = lhs.type == rhs.type;
-    bool instance_match = lhs.instance == rhs.instance;
-    bool sub_match = ((to_underlying(lhs.sub) & to_underlying(rhs.sub)) > 0U) or (to_underlying(lhs.sub) == 0U and to_underlying(rhs.sub) == 0U);
-    return type_match and instance_match and sub_match;
-}
-
-constexpr Peripheral operator|(Peripheral const& lhs, Peripheral const& rhs) {
-    return Peripheral{lhs.type, lhs.instance, static_cast<Peripheral::Sub>(to_underlying(lhs.sub) | to_underlying(rhs.sub))};
-}
-
-static_assert(ADC1 == ADC1, "Must be this value exactly");
-static_assert((TIM8_CH1 | TIM8_CH2) == TIM8_CH1, "Must be this value exactly");
-static_assert((TIM8_CH1 | TIM8_CH2 | TIM8_CH3) == TIM8_CH1, "Must be this value exactly");
-
 /// @brief Per Table 43 in the reference manual.
-constexpr static Peripheral dma_endpoints[stm32::registers::NumberOfDmaControllers][dma::Driver::NumStreamsPerController]
-                                         [dma::Driver::NumChannelsPerStream] = {
-                                             {{// Stream 0
-                                               SPI3_RX,
-                                               I2C1_RX,
-                                               TIM4_CH1,
-                                               I2S3_EXT_RX,
-                                               UART5_RX,
-                                               UART8_RX,
-                                               TIM5_CH3 | TIM5_UP,
-                                               _
-                                              },
-                                              {// Stream 1
-                                               _,
-                                               _,
-                                               _,
-                                               TIM2_UP | TIM2_CH3,
-                                               USART3_RX,
-                                               UART7_TX,
-                                               TIM5_CH4 | TIM5_TRIG,
-                                               TIM6_UP
-                                              },
-                                              {// Stream 2
-                                               SPI3_RX,
-                                               TIM7_UP,
-                                               I2S3_EXT_RX,
-                                               I2C3_RX,
-                                               UART4_RX,
-                                               TIM3_CH4,    // + TIM3_UP
-                                               TIM5_CH1,
-                                               I2C2_RX
-                                              },
-                                              {// Stream 3
-                                               SPI2_RX,
-                                               _,
-                                               TIM4_CH2,
-                                               I2S2_EXT_RX,
-                                               USART3_TX,
-                                               UART7_TX,
-                                               TIM5_CH4,
-                                               I2C2_RX
-                                              },
-                                              {// Stream 4
-                                               SPI2_TX,
-                                               TIM7_UP,
-                                               I2S2_EXT_TX,
-                                               I2C3_TX,
-                                               UART4_TX,
-                                               TIM3_CH1 | TIM3_TRIG,
-                                               TIM5_CH2,
-                                               USART3_TX
-                                              },
-                                              {// Stream 5
-                                               SPI3_TX,
-                                               I2C1_RX,
-                                               I2S3_EXT_TX,
-                                               TIM2_CH1,
-                                               USART2_RX,
-                                               TIM3_CH2,
-                                               _,
-                                               DAC1
-                                              },
-                                              {// Stream 6
-                                               _,
-                                               I2C1_TX,
-                                               TIM4_UP,
-                                               TIM2_CH2 | TIM2_CH4,
-                                               USART2_TX,
-                                               UART8_RX,
-                                               TIM5_UP,
-                                               DAC2
-                                              },
-                                              {// Stream 7
-                                               SPI3_TX,
-                                               I2C1_TX,
-                                               TIM4_CH3,
-                                               TIM2_UP | TIM2_CH4,
-                                               UART5_TX,
-                                               TIM3_CH3,
-                                               _,
-                                               I2C2_TX
-                                              }},
-                                             {{// Stream0/8,
-                                               ADC1,
-                                               _,
-                                               ADC3,
-                                               SPI1_RX,
-                                               SPI4_RX,
-                                               _,
-                                               TIM1_TRIG,
-                                               _
-                                              },
-                                              {// Stream1/9
-                                               SAI1_A,
-                                               DCMI,
-                                               ADC3,
-                                               _,
-                                               SPI4_TX,
-                                               USART6_TX,
-                                               TIM1_CH1,
-                                               TIM8_UP
-                                              },
-                                              {// Stream2/10
-                                               TIM8_CH1 | TIM8_CH2 | TIM8_CH3,
-                                               ADC2,
-                                               _,
-                                               SPI1_RX,
-                                               USART1_RX,
-                                               USART6_RX,
-                                               TIM1_CH1,
-                                               TIM8_UP
-                                              },
-                                              {/// Stream 3/11
-                                               SAI1_A,
-                                               ADC2,
-                                               SPI5_RX,
-                                               SPI1_TX,
-                                               SDIO,
-                                               SPI4_RX,
-                                               TIM1_CH1,
-                                               TIM1_CH2
-                                              },
-                                              {/// Stream 4/12
-                                               ADC1,
-                                               SAI1_B,
-                                               SPI5_TX,
-                                               _,
-                                               _,
-                                               SPI4_TX,
-                                               TIM1_CH4 | TIM1_TRIG | TIM1_COM,
-                                               TIM8_CH3
-                                              },
-                                              {/// Stream 5/13
-                                               SAI1_B,
-                                               SPI6_TX,
-                                               CRYPTO_OUT,
-                                               SPI1_TX,
-                                               USART1_RX,
-                                               _,
-                                               TIM1_UP,
-                                               SPI5_RX
-                                              },
-                                              {/// Stream 6/14
-                                               TIM1_CH1 | TIM1_CH2 | TIM1_CH3,
-                                               SPI6_RX,
-                                               CRYPTO_IN,
-                                               _,
-                                               SDIO,
-                                               USART6_TX,
-                                               TIM1_CH3,
-                                               SPI5_TX
-                                              },
-                                              {/// Stream 7/15
-                                               _,
-                                               DCMI,
-                                               HASH_IN,
-                                               _,
-                                               USART1_TX,
-                                               USART6_TX,
-                                               _,
-                                               TIM8_CH4 | TIM8_TRIG | TIM8_COM
-                                              }}
+// clang-format off
+constexpr static Peripheral dma_endpoints[stm32::registers::NumberOfDmaControllers][dma::Driver::NumStreamsPerController][dma::Driver::NumChannelsPerStream] = {
+    {{// Stream 0
+    SPI3_RX,
+    I2C1_RX,
+    TIM4_CH1,
+    I2S3_EXT_RX,
+    UART5_RX,
+    UART8_RX,
+    TIM5_CH3 | TIM5_UP,
+    _
+    },
+    {// Stream 1
+    _,
+    _,
+    _,
+    TIM2_UP | TIM2_CH3,
+    USART3_RX,
+    UART7_TX,
+    TIM5_CH4 | TIM5_TRIG,
+    TIM6_UP
+    },
+    {// Stream 2
+    SPI3_RX,
+    TIM7_UP,
+    I2S3_EXT_RX,
+    I2C3_RX,
+    UART4_RX,
+    TIM3_CH4,    // + TIM3_UP
+    TIM5_CH1,
+    I2C2_RX
+    },
+    {// Stream 3
+    SPI2_RX,
+    _,
+    TIM4_CH2,
+    I2S2_EXT_RX,
+    USART3_TX,
+    UART7_TX,
+    TIM5_CH4,
+    I2C2_RX
+    },
+    {// Stream 4
+    SPI2_TX,
+    TIM7_UP,
+    I2S2_EXT_TX,
+    I2C3_TX,
+    UART4_TX,
+    TIM3_CH1 | TIM3_TRIG,
+    TIM5_CH2,
+    USART3_TX
+    },
+    {// Stream 5
+    SPI3_TX,
+    I2C1_RX,
+    I2S3_EXT_TX,
+    TIM2_CH1,
+    USART2_RX,
+    TIM3_CH2,
+    _,
+    DAC1
+    },
+    {// Stream 6
+    _,
+    I2C1_TX,
+    TIM4_UP,
+    TIM2_CH2 | TIM2_CH4,
+    USART2_TX,
+    UART8_RX,
+    TIM5_UP,
+    DAC2
+    },
+    {// Stream 7
+    SPI3_TX,
+    I2C1_TX,
+    TIM4_CH3,
+    TIM2_UP | TIM2_CH4,
+    UART5_TX,
+    TIM3_CH3,
+    _,
+    I2C2_TX
+    }},
+    {{// Stream0/8,
+    ADC1,
+    _,
+    ADC3,
+    SPI1_RX,
+    SPI4_RX,
+    _,
+    TIM1_TRIG,
+    _
+    },
+    {// Stream1/9
+    SAI1_A,
+    DCMI,
+    ADC3,
+    _,
+    SPI4_TX,
+    USART6_TX,
+    TIM1_CH1,
+    TIM8_UP
+    },
+    {// Stream2/10
+    TIM8_CH1 | TIM8_CH2 | TIM8_CH3,
+    ADC2,
+    _,
+    SPI1_RX,
+    USART1_RX,
+    USART6_RX,
+    TIM1_CH1,
+    TIM8_UP
+    },
+    {/// Stream 3/11
+    SAI1_A,
+    ADC2,
+    SPI5_RX,
+    SPI1_TX,
+    SDIO,
+    SPI4_RX,
+    TIM1_CH1,
+    TIM1_CH2
+    },
+    {/// Stream 4/12
+    ADC1,
+    SAI1_B,
+    SPI5_TX,
+    _,
+    _,
+    SPI4_TX,
+    TIM1_CH4 | TIM1_TRIG | TIM1_COM,
+    TIM8_CH3
+    },
+    {/// Stream 5/13
+    SAI1_B,
+    SPI6_TX,
+    CRYPTO_OUT,
+    SPI1_TX,
+    USART1_RX,
+    _,
+    TIM1_UP,
+    SPI5_RX
+    },
+    {/// Stream 6/14
+    TIM1_CH1 | TIM1_CH2 | TIM1_CH3,
+    SPI6_RX,
+    CRYPTO_IN,
+    _,
+    SDIO,
+    USART6_TX,
+    TIM1_CH3,
+    SPI5_TX
+    },
+    {/// Stream 7/15
+    _,
+    DCMI,
+    HASH_IN,
+    _,
+    USART1_TX,
+    USART6_TX,
+    _,
+    TIM8_CH4 | TIM8_TRIG | TIM8_COM
+    }}
 };
+// clang-format on
 
 constexpr std::size_t GetChannelFromStreamPeripheral(std::size_t number, Peripheral const& peripheral) {
     size_t controller{0U}, stream{0U};

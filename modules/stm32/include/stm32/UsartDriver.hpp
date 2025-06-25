@@ -19,8 +19,8 @@ public:
     UsartDriver(
         registers::UniversalSynchronousAsynchronousReceiverTransmitter volatile& uart,
         dma::Driver& dma_driver,
-        dma::Peripheral rx_peripheral,
-        dma::Peripheral tx_peripheral,
+        jarnax::Peripheral rx_peripheral,
+        jarnax::Peripheral tx_peripheral,
         core::Allocator& dma_allocator
     );
 
@@ -69,13 +69,13 @@ protected:
     /// The DMA Driver
     dma::Driver& dma_driver_;
     /// The RX peripheral for the DMA Driver
-    dma::Peripheral rx_peripheral_;
+    jarnax::Peripheral rx_peripheral_;
     /// @brief The RX DMA Stream
     registers::DirectMemoryAccess::Stream volatile& rx_dma_stream_;
     /// @brief The RX DMA Stream Index
     size_t rx_dma_stream_index_;
     /// The TX peripheral for the DMA Driver
-    dma::Peripheral tx_peripheral_;
+    jarnax::Peripheral tx_peripheral_;
     /// @brief The TX DMA Stream
     registers::DirectMemoryAccess::Stream volatile& tx_dma_stream_;
     /// @brief The TX DMA Stream Index

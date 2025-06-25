@@ -37,7 +37,7 @@ protected:
     void InitializeTransaction(void);
     void KeyLoop(void);
     void CopierTest(void);
-    void TestI2CWrite(void);
+    void TestI2C(void);
 
     void OnEnter() override;
     void OnEntry(DemoState state) override;

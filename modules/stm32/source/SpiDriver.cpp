@@ -32,7 +32,10 @@ void spi3_isr(void) {
 }
 
 SpiDriver::SpiDriver(
-    stm32::registers::SerialPeripheralInterface volatile& spi, dma::Driver& dma_driver, dma::Peripheral rx_peripheral, dma::Peripheral tx_peripheral
+    stm32::registers::SerialPeripheralInterface volatile& spi,
+    dma::Driver& dma_driver,
+    jarnax::Peripheral rx_peripheral,
+    jarnax::Peripheral tx_peripheral
 )
     : jarnax::spi::Driver{static_cast<jarnax::spi::Transactor&>(*this)}    // initialize the base class by handing off the transactor
     , jarnax::spi::Transactor{}

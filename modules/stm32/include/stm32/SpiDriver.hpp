@@ -14,8 +14,8 @@ public:
     SpiDriver(
         stm32::registers::SerialPeripheralInterface volatile& spi,
         dma::Driver& dma_driver,
-        dma::Peripheral rx_peripheral,
-        dma::Peripheral tx_peripheral
+        jarnax::Peripheral rx_peripheral,
+        jarnax::Peripheral tx_peripheral
     );
 
     core::Status Initialize(core::units::Hertz peripheral_frequency, core::units::Hertz desired_spi_clock_frequency);
@@ -48,10 +48,10 @@ protected:
     Statistics statistics_;    ///< The statistics for the SPI peripheral
     registers::SerialPeripheralInterface volatile& spi_;
     dma::Driver& dma_driver_;
-    dma::Peripheral rx_peripheral_;
+    jarnax::Peripheral rx_peripheral_;
     registers::DirectMemoryAccess::Stream volatile& rx_dma_stream_;
     size_t rx_dma_stream_index_;
-    dma::Peripheral tx_peripheral_;
+    jarnax::Peripheral tx_peripheral_;
     registers::DirectMemoryAccess::Stream volatile& tx_dma_stream_;
     size_t tx_dma_stream_index_;
     /// @brief  The current transaction which may need to be altered by an interrupt

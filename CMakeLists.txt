@@ -5,6 +5,12 @@ project(embedded-superloop-jarnax
         VERSION 0.1.50
         LANGUAGES CXX ASM)
 
+option(BUILD_UNIT_TESTS "Build unit tests" ON)
+option(BUILD_DOCUMENTATION "Build documentation" OFF)
+option(BUILD_COVERAGE "Build with coverage support" OFF)
+option(BUILD_SHARED_LIBS "Build modules as shared libraries" OFF)
+option(BUILD_CROSS_TARGET "Build for a cross target" OFF)
+
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_STANARD 17)
@@ -22,4 +28,4 @@ add_subdirectory(external) # This is where we find Catch2, GoogleTest, etc.
 
 find_package(embedded-superloop REQUIRED)
 
-message(STATUS CMAKE_CROSS_BUILD=${CMAKE_CROSS_BUILD})
+message(STATUS BUILD_CROSS_TARGET=${BUILD_CROSS_TARGET})

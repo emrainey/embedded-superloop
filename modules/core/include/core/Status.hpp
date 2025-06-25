@@ -23,6 +23,7 @@ enum class Result : std::int8_t {
     Timeout = 11,           ///< A timeout occurred
     ExceededLimit = 12,     ///< A counted limit has been exceeded (not a timeout)
     NotImplemented = 13,    ///< The feature is not implemented
+    NotConfigured = 14,     ///< The feature is not configured
 };
 
 /// The enumeration of Causes in the system

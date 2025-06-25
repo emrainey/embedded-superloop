@@ -83,7 +83,7 @@ symbol numerals[10] = {
 };
 }    // namespace symbols
 
-struct Control {
+union Control {
     Control()
         : value{0} {}    ///< Default constructor initializes the control byte to 0
     Control(uint8_t Co, uint8_t DC)
@@ -92,14 +92,12 @@ struct Control {
         bits.next_is_data_not_command = DC & 0b1;    ///< 0 for command, 1 for data
         bits.continuation = Co & 0b1;                ///< Following bytes are all data (0) or not (1)
     }
-    union {
-        struct {
-            uint8_t zero                     : 6;    ///< Must be 0
-            uint8_t next_is_data_not_command : 1;    ///< 0 for command, 1 for data
-            uint8_t continuation             : 1;    ///< Following bytes are all data (0) or not (1)
-        } bits;
-        uint8_t value;    ///< The raw value of the control byte
-    };
+    struct Fields {
+        uint8_t zero                     : 6;    ///< Must be 0
+        uint8_t next_is_data_not_command : 1;    ///< 0 for command, 1 for data
+        uint8_t continuation             : 1;    ///< Following bytes are all data (0) or not (1)
+    } bits;
+    uint8_t value;    ///< The raw value of the control byte
 };
 
 enum class Command : std::uint8_t {
@@ -183,7 +181,7 @@ public:
         }
     }
 
-#if defined(UNIT_TEST)
+#if defined(UNITTEST)
     void dump(void) {
         for (uint8_t p = 0; p < pages; p++) {
             for (uint8_t x = 0; x < width; x++) {
@@ -267,7 +265,7 @@ public:
         }
     }
 
-#if defined(UNIT_TEST)
+#if defined(UNITTEST)
     void dump(void) {
         for (uint8_t y = 0; y < height; y++) {
             for (uint8_t x = 0; x < width; x++) {

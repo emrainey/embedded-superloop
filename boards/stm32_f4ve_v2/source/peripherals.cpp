@@ -42,6 +42,9 @@ UniversalAsynchronousReceiverTransmitter volatile uart4;
 UniversalAsynchronousReceiverTransmitter volatile uart5;
 UniversalAsynchronousReceiverTransmitter volatile uart7;
 UniversalAsynchronousReceiverTransmitter volatile uart8;
+InterIntegratedCircuit volatile i2c1;
+InterIntegratedCircuit volatile i2c2;
+InterIntegratedCircuit volatile i2c3;
 }    // namespace registers
 }    // namespace stm32
 

@@ -20,25 +20,23 @@ static constexpr std::size_t DefaultQueueDepth{8U};
 using DataUnit = uint8_t;
 
 /// @brief The I2C Address structure
-struct Address {
+union Address {
     constexpr Address()
         : whole{0U} {}
-    union {
-        struct {
-            std::uint8_t read     : 1;    ///< Indicates if the transaction is a read (1) or write (0)
-            std::uint8_t address  : 7;    ///< The 7-bit I2C address of the device to communicate with
-            std::uint8_t          : 7;    ///< Reserved and unused
-            std::uint8_t is_large : 1;    ///< Indicates if the address is large (1) or small (0)
-        } small;
-        struct {
-            std::uint16_t read     : 1;     ///< Indicates if the transaction is a read (1) or write (0)
-            std::uint16_t address  : 10;    ///< The 10-bit I2C address of the device to communicate with
-            std::uint16_t          : 4;     ///< Reserved and unused
-            std::uint16_t is_large : 1;     ///< Indicates if the address is large (1) or small (0)
-        } large;
-        std::uint8_t parts[2];    ///< The address as an array of 2 bytes
-        std::uint16_t whole;      ///< The whole address as an 8-bit value
-    };
+    struct small {
+        std::uint8_t read     : 1;    ///< Indicates if the transaction is a read (1) or write (0)
+        std::uint8_t address  : 7;    ///< The 7-bit I2C address of the device to communicate with
+        std::uint8_t          : 7;    ///< Reserved and unused
+        std::uint8_t is_large : 1;    ///< Indicates if the address is large (1) or small (0)
+    } small;
+    struct large {
+        std::uint16_t read     : 1;     ///< Indicates if the transaction is a read (1) or write (0)
+        std::uint16_t address  : 10;    ///< The 10-bit I2C address of the device to communicate with
+        std::uint16_t          : 4;     ///< Reserved and unused
+        std::uint16_t is_large : 1;     ///< Indicates if the address is large (1) or small (0)
+    } large;
+    std::uint8_t parts[2];    ///< The address as an array of 2 bytes
+    std::uint16_t whole;      ///< The whole address as an 8-bit value
 };
 
 /// @brief Defines a CRTP Transactable object for I2C transactions
@@ -48,24 +46,18 @@ public:
         : jarnax::Transactable<Transaction, DefaultRetries>{timer}
         , address{}
         , buffer{}
-        , send_size{0U}
-        , receive_size{0U} {}
+        , desired_count{0U}
+        , actual_count{0U} {}
 
     /// The I2C Address of the device to communicate with
     Address address;
     /// Use Move Sematics on the Buffer to shift ownership/access to the transacton so that the Driver can use it
     /// The format of the data buffer and the expected send + response size must total the buffer size.
     core::Buffer<DataUnit> buffer;
-    /// The number of bytes to send. In a Write, this is the number of bytes after the address byte.
-    std::size_t send_size;
-    /// The number of bytes that have sent (not including the address byte).
-    std::size_t sent_size;
-    /// The offset to the location to start receiving data in the Buffer (only used in a Read transaction).
-    std::size_t receive_offset;
-    /// The number of bytes to receive (only used in a Read transaction).
-    std::size_t receive_size;
-    /// The number of bytes that have been received.
-    std::size_t received_size;
+    /// The desired number of bytes to send or receive (not including the address byte)
+    std::size_t desired_count;
+    /// The number of bytes that have actually been sent or received (not including the address byte).
+    std::size_t actual_count;
 
     /// @brief Indicates if the transaction is empty
     /// @return True if the transaction buffer is empty
@@ -80,14 +72,28 @@ public:
     /// @post @ref Release() must be called to release the transaction
     core::Buffer<DataUnit> Relinquish(void) { return std::move(buffer); }
 
+    /// @return True if the transaction seems valid, false otherwise
+    bool IsValid() const {
+        if (address.whole == 0U) {
+            return false;    // address must be set
+        }
+        if (buffer.IsEmpty()) {
+            return false;    // buffer must not be empty
+        }
+        if (desired_count == 0U) {
+            return false;    // desired count must be set
+        }
+        if (actual_count > desired_count) {
+            return false;    // actual count must not exceed desired count
+        }
+        return true;    // all checks passed, transaction seems valid
+    }
+
     void Clear() {
         address.whole = 0U;
-        buffer.Release();
-        send_size = 0U;
-        sent_size = 0U;
-        receive_offset = 0U;
-        receive_size = 0U;
-        received_size = 0U;
+        buffer.Release();    // if the memory has not been moved, this will free it
+        desired_count = 0U;
+        actual_count = 0U;
     }
 };
 

@@ -1,4 +1,4 @@
-if (NOT CMAKE_CROSS_BUILD)
+if (NOT BUILD_CROSS_TARGET)
 add_module(NAME native
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/source/main.cpp

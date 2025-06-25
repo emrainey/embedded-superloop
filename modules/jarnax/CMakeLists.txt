@@ -27,7 +27,7 @@ add_module(NAME jarnax
         ${CMAKE_CURRENT_SOURCE_DIR}/source/reset.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/print.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/yield.cpp
-        $<IF:$<BOOL:CMAKE_CROSS_BUILD>,${CMAKE_CURRENT_SOURCE_DIR}/source/main.cpp,> # Only build in on target builds
+        $<IF:$<BOOL:BUILD_CROSS_TARGET>,${CMAKE_CURRENT_SOURCE_DIR}/source/main.cpp,> # Only build in on target builds
         # System Classes
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Ticker.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SuperLoop.cpp

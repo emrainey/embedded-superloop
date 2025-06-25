@@ -27,7 +27,7 @@ function(print_targets_with_prefix prefix directory)
 endfunction()
 
 # Declare External Dependencies and how to fetch them
-if (NOT CMAKE_CROSS_BUILD) # Only fetch these dependencies if we are not cross-compiling
+if (NOT BUILD_CROSS_TARGET) # Only fetch these dependencies if we are not cross-compiling
 FetchContent_Declare(
     Catch2
     GIT_REPOSITORY  https://github.com/catchorg/Catch2/
