@@ -55,15 +55,15 @@ DriverContext::DriverContext()
     , flash_cs_{stm32::gpio::Port::B, 0}    // , nrf_cs_{stm32::gpio::Port::B, 7}
                                             // , nrf_ce_{stm32::gpio::Port::B, 6}
                                             // , nrf_irq_{stm32::gpio::Port::B, 8}
-    , dma_driver_{}
+    , dma_manager_{stm32::registers::direct_memory_access}
     , i2c1_scl_{stm32::gpio::Port::B, 8}
     , i2c1_sda_{stm32::gpio::Port::B, 9}
-    , i2c1_driver_{stm32::registers::i2c1, dma_driver_, stm32::I2C1_RX, stm32::I2C1_TX}
-    , spi1_driver_{stm32::registers::spi1, dma_driver_, stm32::SPI1_RX, stm32::SPI1_TX}
+    , i2c1_driver_{stm32::registers::i2c1, dma_manager_, stm32::I2C1_RX, stm32::I2C1_TX}
+    , spi1_driver_{stm32::registers::spi1, dma_manager_, stm32::SPI1_RX, stm32::SPI1_TX}
     , winbond_driver_{timer_, spi1_driver_, flash_cs_, GetDmaAllocator()}
     , usart1_tx_{stm32::gpio::Port::A, 9}
     , usart1_rx_{stm32::gpio::Port::A, 10}
-    , usart1_driver_{stm32::registers::usart1, dma_driver_, stm32::USART1_RX, stm32::USART1_TX, GetDmaAllocator()} {
+    , usart1_driver_{stm32::registers::usart1, dma_manager_, stm32::USART1_RX, stm32::USART1_TX, GetDmaAllocator()} {
     // construct the driver objects as part of the constructor above.
 }
 
@@ -263,7 +263,7 @@ jarnax::Button& DriverContext::GetButton1() {
 }
 
 jarnax::Copier& DriverContext::GetCopier() {
-    return dma_driver_;
+    return dma_manager_;
 }
 
 jarnax::i2c::Driver& DriverContext::GetI2cDriver() {

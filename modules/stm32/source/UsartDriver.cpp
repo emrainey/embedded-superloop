@@ -39,26 +39,25 @@ void usart6_isr(void) {
 
 UsartDriver::UsartDriver(
     registers::UniversalSynchronousAsynchronousReceiverTransmitter volatile& usart,
-    dma::Driver& dma_driver,
+    dma::Manager& dma_driver,
     jarnax::Peripheral rx_peripheral,
     jarnax::Peripheral tx_peripheral,
     core::Allocator& dma_allocator
 )
     : usart_{usart}
-    , dma_driver_{dma_driver}
+    , dma_manager_{dma_driver}
     , rx_peripheral_{rx_peripheral}
-    , rx_dma_stream_{*dma_driver_.Assign(rx_peripheral)}
-    , rx_dma_stream_index_{dma::Driver::NumStreams}
+    , rx_dma_resource_{nullptr}
     , tx_peripheral_{tx_peripheral}
-    , tx_dma_stream_{*dma_driver_.Assign(tx_peripheral)}
-    , tx_dma_stream_index_{dma::Driver::NumStreams}
+    , tx_dma_resource_{nullptr}
     , dma_allocator_{dma_allocator}
     , rx_dma_buffer_{usart_rx_dma_buffer_size, dma_allocator_}
     , rx_span_{}
     , tx_dma_buffer_{usart_tx_dma_buffer_size, dma_allocator_}
     , tx_ready_{true}
     , tx_span_{}
-    , tx_index_{0U} {
+    , tx_index_{0U}
+    , statistics_{} {
     if (&usart == &registers::usart1) {
         usart_instances[0] = this;
         usart_statistics[0] = &statistics_;
@@ -116,18 +115,20 @@ uint32_t UsartDriver::GetBaudRate(void) const {
 }
 
 core::Status UsartDriver::Initialize(core::units::Hertz peripheral_frequency) {
+    rx_dma_resource_ = dma_manager_.Assign(rx_peripheral_);
+    if (rx_dma_resource_ == nullptr) {
+        return core::Status{core::Result::InvalidValue, core::Cause::Configuration};
+    }
+    tx_dma_resource_ = dma_manager_.Assign(tx_peripheral_);
+    if (tx_dma_resource_ == nullptr) {
+        dma_manager_.Release(rx_dma_resource_);
+        return core::Status{core::Result::InvalidValue, core::Cause::Configuration};
+    }
+    // Initialize the DMA resources
     core::Status status{};
     peripheral_frequency_ = peripheral_frequency;
-    rx_dma_stream_index_ = dma_driver_.GetStreamIndex(rx_dma_stream_);
-    tx_dma_stream_index_ = dma_driver_.GetStreamIndex(tx_dma_stream_);
-    if (rx_dma_stream_index_ == dma::Driver::NumStreams) {
-        return core::Status{core::Result::NotAvailable, core::Cause::Resource};
-    }
-    if (tx_dma_stream_index_ == dma::Driver::NumStreams) {
-        return core::Status{core::Result::NotAvailable, core::Cause::Resource};
-    }
-    dma_driver_.Initialize(rx_dma_stream_, rx_dma_stream_index_, rx_peripheral_);
-    dma_driver_.Initialize(tx_dma_stream_, tx_dma_stream_index_, tx_peripheral_);
+    rx_dma_resource_->Initialize(rx_peripheral_);
+    tx_dma_resource_->Initialize(tx_peripheral_);
 
     stm32::registers::UniversalSynchronousAsynchronousReceiverTransmitter::Control1 control1;
     stm32::registers::UniversalSynchronousAsynchronousReceiverTransmitter::Control2 control2;
@@ -195,8 +196,9 @@ core::Status UsartDriver::Configure(uint32_t desired_baud_rate, bool parity, uin
 
     // Setup the RX DMA stream
     rx_span_ = rx_dma_buffer_.as_span<DataUnit>();
-    dma_driver_.CopyFromPeripheral(rx_dma_stream_, rx_span_.data(), &usart_.data.whole, rx_span_.count());
-    dma_driver_.Start(rx_dma_stream_);    // start the DMA stream
+    std::uintptr_t source = reinterpret_cast<std::uintptr_t>(&usart_.data.whole);
+    rx_dma_resource_->ConfigureCopyFromPeripheral(source, rx_span_);
+    rx_dma_resource_->Enable();    // start the DMA stream
 
     return core::Status{};
 }
@@ -283,7 +285,7 @@ core::Status UsartDriver::Enqueue(core::Span<DataUnit const> const& data) {
 
         if constexpr (use_dma_for_usart_tx) {
             // setup the DMA stream
-            dma_driver_.CopyToPeripheral(tx_dma_stream_, &usart_.data.whole, tx_span_.data(), tx_span_.count());
+            tx_dma_resource_->ConfigureCopyToPeripheral(tx_span_, reinterpret_cast<std::uintptr_t>(&usart_.data.whole));
             // enable the DMA transmit stream in the USART
             registers::UniversalSynchronousAsynchronousReceiverTransmitter::Control3 control3 = usart_.control3;    // read
             control3.bits.direct_memory_access_transmitter = 1;                                                     // DMA transmitter enabled
@@ -292,8 +294,7 @@ core::Status UsartDriver::Enqueue(core::Span<DataUnit const> const& data) {
             registers::UniversalSynchronousAsynchronousReceiverTransmitter::Status status_reg = usart_.status;    // read
             status_reg.bits.transmit_complete = 0;                                                                // clear TC flag
             usart_.status = status_reg;                                                                           // write
-
-            dma_driver_.Start(tx_dma_stream_);    // start the DMA stream
+            tx_dma_resource_->Enable();                                                                           // start the DMA stream
         } else {
             // don't write anything yet, let the TXE interrupt do it
             // enable TC interrupt in Control1 (we'll use that to end the TX sequence)

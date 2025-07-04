@@ -7,7 +7,7 @@ namespace i2c {
 class I2CDriverTest : public ::testing::Test {
 public:
     I2CDriverTest()
-        : i2c_driver_{stm32::registers::i2c1, dma_driver_, I2C1_TX, I2C1_RX} {
+        : i2c_driver_{stm32::registers::i2c1, dma_manager_, I2C1_TX, I2C1_RX} {
         // Constructor code, if needed
     }
     ~I2CDriverTest() override = default;
@@ -19,7 +19,7 @@ public:
     }
 
 protected:
-    stm32::dma::MockDriver dma_driver_;
+    stm32::dma::MockManager dma_manager_;
     stm32::i2c::Driver i2c_driver_;
 };
 }    // namespace i2c

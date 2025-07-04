@@ -4,7 +4,7 @@
 #include "core/Units.hpp"
 #include "core/Array.hpp"
 #include "jarnax/spi/Driver.hpp"
-#include "stm32/dma/Driver.hpp"
+#include "stm32/dma/Manager.hpp"
 #include "stm32/registers/SerialPeripheralInterface.hpp"
 
 namespace stm32 {
@@ -13,7 +13,7 @@ class SpiDriver : public jarnax::spi::Driver, private jarnax::spi::Transactor {
 public:
     SpiDriver(
         stm32::registers::SerialPeripheralInterface volatile& spi,
-        dma::Driver& dma_driver,
+        jarnax::dma::Manager& dma_driver,
         jarnax::Peripheral rx_peripheral,
         jarnax::Peripheral tx_peripheral
     );
@@ -45,17 +45,24 @@ public:
     inline Statistics const& GetStatistics(void) const { return statistics_; }
 
 protected:
-    Statistics statistics_;    ///< The statistics for the SPI peripheral
+    /// The statistics for the SPI peripheral
+    Statistics statistics_;
+    /// @brief The Serial Peripheral Interface registers for this driver
     registers::SerialPeripheralInterface volatile& spi_;
-    dma::Driver& dma_driver_;
+    /// @brief The DMA manager for the SPI driver
+    jarnax::dma::Manager& dma_manager_;
+    /// @brief  The Peripheral for Receive operations
     jarnax::Peripheral rx_peripheral_;
-    registers::DirectMemoryAccess::Stream volatile& rx_dma_stream_;
-    size_t rx_dma_stream_index_;
+    /// @brief  The DMA resource for the receive stream
+    jarnax::dma::Resource* rx_dma_resource_;
+    /// @brief  The Peripheral for Transmit operations
     jarnax::Peripheral tx_peripheral_;
-    registers::DirectMemoryAccess::Stream volatile& tx_dma_stream_;
-    size_t tx_dma_stream_index_;
+    /// @brief  The DMA resource for the transmit stream
+    jarnax::dma::Resource* tx_dma_resource_;
     /// @brief  The current transaction which may need to be altered by an interrupt
     jarnax::spi::Transaction* transaction_;
+    /// The peripheral clock frequency
+    core::units::Hertz peripheral_frequency_;
 };
 }    // namespace stm32
 

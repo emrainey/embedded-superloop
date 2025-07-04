@@ -23,4 +23,4 @@ Context &GetContext() {
 
 }    // namespace jarnax
 
-#endif // TEST_CONTEXT_HPP_
+#endif    // TEST_CONTEXT_HPP_

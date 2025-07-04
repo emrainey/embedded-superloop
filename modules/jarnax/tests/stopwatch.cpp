@@ -1,6 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include "jarnax/StopWatch.hpp"
-#include "JumpTimer.hpp"
+#include "jarnax/JumpTimer.hpp"
 
 using namespace core::units;
 

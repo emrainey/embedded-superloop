@@ -51,19 +51,18 @@ void i2c3_error_isr(void) {
 }
 
 namespace i2c {
-Driver::Driver(stm32::registers::InterIntegratedCircuit volatile& i2c, dma::Driver& dma_driver, Peripheral rx_peripheral, Peripheral tx_peripheral)
+Driver::Driver(stm32::registers::InterIntegratedCircuit volatile& i2c, dma::Manager& dma_driver, Peripheral rx_peripheral, Peripheral tx_peripheral)
     : jarnax::i2c::Driver{static_cast<jarnax::i2c::Transactor&>(*this)}
     , jarnax::i2c::Transactor{}
     , statistics_{}
     , i2c_{i2c}
-    , dma_driver_{dma_driver}
+    , dma_manager_{dma_driver}
     , rx_peripheral_{rx_peripheral}
-    , rx_dma_stream_{*dma_driver_.Assign(rx_peripheral)}
-    , rx_dma_stream_index_{dma::Driver::NumStreams}
+    , rx_dma_resource_{nullptr}
     , tx_peripheral_{tx_peripheral}
-    , tx_dma_stream_{*dma_driver_.Assign(tx_peripheral)}
-    , tx_dma_stream_index_{dma::Driver::NumStreams}
-    , transaction_{nullptr} {
+    , tx_dma_resource_{nullptr}
+    , transaction_{nullptr}
+    , peripheral_frequency_{0_Hz} {
     if (&i2c == &registers::i2c1) {
         i2c_instances[0] = this;
         i2c_statistics[0] = &statistics_;
@@ -77,17 +76,20 @@ Driver::Driver(stm32::registers::InterIntegratedCircuit volatile& i2c, dma::Driv
 }
 
 core::Status Driver::Initialize(core::units::Hertz peripheral_frequency, core::units::Hertz desired_i2c_clock_frequency) {
-    rx_dma_stream_index_ = dma_driver_.GetStreamIndex(rx_dma_stream_);
-    tx_dma_stream_index_ = dma_driver_.GetStreamIndex(tx_dma_stream_);
-    if (rx_dma_stream_index_ == dma::Driver::NumStreams) {
-        return core::Status{core::Result::NotAvailable, core::Cause::Resource};
+    rx_dma_resource_ = dma_manager_.Assign(rx_peripheral_);
+    if (rx_dma_resource_ == nullptr) {
+        return core::Status{core::Result::InvalidValue, core::Cause::Configuration};
     }
-    if (tx_dma_stream_index_ == dma::Driver::NumStreams) {
-        return core::Status{core::Result::NotAvailable, core::Cause::Resource};
+    tx_dma_resource_ = dma_manager_.Assign(tx_peripheral_);
+    if (tx_dma_resource_ == nullptr) {
+        dma_manager_.Release(rx_dma_resource_);
+        return core::Status{core::Result::InvalidValue, core::Cause::Configuration};
     }
-    dma_driver_.Initialize(rx_dma_stream_, rx_dma_stream_index_, rx_peripheral_);
-    dma_driver_.Initialize(tx_dma_stream_, tx_dma_stream_index_, tx_peripheral_);
-
+    core::Status status{};
+    peripheral_frequency_ = peripheral_frequency;
+    // Initialize the DMA resources
+    rx_dma_resource_->Initialize(rx_peripheral_);
+    tx_dma_resource_->Initialize(tx_peripheral_);
     Reset();
     // Configure the I2C clock control register
     stm32::registers::InterIntegratedCircuit::ClockControl clock_control;
@@ -278,12 +280,12 @@ core::Status Driver::Start(jarnax::i2c::Transaction& transaction) {
         // If using DMA, we need to set up the DMA streams for the transaction
         if (transaction.address.small.read) {
             // Set up the RX DMA stream
-            dma_driver_.CopyFromPeripheral(rx_dma_stream_, span.data(), reinterpret_cast<uint32_t volatile*>(&i2c_.data), span.count());
-            dma_driver_.Start(rx_dma_stream_);    // start the RX DMA stream
+            rx_dma_resource_->ConfigureCopyFromPeripheral(reinterpret_cast<std::uintptr_t>(&i2c_.data), span);
+            rx_dma_resource_->Enable();    // start the RX DMA stream
         } else {
             // Set up the TX DMA stream
-            dma_driver_.CopyToPeripheral(tx_dma_stream_, reinterpret_cast<uint32_t volatile*>(&i2c_.data), span.data(), span.count());
-            dma_driver_.Start(tx_dma_stream_);    // start the TX DMA stream
+            tx_dma_resource_->ConfigureCopyToPeripheral(span, reinterpret_cast<std::uintptr_t>(&i2c_.data));
+            tx_dma_resource_->Enable();    // start the TX DMA stream
         }
     } else {
         // enable the interrupts for the I2C peripheral

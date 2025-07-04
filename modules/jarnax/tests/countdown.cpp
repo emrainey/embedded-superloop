@@ -1,7 +1,7 @@
 // #define CATCH_CONFIG_MAIN
 #include <catch2/catch_test_macros.hpp>
 #include "jarnax/CountDown.hpp"
-#include "JumpTimer.hpp"
+#include "jarnax/JumpTimer.hpp"
 
 #include <core/Units.hpp>
 using namespace core::units;

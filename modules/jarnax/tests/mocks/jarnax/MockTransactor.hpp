@@ -10,12 +10,12 @@
 namespace jarnax {
 
 template <typename TRANSACTABLE_TYPE>
-class MockTransactor : public Transactor<jarnax::Transactable<TRANSACTABLE_TYPE>> {
+class MockTransactor : public Transactor<TRANSACTABLE_TYPE> {
 public:
-    MOCK_METHOD(core::Status, Verify, (jarnax::Transactable<TRANSACTABLE_TYPE> & transaction), (override));
-    MOCK_METHOD(core::Status, Start, (jarnax::Transactable<TRANSACTABLE_TYPE> & transaction), (override));
-    MOCK_METHOD(core::Status, Check, (jarnax::Transactable<TRANSACTABLE_TYPE> & transaction), (override));
-    MOCK_METHOD(core::Status, Cancel, (jarnax::Transactable<TRANSACTABLE_TYPE> & transaction), (override));
+    MOCK_METHOD(core::Status, Verify, (TRANSACTABLE_TYPE & transaction), (override));
+    MOCK_METHOD(core::Status, Start, (TRANSACTABLE_TYPE & transaction), (override));
+    MOCK_METHOD(core::Status, Check, (TRANSACTABLE_TYPE & transaction), (override));
+    MOCK_METHOD(core::Status, Cancel, (TRANSACTABLE_TYPE & transaction), (override));
 };
 
 }    // namespace jarnax

@@ -175,8 +175,8 @@ protected:
     // stm32::gpio::Pin nrf_cs_;
     // stm32::gpio::Pin nrf_ce_;
     // stm32::gpio::Pin nrf_irq_;
-    /// The DMA Driver
-    stm32::dma::Driver dma_driver_;
+    /// The DMA Manager
+    stm32::dma::Manager dma_manager_;
     /// The I2C Driver
     stm32::gpio::Pin i2c1_scl_;
     stm32::gpio::Pin i2c1_sda_;

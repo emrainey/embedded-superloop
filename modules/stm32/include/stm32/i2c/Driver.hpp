@@ -2,7 +2,7 @@
 #define STM32_I2C_DRIVER_HPP
 #include "stm32/registers/InterIntegratedCircuit.hpp"
 #include "jarnax/i2c/Driver.hpp"
-#include "stm32/dma/Driver.hpp"
+#include "stm32/dma/Manager.hpp"
 #include "core/Buffer.hpp"
 #include "core/Units.hpp"
 
@@ -12,7 +12,7 @@ class Driver final : public jarnax::i2c::Driver, private jarnax::i2c::Transactor
 public:
     Driver(
         stm32::registers::InterIntegratedCircuit volatile &i2c,
-        dma::Driver &dma_driver,
+        jarnax::dma::Manager &dma_driver,
         jarnax::Peripheral rx_peripheral,
         jarnax::Peripheral tx_peripheral
     );
@@ -60,17 +60,24 @@ protected:
     // @TODO Untested function
     // void ProgramAddress(jarnax::i2c::Address &address);
 
-    Statistics statistics_;    ///< The statistics for the I2C peripheral
+    /// The statistics for the I2C peripheral
+    Statistics statistics_;
+    /// The register reference to the I2C peripheral
     stm32::registers::InterIntegratedCircuit volatile &i2c_;
-    dma::Driver &dma_driver_;
+    /// @brief The DMA driver used for I2C transactions
+    jarnax::dma::Manager &dma_manager_;
+    /// @brief The peripheral used for receiving data
     jarnax::Peripheral rx_peripheral_;
-    registers::DirectMemoryAccess::Stream volatile &rx_dma_stream_;
-    size_t rx_dma_stream_index_;
+    /// @brief The DMA stream used for receiving data
+    jarnax::dma::Resource *rx_dma_resource_;
+    /// @brief The peripheral used for transmitting data
     jarnax::Peripheral tx_peripheral_;
-    registers::DirectMemoryAccess::Stream volatile &tx_dma_stream_;
-    size_t tx_dma_stream_index_;
+    /// @brief The DMA stream used for transmitting data
+    jarnax::dma::Resource *tx_dma_resource_;
     /// @brief  The current transaction which may need to be altered by an interrupt
     jarnax::i2c::Transaction *transaction_;
+    /// The peripheral clock frequency
+    core::units::Hertz peripheral_frequency_;
 };
 }    // namespace i2c
 }    // namespace stm32

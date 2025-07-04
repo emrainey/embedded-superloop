@@ -33,7 +33,7 @@ void spi3_isr(void) {
 
 SpiDriver::SpiDriver(
     stm32::registers::SerialPeripheralInterface volatile& spi,
-    dma::Driver& dma_driver,
+    dma::Manager& dma_driver,
     jarnax::Peripheral rx_peripheral,
     jarnax::Peripheral tx_peripheral
 )
@@ -41,14 +41,13 @@ SpiDriver::SpiDriver(
     , jarnax::spi::Transactor{}
     , statistics_{}
     , spi_{spi}
-    , dma_driver_{dma_driver}
+    , dma_manager_{dma_driver}
     , rx_peripheral_{rx_peripheral}
-    , rx_dma_stream_{*dma_driver_.Assign(rx_peripheral)}
-    , rx_dma_stream_index_{dma::Driver::NumStreams}
+    , rx_dma_resource_{nullptr}
     , tx_peripheral_{tx_peripheral}
-    , tx_dma_stream_{*dma_driver_.Assign(tx_peripheral)}
-    , tx_dma_stream_index_{dma::Driver::NumStreams}
-    , transaction_{nullptr} {
+    , tx_dma_resource_{nullptr}
+    , transaction_{nullptr}
+    , peripheral_frequency_{0_Hz} {
     if (&spi == &registers::spi1) {
         spi_instances[0] = this;
         spi_statistics[0] = &statistics_;
@@ -89,21 +88,24 @@ stm32::registers::SerialPeripheralInterface::Control1::BaudRateDivider SpiDriver
 }
 
 core::Status SpiDriver::Initialize(core::units::Hertz peripheral_frequency, core::units::Hertz desired_spi_clock_frequency) {
-    rx_dma_stream_index_ = dma_driver_.GetStreamIndex(rx_dma_stream_);
-    tx_dma_stream_index_ = dma_driver_.GetStreamIndex(tx_dma_stream_);
-    if (rx_dma_stream_index_ == dma::Driver::NumStreams) {
-        return core::Status{core::Result::NotAvailable, core::Cause::Resource};
+    core::Status status{};
+    peripheral_frequency_ = peripheral_frequency;
+    rx_dma_resource_ = dma_manager_.Assign(rx_peripheral_);
+    if (rx_dma_resource_ == nullptr) {
+        return core::Status{core::Result::InvalidValue, core::Cause::Configuration};
     }
-    if (tx_dma_stream_index_ == dma::Driver::NumStreams) {
-        return core::Status{core::Result::NotAvailable, core::Cause::Resource};
+    tx_dma_resource_ = dma_manager_.Assign(tx_peripheral_);
+    if (tx_dma_resource_ == nullptr) {
+        dma_manager_.Release(rx_dma_resource_);
+        return core::Status{core::Result::InvalidValue, core::Cause::Configuration};
     }
-    dma_driver_.Initialize(rx_dma_stream_, rx_dma_stream_index_, rx_peripheral_);
-    dma_driver_.Initialize(tx_dma_stream_, tx_dma_stream_index_, tx_peripheral_);
+    rx_dma_resource_->Initialize(rx_peripheral_);
+    tx_dma_resource_->Initialize(tx_peripheral_);
 
     stm32::registers::SerialPeripheralInterface::Control1 control1;
     stm32::registers::SerialPeripheralInterface::Control2 control2;
 
-    std::uint32_t setting = to_underlying(FindClosestDivider(peripheral_frequency, desired_spi_clock_frequency));
+    std::uint32_t setting = to_underlying(FindClosestDivider(peripheral_frequency_, desired_spi_clock_frequency));
     // disable at first
     control1 = spi_.control1;                              // read
     spi_.control1.bits.spi_enable = 0;                     // modify
@@ -220,12 +222,12 @@ core::Status SpiDriver::Start(jarnax::spi::Transaction& transaction) {
     // configure the DMA (TX then RX)
     if (transaction.send_size > 0U) {
         auto tx_span = transaction.buffer.as_span().subspan(0, transaction.send_size);
-        dma_driver_.CopyToPeripheral(tx_dma_stream_, reinterpret_cast<uint32_t volatile*>(&spi_.data.whole), tx_span.data(), tx_span.count());
-        dma_driver_.Start(tx_dma_stream_);    // start the DMA stream, TXE will cause the write to happen
+        tx_dma_resource_->ConfigureCopyToPeripheral(tx_span, reinterpret_cast<std::uintptr_t>(&spi_.data.whole));
+        tx_dma_resource_->Enable();    // start the DMA stream, TXE will cause the write to happen
     } else if (transaction.send_size == 0U) {
         auto rx_span = transaction.buffer.as_span().subspan(transaction.receive_offset, transaction.send_size + transaction.receive_size);
-        dma_driver_.CopyFromPeripheral(rx_dma_stream_, rx_span.data(), reinterpret_cast<uint32_t volatile*>(&spi_.data.whole), rx_span.count());
-        dma_driver_.Start(rx_dma_stream_);    // start the DMA stream, RXNE will cause the read to happen
+        rx_dma_resource_->ConfigureCopyFromPeripheral(reinterpret_cast<std::uintptr_t>(&spi_.data.whole), rx_span);
+        rx_dma_resource_->Enable();    // start the DMA stream, RXNE will cause the read to happen
     }
     //=========================================
     // enable the peripheral
@@ -245,18 +247,18 @@ core::Status SpiDriver::Start(jarnax::spi::Transaction& transaction) {
 
 core::Status SpiDriver::Check(jarnax::spi::Transaction& transaction) {
     core::Status status;
-    dma::Driver::Flags flags;
+    dma::Manager::Flags flags;
     bool fault{false};
     bool complete{true};
     if (transaction.sent_size != transaction.send_size and transaction.send_size > 0U) {
         if constexpr (use_dma_for_spi) {
             // check the RX stream
-            status = dma_driver_.GetStreamStatus(rx_dma_stream_index_, flags);
+            status = dma_manager_.GetStreamStatus(rx_dma_resource_->GetIdentifier(), flags);
             if (status) {
                 if constexpr (jarnax::debug::spi) {
                     jarnax::print(
                         "SPI RX DMA[%u] flags: c:%u h:%u e:%u dme:%u fe:%u\n",
-                        rx_dma_stream_index_,
+                        rx_dma_resource_->GetIdentifier(),
                         flags.complete,
                         flags.half_complete,
                         flags.error,
@@ -276,12 +278,12 @@ core::Status SpiDriver::Check(jarnax::spi::Transaction& transaction) {
     if (transaction.received_size != transaction.receive_size and transaction.receive_size > 0U) {
         if constexpr (use_dma_for_spi) {
             // check the TX stream
-            status = dma_driver_.GetStreamStatus(rx_dma_stream_index_, flags);
+            status = dma_manager_.GetStreamStatus(tx_dma_resource_->GetIdentifier(), flags);
             if (status) {
                 if constexpr (jarnax::debug::spi) {
                     jarnax::print(
-                        "SPI RX DMA[%u] flags: c:%u h:%u e:%u dme:%u fe:%u\n",
-                        rx_dma_stream_index_,
+                        "SPI TX DMA[%u] flags: c:%u h:%u e:%u dme:%u fe:%u\n",
+                        tx_dma_resource_->GetIdentifier(),
                         flags.complete,
                         flags.half_complete,
                         flags.error,
@@ -342,8 +344,8 @@ core::Status SpiDriver::Cancel(jarnax::spi::Transaction& transaction) {
 
     if constexpr (use_dma_for_spi) {
         // disable the streams
-        tx_dma_stream_.configuration.bits.stream_enable = 0;    // read, modify, write
-        rx_dma_stream_.configuration.bits.stream_enable = 0;    // read, modify, write
+        tx_dma_resource_->Disable();
+        rx_dma_resource_->Disable();
     } else {
         // disable the interrupts
         registers::SerialPeripheralInterface::Control2 control2 = spi_.control2;    // read

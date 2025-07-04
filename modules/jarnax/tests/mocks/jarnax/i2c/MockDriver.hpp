@@ -9,11 +9,16 @@
 namespace jarnax {
 namespace i2c {
 /// @brief A mock driver for I2C transactions, used for testing purposes.
-class MockDriver : public Driver, public jarnax::Loopable {
+class MockDriver : public Driver, public jarnax::Executable {
 public:
     MockDriver(MockTransactor& transactor)
         : Driver{transactor} {}
-    MOCK_METHOD0(Initialize, core::Status());
+
+    MOCK_METHOD(core::Status, Initialize, (core::units::Hertz peripheral_frequency, core::units::Hertz desired_i2c_clock_frequency), (override));
+    MOCK_METHOD(core::Status, Verify, (Transaction & transaction), (override));
+    MOCK_METHOD(core::Status, Start, (Transaction & transaction), (override));
+    MOCK_METHOD(core::Status, Check, (Transaction & transaction), (override));
+    MOCK_METHOD(core::Status, Cancel, (Transaction & transaction), (override));
 };
 
 }    // namespace i2c

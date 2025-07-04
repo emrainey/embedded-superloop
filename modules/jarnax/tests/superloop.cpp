@@ -2,8 +2,8 @@
 #include <catch2/catch_test_macros.hpp>
 #include "jarnax/Context.hpp"
 #include "jarnax/SuperLoop.hpp"
-#include "JumpTicker.hpp"
-#include "TestContext.hpp"
+#include "jarnax/JumpTicker.hpp"
+#include "jarnax/TestContext.hpp"
 
 #include <cstdio>
 

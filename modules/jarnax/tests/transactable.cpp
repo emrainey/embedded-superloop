@@ -2,7 +2,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include "jarnax/Context.hpp"
 #include "jarnax/Transactable.hpp"
-#include "JumpTimer.hpp"
+#include "jarnax/JumpTimer.hpp"
 
 #include <cstdio>
 

@@ -5,8 +5,8 @@
 #include "jarnax/Transactable.hpp"
 #include "jarnax/Transactor.hpp"
 #include "jarnax/Coordinator.hpp"
-#include "TestContext.hpp"
-#include "JumpTimer.hpp"
+#include "jarnax/TestContext.hpp"
+#include "jarnax/JumpTimer.hpp"
 
 using ::testing::Return;
 // using ::testing::WillOnce;

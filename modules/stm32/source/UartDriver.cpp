@@ -35,19 +35,17 @@ void uart8_isr(void) {
 
 UartDriver::UartDriver(
     registers::UniversalAsynchronousReceiverTransmitter volatile& uart,
-    dma::Driver& dma_driver,
+    dma::Manager& dma_driver,
     jarnax::Peripheral rx_peripheral,
     jarnax::Peripheral tx_peripheral,
     core::Allocator& dma_allocator
 )
     : uart_{uart}
-    , dma_driver_{dma_driver}
+    , dma_manager_{dma_driver}
     , rx_peripheral_{rx_peripheral}
-    , rx_dma_stream_{*dma_driver_.Assign(rx_peripheral)}
-    , rx_dma_stream_index_{dma::Driver::NumStreams}
+    , rx_dma_resource_{nullptr}
     , tx_peripheral_{tx_peripheral}
-    , tx_dma_stream_{*dma_driver_.Assign(tx_peripheral)}
-    , tx_dma_stream_index_{dma::Driver::NumStreams}
+    , tx_dma_resource_{nullptr}
     , dma_allocator_{dma_allocator} {
     if (&uart == &registers::uart4) {
         g_uart_instances[0] = this;
@@ -61,18 +59,21 @@ UartDriver::UartDriver(
 }
 
 core::Status UartDriver::Initialize(core::units::Hertz peripheral_frequency) {
+    rx_dma_resource_ = dma_manager_.Assign(rx_peripheral_);
+    if (rx_dma_resource_ == nullptr) {
+        return core::Status{core::Result::InvalidValue, core::Cause::Configuration};
+    }
+    tx_dma_resource_ = dma_manager_.Assign(tx_peripheral_);
+    if (tx_dma_resource_ == nullptr) {
+        dma_manager_.Release(rx_dma_resource_);
+        return core::Status{core::Result::InvalidValue, core::Cause::Configuration};
+    }
     core::Status status{};
+
     peripheral_frequency_ = peripheral_frequency;
-    rx_dma_stream_index_ = dma_driver_.GetStreamIndex(rx_dma_stream_);
-    tx_dma_stream_index_ = dma_driver_.GetStreamIndex(tx_dma_stream_);
-    if (rx_dma_stream_index_ == dma::Driver::NumStreams) {
-        return core::Status{core::Result::NotAvailable, core::Cause::Resource};
-    }
-    if (tx_dma_stream_index_ == dma::Driver::NumStreams) {
-        return core::Status{core::Result::NotAvailable, core::Cause::Resource};
-    }
-    dma_driver_.Initialize(rx_dma_stream_, rx_dma_stream_index_, rx_peripheral_);
-    dma_driver_.Initialize(tx_dma_stream_, tx_dma_stream_index_, tx_peripheral_);
+
+    rx_dma_resource_->Initialize(rx_peripheral_);
+    tx_dma_resource_->Initialize(tx_peripheral_);
 
     stm32::registers::UniversalAsynchronousReceiverTransmitter::Control1 control1;
     stm32::registers::UniversalAsynchronousReceiverTransmitter::Control2 control2;

@@ -76,10 +76,12 @@ host_unit_test(NAME test-jarnax-catch
 
 host_unit_test(NAME test-jarnax-googletest
     SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/mocks.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/coordinator.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/winbondstatemachine.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/mocks
     LIBRARIES
         strict memory-none-all core-none-all jarnax-interfaces
     MODULES

@@ -4,7 +4,7 @@
 #include "jarnax/usart/Driver.hpp"
 #include "core/Units.hpp"
 #include "core/Buffer.hpp"
-#include "stm32/dma/Driver.hpp"
+#include "stm32/dma/Manager.hpp"
 #include "stm32/registers/UniversalSynchronousAsynchronousReceiverTransmitter.hpp"
 
 namespace stm32 {
@@ -18,7 +18,7 @@ public:
     /// @param tx_peripheral The TX peripheral for the DMA Driver
     UsartDriver(
         registers::UniversalSynchronousAsynchronousReceiverTransmitter volatile& uart,
-        dma::Driver& dma_driver,
+        dma::Manager& dma_driver,
         jarnax::Peripheral rx_peripheral,
         jarnax::Peripheral tx_peripheral,
         core::Allocator& dma_allocator
@@ -63,23 +63,18 @@ protected:
     /// @return Returns the current baud rate as specified through the registers
     uint32_t GetBaudRate(void) const;
 
-    Statistics statistics_;    ///< The USART statistics
     /// The USART peripheral
     registers::UniversalSynchronousAsynchronousReceiverTransmitter volatile& usart_;
-    /// The DMA Driver
-    dma::Driver& dma_driver_;
+    /// The DMA Manager
+    jarnax::dma::Manager& dma_manager_;
     /// The RX peripheral for the DMA Driver
     jarnax::Peripheral rx_peripheral_;
     /// @brief The RX DMA Stream
-    registers::DirectMemoryAccess::Stream volatile& rx_dma_stream_;
-    /// @brief The RX DMA Stream Index
-    size_t rx_dma_stream_index_;
+    jarnax::dma::Resource* rx_dma_resource_;
     /// The TX peripheral for the DMA Driver
     jarnax::Peripheral tx_peripheral_;
     /// @brief The TX DMA Stream
-    registers::DirectMemoryAccess::Stream volatile& tx_dma_stream_;
-    /// @brief The TX DMA Stream Index
-    size_t tx_dma_stream_index_;
+    jarnax::dma::Resource* tx_dma_resource_;
     /// @brief The Allocator for use with DMA memory
     core::Allocator& dma_allocator_;
     /// The peripheral clock frequency
@@ -96,6 +91,8 @@ protected:
     core::Span<DataUnit> tx_span_;
     /// The current index in the TX DMA Buffer
     size_t tx_index_;
+    /// The statistics for the USART peripheral
+    Statistics statistics_;    ///< The USART statistics
 };
 
 }    // namespace stm32
