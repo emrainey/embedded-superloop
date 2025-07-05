@@ -19,6 +19,7 @@
 #include "core/units/Ticks.hpp"
 #include "core/units/Iota.hpp"
 #include "core/units/Seconds.hpp"
+#include "core/units/MilliSeconds.hpp"
 #include "core/units/MicroSeconds.hpp"
 #include "core/units/Meters.hpp"
 #include "core/units/SquareMeters.hpp"
@@ -173,7 +174,7 @@ constexpr Hertz operator""_Hz(unsigned long long value) {
 /// @brief Quote Operator for kilo Hertz
 /// @param value The value to convert
 /// @return The kilo Hertz value
-constexpr Hertz operator""_kHz(unsigned long long value) {
+constexpr Hertz operator""_KHz(unsigned long long value) {
     return Hertz{static_cast<Hertz::StorageType>(value) * iso::prefix::kilo};
 }
 

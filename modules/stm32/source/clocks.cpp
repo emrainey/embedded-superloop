@@ -149,8 +149,8 @@ void clocks(ClockConfiguration const& clkcfg) {
     }
     config.bits.system_clock_switch = stm32::registers::ResetAndClockControl::Configuration::SystemClockSwitch::PhaseLockLoop;    // switch to the PLL
     config.bits.ahb_divider = clkcfg.ahb_divider;
-    config.bits.apb_low_speed_divider = clkcfg.low_speed_divider;
-    config.bits.apb_high_speed_divider = clkcfg.high_speed_divider;
+    config.bits.apb_low_speed_divider = clkcfg.apb1_low_speed_divider;
+    config.bits.apb_high_speed_divider = clkcfg.apb2_high_speed_divider;
     if (clkcfg.use_internal) {
         config.bits.micro_controller_clock_1_source = ResetAndClockControl::Configuration::Clock1Source::HighSpeedInternal;
     } else {
@@ -198,8 +198,8 @@ void clocks(ClockConfiguration const& clkcfg) {
     } while (config.bits.system_clock_switch_status != ResetAndClockControl::Configuration::SystemClockSwitch::PhaseLockLoop);
 
     // Compute the Clock Tree values from what we just set
-    clock_tree.low_speed_internal = 32_kHz;
-    clock_tree.low_speed_external = Hertz{32768U};
+    clock_tree.low_speed_internal = low_speed_internal_oscillator_frequency;
+    clock_tree.low_speed_external = low_speed_external_oscillator_frequency;
     clock_tree.high_speed_internal = high_speed_internal_oscillator_frequency;
     clock_tree.high_speed_external = clkcfg.external_clock_frequency;
 
@@ -217,10 +217,13 @@ void clocks(ClockConfiguration const& clkcfg) {
     clock_tree.fclk = clock_tree.sysclk / GetAHBDivider(clkcfg.ahb_divider);
     clock_tree.hclk = clock_tree.fclk;
     clock_tree.system_timer = clock_tree.fclk / 8U;
-    clock_tree.apb1_peripheral = clock_tree.hclk / GetAPB1Divider(clkcfg.low_speed_divider);
-    clock_tree.apb2_peripheral = clock_tree.hclk / GetAPB2Divider(clkcfg.high_speed_divider);
+    clock_tree.apb1_peripheral = clock_tree.hclk / GetAPB1Divider(clkcfg.apb1_low_speed_divider);
+    clock_tree.apb2_peripheral = clock_tree.hclk / GetAPB2Divider(clkcfg.apb2_high_speed_divider);
     clock_tree.rtc = clock_tree.high_speed_external / clkcfg.rtc_divider;
-    clock_tree.tim_clk = clock_tree.hclk;
+    clock_tree.apb1_timer_clk =
+        clock_tree.apb1_peripheral * (clkcfg.apb1_low_speed_divider == 1 ? 1U : 2U);    // APB1 is doubled if the divider is not 1
+    clock_tree.apb2_timer_clk =
+        clock_tree.apb2_peripheral * (clkcfg.apb2_high_speed_divider == 1 ? 1U : 2U);    // APB2 is doubled if the divider is not 1
     // clock_tree.rng = clock_tree.sysclk;
 }
 

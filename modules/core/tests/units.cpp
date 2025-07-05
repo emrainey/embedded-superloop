@@ -61,7 +61,7 @@ TEST_CASE("Units - Equations") {
         auto h0 = 1_Hz;
         REQUIRE(h0.value() == 1U);
 
-        auto h1 = 1_kHz;
+        auto h1 = 1_KHz;
         REQUIRE(h1.value() == 1000U);
 
         auto h2 = 1_MHz;

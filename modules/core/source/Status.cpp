@@ -22,6 +22,10 @@ bool Status::IsBusy(void) const {
     return (result_ == Result::Busy);
 }
 
+bool Status::IsFailure(void) const {
+    return not(IsSuccess() or IsBusy());
+}
+
 Status::operator bool(void) const {
     return IsSuccess();
 }

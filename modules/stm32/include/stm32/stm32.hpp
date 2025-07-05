@@ -40,7 +40,8 @@ struct ClockTree {
     Hertz rtc;
     Hertz rng;
     Hertz usbotg;
-    Hertz tim_clk;    ///< The frequency of the TIMx clocks  (TIMxCLK)
+    Hertz apb1_timer_clk;    ///< The frequency of the TIMx clocks  (TIMxCLK)
+    Hertz apb2_timer_clk;    ///< The frequency of the TIMx clocks  (TIMxCLK)
 };
 
 /// Returns what the vendor considers the frequency of the system.
@@ -76,27 +77,27 @@ struct ClockConfiguration {
     bool use_bypass;
     Hertz external_clock_frequency;
     //---
-    std::uint32_t ahb_divider        : 4;
-    std::uint32_t                    : 28;
-    std::uint32_t low_speed_divider  : 3;
-    std::uint32_t                    : 29;
-    std::uint32_t high_speed_divider : 3;
-    std::uint32_t                    : 29;
-    std::uint32_t mcu_clock1_divider : 3;
-    std::uint32_t                    : 29;
-    std::uint32_t mcu_clock2_divider : 3;
-    std::uint32_t                    : 29;
-    std::uint32_t rtc_divider        : 5;
-    std::uint32_t                    : 27;
+    std::uint32_t ahb_divider             : 4;
+    std::uint32_t                         : 28;
+    std::uint32_t apb1_low_speed_divider  : 3;
+    std::uint32_t                         : 29;
+    std::uint32_t apb2_high_speed_divider : 3;
+    std::uint32_t                         : 29;
+    std::uint32_t mcu_clock1_divider      : 3;
+    std::uint32_t                         : 29;
+    std::uint32_t mcu_clock2_divider      : 3;
+    std::uint32_t                         : 29;
+    std::uint32_t rtc_divider             : 5;
+    std::uint32_t                         : 27;
     //---
-    std::uint32_t pll_m              : 6;
-    std::uint32_t                    : 32 - 6;
-    std::uint32_t pll_n              : 9;
-    std::uint32_t                    : 32 - 9;
-    std::uint32_t pll_p              : 2;
-    std::uint32_t                    : 32 - 2;
-    std::uint32_t pll_q              : 4;
-    std::uint32_t                    : 32 - 4;
+    std::uint32_t pll_m                   : 6;
+    std::uint32_t                         : 32 - 6;
+    std::uint32_t pll_n                   : 9;
+    std::uint32_t                         : 32 - 9;
+    std::uint32_t pll_p                   : 2;
+    std::uint32_t                         : 32 - 2;
+    std::uint32_t pll_q                   : 4;
+    std::uint32_t                         : 32 - 4;
 };
 
 // Vendor Chips declare this structure

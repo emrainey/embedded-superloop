@@ -5,6 +5,7 @@
 #include "jarnax/Timer.hpp"
 #include "jarnax/CountDown.hpp"
 #include "jarnax/Indicator.hpp"
+#include "core/Status.hpp"
 
 namespace jarnax {
 
@@ -19,11 +20,15 @@ public:
     /// @brief The execute method
     bool Execute() override;
 
+    /// Informs the monitor that a particular Status has occurred.
+    void Report(core::Status status);
+
 protected:
     jarnax::Timer& timer_;
     jarnax::Indicator& status_indicator_;
     jarnax::Indicator& error_indicator_;
     jarnax::CountDown countdown_;    ///< Used to track when to indicate the status
+    core::Status reported_status_;
 };
 
 }    // namespace jarnax

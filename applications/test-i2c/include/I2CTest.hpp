@@ -1,5 +1,5 @@
-#ifndef APP_DEMO_HPP
-#define APP_DEMO_HPP
+#ifndef TEST_I2C_HPP
+#define TEST_I2C_HPP
 
 #include <memory.hpp>
 #include "jarnax/CountDown.hpp"
@@ -51,4 +51,4 @@ protected:
     core::StateMachine<AppState> state_machine_;
 };
 
-#endif    // APP_DEMO_HPP
+#endif    // TEST_I2C_HPP

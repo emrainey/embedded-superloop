@@ -18,11 +18,11 @@ ClockConfiguration const default_clock_configuration = {
     /* .use_internal = */ false,
     /* .use_bypass = */ false,
     /* .external_clock_frequency */ high_speed_external_oscillator_frequency,
-    /* .ahb_divider = */ 0b0000,          // /1
-    /* .low_speed_divider = */ 0b101,     // /4
-    /* .high_speed_divider = */ 0b100,    // /2
-    /* .mcu_clock1_divider = */ 0b111,    // /5
-    /* .mcu_clock2_divider = */ 0b111,    // /5
+    /* .ahb_divider = */ 0b0000,               // /1
+    /* .apb1_low_speed_divider = */ 0b101,     // /4
+    /* .apb2_high_speed_divider = */ 0b100,    // /2
+    /* .mcu_clock1_divider = */ 0b111,         // /5
+    /* .mcu_clock2_divider = */ 0b111,         // /5
     /* .rtc_divider = */ 8,
     /* .pll_m = */ 8,
     /* .pll_n = */ 336,
@@ -44,8 +44,12 @@ DriverContext::DriverContext()
     , key1_pin_{stm32::gpio::Port::E, 3}
     , error_pin_{stm32::gpio::Port::A, 6}
     , status_pin_{stm32::gpio::Port::A, 7}
+    , performance_pin_{stm32::gpio::Port::A, 4}
+    , timing_pin_{stm32::gpio::Port::A, 5}    // For debugging purposes
     , error_indicator_{error_pin_, stm32::Level::Low}
     , status_indicator_{status_pin_, stm32::Level::Low}
+    , performance_indicator_{performance_pin_, stm32::Level::High}
+    , timing_indicator_{timing_pin_, stm32::Level::High}
     , wakeup_button_{wakeup_pin_, true}
     , key0_button_{key0_pin_, false}
     , key1_button_{key1_pin_, false}
@@ -83,11 +87,21 @@ core::Status DriverContext::Initialize(void) {
         .SetOutputType(stm32::gpio::OutputType::OpenDrain)
         .SetResistor(stm32::gpio::Resistor::None);
     status_pin_.SetMode(stm32::gpio::Mode::Output)
-        .SetOutputSpeed(stm32::gpio::Speed::Low)
+        .SetOutputSpeed(stm32::gpio::Speed::Medium)
         .SetOutputType(stm32::gpio::OutputType::OpenDrain)
         .SetResistor(stm32::gpio::Resistor::None);
+    performance_pin_.SetMode(stm32::gpio::Mode::Output)
+        .SetOutputSpeed(stm32::gpio::Speed::Medium)
+        .SetOutputType(stm32::gpio::OutputType::PushPull)
+        .SetResistor(stm32::gpio::Resistor::PullDown);
+    timing_pin_.SetMode(stm32::gpio::Mode::Output)
+        .SetOutputSpeed(stm32::gpio::Speed::Medium)
+        .SetOutputType(stm32::gpio::OutputType::PushPull)
+        .SetResistor(stm32::gpio::Resistor::PullDown);
     error_indicator_.Inactive();
     status_indicator_.Inactive();
+    performance_indicator_.Inactive();
+    timing_indicator_.Inactive();
     i2c1_scl_.SetMode(stm32::gpio::Mode::AlternateFunction)
         .SetAlternative(4)    // Alt 4 is I2C1
         .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
@@ -169,9 +183,13 @@ core::Status DriverContext::Initialize(void) {
 
     jarnax::print(
         "Feature Clock is %lu\r\n"
+        "APB1 Timer Clock is %lu\r\n"
+        "APB2 Timer Clock is %lu\r\n"
         "APB1 Clock is %lu\r\n"
         "APB2 Clock is %lu\r\n",
         stm32::GetClockTree().fclk.value(),
+        stm32::GetClockTree().apb1_timer_clk.value(),
+        stm32::GetClockTree().apb2_timer_clk.value(),
         stm32::GetClockTree().apb1_peripheral.value(),
         stm32::GetClockTree().apb2_peripheral.value()
     );
@@ -183,7 +201,7 @@ core::Status DriverContext::Initialize(void) {
             break;
         }
         // TIMER2
-        status = timer_.Initialize(stm32::GetClockTree().tim_clk);
+        status = timer_.Initialize(stm32::GetClockTree().apb1_timer_clk, stm32::timer2_frequency);
         if (not status.IsSuccess()) {
             jarnax::print("TIMER2 failed to initialize\r\n");
             break;
@@ -248,6 +266,14 @@ jarnax::Indicator& DriverContext::GetErrorIndicator() {
 
 jarnax::Indicator& DriverContext::GetStatusIndicator() {
     return status_indicator_;
+}
+
+jarnax::Indicator& DriverContext::GetPerformanceIndicator() {
+    return performance_indicator_;
+}
+
+jarnax::Indicator& DriverContext::GetTimingIndicator() {
+    return timing_indicator_;
 }
 
 jarnax::Button& DriverContext::GetWakeupButton() {

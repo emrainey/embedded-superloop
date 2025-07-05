@@ -69,6 +69,9 @@ using namespace core::units;
 /// @brief The speed of the HSI oscillator on most STM32 parts
 constexpr Hertz high_speed_internal_oscillator_frequency = 16_MHz;
 
+/// @brief The speed of the HSE oscillator on most STM32 parts
+constexpr Hertz low_speed_internal_oscillator_frequency = 32_KHz;
+
 /// The clock speed of the STM32F407VE
 constexpr Hertz top_clock_frequency = 168_MHz;
 

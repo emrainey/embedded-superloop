@@ -22,8 +22,9 @@
 
 /// RTT features
 namespace rtt {
+using iso::operator""_KiB;
 /// The size of the buffer to send to the RTT Host
-constexpr static size_t kUpwardBufferSize{4096u};
+constexpr static size_t kUpwardBufferSize{4_KiB};
 /// The size of the buffer to receive from the RTT Host
 constexpr static size_t kDownwardBufferSize{16u};
 }    // namespace rtt
@@ -49,8 +50,16 @@ namespace stm32 {    // Choices for STM32
 using namespace core::units;
 /// The HSE value for this board.
 constexpr static Hertz high_speed_external_oscillator_frequency = 8_MHz;
+/// The LSE value for this board.
+constexpr static Hertz low_speed_external_oscillator_frequency{32768U};    // 32KiHz
+/// @brief The desired frequency of the Timer2 counter
+constexpr static Hertz timer2_frequency = 12_MHz;
 /// The number of iota per second (based on the ClockTree)
-constexpr static std::uint32_t iota_per_microsecond = 1U;
+constexpr static std::uint32_t iota_per_microsecond = timer2_frequency.value() / 1'000'000U;
+/// The number of iota per second (based on the ClockTree)
+constexpr static std::uint32_t iota_per_millisecond = timer2_frequency.value() / 1'000U;
+/// The number of iota per second (based on the ClockTree)
+constexpr static std::uint32_t iota_per_second = timer2_frequency.value() / 1U;
 /// Number of bytes per DMA block for the Drivers
 constexpr static size_t DmaBlockSize{64U};
 /// Number of DMA blocks for the Drivers
@@ -59,7 +68,7 @@ constexpr static size_t DmaBlockCount{32U};
 /// The Baud Rate for the USART1
 constexpr static std::uint32_t usart1_baud_rate = 115200U;
 /// The Bus Rate for the I2C1
-constexpr static core::units::Hertz i2c1_bus_frequency = 400_kHz;
+constexpr static core::units::Hertz i2c1_bus_frequency = 400_KHz;
 
 /// The UxART TX DMA Buffer Size
 constexpr static std::uint32_t usart_tx_dma_buffer_size = 128U;
@@ -76,6 +85,35 @@ constexpr static bool use_dma_for_spi{false};
 /// Enables use of the DMA for I2C transfers
 constexpr static bool use_dma_for_i2c{false};
 }    // namespace stm32
+
+namespace core {
+namespace units {
+constexpr MicroSeconds ConvertToMicroSeconds(Iota const& value) {
+    MicroSeconds::StorageType v = static_cast<MicroSeconds::StorageType>(value.value() / static_cast<Iota::StorageType>(stm32::iota_per_microsecond));
+    return MicroSeconds{v};
+}
+constexpr Iota ConvertToIota(MicroSeconds const& value) {
+    Iota::StorageType v = static_cast<Iota::StorageType>(value.value() * static_cast<MicroSeconds::StorageType>(stm32::iota_per_microsecond));
+    return Iota{v};
+}
+constexpr MilliSeconds ConvertToMilliSeconds(Iota const& value) {
+    MilliSeconds::StorageType v = static_cast<MilliSeconds::StorageType>(value.value() / static_cast<Iota::StorageType>(stm32::iota_per_millisecond));
+    return MilliSeconds{v};
+}
+constexpr Iota ConvertToIota(MilliSeconds const& value) {
+    Iota::StorageType v = static_cast<Iota::StorageType>(value.value() * static_cast<MilliSeconds::StorageType>(stm32::iota_per_millisecond));
+    return Iota{v};
+}
+constexpr Seconds ConvertToSeconds(Iota const& value) {
+    Seconds::StorageType v = static_cast<Seconds::StorageType>(value.value()) / static_cast<Seconds::StorageType>(stm32::iota_per_second);
+    return Seconds{v};
+}
+constexpr Iota ConvertToIota(Seconds const& value) {
+    Iota::StorageType v = static_cast<Iota::StorageType>(value.value() * static_cast<Seconds::StorageType>(stm32::iota_per_second));
+    return Iota{v};
+}
+}    // namespace units
+}    // namespace core
 
 namespace winbond {
 using iso::operator""_MiB;
@@ -119,6 +157,12 @@ public:
     /// Returns the Status Indicator
     jarnax::Indicator& GetStatusIndicator();
 
+    /// Returns the Performance Indicator
+    jarnax::Indicator& GetPerformanceIndicator();
+
+    /// Returns the Timing Indicator
+    jarnax::Indicator& GetTimingIndicator();
+
     /// Returns the Wakeup Pin
     jarnax::Button& GetWakeupButton();
 
@@ -153,41 +197,57 @@ protected:
     stm32::Timer timer_;
     /// The Random Number Generator
     stm32::RandomNumberGenerator random_number_generator_;
-    stm32::gpio::Pin wakeup_pin_;
-    stm32::gpio::Pin mco1_pin_;    ///< Clock output
-    stm32::gpio::Pin mco2_pin_;    ///< Clock output
-    stm32::gpio::Pin key0_pin_;
-    stm32::gpio::Pin key1_pin_;
-    stm32::gpio::Pin error_pin_;
-    stm32::gpio::Pin status_pin_;
+    stm32::gpio::Pin wakeup_pin_;         ///< The Wakeup Button Pin
+    stm32::gpio::Pin mco1_pin_;           ///< Clock output
+    stm32::gpio::Pin mco2_pin_;           ///< Clock output
+    stm32::gpio::Pin key0_pin_;           ///< The Key0 Pin
+    stm32::gpio::Pin key1_pin_;           ///< The Key1 Pin
+    stm32::gpio::Pin error_pin_;          ///< The Error Pin
+    stm32::gpio::Pin status_pin_;         ///< The Status Pin
+    stm32::gpio::Pin performance_pin_;    ///< The Performance Pin
+    stm32::gpio::Pin timing_pin_;         ///< The Timing Pin (for debugging)
     /// The Error Indicator
     stm32::Indicator error_indicator_;
     /// The Status Indicator
     stm32::Indicator status_indicator_;
+    /// The Performance Indicator
+    stm32::Indicator performance_indicator_;
+    /// The timing indicator
+    stm32::Indicator timing_indicator_;
+    /// @brief The Wakeup Button
     stm32::Button wakeup_button_;
+    /// @brief The Key0 Button
     stm32::Button key0_button_;
+    /// @brief The Key1 Button
     stm32::Button key1_button_;
-    /// The SPI and related pins
+    /// The SPI1 Leader Out Follower In (MOSI)
     stm32::gpio::Pin spi1_mosi_;
+    /// The SPI1 Master In Slave Out (MISO)
     stm32::gpio::Pin spi1_miso_;
+    /// The SPI1 Serial Clock (SCLK)
     stm32::gpio::Pin spi1_sclk_;
+    /// The Flash Chip Select (CS)
     stm32::gpio::Pin flash_cs_;
     // stm32::gpio::Pin nrf_cs_;
     // stm32::gpio::Pin nrf_ce_;
     // stm32::gpio::Pin nrf_irq_;
     /// The DMA Manager
     stm32::dma::Manager dma_manager_;
-    /// The I2C Driver
+    /// The I2C Clock (SCL)
     stm32::gpio::Pin i2c1_scl_;
+    /// The I2C Data (SDA)
     stm32::gpio::Pin i2c1_sda_;
+    /// The I2C Driver
     stm32::i2c::Driver i2c1_driver_;
     /// The SPI Driver
     stm32::SpiDriver spi1_driver_;
     /// The Winbond Driver
     jarnax::winbond::Driver winbond_driver_;
-    /// USART1
+    /// USART1 Transmit Pin
     stm32::gpio::Pin usart1_tx_;
+    /// USART1 Receive Pin
     stm32::gpio::Pin usart1_rx_;
+    /// USART1 Driver
     stm32::UsartDriver usart1_driver_;
 };
 

@@ -49,11 +49,14 @@ public:
     /// Parameterized Contructor
     Status(Result result, Cause cause);
 
-    /// Returns true when the result was success. Does not consider cause.
+    /// @return true when the result was success. Does not consider cause.
     bool IsSuccess(void) const;
 
-    /// Returns true when the result was failure (anything other than success)
+    /// @return true when the result was busy specifically.
     bool IsBusy(void) const;
+
+    /// @return true when the Status is not Success and not Busy.
+    bool IsFailure(void) const;
 
     /// Returns true if the result is Success and any cause if present.
     explicit operator bool(void) const;

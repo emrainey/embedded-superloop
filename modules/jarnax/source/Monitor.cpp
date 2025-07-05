@@ -9,10 +9,19 @@ Monitor::Monitor(jarnax::Timer& timer, jarnax::Indicator& status_indicator, jarn
     , countdown_{timer, core::units::Iota{500'000U}} {
 }
 
+void Monitor::Report(core::Status status) {
+    reported_status_ = status;
+}
+
 bool Monitor::Execute() {
     if (countdown_.IsExpired()) {
         status_indicator_.Toggle();
         countdown_.Reset();
+    }
+    if (reported_status_.IsSuccess()) {
+        error_indicator_.Inactive();
+    } else {
+        error_indicator_.Active();
     }
     return true;
 }

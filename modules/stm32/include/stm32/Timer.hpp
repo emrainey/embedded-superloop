@@ -18,16 +18,17 @@ public:
     /// @param timer The volatile reference to a timer
     Timer(stm32::registers::Timer2 volatile& timer);
 
-    /// @brief The initializer of the abp1 frequency
-    /// @param apb1_frequency The frequency of the APB1 bus
+    /// @brief The initializer of the Timer frequency
+    /// @param internal_frequency The frequency of the internal clock
+    /// @param desired_timer_frequency The desired frequency of the timer
     /// @return core::Status
-    core::Status Initialize(core::units::Hertz apb1_frequency);
+    core::Status Initialize(core::units::Hertz internal_frequency, core::units::Hertz desired_timer_frequency);
 
     //+---[jarnax::Timer]--------------------------------------------+
-    /// @copydoc jarnax::Timer::GetIotas()
     core::units::Iota GetIotas(void) const override;
-    /// @copydoc jarnax::Timer::GetMicroseconds()
     core::units::MicroSeconds GetMicroseconds(void) const override;
+    core::units::Seconds GetSeconds(void) const override;
+    //+---[jarnax::Timer]--------------------------------------------+
 
 protected:
     stm32::registers::Timer2 volatile& timer_;    ///< The reference to the volatile timer
