@@ -145,7 +145,7 @@ void Driver::HandleEvent(void) {
     stm32::registers::InterIntegratedCircuit::Status1 status1 = i2c_.status1;    // read
     if (status1.bits.start_bit) {
         statistics_.events.start++;    // Increment the start condition count
-        // write the address out to the bus
+        // write the address out to the bus, this write will clear the START BIT
         if (transaction_->address.small.is_large == 0U) {
             i2c_.data.bits.data = transaction_->address.parts[0];    // writes the R/W + the address
         } else {
@@ -153,6 +153,8 @@ void Driver::HandleEvent(void) {
         }
     }
     if (status1.bits.address) {
+        stm32::registers::InterIntegratedCircuit::Status2 status2;
+        status2 = i2c_.status2;                // read, this clears the ADDRESS BIT
         statistics_.events.address_match++;    // Increment the address sent count
     }
     if (status1.bits.byte_transfer_finished) {
@@ -181,6 +183,12 @@ void Driver::HandleEvent(void) {
         if (transaction_ != nullptr and transaction_->actual_count < transaction_->desired_count) {
             auto span = transaction_->buffer.as_span().subspan(0, transaction_->desired_count);
             i2c_.data.bits.data = span[transaction_->actual_count++];
+        } else {
+            // If we have sent all the data, we can set the stop condition
+            stm32::registers::InterIntegratedCircuit::Control1 control1;
+            control1 = i2c_.control1;    // read
+            control1.bits.stop = 1;      // set stop condition
+            i2c_.control1 = control1;    // write
         }
     }
 }
@@ -298,6 +306,9 @@ core::Status Driver::Start(jarnax::i2c::Transaction& transaction) {
         // If not using DMA, we need to set up the I2C peripheral for the transaction
         // the interrupt will handle the transaction?
     }
+
+    // memorize the transaction pointer to so that the interrupt can use it
+    transaction_ = &transaction;
 
     stm32::registers::InterIntegratedCircuit::Control1 control1;
     control1 = i2c_.control1;    // read

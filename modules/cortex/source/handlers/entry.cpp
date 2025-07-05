@@ -80,7 +80,7 @@ namespace handlers {
             }
             beg++;
         }
-        if constexpr (verify_ccm_at_boot) {
+        if constexpr (verify_sram_at_boot) {
             beg = reinterpret_cast<uint32_t volatile *>(__sram_beg);
             while (beg < end) {
                 if (*beg != 0) {

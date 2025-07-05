@@ -56,10 +56,6 @@ protected:
     jarnax::Button& key1_button_;
     jarnax::Copier& copier_;
     jarnax::winbond::Driver& winbond_driver_;
-    jarnax::i2c::Driver& i2c_driver_;
-    jarnax::i2c::Transaction i2c_transaction_;
-    core::Buffer<jarnax::i2c::DataUnit> i2c_buffer_;
-    jarnax::CountDown i2c_countdown_;
     jarnax::CountDown countdown_;
 
     uint8_t buffer_one_[256U];

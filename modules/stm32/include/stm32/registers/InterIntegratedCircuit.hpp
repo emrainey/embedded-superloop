@@ -485,7 +485,7 @@ struct InterIntegratedCircuit final {
             uint32_t system_management_bus_host    : 1;    // bit 6
             /// Dual flag (Slave mode) (DUALF)
             uint32_t dual_flag                     : 1;    // bit 7
-            /// acket error checking register (PEC)
+            /// Packet error checking register (PEC)
             uint32_t packet_error_checking         : 8;    // bits 8:15
             /// (reserved)
             uint32_t                               : 16;    // bits 16:31

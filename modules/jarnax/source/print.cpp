@@ -356,20 +356,20 @@ static unsigned long vsnprint(char buffer[], size_t buffer_size, const char *for
 static void vprint(const char *format, va_list args) {
     unsigned long count = vsnprint(printf_buffer, PrintfBufferSize, format, args);
 
-    if (use_rtt_for_printf) {
+    if constexpr (use_rtt_for_printf) {
         rtt::control_block.GetUp(rtt::Index{0}).Write(count, printf_buffer);
     }
-    if (use_swo_for_printf) {
+    if constexpr (use_swo_for_printf) {
         cortex::swo::emit(cortex::swo::Port::System, printf_buffer);
     }
-    if (use_uart_for_printf) {
+    if constexpr (use_uart_for_printf) {
         // @TODO add uart::write(buffer, count);
     }
-    if (use_logger_for_printf) {
+    if constexpr (use_logger_for_printf) {
         // @TODO add complex network logging
     }
 #if defined(UNIT_TESTS)
-    if (use_system_printf) {
+    if constexpr (use_system_printf) {
         // UNIT TESTS
         vsnprintf(printf_buffer, PrintfBufferSize, format, args);
     }
@@ -406,20 +406,20 @@ public:
         unsigned long count = vsnprint(buffer_, PrintfBufferSize, format, args);
         va_end(args);
 
-        if (use_rtt_for_printf) {
+        if constexpr (use_rtt_for_printf) {
             rtt::control_block.GetUp(rtt::Index{0}).Write(count, buffer_);
         }
-        if (use_swo_for_printf) {
+        if constexpr (use_swo_for_printf) {
             cortex::swo::emit(cortex::swo::Port::System, buffer_);
         }
-        if (use_uart_for_printf) {
+        if constexpr (use_uart_for_printf) {
             // @TODO add uart::write(buffer, count);
         }
-        if (use_logger_for_printf) {
+        if constexpr (use_logger_for_printf) {
             // @TODO add complex network logging
         }
 #if defined(UNIT_TESTS)
-        if (use_system_printf) {
+        if constexpr (use_system_printf) {
             // UNIT TESTS
             vsnprintf(buffer_, PrintfBufferSize, format, args);
         }

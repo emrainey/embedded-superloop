@@ -16,11 +16,16 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_STANARD 17)
 # set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
+add_custom_target(scrub
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}
+    COMMENT "Cleaning up build directories"
+ )
+
 # The following definitions control which subdirectories are included in the build, they don't define targets
 # The subdirectories are added in the order they are listed here
 list(APPEND LOCAL_MODULES memory core) # These don't depend on anything
 list(APPEND LOCAL_MODULES cortex stm32 segger jarnax native) # These depend on config and board
-list(APPEND LOCAL_APPLICATIONS unittests simple)
+list(APPEND LOCAL_APPLICATIONS unittests simple i2c)
 list(APPEND LOCAL_CONFIGURATIONS basic)
 list(APPEND LOCAL_BOARDS stm32_f4ve_v2)
 

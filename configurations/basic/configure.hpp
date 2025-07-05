@@ -15,7 +15,7 @@
 namespace cortex {
 
 /// When false, the boost up self tests will not run
-constexpr static bool perform_boot_self_test{true};
+constexpr static bool perform_boot_self_test{false};
 
 /// Zeroes CCM at boot (if present)
 constexpr static bool zero_ccm_at_boot{true};
