@@ -1,4 +1,5 @@
 #include "jarnax/Monitor.hpp"
+#include "board.hpp"
 
 namespace jarnax {
 
@@ -6,7 +7,7 @@ Monitor::Monitor(jarnax::Timer& timer, jarnax::Indicator& status_indicator, jarn
     : timer_{timer}
     , status_indicator_{status_indicator}
     , error_indicator_{error_indicator}
-    , countdown_{timer, core::units::Iota{500'000U}} {
+    , countdown_{timer, core::units::ConvertToIota(HalfPeriodStatusBlink)} {
 }
 
 void Monitor::Report(core::Status status) {

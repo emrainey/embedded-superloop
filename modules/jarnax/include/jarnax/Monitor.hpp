@@ -11,6 +11,8 @@ namespace jarnax {
 
 class Monitor : public jarnax::Loopable {
 public:
+    constexpr static core::units::MicroSeconds HalfPeriodStatusBlink{500'000u};    ///< The default interval to indicate the status
+
     /// @brief The parameterized constructor
     /// @param timer The timer to use for the monitor
     /// @param status_indicator The indicator to use for the status

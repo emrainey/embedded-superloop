@@ -104,16 +104,14 @@ public:
         // check the state of the active transaction
         if (active_->IsRunning()) {
             status = driver_.Check(*active_);
-            jarnax::print("Transaction status", status);
+            // jarnax::print("Transaction status", status);
             if (status.IsSuccess()) {
-                jarnax::print("Transaction is complete\n");
                 stats_.completed++;
                 stats_.passed++;
                 active_->Inform(TransactionType::Event::Completed, status);
             } else if (status.IsBusy()) {
                 // do nothing
             } else {
-                jarnax::print("Transaction failed\n");
                 // some failure occurred
                 if (active_->GetAttemptsRemaining() > 0) {
                     // goes back to the "IsQueued" state
@@ -131,7 +129,7 @@ public:
         }
         // if it's completed, forget the active transaction
         if (active_->IsComplete()) {
-            jarnax::print("Forgetting transaction %p\n", reinterpret_cast<void*>(active_));
+            stats_.forgotten++;
             active_ = nullptr;
         }
         return true;
@@ -145,6 +143,7 @@ public:
         std::size_t stalled{0U};      ///< The transaction was not started due to failure.
         std::size_t deadline{0U};     ///< The transaction was not started due to deadline passing
         std::size_t completed{0U};    ///< The transaction was completed.
+        std::size_t forgotten{0U};    ///< The transaction was forgotten (completed, then removed from Coordinators memory).
         std::size_t retried{0U};      ///< The transaction was retried.
         std::size_t passed{0U};       ///< The transaction was successful.
         std::size_t failed{0U};       ///< The transaction was unsuccessful.

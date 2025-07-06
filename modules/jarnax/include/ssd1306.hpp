@@ -5,6 +5,9 @@
 #include <cstddef>
 #include <limits>
 #include "memory.hpp"
+#if defined(UNITTEST)
+#include <cstdio>
+#endif
 
 namespace ssd1306 {
 

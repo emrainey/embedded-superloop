@@ -11,10 +11,11 @@ I2CTest::I2CTest()
     , i2c_driver_{jarnax::GetDriverContext().GetI2cDriver()}
     , i2c_transaction_{timer_}
     , i2c_buffer_{stm32::i2c_dma_buffer_size, jarnax::GetDriverContext().GetDmaAllocator()}
-    , i2c_countdown_{timer_, core::units::Iota{20'000U}}
+    , i2c_countdown_{timer_, core::units::Iota{stm32::iota_per_millisecond * 100}}    // 100ms
     , state_machine_{*this, AppState::StartUp} {
     assertion(not i2c_buffer_.IsEmpty());
 }
+
 bool I2CTest::Execute() {
     if (state_machine_.IsFinal()) {
         state_machine_.Enter();
@@ -23,13 +24,9 @@ bool I2CTest::Execute() {
     return true;
 }
 
-void I2CTest::OnEnter() {
-    jarnax::print("I2CTest::OnEnter\r\n");
-}
-
 core::Status I2CTest::TransactionCycle(ssd1306::Command command) {
     if (i2c_transaction_.IsUninitialized()) {
-        jarnax::print("I2C Transaction is uninitialized\r\n");
+        stats_.uninitialized++;
         i2c_transaction_.address.small.read = 0U;
         i2c_transaction_.address.small.address = ::ssd1306::DefaultAddress;
         i2c_transaction_.desired_count = 1U;
@@ -42,16 +39,16 @@ core::Status I2CTest::TransactionCycle(ssd1306::Command command) {
         i2c_transaction_.Inform(jarnax::i2c::Transaction::Event::Initialized);
     }
     if (i2c_transaction_.IsInitialized()) {
-        jarnax::print("I2C Transaction is initialized\r\n");
+        stats_.initialized++;
         core::Status status = i2c_driver_.Schedule(&i2c_transaction_);
         if (status.IsSuccess()) {
-            jarnax::print("I2C Transaction scheduled successfully\r\n");
+            stats_.scheduled++;
         } else {
-            jarnax::print("I2C Transaction scheduling failed\r\n", status);
+            stats_.failed++;
         }
     }
     if (i2c_transaction_.IsComplete()) {
-        jarnax::print("I2C Transaction is complete\r\n");
+        stats_.complete++;
         i2c_buffer_ = i2c_transaction_.Relinquish();
         assertion(not i2c_buffer_.IsEmpty());
         if (i2c_transaction_.address.small.read == 1) {
@@ -61,31 +58,42 @@ core::Status I2CTest::TransactionCycle(ssd1306::Command command) {
                 jarnax::print("Buffer[%zu]: %02X\r\n", i, read_span[i]);
             }
         } else {
-            jarnax::print("I2C Transaction buffer size: %zu wrote %u\r\n", i2c_buffer_.count(), i2c_transaction_.actual_count);
+            // jarnax::print("I2C Transaction buffer size: %zu wrote %u\r\n", i2c_buffer_.count(), i2c_transaction_.actual_count);
         }
         // this will move it back to the Uninitialized state
+        core::Status status = i2c_transaction_.GetStatus();
+        if (status.IsSuccess()) {
+            stats_.succeeded++;
+        } else {
+            stats_.failed++;
+        }
         i2c_transaction_.Inform(jarnax::i2c::Transaction::Event::Recycle);
-        return i2c_transaction_.GetStatus();
+        return status;
     }
     return core::Status{core::Result::Busy, core::Cause::State};
 }
 
+void I2CTest::OnEnter() {
+    jarnax::print("I2CTest will cycle over powering on and off the display every 100ms\r\n");
+}
+
 void I2CTest::OnEntry(AppState state) {
-    jarnax::print("I2CTest::OnEntry: %u\r\n", static_cast<std::uint8_t>(state));
+    // jarnax::print("I2CTest::OnEntry: %u\r\n", static_cast<std::uint8_t>(state));
     if (state == AppState::StartUp) {
-        i2c_countdown_.Restart(20'000_iota);
+        //
     } else if (state == AppState::DisplayOn) {
         //
     } else if (state == AppState::Waiting) {
-        i2c_countdown_.Restart(100'000_iota);    // wait 100ms
+        //
     } else if (state == AppState::DisplayOff) {
         //
     } else if (state == AppState::Error) {
+        //
     }
 }
 
 AppState I2CTest::OnCycle(AppState state) {
-    jarnax::print("I2CTest::OnCycle: %u\r\n", static_cast<std::uint8_t>(state));
+    // jarnax::print("I2CTest::OnCycle: %u\r\n", static_cast<std::uint8_t>(state));
     if (state == AppState::StartUp) {
         if (i2c_countdown_.IsExpired()) {
             state = AppState::DisplayOn;
@@ -103,16 +111,19 @@ AppState I2CTest::OnCycle(AppState state) {
             state = AppState::StartUp;
         }
     } else if (state == AppState::Error) {
+        //
     }
     return state;
 }
 
 void I2CTest::OnExit(AppState state) {
-    jarnax::print("I2CTest::OnExit: %u\r\n", static_cast<std::uint8_t>(state));
+    // jarnax::print("I2CTest::OnExit: %u\r\n", static_cast<std::uint8_t>(state));
     if (state == AppState::StartUp) {
-        //
+        i2c_countdown_.Reset();
     } else if (state == AppState::DisplayOn) {
         //
+    } else if (state == AppState::Waiting) {
+        i2c_countdown_.Reset();
     } else if (state == AppState::DisplayOff) {
         //
     } else if (state == AppState::Error) {
@@ -121,9 +132,11 @@ void I2CTest::OnExit(AppState state) {
 }
 
 void I2CTest::OnTransition(AppState from, AppState to) {
+    static_cast<void>(from);
+    static_cast<void>(to);
     jarnax::print("I2CTest::OnTransition: %u -> %u\r\n", static_cast<std::uint8_t>(from), static_cast<std::uint8_t>(to));
 }
 
 void I2CTest::OnExit() {
-    jarnax::print("I2CTest::OnExit\r\n");
+    // jarnax::print("I2CTest::OnExit\r\n");
 }

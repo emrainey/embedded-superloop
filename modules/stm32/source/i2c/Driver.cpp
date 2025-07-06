@@ -320,7 +320,7 @@ core::Status Driver::Start(jarnax::i2c::Transaction& transaction) {
 
 core::Status Driver::Check(jarnax::i2c::Transaction& transaction) {
     if constexpr (use_dma_for_i2c) {
-        // check to see if the DMA is complete yet.
+        // @TODO check to see if the DMA is complete yet.
     } else {
         // compare the send vs send or received vs receive size
         if (transaction.desired_count > 0 and transaction.actual_count < transaction.desired_count) {

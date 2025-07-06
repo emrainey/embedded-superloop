@@ -12,13 +12,16 @@ public:
     JumpTimer()
         : current_{0U} {}
 
-    Iota GetIotas(void) const override {
-        return current_;
-    }
+    Iota GetIotas(void) const override { return current_; }
 
     MicroSeconds GetMicroseconds(void) const override {
         // 1 us = 1 iota
-        return core::units::MicroSeconds{GetIotas().value()};
+        return MicroSeconds{GetIotas().value()};
+    }
+
+    Seconds GetSeconds(void) const override {
+        // 1 sec = 1'000'000 iotas
+        return Seconds{static_cast<Seconds::StorageType>(current_.value()) / 1E6f};
     }
 
     void Jump(Iota iotas) {
@@ -38,6 +41,6 @@ protected:
 
 // There's already a global for GetTimer() in the system, even in test mode, so we don't need to create one here.
 
-}   // namespace jarnax
+}    // namespace jarnax
 
-#endif // JUMP_TIMER_HPP
+#endif    // JUMP_TIMER_HPP

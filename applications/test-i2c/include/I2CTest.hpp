@@ -30,6 +30,16 @@ public:
     I2CTest();
     bool Execute() override;
 
+    struct Statistics {
+        std::size_t uninitialized{0U};    ///< The number of times the transaction was uninitialized
+        std::size_t initialized{0U};      ///< The number of times the transaction was initialized
+        std::size_t scheduled{0U};        ///< The number of times the transaction was scheduled
+        std::size_t rebuffed{0U};         ///< The number of times the transaction was failed to be scheduled.
+        std::size_t complete{0U};         ///< The number of times the transaction was complete
+        std::size_t succeeded{0U};        ///< The number of times the transaction was successfully completed
+        std::size_t failed{0U};           ///< The number of times the transaction was discarded
+    };
+
 protected:
     void InitializeTransaction(void);
 
@@ -49,6 +59,7 @@ protected:
     core::Buffer<jarnax::i2c::DataUnit> i2c_buffer_;
     jarnax::CountDown i2c_countdown_;
     core::StateMachine<AppState> state_machine_;
+    Statistics stats_;
 };
 
 #endif    // TEST_I2C_HPP
