@@ -54,9 +54,9 @@ struct Buffer {
     Buffer(Count count, Allocator& allocator)
         : allocator_{&allocator}
         , pointer_{reinterpret_cast<Pointer>(allocator_ ? allocator_->allocate(count * sizeof(Type), alignof(Type)) : nullptr)}
-        , count_{count} {
+        , capacity_{count} {
         if (pointer_ == nullptr) {
-            count_ = 0U;
+            capacity_ = 0U;
         }
     }
 
@@ -73,9 +73,9 @@ struct Buffer {
     Buffer(Buffer&& other)
         : allocator_{other.allocator_}
         , pointer_{other.pointer_}
-        , count_{other.count_} {
+        , capacity_{other.capacity_} {
         other.pointer_ = nullptr;
-        other.count_ = 0U;
+        other.capacity_ = 0U;
     }
 
     /// Copy Assign is not allowed
@@ -85,10 +85,10 @@ struct Buffer {
     Buffer& operator=(Buffer&& other) {
         if (this != &other) {
             this->Release();
-            pointer_ = other.pointer_;    // take their pointer
-            count_ = other.count_;        // take their count
-            other.pointer_ = nullptr;     // set their pointer to null
-            other.count_ = 0U;            // set their count to zero
+            pointer_ = other.pointer_;      // take their pointer
+            capacity_ = other.capacity_;    // take their count
+            other.pointer_ = nullptr;       // set their pointer to null
+            other.capacity_ = 0U;           // set their count to zero
         }
         return *this;
     }
@@ -97,26 +97,26 @@ struct Buffer {
     ~Buffer() { Release(); }
 
     /// @return True if the count is zero
-    bool IsEmpty() const { return count() == 0U; }
+    bool IsEmpty() const { return capacity() == 0U; }
 
     /// @return The number of bytes allocated
-    Size size() const { return count_ * sizeof(Type); }
+    Size size() const { return capacity_ * sizeof(Type); }
 
     /// @return The number of elements allocated
-    Count count() const { return count_; }
+    Count capacity() const { return capacity_; }
 
-    /// @return A span to the allocated memory
-    Span<Type> as_span() { return Span<Type>{pointer_, count_}; }
+    /// @return A span over ALL the allocated memory
+    Span<Type> as_span() { return Span<Type>{pointer_, capacity_}; }
 
-    /// @return A span to the allocated memory as `const` type.
-    Span<Type const> as_span() const { return Span<Type const>{pointer_, count_}; }
+    /// @return A span over ALL the allocated memory as `const` type.
+    Span<Type const> as_span() const { return Span<Type const>{pointer_, capacity_}; }
 
     /// @return A pointer to the allocated memory as a different type than allocated
     template <typename OtherType>
     Span<OtherType> as_span() {
         static_assert(alignof(OtherType) <= alignof(Type), "Alignment of OtherType must be less than or equal to Type");
         static_assert(sizeof(OtherType) <= sizeof(Type), "Size of OtherType must be less than or equal to Type");
-        return Span<OtherType>{reinterpret_cast<OtherType*>(pointer_), (count_ * sizeof(Type)) / sizeof(OtherType)};
+        return Span<OtherType>{reinterpret_cast<OtherType*>(pointer_), (capacity_ * sizeof(Type)) / sizeof(OtherType)};
     }
 
     /// @return A pointer to the allocated memory as a different type than allocated
@@ -124,7 +124,7 @@ struct Buffer {
     Span<OtherType const> as_span() const {
         static_assert(alignof(OtherType) <= alignof(Type), "Alignment of OtherType must be less than or equal to Type");
         static_assert(sizeof(OtherType) <= sizeof(Type), "Size of OtherType must be less than or equal to Type");
-        return Span<OtherType const>{reinterpret_cast<OtherType const*>(pointer_), (count_ * sizeof(Type)) / sizeof(OtherType)};
+        return Span<OtherType const>{reinterpret_cast<OtherType const*>(pointer_), (capacity_ * sizeof(Type)) / sizeof(OtherType)};
     }
 
     /// @brief Releases any held memory and sets the internal state to empty
@@ -132,14 +132,14 @@ struct Buffer {
         if (not IsEmpty()) {
             allocator_->deallocate(pointer_, size(), alignof(Type));
             pointer_ = nullptr;
-            count_ = 0U;
+            capacity_ = 0U;
         }
     }
 
 protected:
     Allocator* const allocator_;    ///< The pointer to the allocator (it can be reassigned)
     Pointer pointer_;               ///< The pointer to the allocated memory
-    Count count_;                   ///< The count of the number of elements allocated
+    Count capacity_;                ///< The count of the number of elements allocated
 };
 
 }    // namespace core

@@ -38,6 +38,22 @@ bool Status::operator!=(const Status& rhs) const {
     return not(*this == rhs);
 }
 
+bool Status::operator==(Result rhs) const {
+    return (result_ == rhs);
+}
+
+bool Status::operator!=(Result rhs) const {
+    return not(*this == rhs);
+}
+
+bool Status::operator==(Cause rhs) const {
+    return (cause_ == rhs);
+}
+
+bool Status::operator!=(Cause rhs) const {
+    return not(*this == rhs);
+}
+
 Location Status::GetLocation(void) const {
     return location_;
 }

@@ -35,8 +35,13 @@ add_module(NAME jarnax
         ${CMAKE_CURRENT_SOURCE_DIR}/source/StopWatch.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Monitor.cpp
         # Drivers
+        # Winbond SPI Flash Driver
         ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/WinbondDriver.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/WinbondStateMachine.cpp
+        # SSD1306 OLED Display Driver
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/ssd1306/Driver.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/ssd1306/StateMachine.cpp
+
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/source/include # Internal includes
     LIBRARIES

@@ -24,7 +24,7 @@ bool I2CTest::Execute() {
     return true;
 }
 
-core::Status I2CTest::TransactionCycle(ssd1306::Command command) {
+core::Status I2CTest::TransactionCycle(std::uint8_t command) {
     if (i2c_transaction_.IsUninitialized()) {
         stats_.uninitialized++;
         i2c_transaction_.address.small.read = 0U;
@@ -32,7 +32,7 @@ core::Status I2CTest::TransactionCycle(ssd1306::Command command) {
         i2c_transaction_.desired_count = 1U;
         i2c_transaction_.actual_count = 0U;
         auto span = i2c_buffer_.as_span();
-        span[0] = to_underlying(command);    // command to turn on the display
+        span[0] = command;    // command to turn on the display
         assertion(not i2c_buffer_.IsEmpty());
         i2c_transaction_.buffer = std::move(i2c_buffer_);
         // tell it that we've initialized the transaction, now it can be queued
@@ -52,7 +52,12 @@ core::Status I2CTest::TransactionCycle(ssd1306::Command command) {
         i2c_buffer_ = i2c_transaction_.Relinquish();
         assertion(not i2c_buffer_.IsEmpty());
         if (i2c_transaction_.address.small.read == 1) {
-            jarnax::print("I2C Transaction buffer size: %zu received %u\r\n", i2c_buffer_.count(), i2c_transaction_.actual_count);
+            jarnax::print(
+                "I2C Transaction buffer size: %zu received desired: %u, actual %u\r\n",
+                i2c_buffer_.capacity(),
+                i2c_transaction_.desired_count,
+                i2c_transaction_.actual_count
+            );
             auto read_span = i2c_buffer_.as_span().subspan(0, i2c_transaction_.actual_count);
             for (std::size_t i = 0; i < read_span.count(); i++) {
                 jarnax::print("Buffer[%zu]: %02X\r\n", i, read_span[i]);

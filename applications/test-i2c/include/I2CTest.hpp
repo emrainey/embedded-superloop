@@ -50,7 +50,7 @@ protected:
     void OnTransition(AppState from, AppState to) override;
     void OnExit() override;
 
-    core::Status TransactionCycle(ssd1306::Command command);
+    core::Status TransactionCycle(std::uint8_t command);
 
     jarnax::Ticker& ticker_;
     jarnax::Timer& timer_;

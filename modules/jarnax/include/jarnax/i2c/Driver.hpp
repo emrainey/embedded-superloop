@@ -23,6 +23,18 @@ using DataUnit = uint8_t;
 union Address {
     constexpr Address()
         : whole{0U} {}
+    constexpr Address(std::uint8_t addr)
+        : whole{addr} {
+        small.read = 0U;                // Default to write
+        small.address = addr & 0x7F;    // Mask to 7 bits
+        small.is_large = 0U;            // Default to small address
+    }
+    constexpr Address(std::uint16_t addr)
+        : whole{addr} {
+        large.read = 0U;                 // Default to write
+        large.address = addr & 0x3FF;    // Mask to 10 bits
+        large.is_large = 1U;             // Default to large address
+    }
     struct small {
         std::uint8_t read     : 1;    ///< Indicates if the transaction is a read (1) or write (0)
         std::uint8_t address  : 7;    ///< The 7-bit I2C address of the device to communicate with

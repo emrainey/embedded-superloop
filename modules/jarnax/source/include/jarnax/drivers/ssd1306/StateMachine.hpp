@@ -25,23 +25,23 @@ enum class State {
 };
 
 enum class Event {
-    None = 0,        ///< No event has occurred
-    PowerOn,         ///< A request to power on the display has been made
-    PowerOff,        ///< A request to power off the display has been made
-    Update,          ///< A request to update the display has been made
-    ErrorOccurred    ///< An error has occurred during operation
+    None = 0,    ///< No event has occurred
+    PowerOn,     ///< A request to power on the display has been made
+    PowerOff,    ///< A request to power off the display has been made
+    Update,      ///< A request to update the display has been made
 };
 
-/// @brief A sequence of SSD1306 commands
-using CommandSequence = core::Span<::ssd1306::Command>;
+/// @brief A sequence of SSD1306 Commands or Data
+using Sequence = core::Span<std::uint8_t const>;
 
-/// @brief To be implemented by the user of the SSD1306StateMachine (the Driver)
+/// @brief To be implemented by the user of the SSD1306StateMachine (i.e. the Driver)
 class Client {
 public:
     virtual bool IsPresent(void) const = 0;
-    virtual core::Status Prepare(CommandSequence sequence) = 0;
+    virtual core::Status Prepare(Sequence sequence) = 0;
+    virtual core::Status PrepareRender(void) = 0;
     virtual core::Status Issue(void) = 0;
-    virtual core::Status AreCommandsComplete(void) const = 0;
+    virtual bool AreCommandsComplete(core::Status& status) = 0;
     virtual void OnEvent(Event event, core::Status status) = 0;
 
 protected:
@@ -74,7 +74,8 @@ protected:
     void OnTransition(State from, State to) override;
 
     Client& client_;         ///< The callback interface to interact with the SSD1306 commands
-    Event event_;            ///< The current event being processed by the state machine
+    Event input_event_;      ///< The current event being processed by the state machine
+    Event last_event_;       ///< The last event processed by the state machine
     core::Status status_;    ///< The status of the last operation performed by the state machine
 };
 

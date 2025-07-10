@@ -76,6 +76,12 @@ Driver::Driver(stm32::registers::InterIntegratedCircuit volatile& i2c, dma::Mana
 }
 
 core::Status Driver::Initialize(core::units::Hertz peripheral_frequency, core::units::Hertz desired_i2c_clock_frequency) {
+    if constexpr (use_dma_for_i2c) {
+        jarnax::print("STM32 I2C Driver: Using DMA for I2C transactions.\r\n");
+    } else {
+        jarnax::print("STM32 I2C Driver: Using interrupts for I2C transactions.\r\n");
+    }
+
     rx_dma_resource_ = dma_manager_.Assign(rx_peripheral_);
     if (rx_dma_resource_ == nullptr) {
         return core::Status{core::Result::InvalidValue, core::Cause::Configuration};
@@ -276,6 +282,20 @@ core::Status Driver::Verify(jarnax::i2c::Transaction& transaction) {
 // }
 
 core::Status Driver::Start(jarnax::i2c::Transaction& transaction) {
+    // print the buffer count and the first bytes (up to the first 16 if possible)
+    jarnax::print(
+        "STM32 I2C Driver: Address: %" PRIx8 " Buffer capacity: %u count: %u\r\n",
+        transaction.address.small.address,
+        transaction.buffer.capacity(),
+        transaction.desired_count
+    );
+    auto span = transaction.buffer.as_span().subspan(0, (transaction.desired_count <= 16 ? transaction.desired_count : 16U));
+    for (size_t i = 0U; i < span.count(); i++) {
+        auto byte = span[i];
+        jarnax::print("%" PRIx8 " ", byte);    // print the first 16 bytes in hex format
+    }
+    jarnax::print("\r\n");
+
     if constexpr (use_dma_for_i2c) {
         // enable the interrupts for the I2C peripheral
         stm32::registers::InterIntegratedCircuit::Control2 control2;
@@ -284,7 +304,7 @@ core::Status Driver::Start(jarnax::i2c::Transaction& transaction) {
         control2.bits.event_interrupt_enable = 1;         // enable event interrupt
         control2.bits.direct_memory_access_enable = 1;    // enable DMA for the I2C peripheral
         i2c_.control2 = control2;                         // write
-        auto span = transaction.buffer.as_span().subspan(0, transaction.desired_count);
+        span = transaction.buffer.as_span().subspan(0, transaction.desired_count);
         // If using DMA, we need to set up the DMA streams for the transaction
         if (transaction.address.small.read) {
             // Set up the RX DMA stream
@@ -314,7 +334,9 @@ core::Status Driver::Start(jarnax::i2c::Transaction& transaction) {
     control1 = i2c_.control1;    // read
     control1.bits.start = 1;     // set start condition
     i2c_.control1 = control1;    // write
-
+    //=============================================================
+    // The interrupt will likely fire here
+    //=============================================================
     return core::Status{core::Result::Success, core::Cause::State};
 }
 

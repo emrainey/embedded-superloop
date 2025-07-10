@@ -112,7 +112,7 @@ int compare(UNIT_TYPE (&lhs)[COUNT], UNIT_TYPE (&rhs)[COUNT]) {
 /// @param dst The destination array of the elements.
 /// @param src The source array of the elements.
 /// @param bytes The number of bytes to copy.
-void copy(void *dst, void *const src, std::size_t bytes);
+void copy(void *dst, void const *src, std::size_t bytes);
 
 /// Fills an array of an unknown type with a specific value.
 /// @param dst The destination array of the elements.

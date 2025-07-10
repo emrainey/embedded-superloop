@@ -23,46 +23,56 @@ extern symbol const alphabet[26];
 extern symbol const numerals[10];
 }    // namespace symbols
 
-union Control {
-    Control()
-        : value{0} {}    ///< Default constructor initializes the control byte to 0
-    Control(uint8_t Co, uint8_t DC)
-        : value{0U} {
-        bits.zero = 0;                               ///< Must be 0
-        bits.next_is_data_not_command = DC & 0b1;    ///< 0 for command, 1 for data
-        bits.continuation = Co & 0b1;                ///< Following bytes are all data (0) or not (1)
-    }
-    struct Fields {
-        uint8_t zero                     : 6;    ///< Must be 0
-        uint8_t next_is_data_not_command : 1;    ///< 0 for command, 1 for data
-        uint8_t continuation             : 1;    ///< Following bytes are all data (0) or not (1)
-    } bits;
-    uint8_t value;    ///< The raw value of the control byte
+struct Control {
+    /// @brief Value to use for Commands Following this Byte
+    /// Co = 1, D/C = 0
+    static constexpr std::uint8_t CommandMode{0x80U};
+    /// @brief Value to use for Data Following this Byte
+    /// Co = 1, D/C = 1
+    static constexpr std::uint8_t DataMode{0x40U};
+    /// @brief Control byte for Data Only
+    /// Co = 0, D/C = 1
+    static constexpr std::uint8_t DataOnly{0x00U};
 };
 
-enum class Command : std::uint8_t {
+struct Command {
     // Lower Column Addresses = 0x00 to 0x0F
     // Higher Column Addresses = 0x10 to 0x1F
-    MemoryAddressingMode = 0x20,
-    SetColumnAddress = 0x21,
-    SetPageAddress = 0x22,
-    DeactivateScroll = 0x2E,
-    ActivateScroll = 0x2F,
+    static constexpr uint8_t MemoryAddressingMode = 0x20U;
+    static constexpr uint8_t SetColumnAddress = 0x21U;
+    static constexpr uint8_t SetPageAddress = 0x22U;
+    static constexpr uint8_t DeactivateScroll = 0x2EU;
+    static constexpr uint8_t ActivateScroll = 0x2FU;
     // Set Display Start Line = 0x40 to 0x7F
-    DisplayStartLine = 0x40,
-    SetStartLine = 0x40,
-    ContrastControl = 0x81,
-    Resume = 0xA4,         ///< Resumes displaying whatever is in the display memory
-    AllPixelsOn = 0xA5,    ///< Sets all pixels to ON, regardless of the display memory
-    InverseDisplay = 0xA7,
-    DisplayOn = 0xAF,
-    DisplayOff = 0xAE,
-    NoOp = 0xE3,
+    static constexpr uint8_t DisplayStartLine = 0x40U;
+    static constexpr uint8_t SetStartLine = 0x40U;
+    static constexpr uint8_t ContrastControl = 0x81U;
+    static constexpr uint8_t ChargePump = 0x8DU;          ///< Sets the charge pump for the display
+    static constexpr uint8_t SetSegmentRemap0 = 0xA0U;    ///< Sets the segment remap for the display (Col0 = Seg0)
+    static constexpr uint8_t SetSegmentRemap1 = 0xA0U;    ///< Sets the segment remap for the display (Col0 = Seg127)
+    static constexpr uint8_t Resume = 0xA4U;              ///< Resumes displaying whatever is in the display memory
+    static constexpr uint8_t AllPixelsOn = 0xA5U;         ///< Sets all pixels to ON, regardless of the display memory
+    static constexpr uint8_t NormalDisplay = 0xA6U;       ///< Off Pixels are OFF, On Pixels are ON
+    static constexpr uint8_t InverseDisplay = 0xA7U;      ///< Off Pixels are ON, On Pixels are OFF
+    static constexpr uint8_t SetMuxRatio = 0xA8U;         ///< Sets the multiplex ratio, i.e. the number of rows in the display
+    static constexpr uint8_t DisplayOn = 0xAFU;
+    static constexpr uint8_t DisplayOff = 0xAEU;
+    static constexpr uint8_t SetCOMScanUp = 0xC0U;          ///< Sets the lower nibble of the column address
+    static constexpr uint8_t SetCOMScanDown = 0xC8U;        ///< Sets the higher nibble of the column address
+    static constexpr uint8_t SetDisplayOffset = 0xD3U;      ///< Sets the display offset, i.e. the number of rows to skip at the top of the display
+    static constexpr uint8_t SetDisplayClock = 0xD5U;       ///< Sets the display clock divide ratio and oscillator frequency
+    static constexpr uint8_t SetPreChargePeriod = 0xD9U;    ///< Sets the pre-charge period for the display
+    static constexpr uint8_t SetCOMHwConfig = 0xDAU;        ///< Sets the COM hardware configuration, i.e. the number of COM lines and their order
+    static constexpr uint8_t SetVCOMH = 0xDBU;              ///< Sets the VCOMH deselect level, i.e. the voltage level for the VCOM pin
+    static constexpr uint8_t NoOp = 0xE3U;
 };
 
 static constexpr std::uint8_t DefaultAddress{0x3C};      ///< Default I2C address for the SSD1306 display
 static constexpr std::uint8_t SecondaryAddress{0x3D};    ///< Secondary I2C address for the SSD1306 display
 
+/// @brief The SSD1306 Image class represents a monochrome bitmap image.
+/// @tparam W The width of the image in pixels.
+/// @tparam H The height of the image in pixels.
 template <size_t W, size_t H>
 class Image {
 public:
@@ -71,6 +81,11 @@ public:
     constexpr static std::size_t height_per_byte{8u};
     constexpr static std::size_t pages{height / height_per_byte};
 
+    /// @brief Sets a pixel in the image.
+    /// @param col The column data to set the pixel to (0-255).
+    /// @param x The x-coordinate of the pixel.
+    /// @param page The page in which the pixel is located (0 to pages-1).
+    /// @return True if the pixel was set successfully, false otherwise.
     bool set(uint8_t col, uint8_t x, uint8_t page) {
         if (x < width and page < pages) {
             data[page][x] = col;
@@ -122,6 +137,9 @@ public:
     }
 
 #if defined(UNITTEST)
+    /// @brief Dumps the image data to stdout for debugging purposes.
+    /// @details This function prints the raw data of the image in hexadecimal format, one page per line.
+    ///          Each byte represents a column of pixels in the corresponding page.
     void dump(void) {
         for (uint8_t p = 0; p < pages; p++) {
             for (uint8_t x = 0; x < width; x++) {
@@ -142,10 +160,20 @@ public:
         printf("---128x32--- (set terminal to 128x34)\r\n");
     }
 #endif
+    constexpr uint8_t const* GetData(void) const { return &data[0][0]; }
+    constexpr std::size_t GetSize(void) const { return sizeof(data); }
 
 protected:
+    /// @brief The data buffer for the image.
     uint8_t data[height / height_per_byte][width];
 
+    /// @brief Sets a pixel in the image at the specified coordinates.
+    /// @param value The value to set the pixel to (true for ON, false for OFF).
+    /// @param x The x-coordinate of the pixel.
+    /// @param y The y-coordinate of the pixel.
+    /// @note The y-coordinate is divided by 8 to determine the page, and the
+    ///       bit within the page is determined by the remainder of y divided by 8.
+    /// @details This function modifies the data buffer directly to set or clear the pixel.
     inline void _set(bool value, uint8_t x, uint8_t y) {
         uint8_t row = y >> 3;
         uint8_t bit = y & 0x7;
@@ -168,7 +196,7 @@ public:
     Screen(Image<W, H>& im)
         : image{im} {}
 
-    bool write(symbol sym, uint8_t x, uint8_t y) {
+    bool write(symbol const sym, uint8_t x, uint8_t y) {
         if (x < width and y < height) {
             // memcpy(symbols[x][y], sym, sizeof(symbol));
             for (uint8_t s = 0; s < sizeof(symbol); s++) {
@@ -190,6 +218,8 @@ public:
             for (uint8_t u = 0; u < width; u++) {
                 if ((u + v) & 1) {
                     write(ssd1306::symbols::block, u, v);
+                } else {
+                    write(ssd1306::symbols::space, u, v);
                 }
             }
         }
@@ -225,7 +255,7 @@ public:
             for (uint8_t x = 0; x < width; x++) {
                 for (uint8_t s = 0; s < sizeof(symbol); s++) {
                     // screen y == page
-                    uint8_t col = (sizeof(symbol) * x) + s;
+                    uint8_t col = uint8_t(sizeof(symbol) * x) + s;
                     (void)image.set(symbols[y][x][s], col, y);
                 }
             }

@@ -69,6 +69,26 @@ public:
     /// Inequality operator
     bool operator!=(const Status& rhs) const;
 
+    /// @brief Equality operator for Result
+    /// @param rhs The other Result to compare to
+    /// @return true if the Result is equal
+    bool operator==(Result rhs) const;
+
+    /// @brief Inequality operator for Result
+    /// @param rhs The other Result to compare to
+    /// @return true if the Result is not equal
+    bool operator!=(Result rhs) const;
+
+    /// @brief Equality operator for Cause
+    /// @param rhs The other Cause to compare to
+    /// @return true if the Cause is equal
+    bool operator==(Cause rhs) const;
+
+    /// @brief Inequality operator for Cause
+    /// @param rhs The other Cause to compare to
+    /// @return true if the Cause is not equal
+    bool operator!=(Cause rhs) const;
+
     /// @brief Returns the location of the Status
     Location GetLocation(void) const;
 
