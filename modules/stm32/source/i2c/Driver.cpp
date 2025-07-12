@@ -132,7 +132,14 @@ core::Status Driver::Initialize(core::units::Hertz peripheral_frequency, core::u
 
 uint32_t Driver::GetClockDivider(core::units::Hertz peripheral_frequency, core::units::Hertz desired_i2c_clock_frequency) {
     // Calculate the clock divider based on the peripheral frequency and desired I2C clock frequency
-    return (peripheral_frequency.value() / (desired_i2c_clock_frequency.value()));
+    std::uint32_t clock_divider = peripheral_frequency.value() / desired_i2c_clock_frequency.value();
+    jarnax::print(
+        "STM32 I2C Driver: Peripheral Frequency: %" PRIu32 " Hz, Desired I2C Clock Frequency: %" PRIu32 " Hz, Clock Divider: %" PRIu32 "\r\n",
+        peripheral_frequency.value(),
+        desired_i2c_clock_frequency.value(),
+        clock_divider
+    );
+    return clock_divider;
 }
 
 void Driver::Reset(void) {
@@ -152,7 +159,7 @@ void Driver::HandleEvent(void) {
     if (status1.bits.start_bit) {
         statistics_.events.start++;    // Increment the start condition count
         // write the address out to the bus, this write will clear the START BIT
-        if (transaction_->address.small.is_large == 0U) {
+        if (transaction_ != nullptr and transaction_->address.small.is_large == 0U) {
             i2c_.data.bits.data = transaction_->address.parts[0];    // writes the R/W + the address
         } else {
             // TODO write out two ?
@@ -165,12 +172,11 @@ void Driver::HandleEvent(void) {
     }
     if (status1.bits.byte_transfer_finished) {
         statistics_.events.transfer_finished++;    // Increment the address received count
-        if (transaction_->actual_count == transaction_->desired_count) {
-            // If we have sent all the data, we can set the stop condition
-            stm32::registers::InterIntegratedCircuit::Control1 control1;
-            control1 = i2c_.control1;    // read
-            control1.bits.stop = 1;      // set stop condition
-            i2c_.control1 = control1;    // write
+        if (transaction_) {
+            core::Status status{};
+            // If there is a transaction, we can inform it of the error
+            transaction_->Inform(jarnax::i2c::Transaction::Event::Completed, status);
+            transaction_ = nullptr;    // Clear the transaction pointer
         }
     }
     if (status1.bits.system_management_bus_alert) {
@@ -227,12 +233,14 @@ void Driver::HandleError(void) {
         should_stop = true;                        // Set the flag to stop the transaction
     }
     if (status1.bits.timeout) {
-        statistics_.errors.timeout++;    // Increment the timeout error count
-        should_stop = true;              // Set the flag to stop the transaction
+        statistics_.errors.timeout++;                                           // Increment the timeout error count
+        status = core::Status{core::Result::Timeout, core::Cause::Hardware};    // set the status to timeout
+        should_stop = true;                                                     // Set the flag to stop the transaction
     }
     if (status2.bits.busy) {
-        statistics_.errors.busy++;    // Increment the timeout error count
-        should_stop = true;           // Set the flag to stop the transaction
+        statistics_.errors.busy++;                                           // Increment the timeout error count
+        status = core::Status{core::Result::Busy, core::Cause::Hardware};    // set the status to busy
+        should_stop = true;                                                  // Set the flag to stop the transaction
     }
     if (should_stop) {
         // If we should stop the transaction, we can set the stop condition
@@ -255,31 +263,6 @@ core::Status Driver::Verify(jarnax::i2c::Transaction& transaction) {
     }
     return core::Status{core::Result::Success, core::Cause::Parameter};
 }
-
-// @TODO Untested function for follower device.
-// void Driver::ProgramAddress(jarnax::i2c::Address& address) {
-//     bool is_10_bit_address = false;
-//     if (address.small.is_large or address.large.is_large) {
-//         is_10_bit_address = true;    // if the address is large, it is a 10-bit address
-//     }
-//     // Program the address for the transaction
-//     stm32::registers::InterIntegratedCircuit::OurAddress1 our_address1;
-//     our_address1 = i2c_.our_address1;    // read
-//     if (is_10_bit_address) {
-//         // If the address is a 10-bit address, we need to set the 10-bit address bits
-//         our_address1.bits.addressing_mode = 1;                                // set the address mode to 10-bit
-//         our_address1.bits.address0 = (address.large.address >> 0) & 0x1U;     // set the address bit 0
-//         our_address1.bits.address7 = (address.large.address >> 1) & 0x7FU;    // set the address bits 1-7
-//         our_address1.bits.address10 = (address.large.address >> 8) & 0x3U;    // set the address bits 8-9
-//     } else {
-//         // If the address is a 7-bit address, we need to set the 7-bit address bits
-//         our_address1.bits.addressing_mode = 0;    // set the address size to small
-//         our_address1.bits.address0 = 0;
-//         our_address1.bits.address7 = address.small.address;    // set the 7-bit address (bits 0-6)
-//         our_address1.bits.address10 = 0;
-//     }
-//     i2c_.our_address1 = our_address1;    // write
-// }
 
 core::Status Driver::Start(jarnax::i2c::Transaction& transaction) {
     // print the buffer count and the first bytes (up to the first 16 if possible)

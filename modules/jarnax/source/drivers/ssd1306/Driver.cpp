@@ -12,7 +12,7 @@ Driver::Driver(jarnax::Timer& timer, jarnax::i2c::Driver& i2c_driver, core::Allo
     : Loopable{}
     , timer_{timer}
     , i2c_driver_{i2c_driver}
-    , i2c_buffer_{sizeof(::ssd1306::Image128x32) + 1, allocator}
+    , i2c_buffer_{sizeof(::ssd1306::Image128x32) + 17U, allocator}
     , i2c_transaction_{timer}
     , address_{}
     , allocator_{allocator}
@@ -93,16 +93,16 @@ core::Status Driver::Prepare(Sequence sequence) {
     return core::Status{core::Result::NotReady, core::Cause::State};    // If already initialized, return not ready
 }
 
-core::Status Driver::PrepareRender(void) {
+core::Status Driver::PrepareRender(Sequence sequence) {
     if (i2c_transaction_.IsUninitialized()) {
-        i2c_transaction_.address.whole = address_.whole;          // Set the I2C address for the transaction
-        i2c_transaction_.desired_count = image_.GetSize() + 1;    // Set the desired count to the size of the image
-        i2c_transaction_.actual_count = 0U;                       // Reset the actual count
-        if (not i2c_buffer_.IsEmpty()) {                          // Check if the I2C buffer is not empty
+        i2c_transaction_.address.whole = address_.whole;                        // Set the I2C address for the transaction
+        i2c_transaction_.desired_count = sequence.size() + image_.GetSize();    // Set the desired count to the size of the image
+        i2c_transaction_.actual_count = 0U;                                     // Reset the actual count
+        if (not i2c_buffer_.IsEmpty()) {                                        // Check if the I2C buffer is not empty
             auto span = i2c_buffer_.as_span().subspan(0, i2c_transaction_.desired_count);
-            span[0] = ::ssd1306::Control::DataMode;                               // Set the first byte to DataOnly control byte
-            memory::copy(&span.data()[1], image_.GetData(), image_.GetSize());    // Copy the image data into the I2C buffer
-            i2c_transaction_.buffer = std::move(i2c_buffer_);                     // Set the buffer for the transaction
+            memory::copy(span.data(), sequence.data(), sequence.size());                         // Copy the command sequence into the I2C buffer
+            memory::copy(&span.data()[sequence.count()], image_.GetData(), image_.GetSize());    // Copy the image data into the I2C buffer
+            i2c_transaction_.buffer = std::move(i2c_buffer_);                                    // Set the buffer for the transaction
         } else {
             statistics_.buffer_invalid++;                                              // Increment the buffer invalid count if the buffer is empty
             return core::Status{core::Result::NotAvailable, core::Cause::Resource};    // If the buffer is empty, return not available

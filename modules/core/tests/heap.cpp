@@ -14,7 +14,7 @@ TEST_CASE("BitMapHeap - Simple") {
     SECTION("Single") {
         static constexpr std::size_t AllocSize = 16U;
         core::Buffer<uint8_t> buffer{AllocSize, heap};
-        REQUIRE(buffer.count() == AllocSize);
+        REQUIRE(buffer.capacity() == AllocSize);
         REQUIRE(buffer.size() == AllocSize);
         REQUIRE(not buffer.IsEmpty());
         REQUIRE(heap.GetStatistics().size_bytes == 1024U);
@@ -27,10 +27,10 @@ TEST_CASE("BitMapHeap - Simple") {
         static constexpr std::size_t AllocSize = 16U;
         core::Buffer<uint8_t> buffer1{AllocSize, heap};
         core::Buffer<uint8_t> buffer2{AllocSize, heap};
-        REQUIRE(buffer1.count() == AllocSize);
+        REQUIRE(buffer1.capacity() == AllocSize);
         REQUIRE(buffer1.size() == AllocSize);
         REQUIRE(not buffer1.IsEmpty());
-        REQUIRE(buffer2.count() == AllocSize);
+        REQUIRE(buffer2.capacity() == AllocSize);
         REQUIRE(buffer2.size() == AllocSize);
         REQUIRE(not buffer2.IsEmpty());
         REQUIRE(heap.GetStatistics().size_bytes == 1024U);
@@ -45,7 +45,7 @@ TEST_CASE("BitMapHeap - Simple") {
         for (size_t i = 0u; i < 32U; i++) {
             buffers.emplace_back(AllocSize, heap);
             REQUIRE(not buffers.back().IsEmpty());
-            REQUIRE(buffers.back().count() == AllocSize);
+            REQUIRE(buffers.back().capacity() == AllocSize);
             REQUIRE(buffers.back().size() == AllocSize);
         }
         REQUIRE(heap.GetStatistics().size_bytes == 1024U);

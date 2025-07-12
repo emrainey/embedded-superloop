@@ -39,7 +39,7 @@ class Client {
 public:
     virtual bool IsPresent(void) const = 0;
     virtual core::Status Prepare(Sequence sequence) = 0;
-    virtual core::Status PrepareRender(void) = 0;
+    virtual core::Status PrepareRender(Sequence sequence) = 0;
     virtual core::Status Issue(void) = 0;
     virtual bool AreCommandsComplete(core::Status& status) = 0;
     virtual void OnEvent(Event event, core::Status status) = 0;

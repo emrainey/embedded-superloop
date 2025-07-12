@@ -63,6 +63,26 @@ static constexpr std::uint8_t const power_off_sequence[] = {
     ::ssd1306::Command::DisplayOff,        // turn off the display
 };
 
+static constexpr std::uint8_t const render_image[] = {
+    ::ssd1306::Control::CommandMode,             // set the control byte to command mode
+    ::ssd1306::Command::MemoryAddressingMode,    // set the memory address to auto increment
+    ::ssd1306::Control::CommandMode,             // set the control byte to command mode
+    0x00,                                        // set the addressing mode to horizontal addressing mode
+    ::ssd1306::Control::CommandMode,             // set the control byte to command mode
+    ::ssd1306::Command::SetColumnAddress,        // set the column address
+    ::ssd1306::Control::CommandMode,             // set the control byte to command mode
+    0x00,                                        // start at column 0
+    ::ssd1306::Control::CommandMode,             // set the control byte to command mode
+    0x7F,                                        // end at column 127 (for 128 columns)
+    ::ssd1306::Control::CommandMode,             // set the control byte to command mode
+    ::ssd1306::Command::SetPageAddress,          // set the page address
+    ::ssd1306::Control::CommandMode,             // set the control byte to command mode
+    0x00,                                        // start at page 0
+    ::ssd1306::Control::CommandMode,             // set the control byte to command mode
+    0x03,                                        // end at page 3 (for 32 rows)
+    ::ssd1306::Control::DataMode,                // set the control byte to data
+};
+
 StateMachine::StateMachine(Client& client)
     : core::StateMachine<State>{*this, State::Idle}
     , client_{client}
@@ -141,8 +161,7 @@ State StateMachine::OnCycle(State state) {
             // If commands are not complete, stay in Awaiting state
         }
     } else if (state == State::Updating) {
-        // Issue the command sequence to update the display
-        status_ = client_.PrepareRender();    // Prepare the display with the current image
+        status_ = client_.PrepareRender(render_image);    // Prepare the display with the current image
         if (status_.IsSuccess()) {
             status_ = client_.Issue();    // Issue the command sequence
             if (status_.IsSuccess()) {
@@ -153,17 +172,14 @@ State StateMachine::OnCycle(State state) {
         } else {
             state = State::Error;    // Transition to Error state if rendering failed
         }
-        state = State::Idle;
     } else if (state == State::PoweringOff) {
-        if (client_.IsPresent()) {
-            status_ = client_.Prepare(Sequence{power_off_sequence});    // Prepare the command sequence
+        status_ = client_.Prepare(Sequence{power_off_sequence});    // Prepare the command sequence
+        if (status_.IsSuccess()) {
+            status_ = client_.Issue();    // Issue the command sequence
             if (status_.IsSuccess()) {
-                status_ = client_.Issue();    // Issue the command sequence
-                if (status_.IsSuccess()) {
-                    state = State::Awaiting;    // Transition to Idle state after powering on
-                } else {
-                    state = State::Error;    // Transition to Error state if issuing failed
-                }
+                state = State::Awaiting;    // Transition to Awaiting state after powering off
+            } else {
+                state = State::Error;    // Transition to Error state if issuing failed
             }
         }
     } else if (state == State::Error) {

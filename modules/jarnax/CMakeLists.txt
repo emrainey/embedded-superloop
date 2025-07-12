@@ -39,6 +39,7 @@ add_module(NAME jarnax
         ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/WinbondDriver.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/WinbondStateMachine.cpp
         # SSD1306 OLED Display Driver
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/ssd1306.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/ssd1306/Driver.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/ssd1306/StateMachine.cpp
 
@@ -60,11 +61,12 @@ add_module(NAME jarnax
 
 host_unit_test(NAME test-jarnax-catch
     SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/countdown.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/yieldable.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/superloop.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/stopwatch.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/transactable.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-countdown.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-yieldable.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-superloop.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-stopwatch.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-transactable.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-ssd1306.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/include
     LIBRARIES
@@ -81,9 +83,9 @@ host_unit_test(NAME test-jarnax-catch
 
 host_unit_test(NAME test-jarnax-googletest
     SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/mocks.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/coordinator.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/winbondstatemachine.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-mocks.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-coordinator.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-winbondstatemachine.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/include
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/mocks

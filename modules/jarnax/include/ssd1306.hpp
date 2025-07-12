@@ -28,10 +28,10 @@ struct Control {
     /// Co = 1, D/C = 0
     static constexpr std::uint8_t CommandMode{0x80U};
     /// @brief Value to use for Data Following this Byte
-    /// Co = 1, D/C = 1
+    /// Co = 0, D/C = 1
     static constexpr std::uint8_t DataMode{0x40U};
     /// @brief Control byte for Data Only
-    /// Co = 0, D/C = 1
+    /// Co = 0, D/C = 0
     static constexpr std::uint8_t DataOnly{0x00U};
 };
 
@@ -131,7 +131,7 @@ public:
     void pattern(void) {
         for (uint8_t p = 0; p < pages; p++) {
             for (uint8_t x = 0; x < width; x++) {
-                data[p][x] = x + p;
+                data[p][x] = (p & 1) ? x : (255 - x);
             }
         }
     }

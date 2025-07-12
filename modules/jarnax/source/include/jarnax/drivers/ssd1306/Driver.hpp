@@ -63,7 +63,7 @@ protected:
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     bool IsPresent(void) const override;
     core::Status Prepare(Sequence sequence) override;
-    core::Status PrepareRender(void) override;
+    core::Status PrepareRender(Sequence sequence) override;
     core::Status Issue(void) override;
     bool AreCommandsComplete(core::Status& status) override;
     void OnEvent(Event event, core::Status status) override;

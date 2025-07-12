@@ -221,9 +221,9 @@ void clocks(ClockConfiguration const& clkcfg) {
     clock_tree.apb2_peripheral = clock_tree.hclk / GetAPB2Divider(clkcfg.apb2_high_speed_divider);
     clock_tree.rtc = clock_tree.high_speed_external / clkcfg.rtc_divider;
     clock_tree.apb1_timer_clk =
-        clock_tree.apb1_peripheral * (clkcfg.apb1_low_speed_divider == 1 ? 1U : 2U);    // APB1 is doubled if the divider is not 1
+        clock_tree.apb1_peripheral * (GetAPB1Divider(clkcfg.apb1_low_speed_divider) == 1 ? 1U : 2U);    // APB1 is doubled if the divider is not 1
     clock_tree.apb2_timer_clk =
-        clock_tree.apb2_peripheral * (clkcfg.apb2_high_speed_divider == 1 ? 1U : 2U);    // APB2 is doubled if the divider is not 1
+        clock_tree.apb2_peripheral * (GetAPB2Divider(clkcfg.apb2_high_speed_divider) == 1 ? 1U : 2U);    // APB2 is doubled if the divider is not 1
     // clock_tree.rng = clock_tree.sysclk;
 }
 
