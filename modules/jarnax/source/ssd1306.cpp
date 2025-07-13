@@ -72,6 +72,25 @@ symbol const numerals[10] = {
     {0x00, 0x34, 0x4A, 0x4A, 0x4A, 0x4A, 0x34, 0x00},    // 8
     {0x00, 0x24, 0x4A, 0x4A, 0x4A, 0x4A, 0x3C, 0x00},    // 9
 };
+
+symbol const& to_symbol(char c) {
+    if (c >= 'A' and c <= 'Z') {
+        return alphabet[c - 'A'];
+    } else if (c >= 'a' and c <= 'z') {
+        return alphabet[c - 'a'];
+    } else if (c >= '0' and c <= '9') {
+        return numerals[c - '0'];
+    } else if (c == ' ') {
+        return space;    // Return space for unsupported characters
+    } else if (c == '#') {
+        return hash;                               // Return hash for unsupported characters
+    } else if (c == static_cast<char>(0xa6U)) {    // Box character
+        return box;                                // Return box for unsupported characters
+    } else {
+        return space;    // Return space for unsupported characters
+    }
+}
+
 }    // namespace symbols
 
 }    // namespace ssd1306

@@ -225,8 +225,9 @@ void Driver::HandleError(void) {
         should_stop = true;                                                          // Set the flag to stop the transaction
     }
     if (status1.bits.overrun) {
-        statistics_.errors.overrun++;    // Increment the overrun error count
-        should_stop = true;              // Set the flag to stop the transaction
+        statistics_.errors.overrun++;                                                // Increment the overrun error count
+        status = core::Status{core::Result::NotAvailable, core::Cause::Hardware};    // set the status to not available
+        should_stop = true;                                                          // Set the flag to stop the transaction
     }
     if (status1.bits.packet_error_code_error) {
         statistics_.errors.packet_error_code++;    // Increment the packet error code error count

@@ -21,6 +21,11 @@ extern symbol const box;
 extern symbol const hash;
 extern symbol const alphabet[26];
 extern symbol const numerals[10];
+
+/// @brief Converts a character to a symbol.
+/// @param c The character to convert.
+/// @return The reference to a constant corresponding symbol if found, otherwise returns a space symbol.
+symbol const& to_symbol(char c);
 }    // namespace symbols
 
 struct Control {
@@ -80,6 +85,13 @@ public:
     constexpr static std::size_t height{H};    // in pixels
     constexpr static std::size_t height_per_byte{8u};
     constexpr static std::size_t pages{height / height_per_byte};
+    enum class Pattern {
+        AA55,
+        Checkerboard,
+        FlippingCounters,
+        VerticalStripes,
+        HorizontalStripes,
+    };
 
     /// @brief Sets a pixel in the image.
     /// @param col The column data to set the pixel to (0-255).
@@ -128,10 +140,30 @@ public:
 
     void clear(void) { memory::fill(&data[0][0], 0, sizeof(data)); }
 
-    void pattern(void) {
-        for (uint8_t p = 0; p < pages; p++) {
-            for (uint8_t x = 0; x < width; x++) {
-                data[p][x] = (p & 1) ? x : (255 - x);
+    void pattern(Pattern pattern) {
+        if (pattern == Pattern::FlippingCounters) {
+            for (uint8_t p = 0; p < pages; p++) {
+                for (uint8_t x = 0; x < width; x++) {
+                    data[p][x] = (p & 1) ? x : (255 - x);
+                }
+            }
+        } else if (pattern == Pattern::AA55) {
+            for (uint8_t p = 0; p < pages; p++) {
+                for (uint8_t x = 0; x < width; x++) {
+                    data[p][x] = (x & 1) ? 0xAA : 0x55;    // Fill with alternating patterns
+                }
+            }
+        } else if (pattern == Pattern::VerticalStripes) {
+            for (uint8_t p = 0; p < pages; p++) {
+                for (uint8_t x = 0; x < width; x++) {
+                    data[p][x] = (x & 1) ? 0x00 : 0xFF;    // Fill with checkerboard pattern
+                }
+            }
+        } else if (pattern == Pattern::HorizontalStripes) {
+            for (uint8_t p = 0; p < pages; p++) {
+                for (uint8_t x = 0; x < width; x++) {
+                    data[p][x] = 0xAA;
+                }
             }
         }
     }
@@ -196,16 +228,15 @@ public:
     Screen(Image<W, H>& im)
         : image{im} {}
 
-    bool write(symbol const sym, uint8_t x, uint8_t y) {
+    bool write(uint8_t x, uint8_t y, symbol const& sym) {
         if (x < width and y < height) {
             // memcpy(symbols[x][y], sym, sizeof(symbol));
             for (uint8_t s = 0; s < sizeof(symbol); s++) {
                 symbols[y][x][s] = sym[s];
             }
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     void clear(void) {
@@ -217,21 +248,48 @@ public:
         for (uint8_t v = 0; v < height; v++) {
             for (uint8_t u = 0; u < width; u++) {
                 if ((u + v) & 1) {
-                    write(ssd1306::symbols::block, u, v);
+                    write(u, v, ssd1306::symbols::block);
                 } else {
-                    write(ssd1306::symbols::space, u, v);
+                    write(u, v, ssd1306::symbols::space);
                 }
             }
         }
     }
 
-    void pattern(void) {
-        for (uint8_t y = 0; y < height; y++) {
-            for (uint8_t x = 0; x < width; x++) {
-                for (uint8_t s = 0; s < sizeof(symbol); s++) {
-                    symbols[y][x][s] = x + y + s;
-                }
+    /// @brief Writes a string of characters to the screen, wrapping at the edges
+    /// @param x The x-coordinate to start writing at
+    /// @param y The y-coordinate to start writing at
+    /// @param string The string to write, must be null-terminated
+    /// @note If the string is longer than the number of symbols that can fit in the screen, it will wrap to the next line, wrapping back to the
+    /// top and repeating if necessary.
+    void write(uint8_t x, uint8_t y, char const* string) {
+        // write characters until the end of the width of the screen
+        // then wrap to the next line and continue, don't worry about the
+        // words being cut off yet.
+
+        for (size_t i = 0; string[i] != '\0'; i++) {
+            char c = string[i];
+            if (c == '\r') {
+                x = 0;       // Move back to the start of the line
+                continue;    // Skip the carriage return
             }
+            if (c == '\n') {
+                y = uint8_t(y + 1) % uint8_t(height);    // Move to the next line, wrapping if necessary
+                continue;
+            }
+            if (c == '\t') {
+                x += 2;
+            }
+            if (x >= width) {
+                x = 0;                                   // Wrap to the next line if we exceed the width
+                y = uint8_t(y + 1) % uint8_t(height);    // Move to the next line, wrapping if necessary
+            }
+            if (y >= height) {
+                y = 0;    // Wrap to the top if we exceed the height
+            }
+            symbol const& sym = ssd1306::symbols::to_symbol(c);
+            write(x, y, sym);
+            x++;    // Move to the next column, will wrap before exceeding width on next iteration
         }
     }
 
@@ -260,6 +318,9 @@ public:
                 }
             }
         }
+#if defined(UNITTEST)
+        image.render();    // Render the image to the display
+#endif
     }
 
 protected:

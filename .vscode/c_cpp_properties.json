@@ -2,34 +2,30 @@
     "env": {
         "DefaultIncludePaths": [
             "${workspaceFolder}/include",
-            "${workspaceFolder}/modules/jarnax/include",
             "${workspaceFolder}/modules/core/include",
-            "${workspaceFolder}/modules/segger/include",
-            "${workspaceFolder}/modules/memory/include",
             "${workspaceFolder}/modules/cortex/include",
+            "${workspaceFolder}/modules/jarnax/include",
+            "${workspaceFolder}/modules/segger/include",
             "${workspaceFolder}/modules/stm32/include",
             "${workspaceFolder}/boards/stm32_f4ve_v2/include",
             "${workspaceFolder}/applications/unittests/include",
-            "${workspaceFolder}/applications/simple/include"
+            "${workspaceFolder}/applications/simple/include",
+            "${workspaceFolder}/applications/test-ssd1306/include",
+            "${workspaceFolder}/applications/test-i2c/include",
+            "${workspaceFolder}/applications/test-timers/include"
         ]
     },
     "configurations": [
         {
-            "name": "On Target gcc-10.x",
+            "name": "Unit Tests on Homebrew LLVM",
             "includePath": [
-                "/Applications/ARM/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/include/c++/10.3.1",
-                "/Applications/ARM/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/include/c++/10.3.1/arm-none-eabi",
-                "/Applications/ARM/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/include/c++/10.3.1/backward",
-                "/Applications/ARM/bin/../lib/gcc/arm-none-eabi/10.3.1/include",
-                "/Applications/ARM/bin/../lib/gcc/arm-none-eabi/10.3.1/include-fixed",
-                "/Applications/ARM/bin/../lib/gcc/arm-none-eabi/10.3.1/../../../../arm-none-eabi/include",
                 "${DefaultIncludePaths}"
             ],
             "defines": [],
-            "compilerPath": "/Applications/ARM/bin/arm-none-eabi-g++",
-            "intelliSenseMode": "macos-gcc-arm",
+            "compilerPath": "/opt/homebrew/Cellar/llvm/20.1.6/bin/clang++",
+            "intelliSenseMode": "macos-clang-arm64",
             "cppStandard": "c++20",
-            "cStandard": "c17",
+            "cStandard": "c23",
             "compilerArgs": [
                 "-nostdlib",
                 "-mthumb",
@@ -41,25 +37,19 @@
                 "-fno-exceptions",
                 "-fno-rtti"
             ],
-            "compileCommands": "${workspaceFolder}/build/compile_commands.json",
+            "compileCommands": "${workspaceFolder}/build/homebrew-llvm/compile_commands.json",
             "configurationProvider": "ms-vscode.cmake-tools"
         },
         {
-            "name": "On Target gcc-13.x",
+            "name": "On Target Cross Compile",
             "includePath": [
-                "/Applications/ArmGNUToolchain/13.2.rel1/arm-none-eabi/lib/gcc/arm-none-eabi/13.2.1/../../../../arm-none-eabi/include/c++/13.2.1",
-                "/Applications/ArmGNUToolchain/13.2.rel1/arm-none-eabi/lib/gcc/arm-none-eabi/13.2.1/../../../../arm-none-eabi/include/c++/13.2.1/arm-none-eabi",
-                "/Applications/ArmGNUToolchain/13.2.rel1/arm-none-eabi/lib/gcc/arm-none-eabi/13.2.1/../../../../arm-none-eabi/include/c++/13.2.1/backward",
-                "/Applications/ArmGNUToolchain/13.2.rel1/arm-none-eabi/lib/gcc/arm-none-eabi/13.2.1/include",
-                "/Applications/ArmGNUToolchain/13.2.rel1/arm-none-eabi/lib/gcc/arm-none-eabi/13.2.1/include-fixed",
-                "/Applications/ArmGNUToolchain/13.2.rel1/arm-none-eabi/lib/gcc/arm-none-eabi/13.2.1/../../../../arm-none-eabi/include",
                 "${DefaultIncludePaths}"
             ],
             "defines": [],
-            "compilerPath": "/Applications/ArmGNUToolchain/13.2.rel1/arm-none-eabi/bin/arm-none-eabi-g++",
+            "compilerPath": "/Applications/ArmGNUToolchain/14.2.rel1/arm-none-eabi/bin/arm-none-eabi-g++",
             "intelliSenseMode": "macos-gcc-arm",
             "cppStandard": "c++20",
-            "cStandard": "c17",
+            "cStandard": "c23",
             "compilerArgs": [
                 "-nostdlib",
                 "-mthumb",
@@ -71,7 +61,7 @@
                 "-fno-exceptions",
                 "-fno-rtti"
             ],
-            "compileCommands": "${workspaceFolder}/build/cortex-gcc-arm-none-eabi-13/compile_commands.json",
+            "compileCommands": "${workspaceFolder}/build/cortex-gcc-arm-none-eabi/compile_commands.json",
             "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],

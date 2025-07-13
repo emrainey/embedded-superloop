@@ -75,10 +75,12 @@ bool Driver::IsPresent(void) const {
 core::Status Driver::Prepare(Sequence sequence) {
     // Prepare the command sequence for the SSD1306
     if (i2c_transaction_.IsUninitialized()) {
-        i2c_transaction_.address.whole = address_.whole;      // Set the I2C address
-        i2c_transaction_.desired_count = sequence.count();    // Set the desired count to the size of the command sequence
-        i2c_transaction_.actual_count = 0U;                   // Reset the actual count
-        if (not i2c_buffer_.IsEmpty()) {                      // limit the scope of the span to avoid dangling pointers
+        auto now = timer_.GetMicroseconds();                                       // Get the current time
+        i2c_transaction_.SetDeadline(now + core::units::MicroSeconds{10'000U});    // Set a deadline for the transaction
+        i2c_transaction_.address.whole = address_.whole;                           // Set the I2C address
+        i2c_transaction_.desired_count = sequence.count();                         // Set the desired count to the size of the command sequence
+        i2c_transaction_.actual_count = 0U;                                        // Reset the actual count
+        if (not i2c_buffer_.IsEmpty()) {                                           // limit the scope of the span to avoid dangling pointers
             auto span = i2c_buffer_.as_span().subspan(0, i2c_transaction_.desired_count);
             memory::copy(span.data(), sequence.data(), sequence.size());    // Copy the command sequence into the I2C buffer
             i2c_transaction_.buffer = std::move(i2c_buffer_);               // Set the buffer for the transaction
@@ -89,16 +91,20 @@ core::Status Driver::Prepare(Sequence sequence) {
         statistics_.prepared++;
         i2c_transaction_.Inform(jarnax::i2c::Transaction::Event::Initialized);    // Mark the transaction as initialized
         return core::Status{core::Result::Success, core::Cause::State};           // Return success status
+    } else {
+        jarnax::print("SSD1306 Driver: Prepare called while not uninitialized\r\n");
     }
     return core::Status{core::Result::NotReady, core::Cause::State};    // If already initialized, return not ready
 }
 
 core::Status Driver::PrepareRender(Sequence sequence) {
     if (i2c_transaction_.IsUninitialized()) {
-        i2c_transaction_.address.whole = address_.whole;                        // Set the I2C address for the transaction
-        i2c_transaction_.desired_count = sequence.size() + image_.GetSize();    // Set the desired count to the size of the image
-        i2c_transaction_.actual_count = 0U;                                     // Reset the actual count
-        if (not i2c_buffer_.IsEmpty()) {                                        // Check if the I2C buffer is not empty
+        auto now = timer_.GetMicroseconds();                                        // Get the current time
+        i2c_transaction_.SetDeadline(now + core::units::MicroSeconds{100'000U});    // Set a deadline for the transaction
+        i2c_transaction_.address.whole = address_.whole;                            // Set the I2C address for the transaction
+        i2c_transaction_.desired_count = sequence.size() + image_.GetSize();        // Set the desired count to the size of the image
+        i2c_transaction_.actual_count = 0U;                                         // Reset the actual count
+        if (not i2c_buffer_.IsEmpty()) {                                            // Check if the I2C buffer is not empty
             auto span = i2c_buffer_.as_span().subspan(0, i2c_transaction_.desired_count);
             memory::copy(span.data(), sequence.data(), sequence.size());                         // Copy the command sequence into the I2C buffer
             memory::copy(&span.data()[sequence.count()], image_.GetData(), image_.GetSize());    // Copy the image data into the I2C buffer
@@ -110,6 +116,8 @@ core::Status Driver::PrepareRender(Sequence sequence) {
         statistics_.prepared++;
         i2c_transaction_.Inform(jarnax::i2c::Transaction::Event::Initialized);    // Mark the transaction as initialized
         return core::Status{core::Result::Success, core::Cause::State};           // Return success status
+    } else {
+        jarnax::print("SSD1306 Driver: PrepareRender called while not uninitialized", i2c_transaction_.GetStatus());
     }
     return core::Status{core::Result::NotReady, core::Cause::State};    // If already initialized, return not ready
 }
@@ -131,11 +139,16 @@ bool Driver::AreCommandsComplete(core::Status& status) {
         statistics_.completed++;
         i2c_buffer_ = i2c_transaction_.Relinquish();    // Get the buffer from the completed transaction
         status = i2c_transaction_.GetStatus();          // Get the status of the transaction
+        jarnax::print(
+            "Transaction took %" PRIu64 " microseconds\r\n", i2c_transaction_.GetDuration().value()
+        );    // Log the elapsed time of the transaction
         if (status.IsFailure()) {
             statistics_.failures++;                                  // Increment the failure count if the transaction failed
             jarnax::print("SSD1306 Transaction Error: ", status);    // Log the error if the transaction failed
         } else {
-            jarnax::print("SSD1306 Transaction Success: ", status);    // Log the success if the transaction succeeded
+            if constexpr (debug::Inform) {
+                jarnax::print("SSD1306 Transaction Success: ", status);    // Log the success if the transaction succeeded
+            }
         }
         i2c_transaction_.Inform(jarnax::i2c::Transaction::Event::Recycle);    // Inform the transaction that it has been recycled
         return true;

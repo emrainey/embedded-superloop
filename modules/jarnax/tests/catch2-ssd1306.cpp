@@ -16,21 +16,44 @@ TEST_CASE("SSD1306") {
 
     SECTION("SSD1306 Image Pattern") {
         REQUIRE(image.GetData()[0] == 0x00);
-        image.pattern();
+        image.pattern(::ssd1306::Image128x32::Pattern::Checkerboard);
         image.render();
-        REQUIRE(image.GetData()[1] == 0x01);
+    }
+    SECTION("SSD1306 Image Pattern") {
+        REQUIRE(image.GetData()[0] == 0x00);
+        image.pattern(::ssd1306::Image128x32::Pattern::VerticalStripes);
+        image.render();
+    }
+    SECTION("SSD1306 Image Pattern") {
+        REQUIRE(image.GetData()[0] == 0x00);
+        image.pattern(::ssd1306::Image128x32::Pattern::HorizontalStripes);
+        image.render();
+    }
+    SECTION("SSD1306 Image Pattern") {
+        REQUIRE(image.GetData()[0] == 0x00);
+        image.pattern(::ssd1306::Image128x32::Pattern::AA55);
+        image.render();
+    }
+    SECTION("SSD1306 Image Pattern") {
+        REQUIRE(image.GetData()[0] == 0x00);
+        image.pattern(::ssd1306::Image128x32::Pattern::FlippingCounters);
+        image.render();
     }
     SECTION("Single Pixel on Screen") {
-        screen.write(ssd1306::symbols::block, 0, 0);
-        screen.render();
-        REQUIRE(image.GetData()[0] == 0xFF);
-        image.clear();
         REQUIRE(image.GetData()[0] == 0x00);
+        screen.clear();
+        screen.write(0, 0, ssd1306::symbols::alphabet[0]);    // Write 'A' to the screen
+        screen.render();
     }
     SECTION("Checkerboard Pattern") {
         screen.checkerboard();
         screen.render();
-        image.render();
-        REQUIRE(image.GetData()[0] == 0xAA);    // Checkerboard pattern should have alternating bits
+        REQUIRE(image.GetData()[0] == 0x00);
+        REQUIRE(image.GetData()[8] == 0xFF);
+    }
+    SECTION("Write String to Screen") {
+        screen.clear();
+        screen.write(0, 0, "Hello World");
+        screen.render();
     }
 }

@@ -2,12 +2,14 @@
 import json
 import subprocess
 import sys
+import typing
+from typing import List, Dict, Any
 from pathlib import Path
 
 
-def get_workflow_presets():
+def get_workflow_presets() -> List[Dict[str, Any]]:
     """Get all build presets from CMakePresets.json"""
-    presets = dict()
+    presets: Dict[str, Any] = dict()
     try:
         with open("CMakePresets.json", "r") as f:
             presets.update(json.load(f))
@@ -18,14 +20,14 @@ def get_workflow_presets():
         sys.exit(1)
 
     # Get all build preset names
-    workflow_Presets = []
+    workflow_Presets: List[Dict[str, Any]] = list()
     if "workflowPresets" in presets:
         workflow_Presets.extend(preset["name"] for preset in presets["workflowPresets"])
 
     return workflow_Presets
 
 
-def workflow_preset(preset_name):
+def workflow_preset(preset_name: str) -> bool:
     """Build a specific preset"""
     print(f"\nBuilding preset: {preset_name}")
 
@@ -43,7 +45,7 @@ def workflow_preset(preset_name):
         return False
 
 
-def main():
+def main(args: List[str]) -> int:
     presets = get_workflow_presets()
 
     if not presets:
@@ -51,7 +53,7 @@ def main():
         sys.exit(1)
 
     print(f"Found {len(presets)} workflow presets: {', '.join(presets)}")
-    failed_presets = []
+    failed_presets: List[Dict[str, Any]] = list()
 
     for preset in presets:
         if not workflow_preset(preset):
@@ -61,10 +63,27 @@ def main():
         print(
             f"\n❌ {len(failed_presets)} preset(s) failed to build: {', '.join(failed_presets)}"
         )
-        sys.exit(1)
+        return -1
     else:
         print(f"\n✅ Successfully built all {len(presets)} presets")
+        return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main(sys.argv[1:]))
+
+# I just kept hitting tab....
+# vim: set ts=4 sw=4 et:
+# vim: set filetype=python:
+# vim: set expandtab:
+# vim: set autoindent:
+# vim: set smartindent:
+# vim: set fileencoding=utf-8:
+# vim: set syntax=python:
+# vim: set foldmethod=marker:
+# vim: set foldlevel=99:
+# vim: set foldenable:
+# vim: set colorcolumn=80:
+# vim: set nowrap:
+# vim: set showcmd:
+# vim: set nospell:

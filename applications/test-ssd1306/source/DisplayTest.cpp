@@ -28,18 +28,38 @@ void DisplayTest::OnEnter() {
 }
 
 void DisplayTest::OnEntry(AppState state) {
-    jarnax::print("DisplayTest::OnEntry: %u\r\n", static_cast<std::uint8_t>(state));
+    // jarnax::print("DisplayTest::OnEntry: %u\r\n", static_cast<std::uint8_t>(state));
+    auto& image = display_driver_.GetImage();
+    auto& screen = display_driver_.GetScreen();
+
     if (state == AppState::Waiting) {
         jarnax::print("Booting Display.");
     } else if (state == AppState::DisplayPowerOn) {
-        auto& image = display_driver_.GetImage();
-        image.clear();
-        auto& screen = display_driver_.GetScreen();
-        screen.checkerboard();    // Fill the screen with a pattern
-        screen.render();
+        screen.clear();           // Clear the image buffer
+        screen.checkerboard();    // Fill the screen with a checkerboard pattern
+        screen.render();          // transfer to the image buffer
+        display_driver_.Update();
+    } else if (state == AppState::Pattern1) {
+        image.pattern(::ssd1306::Image128x32::Pattern::Checkerboard);
+        display_driver_.Update();
+    } else if (state == AppState::Pattern2) {
+        image.pattern(::ssd1306::Image128x32::Pattern::FlippingCounters);
+        display_driver_.Update();
+    } else if (state == AppState::Pattern3) {
+        image.pattern(::ssd1306::Image128x32::Pattern::VerticalStripes);
+        display_driver_.Update();
+    } else if (state == AppState::Pattern4) {
+        image.pattern(::ssd1306::Image128x32::Pattern::HorizontalStripes);
+        display_driver_.Update();
+    } else if (state == AppState::Pattern5) {
+        image.pattern(::ssd1306::Image128x32::Pattern::AA55);
+        display_driver_.Update();
+    } else if (state == AppState::Pattern6) {
+        screen.clear();                       // Clear the image buffer
+        screen.write(0, 0, "Hello World");    // Write a message to the screen
+        screen.render();                      // transfer to the image buffer
         display_driver_.Update();
     } else if (state == AppState::DisplayPowerOff) {
-        auto& image = display_driver_.GetImage();
         image.clear();
         display_driver_.Update();
     } else if (state == AppState::Error) {
@@ -48,10 +68,12 @@ void DisplayTest::OnEntry(AppState state) {
 }
 
 AppState DisplayTest::OnCycle(AppState state) {
-    core::Status status;
+    core::Status status = display_driver_.GetStatus();
     // jarnax::print("DisplayTest::OnCycle: %u\r\n", static_cast<std::uint8_t>(state));
+    if (state != AppState::Waiting and not status.IsBusy() and not status.IsSuccess()) {
+        jarnax::print("Display Driver is ", status);
+    }
     if (state == AppState::Waiting) {
-        status = display_driver_.GetStatus();
         if (status == core::Result::NotReady) {
             // Display is not ready, wait
             jarnax::print(".");
@@ -62,11 +84,35 @@ AppState DisplayTest::OnCycle(AppState state) {
             jarnax::print("Display is not ready? ", status);
         }
     } else if (state == AppState::DisplayPowerOn) {
-        if (countdown_.IsExpired()) {
+        if (countdown_.IsExpired() and status != core::Result::Busy) {
+            state = AppState::Pattern1;
+        }
+    } else if (state == AppState::Pattern1) {
+        if (countdown_.IsExpired() and status != core::Result::Busy) {
+            state = AppState::Pattern2;
+        }
+    } else if (state == AppState::Pattern2) {
+        if (countdown_.IsExpired() and status != core::Result::Busy) {
+            state = AppState::Pattern3;
+        }
+    } else if (state == AppState::Pattern3) {
+        if (countdown_.IsExpired() and status != core::Result::Busy) {
+            state = AppState::Pattern4;
+        }
+    } else if (state == AppState::Pattern4) {
+        if (countdown_.IsExpired() and status != core::Result::Busy) {
+            state = AppState::Pattern5;
+        }
+    } else if (state == AppState::Pattern5) {
+        if (countdown_.IsExpired() and status != core::Result::Busy) {
+            state = AppState::Pattern6;
+        }
+    } else if (state == AppState::Pattern6) {
+        if (countdown_.IsExpired() and status != core::Result::Busy) {
             state = AppState::DisplayPowerOff;
         }
     } else if (state == AppState::DisplayPowerOff) {
-        if (countdown_.IsExpired()) {
+        if (countdown_.IsExpired() and status != core::Result::Busy) {
             state = AppState::DisplayPowerOn;
         }
     } else if (state == AppState::Error) {
@@ -80,6 +126,18 @@ void DisplayTest::OnExit(AppState state) {
     if (state == AppState::Waiting) {
         jarnax::print("\r\n");
     } else if (state == AppState::DisplayPowerOn) {
+        countdown_.Reset();
+    } else if (state == AppState::Pattern1) {
+        countdown_.Reset();
+    } else if (state == AppState::Pattern2) {
+        countdown_.Reset();
+    } else if (state == AppState::Pattern3) {
+        countdown_.Reset();
+    } else if (state == AppState::Pattern4) {
+        countdown_.Reset();
+    } else if (state == AppState::Pattern5) {
+        countdown_.Reset();
+    } else if (state == AppState::Pattern6) {
         countdown_.Reset();
     } else if (state == AppState::DisplayPowerOff) {
         countdown_.Reset();

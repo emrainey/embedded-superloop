@@ -20,9 +20,11 @@ namespace debug {
 #if defined(UNITTEST)
 static constexpr bool States = true;
 static constexpr bool Inform = true;
+static constexpr bool Duration = true;
 #else
 static constexpr bool States = false;
 static constexpr bool Inform = false;
+static constexpr bool Duration = false;
 #endif
 }    // namespace debug
 
@@ -175,6 +177,9 @@ protected:
             status_ = core::Status{core::Result::Busy, core::Cause::State};
         } else if (state == TransactionState::Complete) {
             duration_ = timer_.GetMicroseconds() - start_;
+            if constexpr (debug::Duration) {
+                jarnax::print("Transactable::OnComplete: Duration: %" PRIu64 " microseconds\n", duration_.value());
+            }
         }
     }
 
@@ -218,6 +223,12 @@ protected:
                 // pass or fail!
                 status_ = completion_status_;
                 return TransactionState::Complete;
+            } else if (event_ == Event::None) {
+                // we're still running, check the deadline too as it may have hung
+                if (timer_.GetMicroseconds() >= deadline_) {
+                    status_ = core::Status{core::Result::Timeout, core::Cause::State};
+                    return TransactionState::Complete;
+                }
             }
         } else if (state == TransactionState::Complete) {
             if (event_ == Event::Recycle) {
