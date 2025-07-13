@@ -13,6 +13,7 @@
 #include "stm32/registers/UniversalSynchronousAsynchronousReceiverTransmitter.hpp"
 #include "stm32/registers/UniversalAsynchronousReceiverTransmitter.hpp"
 #include "stm32/registers/InterIntegratedCircuit.hpp"
+#include "stm32/registers/Hash.hpp"
 
 /// The ST Micro 32 Namespace
 namespace stm32 {

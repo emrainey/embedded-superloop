@@ -45,6 +45,7 @@ UniversalAsynchronousReceiverTransmitter volatile uart8;
 InterIntegratedCircuit volatile i2c1;
 InterIntegratedCircuit volatile i2c2;
 InterIntegratedCircuit volatile i2c3;
+Hash volatile hash;
 }    // namespace registers
 }    // namespace stm32
 
