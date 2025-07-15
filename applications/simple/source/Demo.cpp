@@ -8,7 +8,7 @@ using namespace core::units;
 Demo::Demo()
     : ticker_{jarnax::GetTicker()}
     , timer_{jarnax::GetTimer()}
-    , usart_driver_{jarnax::GetDriverContext().GetDebugDriver()}
+    , usart_driver_{jarnax::GetDriverContext().GetCameraUsart()}
     , rng_{jarnax::GetDriverContext().GetRandomNumberGenerator()}
     , error_indicator_{jarnax::GetDriverContext().GetErrorIndicator()}
     , wakeup_button_{jarnax::GetDriverContext().GetWakeupButton()}

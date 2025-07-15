@@ -7,15 +7,15 @@
 #include "stm32/registers/UniversalAsynchronousReceiverTransmitter.hpp"
 
 namespace stm32 {
-
-class UartDriver : public jarnax::uart::Driver {
+namespace uart {
+class Driver : public jarnax::uart::Driver {
 public:
     /// @brief Constructor
     /// @param uart The UART peripheral to use
     /// @param dma_driver The DMA Driver to use
     /// @param rx_peripheral The RX peripheral for the DMA Driver
     /// @param tx_peripheral The TX peripheral for the DMA Driver
-    UartDriver(
+    Driver(
         registers::UniversalAsynchronousReceiverTransmitter volatile& uart,
         dma::Manager& dma_driver,
         jarnax::Peripheral rx_peripheral,
@@ -47,6 +47,6 @@ protected:
     /// The peripheral clock frequency
     core::units::Hertz peripheral_frequency_;
 };
-
+}    // namespace uart
 }    // namespace stm32
 #endif    // STM32_UART_DRIVER_HPP

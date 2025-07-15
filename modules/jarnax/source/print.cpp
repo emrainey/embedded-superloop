@@ -145,7 +145,7 @@ constexpr bool is_digit(char c) {
     return (c >= '0' && c <= '9');
 }
 
-static unsigned long vsnprint(char buffer[], size_t buffer_size, const char *format, va_list args) {
+unsigned long vsnprint(char buffer[], size_t buffer_size, const char *format, va_list args) {
     unsigned long index = 0U;    // always start back at zero
 
     while (*format) {

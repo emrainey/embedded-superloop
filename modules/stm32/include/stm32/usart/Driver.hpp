@@ -8,15 +8,15 @@
 #include "stm32/registers/UniversalSynchronousAsynchronousReceiverTransmitter.hpp"
 
 namespace stm32 {
-
-class UsartDriver : public jarnax::usart::Driver {
+namespace usart {
+class Driver : public jarnax::usart::Driver {
 public:
     /// @brief Constructor
     /// @param uart The UART peripheral to use
     /// @param dma_driver The DMA Driver to use
     /// @param rx_peripheral The RX peripheral for the DMA Driver
     /// @param tx_peripheral The TX peripheral for the DMA Driver
-    UsartDriver(
+    Driver(
         registers::UniversalSynchronousAsynchronousReceiverTransmitter volatile& uart,
         dma::Manager& dma_driver,
         jarnax::Peripheral rx_peripheral,
@@ -31,6 +31,7 @@ public:
     core::Status Dequeue(core::Span<DataUnit>& data) override;
 
     void HandleInterrupt(void);
+    bool Execute(void) override;
 
     /// @brief The statistics structure for the USART
     struct Statistics {
@@ -94,6 +95,6 @@ protected:
     /// The statistics for the USART peripheral
     Statistics statistics_;    ///< The USART statistics
 };
-
+}    // namespace usart
 }    // namespace stm32
 #endif    // STM32_USART_DRIVER_HPP

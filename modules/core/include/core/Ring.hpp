@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <type_traits>
 #include <utility>
+#include "core/Span.hpp"
 
 namespace core {
 
@@ -67,24 +68,8 @@ public:
     /// @return True if it was pushed, false otherwise.
     bool Push(ReferenceConst element) {
         if (Count() < Capacity()) {
-            buffer_[head_] = element;    // copy assign or simple assign
+            buffer_[tail_] = element;    // copy assign or simple assign
             ++count_;
-            ++head_;
-            if (head_ == limit_) {
-                head_ = 0u;
-            }
-            return true;
-        }
-        return false;
-    }
-
-    /// @brief Uses a Copy Assign to remove an item from the Ring an copy it to the output parameter
-    /// @param output The reference to the place to copy the element to.
-    /// @return True when the
-    bool Pop(Reference output) {
-        if (Count() > 0) {
-            output = buffer_[tail_];    // copy assign or simple assign
-            --count_;
             ++tail_;
             if (tail_ == limit_) {
                 tail_ = 0u;
@@ -94,10 +79,98 @@ public:
         return false;
     }
 
+    /// @brief Uses a Copy Assign to put a Span of elements into the Ring
+    /// @param span The Span of elements to add
+    /// @return True if it was pushed, false otherwise.
+    bool Push(Span<ValueType const>& span) {
+        if (span.count() <= Spaces()) {
+            for (auto const& element : span) {
+                buffer_[tail_] = element;    // copy assign or simple assign
+                ++count_;
+                ++tail_;
+                if (tail_ == limit_) {
+                    tail_ = 0u;
+                }
+            }
+            return true;
+        }
+        return false;    // not enough space
+    }
+
+    /// @brief Uses a Copy Assign to remove an item from the Ring an copy it to the output parameter
+    /// @param output The reference to the place to copy the element to.
+    /// @return True when the
+    bool Pop(Reference output) {
+        if (Count() > 0) {
+            output = buffer_[head_];    // copy assign or simple assign
+            --count_;
+            ++head_;
+            if (head_ == limit_) {
+                head_ = 0u;
+            }
+            if (IsEmpty()) {
+                // reset the tail and head to the beginning
+                tail_ = head_ = 0U;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /// @return The largest number of contiguous elements in memory (from head forward)
+    SizeType MaxContiguousElements() const {
+        if (IsEmpty()) {
+            return 0;
+        }
+        if (head_ < tail_) {
+            // the tail is ahead of the head, so we can just use the difference
+            return tail_ - head_;
+        }
+        // either head_ == tail_ (full) or head_ > tail_
+        // the tail is behind the head, so we can only use up to the limit
+        return limit_ - head_;
+    }
+
+    /// @brief Drops a specific number of elements off the Ring off the head and does not return them
+    /// @param count The number of elements to drop off the head
+    /// @return True when the elements were dropped, false when not enough elements were present
+    bool Drop(SizeType number) {
+        if (number <= Count()) {
+            while (number > 0) {
+                --count_;
+                ++head_;
+                if (head_ == limit_) {
+                    head_ = 0u;    // wrap around
+                }
+                --number;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /// @brief The indexing operator for mutable access
+    ValueType& operator[](size_t index) {
+        if (index < Count()) {
+            return buffer_[(head_ + index) % limit_];
+        } else {
+            return buffer_[(head_ + (index % Count())) % limit_];
+        }
+    }
+
+    /// @brief The indexing operator for constant access
+    ValueType const& operator[](size_t index) const {
+        if (index < Count()) {
+            return buffer_[(head_ + index) % limit_];
+        } else {
+            return buffer_[(head_ + (index % Count())) % limit_];
+        }
+    }
+
 protected:
     ValueType buffer_[COUNT]{};       ///< The buffer to hold the elements
-    IndexType head_{0u};              ///< Head index inclusive (only valid when count > 0)
-    IndexType tail_{0u};              ///< Tail Index inclusive (only valid when count > 0)
+    IndexType head_{0u};              ///< Head index inclusive (only valid when count > 0). Where you read from
+    IndexType tail_{0u};              ///< Tail Index exclusive (only valid when count > 0). Where you write to
     IndexType const limit_{COUNT};    ///< The "one-past the end" limit to the index. When equal to this value, the
                                       ///< Ring index should loop to zero.
     SizeType count_{0u};              ///< The count of the number of active elements

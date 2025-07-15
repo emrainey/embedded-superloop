@@ -1,9 +1,8 @@
 #include "board.hpp"
-#include "stm32/UartDriver.hpp"
+#include "stm32/uart/Driver.hpp"
 
 namespace stm32 {
-
-UartDriver* g_uart_instances[4] = {nullptr, nullptr, nullptr, nullptr};    // 4, 5, 7, 8
+uart::Driver* g_uart_instances[4] = {nullptr, nullptr, nullptr, nullptr};    // 4, 5, 7, 8
 
 void uart4_isr(void) {
     external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter4)]++;
@@ -33,7 +32,8 @@ void uart8_isr(void) {
     }
 }
 
-UartDriver::UartDriver(
+namespace uart {
+Driver::Driver(
     registers::UniversalAsynchronousReceiverTransmitter volatile& uart,
     dma::Manager& dma_driver,
     jarnax::Peripheral rx_peripheral,
@@ -58,7 +58,7 @@ UartDriver::UartDriver(
     }
 }
 
-core::Status UartDriver::Initialize(core::units::Hertz peripheral_frequency) {
+core::Status Driver::Initialize(core::units::Hertz peripheral_frequency) {
     rx_dma_resource_ = dma_manager_.Assign(rx_peripheral_);
     if (rx_dma_resource_ == nullptr) {
         return core::Status{core::Result::InvalidValue, core::Cause::Configuration};
@@ -93,14 +93,14 @@ core::Status UartDriver::Initialize(core::units::Hertz peripheral_frequency) {
     return status;
 }
 
-core::Status UartDriver::Configure(uint32_t baud_rate, bool parity, uint8_t stop_bits) {
+core::Status Driver::Configure(uint32_t baud_rate, bool parity, uint8_t stop_bits) {
     static_cast<void>(baud_rate);
     static_cast<void>(parity);
     static_cast<void>(stop_bits);
     return core::Status{core::Result::NotImplemented, core::Cause::State};
 }
 
-void UartDriver::HandleInterrupt(void) {
+void Driver::HandleInterrupt(void) {
     registers::UniversalAsynchronousReceiverTransmitter::Status status = uart_.status;    // read
     // if (status.bits.polarity_error) {
     //     jarnax::print("UART PE\n");
@@ -119,7 +119,7 @@ void UartDriver::HandleInterrupt(void) {
     // }
 }
 
-core::Status UartDriver::Enqueue(core::Span<DataUnit> const& data) {
+core::Status Driver::Enqueue(core::Span<DataUnit> const& data) {
     core::Status status{};
     if (data.count() == 0) {
         status = core::Status{core::Result::InvalidValue, core::Cause::Parameter};
@@ -127,12 +127,12 @@ core::Status UartDriver::Enqueue(core::Span<DataUnit> const& data) {
     return status;
 }
 
-core::Status UartDriver::Dequeue(core::Span<DataUnit>& data) {
+core::Status Driver::Dequeue(core::Span<DataUnit>& data) {
     core::Status status{};
     if (data.count() == 0) {
         status = core::Status{core::Result::InvalidValue, core::Cause::Parameter};
     }
     return status;
 }
-
+}    // namespace uart
 }    // namespace stm32

@@ -15,9 +15,10 @@
 #include "stm32/Indicator.hpp"
 #include "stm32/i2c/Driver.hpp"
 #include "stm32/SpiDriver.hpp"
-#include "stm32/UartDriver.hpp"
-#include "stm32/UsartDriver.hpp"
+#include "stm32/uart/Driver.hpp"
+#include "stm32/usart/Driver.hpp"
 #include "stm32/RandomNumberGenerator.hpp"
+#include "jarnax/console/UsartConsole.hpp"
 #include "jarnax/winbond/Driver.hpp"
 
 /// RTT features
@@ -66,7 +67,7 @@ constexpr static size_t DmaBlockSize{64U};
 constexpr static size_t DmaBlockCount{32U};
 
 /// The Baud Rate for the USART1
-constexpr static std::uint32_t usart1_baud_rate = 115200U;
+constexpr static std::uint32_t usart1_baud_rate = 230400U;
 /// The Bus Rate for the I2C1
 constexpr static core::units::Hertz i2c1_bus_frequency = 400_KHz;
 
@@ -182,7 +183,7 @@ public:
     jarnax::spi::Driver& GetSpiDriver();
 
     /// Returns the debug USART Driver
-    jarnax::usart::Driver& GetDebugDriver();
+    jarnax::usart::Driver& GetCameraUsart();
 
     /// Returns the Flash Chip Select
     jarnax::gpio::Output& GetFlashChipSelect();
@@ -192,6 +193,8 @@ public:
 
     /// Returns the Winbond Driver
     jarnax::winbond::Driver& GetWinbondDriver();
+
+    jarnax::console::Service& GetConsole();
 
 protected:
     stm32::Timer timer_;
@@ -248,7 +251,9 @@ protected:
     /// USART1 Receive Pin
     stm32::gpio::Pin usart1_rx_;
     /// USART1 Driver
-    stm32::UsartDriver usart1_driver_;
+    stm32::usart::Driver usart1_driver_;
+    /// Console Driver
+    jarnax::console::UsartConsole usart_console_;
 };
 
 /// Gets the reference to the DriverContext

@@ -67,7 +67,8 @@ DriverContext::DriverContext()
     , winbond_driver_{timer_, spi1_driver_, flash_cs_, GetDmaAllocator()}
     , usart1_tx_{stm32::gpio::Port::A, 9}
     , usart1_rx_{stm32::gpio::Port::A, 10}
-    , usart1_driver_{stm32::registers::usart1, dma_manager_, stm32::USART1_RX, stm32::USART1_TX, GetDmaAllocator()} {
+    , usart1_driver_{stm32::registers::usart1, dma_manager_, stm32::USART1_RX, stm32::USART1_TX, GetDmaAllocator()}
+    , usart_console_{usart1_driver_} {
     // construct the driver objects as part of the constructor above.
 }
 
@@ -300,7 +301,7 @@ jarnax::spi::Driver& DriverContext::GetSpiDriver() {
     return spi1_driver_;
 }
 
-jarnax::usart::Driver& DriverContext::GetDebugDriver() {
+jarnax::usart::Driver& DriverContext::GetCameraUsart() {
     return usart1_driver_;
 }
 

@@ -2,12 +2,11 @@
 #include <cmath>
 #include "memory.hpp"
 #include "jarnax/print.hpp"
-#include "stm32/UsartDriver.hpp"
+#include "stm32/usart/Driver.hpp"
 
 namespace stm32 {
-
-UsartDriver* usart_instances[4] = {nullptr, nullptr, nullptr, nullptr};                 // 4, 5, 7, 8
-UsartDriver::Statistics* usart_statistics[4] = {nullptr, nullptr, nullptr, nullptr};    // 4, 5, 7, 8
+usart::Driver* usart_instances[4] = {nullptr, nullptr, nullptr, nullptr};                 // 4, 5, 7, 8
+usart::Driver::Statistics* usart_statistics[4] = {nullptr, nullptr, nullptr, nullptr};    // 4, 5, 7, 8
 
 void usart1_isr(void) {
     external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter1)]++;
@@ -37,7 +36,8 @@ void usart6_isr(void) {
     }
 }
 
-UsartDriver::UsartDriver(
+namespace usart {
+Driver::Driver(
     registers::UniversalSynchronousAsynchronousReceiverTransmitter volatile& usart,
     dma::Manager& dma_driver,
     jarnax::Peripheral rx_peripheral,
@@ -73,7 +73,7 @@ UsartDriver::UsartDriver(
     }
 }
 
-void UsartDriver::ComputeBaudRate(uint32_t baud_rate) const {
+void Driver::ComputeBaudRate(uint32_t baud_rate) const {
     // The divider is calculated as follows:
     // Divider = (peripheral_frequency_ / (baud_rate * over8))
     // The USART peripheral uses a oversampling rate based on the control register.
@@ -99,7 +99,7 @@ void UsartDriver::ComputeBaudRate(uint32_t baud_rate) const {
     }
 }
 
-uint32_t UsartDriver::GetBaudRate(void) const {
+uint32_t Driver::GetBaudRate(void) const {
     stm32::registers::UniversalSynchronousAsynchronousReceiverTransmitter::Control1 control1 = usart_.control1;    // read
     stm32::registers::UniversalSynchronousAsynchronousReceiverTransmitter::BaudRate brr = usart_.baudrate;         // read
     // uint32_t over8u = control1.bits.oversampling_mode == 1 ? 8 : 16;
@@ -114,7 +114,7 @@ uint32_t UsartDriver::GetBaudRate(void) const {
     return baud_rate;
 }
 
-core::Status UsartDriver::Initialize(core::units::Hertz peripheral_frequency) {
+core::Status Driver::Initialize(core::units::Hertz peripheral_frequency) {
     rx_dma_resource_ = dma_manager_.Assign(rx_peripheral_);
     if (rx_dma_resource_ == nullptr) {
         return core::Status{core::Result::InvalidValue, core::Cause::Configuration};
@@ -150,7 +150,7 @@ core::Status UsartDriver::Initialize(core::units::Hertz peripheral_frequency) {
     return status;
 }
 
-core::Status UsartDriver::Configure(uint32_t desired_baud_rate, bool parity, uint8_t stop_bits) {
+core::Status Driver::Configure(uint32_t desired_baud_rate, bool parity, uint8_t stop_bits) {
     stm32::registers::UniversalSynchronousAsynchronousReceiverTransmitter::Control1 control1;
     stm32::registers::UniversalSynchronousAsynchronousReceiverTransmitter::Control2 control2;
     stm32::registers::UniversalSynchronousAsynchronousReceiverTransmitter::Control3 control3;
@@ -203,7 +203,7 @@ core::Status UsartDriver::Configure(uint32_t desired_baud_rate, bool parity, uin
     return core::Status{};
 }
 
-void UsartDriver::HandleInterrupt(void) {
+void Driver::HandleInterrupt(void) {
     registers::UniversalSynchronousAsynchronousReceiverTransmitter::Status status = usart_.status;    // read
     if constexpr (jarnax::debug::usart_isr) {
         jarnax::print(
@@ -261,7 +261,12 @@ void UsartDriver::HandleInterrupt(void) {
     usart_.status = status;    // write
 }
 
-core::Status UsartDriver::Enqueue(core::Span<DataUnit const> const& data) {
+bool Driver::Execute(void) {
+    // not sure what to do yet...
+    return true;
+}
+
+core::Status Driver::Enqueue(core::Span<DataUnit const> const& data) {
     core::Status status{};
     if (data.count() == 0) {
         status = core::Status{core::Result::InvalidValue, core::Cause::Parameter};
@@ -309,12 +314,12 @@ core::Status UsartDriver::Enqueue(core::Span<DataUnit const> const& data) {
     return status;
 }
 
-core::Status UsartDriver::Dequeue(core::Span<DataUnit>& data) {
+core::Status Driver::Dequeue(core::Span<DataUnit>& data) {
     core::Status status{};
     if (data.count() == 0) {
         status = core::Status{core::Result::InvalidValue, core::Cause::Parameter};
     }
     return status;
 }
-
+}    // namespace usart
 }    // namespace stm32

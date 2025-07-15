@@ -25,7 +25,7 @@ add_custom_target(scrub
 # The subdirectories are added in the order they are listed here
 list(APPEND LOCAL_MODULES memory core) # These don't depend on anything
 list(APPEND LOCAL_MODULES cortex stm32 segger jarnax native) # These depend on config and board
-list(APPEND LOCAL_APPLICATIONS unittests simple test-timers test-i2c test-ssd1306)
+list(APPEND LOCAL_APPLICATIONS unittests simple test-timers test-i2c test-ssd1306 test-usart)
 list(APPEND LOCAL_CONFIGURATIONS basic)
 list(APPEND LOCAL_BOARDS stm32_f4ve_v2)
 

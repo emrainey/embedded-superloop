@@ -5,6 +5,7 @@
 /// The Print Interface
 
 #include "compiler.hpp"
+#include <cstdarg>
 #include <cinttypes>
 #include "core/Printer.hpp"
 #include "core/Span.hpp"
@@ -28,6 +29,14 @@ void print(char const* const source, core::Status status);
 /// @param format The format string.
 /// @param ... The variadic arguments.
 void print(const char* format, ...) ATTRIBUTE((format(printf, 1, 2)));
+
+/// @brief Primitive String Formatting function from variable argument list
+/// Supports %s, %d, %i, %u, %x, %p, %b (binary), %f for float ONLY (no doubles!)
+/// @param buffer The buffer to form the string in
+/// @param buffer_size The capacity length of the buffer
+/// @param format The format string.
+/// @param args The variable arguments list
+unsigned long vsnprint(char buffer[], size_t buffer_size, const char* format, va_list args);
 
 template <typename T>
 void print(core::Span<T> const& span) {
