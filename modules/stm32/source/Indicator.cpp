@@ -3,7 +3,7 @@
 
 #include "iso.hpp"
 #include "stm32/Indicator.hpp"
-#include "stm32/Pin.hpp"
+#include "stm32/gpio/Pin.hpp"
 
 namespace stm32 {
 

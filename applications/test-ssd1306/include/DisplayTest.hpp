@@ -2,6 +2,7 @@
 #define TEST_I2C_HPP
 
 #include <memory.hpp>
+#include "BoardContext.hpp"
 #include "jarnax/CountDown.hpp"
 #include "jarnax/Loopable.hpp"
 #include "jarnax/Timer.hpp"

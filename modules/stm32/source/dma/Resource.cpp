@@ -1,4 +1,5 @@
 #include "board.hpp"    // Board configuration Info
+#include "jarnax/print.hpp"
 #include "stm32/dma/Resource.hpp"
 #include "stm32/dma/Manager.hpp"
 

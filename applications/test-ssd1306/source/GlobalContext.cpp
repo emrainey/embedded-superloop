@@ -1,4 +1,4 @@
-
+#include "BoardContext.hpp"
 #include "jarnax/Context.hpp"
 #include "jarnax/Monitor.hpp"
 
@@ -13,9 +13,9 @@ using jarnax::SuperLoop;
 class GlobalContext : public Context {
 public:
     GlobalContext()
-        : display_driver_{jarnax::GetTimer(), jarnax::GetDriverContext().GetI2cDriver(), jarnax::GetDriverContext().GetDmaAllocator()}
+        : display_driver_{jarnax::GetTimer(), jarnax::GetBoardContext().GetI2cDriver(), jarnax::GetBoardContext().GetDmaAllocator()}
         , test_{display_driver_}
-        , monitor_{jarnax::GetDriverContext().GetTimer(), jarnax::GetDriverContext().GetStatusIndicator(), jarnax::GetDriverContext().GetErrorIndicator()}
+        , monitor_{jarnax::GetBoardContext().GetTimer(), jarnax::GetBoardContext().GetStatusIndicator(), jarnax::GetBoardContext().GetErrorIndicator()}
         , superloop_{jarnax::GetTicker()} {}
 
     Status Initialize(void) override {
@@ -23,7 +23,7 @@ public:
         result &= GetSuperLoop().Enlist(monitor_);
         result &= GetSuperLoop().Enlist(test_);
         result &= GetSuperLoop().Enlist(display_driver_);
-        result &= GetSuperLoop().Enlist(jarnax::GetDriverContext().GetI2cDriver());
+        result &= GetSuperLoop().Enlist(jarnax::GetBoardContext().GetI2cDriver());
         // initialize the display driver with the default I2C address
         jarnax::i2c::Address address{::ssd1306::DefaultAddress};
         result &= display_driver_.Initialize(address).IsSuccess();
@@ -46,7 +46,7 @@ protected:
 
 namespace jarnax {
 Context& GetContext(void) {
-    static GlobalContext my_context;
-    return my_context;
+    static GlobalContext global_context;
+    return global_context;
 }
 }    // namespace jarnax

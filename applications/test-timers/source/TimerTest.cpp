@@ -1,6 +1,5 @@
 #include "memory.h"
 #include "TimerTest.hpp"
-#include "board.hpp"
 #include "jarnax/Assertion.hpp"
 
 using namespace core::units;
@@ -10,7 +9,7 @@ core::units::Iota g_lateness;    // global lateness variable
 TimerTest::TimerTest()
     : ticker_{jarnax::GetTicker()}
     , timer_{jarnax::GetTimer()}
-    , indicator_{jarnax::GetDriverContext().GetTimingIndicator()}
+    , indicator_{jarnax::GetBoardContext().GetTimingIndicator()}
     , countdown_time_msec_{11U}
     , countdown_time_iotas_{core::units::ConvertToIota(countdown_time_msec_)}
     , countdown_{timer_, countdown_time_iotas_}

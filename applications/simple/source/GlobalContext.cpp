@@ -1,4 +1,4 @@
-
+#include "BoardContext.hpp"
 #include "jarnax/Context.hpp"
 #include "jarnax/Monitor.hpp"
 
@@ -14,16 +14,16 @@ class GlobalContext : public Context {
 public:
     GlobalContext()
         : demo_{}
-        , monitor_{jarnax::GetDriverContext().GetTimer(), jarnax::GetDriverContext().GetStatusIndicator(), jarnax::GetDriverContext().GetErrorIndicator()}
+        , monitor_{jarnax::GetBoardContext().GetTimer(), jarnax::GetBoardContext().GetStatusIndicator(), jarnax::GetBoardContext().GetErrorIndicator()}
         , superloop_{jarnax::GetTicker()} {}
 
     Status Initialize(void) override {
         bool result = true;
         result &= GetSuperLoop().Enlist(monitor_);
         result &= GetSuperLoop().Enlist(demo_);
-        result &= GetSuperLoop().Enlist(jarnax::GetDriverContext().GetI2cDriver());
-        result &= GetSuperLoop().Enlist(jarnax::GetDriverContext().GetSpiDriver());
-        result &= GetSuperLoop().Enlist(jarnax::GetDriverContext().GetWinbondDriver());
+        result &= GetSuperLoop().Enlist(jarnax::GetBoardContext().GetI2cDriver());
+        result &= GetSuperLoop().Enlist(jarnax::GetBoardContext().GetSpiDriver());
+        result &= GetSuperLoop().Enlist(jarnax::GetBoardContext().GetWinbondDriver());
         if (result) {
             return core::Status{};
         } else {
@@ -41,7 +41,7 @@ protected:
 
 namespace jarnax {
 Context& GetContext(void) {
-    static GlobalContext my_context;
-    return my_context;
+    static GlobalContext global_context;
+    return global_context;
 }
 }    // namespace jarnax

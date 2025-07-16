@@ -1,12 +1,12 @@
 #include "board.hpp"
 #include "jarnax/print.hpp"
-#include "stm32/SpiDriver.hpp"
+#include "stm32/spi/Driver.hpp"
 #include "stm32/registers/ResetAndClockControl.hpp"
 
 namespace stm32 {
 
-SpiDriver* spi_instances[3] = {nullptr, nullptr, nullptr};
-SpiDriver::Statistics* spi_statistics[3] = {nullptr, nullptr, nullptr};
+spi::Driver* spi_instances[3] = {nullptr, nullptr, nullptr};
+spi::Driver::Statistics* spi_statistics[3] = {nullptr, nullptr, nullptr};
 
 // Declare instances of the templates so that they have debugging symbols
 
@@ -30,8 +30,8 @@ void spi3_isr(void) {
         spi_instances[2]->HandleInterrupt();
     }
 }
-
-SpiDriver::SpiDriver(
+namespace spi {
+Driver::Driver(
     stm32::registers::SerialPeripheralInterface volatile& spi,
     dma::Manager& dma_driver,
     jarnax::Peripheral rx_peripheral,
@@ -60,7 +60,7 @@ SpiDriver::SpiDriver(
     }
 }
 
-stm32::registers::SerialPeripheralInterface::Control1::BaudRateDivider SpiDriver::FindClosestDivider(
+stm32::registers::SerialPeripheralInterface::Control1::BaudRateDivider Driver::FindClosestDivider(
     core::units::Hertz peripheral_frequency, core::units::Hertz desired_spi_clock_frequency
 ) {
     std::uint32_t divisor = peripheral_frequency.value() / desired_spi_clock_frequency.value();
@@ -87,7 +87,7 @@ stm32::registers::SerialPeripheralInterface::Control1::BaudRateDivider SpiDriver
     }
 }
 
-core::Status SpiDriver::Initialize(core::units::Hertz peripheral_frequency, core::units::Hertz desired_spi_clock_frequency) {
+core::Status Driver::Initialize(core::units::Hertz peripheral_frequency, core::units::Hertz desired_spi_clock_frequency) {
     core::Status status{};
     peripheral_frequency_ = peripheral_frequency;
     rx_dma_resource_ = dma_manager_.Assign(rx_peripheral_);
@@ -148,7 +148,7 @@ core::Status SpiDriver::Initialize(core::units::Hertz peripheral_frequency, core
     return core::Status{core::Result::Success, core::Cause::State};
 }
 
-core::Status SpiDriver::Verify(jarnax::spi::Transaction& transaction) {
+core::Status Driver::Verify(jarnax::spi::Transaction& transaction) {
     // the coordinator has already checked the generic parts of the transaction we just
     // have to check the SPI specific parts
     size_t total_size = transaction.receive_size + transaction.send_size;
@@ -174,7 +174,7 @@ core::Status SpiDriver::Verify(jarnax::spi::Transaction& transaction) {
     return core::Status{core::Result::Success, core::Cause::State};
 }
 
-core::Status SpiDriver::Start(jarnax::spi::Transaction& transaction) {
+core::Status Driver::Start(jarnax::spi::Transaction& transaction) {
     // set the device to disabled
     registers::SerialPeripheralInterface::Control1 control1;
     registers::SerialPeripheralInterface::Control2 control2;
@@ -245,7 +245,7 @@ core::Status SpiDriver::Start(jarnax::spi::Transaction& transaction) {
     return core::Status{core::Result::Success, core::Cause::State};
 }
 
-core::Status SpiDriver::Check(jarnax::spi::Transaction& transaction) {
+core::Status Driver::Check(jarnax::spi::Transaction& transaction) {
     core::Status status;
     dma::Manager::Flags flags;
     bool fault{false};
@@ -328,7 +328,7 @@ core::Status SpiDriver::Check(jarnax::spi::Transaction& transaction) {
     }
 }    // namespace stm32
 
-core::Status SpiDriver::Cancel(jarnax::spi::Transaction& transaction) {
+core::Status Driver::Cancel(jarnax::spi::Transaction& transaction) {
     // disable the peripheral
     registers::SerialPeripheralInterface::Control1 control1;
     control1 = spi_.control1;        // read
@@ -357,7 +357,7 @@ core::Status SpiDriver::Cancel(jarnax::spi::Transaction& transaction) {
     return core::Status{core::Result::Success, core::Cause::State};
 }
 
-void SpiDriver::HandleInterrupt(void) {
+void Driver::HandleInterrupt(void) {
     registers::SerialPeripheralInterface::Control1 control1 = spi_.control1;    // read
     registers::SerialPeripheralInterface::Control2 control2 = spi_.control2;    // read
     registers::SerialPeripheralInterface::Status status = spi_.status;          // read
@@ -431,6 +431,7 @@ void SpiDriver::HandleInterrupt(void) {
     }
 }
 
+}    // namespace spi
 }    // namespace stm32
 
 namespace jarnax {

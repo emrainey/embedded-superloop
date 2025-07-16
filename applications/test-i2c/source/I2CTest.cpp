@@ -8,9 +8,9 @@ using namespace core::units;
 I2CTest::I2CTest()
     : ticker_{jarnax::GetTicker()}
     , timer_{jarnax::GetTimer()}
-    , i2c_driver_{jarnax::GetDriverContext().GetI2cDriver()}
+    , i2c_driver_{jarnax::GetBoardContext().GetI2cDriver()}
     , i2c_transaction_{timer_}
-    , i2c_buffer_{stm32::i2c_dma_buffer_size, jarnax::GetDriverContext().GetDmaAllocator()}
+    , i2c_buffer_{stm32::i2c_dma_buffer_size, jarnax::GetBoardContext().GetDmaAllocator()}
     , i2c_countdown_{timer_, core::units::Iota{stm32::iota_per_millisecond * 100}}    // 100ms
     , state_machine_{*this, AppState::StartUp} {
     assertion(not i2c_buffer_.IsEmpty());

@@ -8,9 +8,9 @@
 #include "memory.hpp"
 #include "core/core.hpp"
 #include "jarnax/system.hpp"
-#include "core/Status.hpp"
 #include "jarnax/customize.hpp"
 #include "jarnax/version.hpp"    // [GENERATED]
+#include "jarnax/print.hpp"
 
 namespace jarnax {
 using Status = core::Status;

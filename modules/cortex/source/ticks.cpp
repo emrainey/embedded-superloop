@@ -12,7 +12,7 @@ Ticks GetTickCount() {
 }
 
 Hertz GetTickRate() {
-    return static_cast<Hertz>(ticks_per_second);
+    return Hertz{core::units::ticks_per_second};
 }
 
 bool IsTickEnabled() {

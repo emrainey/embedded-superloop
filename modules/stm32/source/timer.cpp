@@ -1,5 +1,6 @@
 #include "board.hpp"
 #include "cortex/nvic.hpp"
+#include "jarnax/print.hpp"
 #include "stm32/registers/Timer2.hpp"
 #include "stm32/registers/Debug.hpp"
 #include "stm32/Timer.hpp"

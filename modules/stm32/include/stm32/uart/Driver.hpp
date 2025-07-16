@@ -3,6 +3,7 @@
 
 #include "jarnax/uart/Driver.hpp"
 #include "core/Units.hpp"
+#include "core/Allocator.hpp"
 #include "stm32/dma/Manager.hpp"
 #include "stm32/registers/UniversalAsynchronousReceiverTransmitter.hpp"
 

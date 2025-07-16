@@ -2,24 +2,17 @@
 #define BOARD_HPP_
 
 /// @file
-/// Contains configuration information for the board.
+/// Contains configuration information for this specific board.
 
 #include <cstdint>
 #include "iso.hpp"
-#include "core/Status.hpp"
+#include <memory.hpp>
 #include "core/Units.hpp"
-#include "jarnax/Ticker.hpp"
+
+// Pull in the Chip specific definitions
 #include "stm32/stm32f407ve.hpp"
-#include "stm32/Timer.hpp"
-#include "stm32/Button.hpp"
-#include "stm32/Indicator.hpp"
-#include "stm32/i2c/Driver.hpp"
-#include "stm32/SpiDriver.hpp"
-#include "stm32/uart/Driver.hpp"
-#include "stm32/usart/Driver.hpp"
-#include "stm32/RandomNumberGenerator.hpp"
-#include "jarnax/console/UsartConsole.hpp"
-#include "jarnax/winbond/Driver.hpp"
+
+/// @internal Here we'll define boards specific sizes, speeds, clocks, features and settings.
 
 /// RTT features
 namespace rtt {
@@ -47,6 +40,16 @@ constexpr static bool dma_isr{false};
 }    // namespace debug
 }    // namespace jarnax
 
+namespace cortex {
+/// Control SWO features
+namespace swo {
+/// The flag to control enabling the SWO and TPIU/ITM
+constexpr static bool enable{false};
+/// The desired SWO baudrate
+constexpr static std::size_t baudrate{50'000U};
+}    // namespace swo
+}    // namespace cortex
+
 namespace stm32 {    // Choices for STM32
 using namespace core::units;
 /// The HSE value for this board.
@@ -55,12 +58,6 @@ constexpr static Hertz high_speed_external_oscillator_frequency = 8_MHz;
 constexpr static Hertz low_speed_external_oscillator_frequency{32768U};    // 32KiHz
 /// @brief The desired frequency of the Timer2 counter
 constexpr static Hertz timer2_frequency = 12_MHz;
-/// The number of iota per second (based on the ClockTree)
-constexpr static std::uint32_t iota_per_microsecond = timer2_frequency.value() / 1'000'000U;
-/// The number of iota per second (based on the ClockTree)
-constexpr static std::uint32_t iota_per_millisecond = timer2_frequency.value() / 1'000U;
-/// The number of iota per second (based on the ClockTree)
-constexpr static std::uint32_t iota_per_second = timer2_frequency.value() / 1U;
 /// Number of bytes per DMA block for the Drivers
 constexpr static size_t DmaBlockSize{64U};
 /// Number of DMA blocks for the Drivers
@@ -89,32 +86,21 @@ constexpr static bool use_dma_for_i2c{false};
 
 namespace core {
 namespace units {
-constexpr MicroSeconds ConvertToMicroSeconds(Iota const& value) {
-    MicroSeconds::StorageType v = static_cast<MicroSeconds::StorageType>(value.value() / static_cast<Iota::StorageType>(stm32::iota_per_microsecond));
-    return MicroSeconds{v};
-}
-constexpr Iota ConvertToIota(MicroSeconds const& value) {
-    Iota::StorageType v = static_cast<Iota::StorageType>(value.value() * static_cast<MicroSeconds::StorageType>(stm32::iota_per_microsecond));
-    return Iota{v};
-}
-constexpr MilliSeconds ConvertToMilliSeconds(Iota const& value) {
-    MilliSeconds::StorageType v = static_cast<MilliSeconds::StorageType>(value.value() / static_cast<Iota::StorageType>(stm32::iota_per_millisecond));
-    return MilliSeconds{v};
-}
-constexpr Iota ConvertToIota(MilliSeconds const& value) {
-    Iota::StorageType v = static_cast<Iota::StorageType>(value.value() * static_cast<MilliSeconds::StorageType>(stm32::iota_per_millisecond));
-    return Iota{v};
-}
-constexpr Seconds ConvertToSeconds(Iota const& value) {
-    Seconds::StorageType v = static_cast<Seconds::StorageType>(value.value()) / static_cast<Seconds::StorageType>(stm32::iota_per_second);
-    return Seconds{v};
-}
-constexpr Iota ConvertToIota(Seconds const& value) {
-    Iota::StorageType v = static_cast<Iota::StorageType>(value.value() * static_cast<Seconds::StorageType>(stm32::iota_per_second));
-    return Iota{v};
-}
+/// @brief The number of Ticks in a second for this board
+constexpr static std::uint32_t ticks_per_second{128U};
+/// @brief Defines the system tick period value used to represent the passage of time in floats
+constexpr static float tick_period{1.0F / ticks_per_second};
+/// @brief The number of iota per second (based on the ClockTree)
+constexpr static std::uint32_t iota_per_microsecond = stm32::timer2_frequency.value() / 1'000'000U;
+/// @brief The number of iota per second (based on the ClockTree)
+constexpr static std::uint32_t iota_per_millisecond = stm32::timer2_frequency.value() / 1'000U;
+/// @brief The number of iota per second (based on the ClockTree)
+constexpr static std::uint32_t iota_per_second = stm32::timer2_frequency.value() / 1U;
 }    // namespace units
 }    // namespace core
+
+// This depends on the board specific stated conversions above
+#include "core/Conversions.hpp"
 
 namespace winbond {
 using iso::operator""_MiB;
@@ -124,140 +110,5 @@ constexpr static std::size_t flash_size = 16_MiB;
 /// @brief The maximum clock frequency of the SPI bus for Read Operations on the Flash W25Q16JV
 constexpr static core::units::Hertz spi_clock_frequency{21_MHz};
 }    // namespace winbond
-
-namespace jarnax {
-
-/// @brief The Container pf the Board Specific Drivers and Configuration
-/// @TODO Break these up into functional groups for better organization
-class DriverContext {
-public:
-    /// The default constructor
-    DriverContext();
-    /// Initialization after Construction
-    core::Status Initialize(void);
-    /// The copy constructor
-    DriverContext(DriverContext const&) = delete;
-    /// The copy assignment operator
-    DriverContext& operator=(DriverContext const&) = delete;
-    /// The move constructor
-    DriverContext(DriverContext&&) = delete;
-    /// The move assignment operator
-    DriverContext& operator=(DriverContext&&) = delete;
-    /// Destructor
-    ~DriverContext();
-
-    /// Returns a reference to the Timer
-    jarnax::Timer& GetTimer();
-
-    /// Returns a reference to the Random Number Generator
-    jarnax::RandomNumberGenerator& GetRandomNumberGenerator();
-
-    /// Returns the Error Indicator
-    jarnax::Indicator& GetErrorIndicator();
-
-    /// Returns the Status Indicator
-    jarnax::Indicator& GetStatusIndicator();
-
-    /// Returns the Performance Indicator
-    jarnax::Indicator& GetPerformanceIndicator();
-
-    /// Returns the Timing Indicator
-    jarnax::Indicator& GetTimingIndicator();
-
-    /// Returns the Wakeup Pin
-    jarnax::Button& GetWakeupButton();
-
-    /// Returns the Key0 Button
-    jarnax::Button& GetButton0();
-
-    /// Returns the Key1 Button
-    jarnax::Button& GetButton1();
-
-    /// Returns the Copier
-    jarnax::Copier& GetCopier();
-
-    /// Returns the I2C Driver
-    jarnax::i2c::Driver& GetI2cDriver();
-
-    /// Returns the SPI Driver
-    jarnax::spi::Driver& GetSpiDriver();
-
-    /// Returns the debug USART Driver
-    jarnax::usart::Driver& GetCameraUsart();
-
-    /// Returns the Flash Chip Select
-    jarnax::gpio::Output& GetFlashChipSelect();
-
-    /// Returns the DMA Allocator
-    core::Allocator& GetDmaAllocator();
-
-    /// Returns the Winbond Driver
-    jarnax::winbond::Driver& GetWinbondDriver();
-
-    jarnax::console::Service& GetConsole();
-
-protected:
-    stm32::Timer timer_;
-    /// The Random Number Generator
-    stm32::RandomNumberGenerator random_number_generator_;
-    stm32::gpio::Pin wakeup_pin_;         ///< The Wakeup Button Pin
-    stm32::gpio::Pin mco1_pin_;           ///< Clock output
-    stm32::gpio::Pin mco2_pin_;           ///< Clock output
-    stm32::gpio::Pin key0_pin_;           ///< The Key0 Pin
-    stm32::gpio::Pin key1_pin_;           ///< The Key1 Pin
-    stm32::gpio::Pin error_pin_;          ///< The Error Pin
-    stm32::gpio::Pin status_pin_;         ///< The Status Pin
-    stm32::gpio::Pin performance_pin_;    ///< The Performance Pin
-    stm32::gpio::Pin timing_pin_;         ///< The Timing Pin (for debugging)
-    /// The Error Indicator
-    stm32::Indicator error_indicator_;
-    /// The Status Indicator
-    stm32::Indicator status_indicator_;
-    /// The Performance Indicator
-    stm32::Indicator performance_indicator_;
-    /// The timing indicator
-    stm32::Indicator timing_indicator_;
-    /// @brief The Wakeup Button
-    stm32::Button wakeup_button_;
-    /// @brief The Key0 Button
-    stm32::Button key0_button_;
-    /// @brief The Key1 Button
-    stm32::Button key1_button_;
-    /// The SPI1 Leader Out Follower In (MOSI)
-    stm32::gpio::Pin spi1_mosi_;
-    /// The SPI1 Master In Slave Out (MISO)
-    stm32::gpio::Pin spi1_miso_;
-    /// The SPI1 Serial Clock (SCLK)
-    stm32::gpio::Pin spi1_sclk_;
-    /// The Flash Chip Select (CS)
-    stm32::gpio::Pin flash_cs_;
-    // stm32::gpio::Pin nrf_cs_;
-    // stm32::gpio::Pin nrf_ce_;
-    // stm32::gpio::Pin nrf_irq_;
-    /// The DMA Manager
-    stm32::dma::Manager dma_manager_;
-    /// The I2C Clock (SCL)
-    stm32::gpio::Pin i2c1_scl_;
-    /// The I2C Data (SDA)
-    stm32::gpio::Pin i2c1_sda_;
-    /// The I2C Driver
-    stm32::i2c::Driver i2c1_driver_;
-    /// The SPI Driver
-    stm32::SpiDriver spi1_driver_;
-    /// The Winbond Driver
-    jarnax::winbond::Driver winbond_driver_;
-    /// USART1 Transmit Pin
-    stm32::gpio::Pin usart1_tx_;
-    /// USART1 Receive Pin
-    stm32::gpio::Pin usart1_rx_;
-    /// USART1 Driver
-    stm32::usart::Driver usart1_driver_;
-    /// Console Driver
-    jarnax::console::UsartConsole usart_console_;
-};
-
-/// Gets the reference to the DriverContext
-DriverContext& GetDriverContext();
-}    // namespace jarnax
 
 #endif    // BOARD_HPP_

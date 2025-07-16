@@ -1,7 +1,7 @@
 #ifndef TEST_USART_HPP
 #define TEST_USART_HPP
 
-#include <memory.hpp>
+#include "BoardContext.hpp"
 #include "jarnax/CountDown.hpp"
 #include "jarnax/Loopable.hpp"
 #include "jarnax/Timer.hpp"

@@ -27,8 +27,8 @@ void configure(void) {
     cortex::SetClockFrequency(vendor::GetClockFrequency());
     cortex::SetSystemClockFrequency(vendor::GetSystemClockFrequency());
     // initialize the system tick
-    jarnax::print("Initializing Tick @ %lu/sec from %lu\r\n", cortex::ticks_per_second.value(), cortex::GetSystemClockFrequency().value());
-    cortex::initialize::tick(cortex::ticks_per_second, cortex::GetSystemClockFrequency());
+    jarnax::print("Initializing Tick @ %lu/sec from %lu\r\n", cortex::GetTickRate().value(), cortex::GetSystemClockFrequency().value());
+    cortex::initialize::tick(cortex::GetTickRate(), cortex::GetSystemClockFrequency());
     cortex::initialize::swo(cortex::swo::baudrate, cortex::GetClockFrequency());
     // vendor::initialize::watchdog();
     vendor::initialize::gpio();

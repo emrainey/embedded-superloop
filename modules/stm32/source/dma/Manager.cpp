@@ -4,103 +4,103 @@
 
 namespace stm32 {
 
-dma::Manager* g_dma_instance = nullptr;
+dma::Manager* dma_instance = nullptr;
 
 void dma1_stream0_isr() {
     external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess1Stream0)]++;
-    if (g_dma_instance) {
-        g_dma_instance->HandleInterrupt(0, 0);
+    if (dma_instance) {
+        dma_instance->HandleInterrupt(0, 0);
     }
 }
 void dma1_stream1_isr() {
     external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess1Stream1)]++;
-    if (g_dma_instance) {
-        g_dma_instance->HandleInterrupt(0, 1);
+    if (dma_instance) {
+        dma_instance->HandleInterrupt(0, 1);
     }
 }
 void dma1_stream2_isr() {
     external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess1Stream2)]++;
-    if (g_dma_instance) {
-        g_dma_instance->HandleInterrupt(0, 2);
+    if (dma_instance) {
+        dma_instance->HandleInterrupt(0, 2);
     }
 }
 void dma1_stream3_isr() {
     external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess1Stream3)]++;
-    if (g_dma_instance) {
-        g_dma_instance->HandleInterrupt(0, 3);
+    if (dma_instance) {
+        dma_instance->HandleInterrupt(0, 3);
     }
 }
 void dma1_stream4_isr() {
     external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess1Stream4)]++;
-    if (g_dma_instance) {
-        g_dma_instance->HandleInterrupt(0, 4);
+    if (dma_instance) {
+        dma_instance->HandleInterrupt(0, 4);
     }
 }
 void dma1_stream5_isr() {
     external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess1Stream5)]++;
-    if (g_dma_instance) {
-        g_dma_instance->HandleInterrupt(0, 5);
+    if (dma_instance) {
+        dma_instance->HandleInterrupt(0, 5);
     }
 }
 void dma1_stream6_isr() {
     external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess1Stream6)]++;
-    if (g_dma_instance) {
-        g_dma_instance->HandleInterrupt(0, 6);
+    if (dma_instance) {
+        dma_instance->HandleInterrupt(0, 6);
     }
 }
 void dma1_stream7_isr() {
     external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess1Stream7)]++;
-    if (g_dma_instance) {
-        g_dma_instance->HandleInterrupt(0, 7);
+    if (dma_instance) {
+        dma_instance->HandleInterrupt(0, 7);
     }
 }
 
 void dma2_stream0_isr() {
     external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream0)]++;
-    if (g_dma_instance) {
-        g_dma_instance->HandleInterrupt(1, 0);
+    if (dma_instance) {
+        dma_instance->HandleInterrupt(1, 0);
     }
 }
 void dma2_stream1_isr() {
     external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream1)]++;
-    if (g_dma_instance) {
-        g_dma_instance->HandleInterrupt(1, 1);
+    if (dma_instance) {
+        dma_instance->HandleInterrupt(1, 1);
     }
 }
 void dma2_stream2_isr() {
     external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream2)]++;
-    if (g_dma_instance) {
-        g_dma_instance->HandleInterrupt(1, 2);
+    if (dma_instance) {
+        dma_instance->HandleInterrupt(1, 2);
     }
 }
 void dma2_stream3_isr() {
     external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream3)]++;
-    if (g_dma_instance) {
-        g_dma_instance->HandleInterrupt(1, 3);
+    if (dma_instance) {
+        dma_instance->HandleInterrupt(1, 3);
     }
 }
 void dma2_stream4_isr() {
     external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream4)]++;
-    if (g_dma_instance) {
-        g_dma_instance->HandleInterrupt(1, 4);
+    if (dma_instance) {
+        dma_instance->HandleInterrupt(1, 4);
     }
 }
 void dma2_stream5_isr() {
     external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream5)]++;
-    if (g_dma_instance) {
-        g_dma_instance->HandleInterrupt(1, 5);
+    if (dma_instance) {
+        dma_instance->HandleInterrupt(1, 5);
     }
 }
 void dma2_stream6_isr() {
     external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream6)]++;
-    if (g_dma_instance) {
-        g_dma_instance->HandleInterrupt(1, 6);
+    if (dma_instance) {
+        dma_instance->HandleInterrupt(1, 6);
     }
 }
 void dma2_stream7_isr() {
     external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream7)]++;
-    if (g_dma_instance) {
-        g_dma_instance->HandleInterrupt(1, 7);
+    if (dma_instance) {
+        dma_instance->HandleInterrupt(1, 7);
     }
 }
 
@@ -127,7 +127,7 @@ Manager::Manager(stm32::registers::DirectMemoryAccess volatile (&dma)[stm32::reg
           stm32::dma::Resource{1, 6},
           stm32::dma::Resource{1, 7}
       } {
-    g_dma_instance = this;
+    dma_instance = this;
 }
 
 jarnax::dma::Resource* Manager::Assign(Peripheral const& peripheral) {

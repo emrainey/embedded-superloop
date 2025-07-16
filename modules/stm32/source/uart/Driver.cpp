@@ -2,33 +2,33 @@
 #include "stm32/uart/Driver.hpp"
 
 namespace stm32 {
-uart::Driver* g_uart_instances[4] = {nullptr, nullptr, nullptr, nullptr};    // 4, 5, 7, 8
+uart::Driver* uart_instances[4] = {nullptr, nullptr, nullptr, nullptr};    // 4, 5, 7, 8
 
 void uart4_isr(void) {
     external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter4)]++;
-    if (g_uart_instances[0]) {
-        g_uart_instances[0]->HandleInterrupt();
+    if (uart_instances[0]) {
+        uart_instances[0]->HandleInterrupt();
     }
 }
 
 void uart5_isr(void) {
     external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter5)]++;
-    if (g_uart_instances[1]) {
-        g_uart_instances[1]->HandleInterrupt();
+    if (uart_instances[1]) {
+        uart_instances[1]->HandleInterrupt();
     }
 }
 
 void uart7_isr(void) {
     // external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter7)]++;
-    if (g_uart_instances[2]) {
-        g_uart_instances[2]->HandleInterrupt();
+    if (uart_instances[2]) {
+        uart_instances[2]->HandleInterrupt();
     }
 }
 
 void uart8_isr(void) {
     // external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter8)]++;
-    if (g_uart_instances[3]) {
-        g_uart_instances[3]->HandleInterrupt();
+    if (uart_instances[3]) {
+        uart_instances[3]->HandleInterrupt();
     }
 }
 
@@ -48,13 +48,13 @@ Driver::Driver(
     , tx_dma_resource_{nullptr}
     , dma_allocator_{dma_allocator} {
     if (&uart == &registers::uart4) {
-        g_uart_instances[0] = this;
+        uart_instances[0] = this;
     } else if (&uart == &registers::uart5) {
-        g_uart_instances[1] = this;
+        uart_instances[1] = this;
     } else if (&uart == &registers::uart7) {
-        g_uart_instances[2] = this;
+        uart_instances[2] = this;
     } else if (&uart == &registers::uart8) {
-        g_uart_instances[3] = this;
+        uart_instances[3] = this;
     }
 }
 

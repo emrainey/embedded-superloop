@@ -7,14 +7,14 @@ There are several locations around Embedded SuperLoop and Jarnax that need to be
 * Check the board's chip's linker script to see if the peripheral is exposed as a symbol.
 * Import the peripheral headers from peripheralyzer. Iterate on names until it makes sense and matches linkers name or vice versa.
   * Headers should go into `modules/<vendor>/include/<vendor>/registers/<Peripheral>.hpp`
-* Enable Clock Tree in `<board>/source/board.cpp` in DriverContext Initialize
-* Add related GPIO in `<board>/include/board.hpp` in DriverContext
-* Construct related GPIO in `<board>/source/board.cpp` in DriverContext. Set the Group and Pin number here.
-* Initialize related GPIO in `<board>/source/board.cpp` in DriverContext. Set the GPIO settings here.
-* Add Driver instance to `<board>/include/board.cpp` in DriverContext as variable and give it an accessor method which returns a reference to it.
+* Enable Clock Tree in `<board>/source/board.cpp` in BoardContext Initialize
+* Add related GPIO in `<board>/include/board.hpp` in BoardContext
+* Construct related GPIO in `<board>/source/board.cpp` in BoardContext. Set the Group and Pin number here.
+* Initialize related GPIO in `<board>/source/board.cpp` in BoardContext. Set the GPIO settings here.
+* Add Driver instance to `<board>/include/board.cpp` in BoardContext as variable and give it an accessor method which returns a reference to it.
 * Add Driver related `constexpr` in `<board>/include/board.hpp`. This would include any debug flags, DMA sizes, etc.
-* Construct the Driver in `<board>/source/board.cpp` in DriverContext constructor. Pass all the input dependencies on other drivers, gpios, etc there.
-* Initialize the Driver in `<board>/source/board.cpp` in DriverContext after it's dependencies have been initialized. This is where you would pass Clock speeds, bus rates, addresses, etc.
+* Construct the Driver in `<board>/source/board.cpp` in BoardContext constructor. Pass all the input dependencies on other drivers, gpios, etc there.
+* Initialize the Driver in `<board>/source/board.cpp` in BoardContext after it's dependencies have been initialized. This is where you would pass Clock speeds, bus rates, addresses, etc.
 * Enable Interrupt(s) in `modules/<vendor>/source/nvic.cpp`.
 * If the Driver implements a Loopable, `Enlist` in the `<application>/source/GlobalContext.cpp`
 
@@ -29,7 +29,7 @@ There are several locations around Embedded SuperLoop and Jarnax that need to be
   * State Machine objects should have their own unit tests.
   * Add mocks to
 * Add driver a simple integration test to demonstrate the capabilities.
-  * Application should only use the `jarnax::<type>::Driver&` from the `DriverContext`.
+  * Application should only use the `jarnax::<type>::Driver&` from the `BoardContext`.
 
 ## Documentation
 

@@ -1,4 +1,4 @@
-
+#include "BoardContext.hpp"
 #include "jarnax/Context.hpp"
 #include "unittests.hpp"
 
@@ -6,7 +6,6 @@ using core::Cause;
 using core::Result;
 using core::Status;
 using jarnax::Context;
-using jarnax::DriverContext;
 using jarnax::SuperLoop;
 
 class GlobalContext : public Context {
@@ -44,7 +43,7 @@ protected:
 
 namespace jarnax {
 Context& GetContext(void) {
-    static GlobalContext my_context;
-    return my_context;
+    static GlobalContext global_context;
+    return global_context;
 }
 }    // namespace jarnax

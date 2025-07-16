@@ -20,9 +20,9 @@ char const* const speech[] = {
 UsartTest::UsartTest()
     : ticker_{jarnax::GetTicker()}
     , timer_{jarnax::GetTimer()}
-    , usart_driver_{jarnax::GetDriverContext().GetCameraUsart()}
-    , rng_{jarnax::GetDriverContext().GetRandomNumberGenerator()}
-    , console_{jarnax::GetDriverContext().GetConsole()}
+    , usart_driver_{jarnax::GetBoardContext().GetCameraUsart()}
+    , rng_{jarnax::GetBoardContext().GetRandomNumberGenerator()}
+    , console_{jarnax::GetBoardContext().GetConsole()}
     , countdown_time_msec_{1000U}
     , countdown_time_iotas_{core::units::ConvertToIota(countdown_time_msec_)}
     , countdown_{timer_, countdown_time_iotas_}

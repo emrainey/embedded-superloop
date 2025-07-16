@@ -29,9 +29,6 @@ namespace core {
 /// @brief The namespace for the core units of measure and their constants
 namespace units {
 
-/// @brief The number of Ticks in a second
-static constexpr Ticks ticks_per_second{128U};    // 128 ticks per second
-
 /// @brief The unit of Length is Meters
 using Length = Meters;
 /// @brief The unit of Area is Square Meters
@@ -225,24 +222,6 @@ constexpr Ticks operator""_ticks(unsigned long long value) {
 /// @return The Iota value
 constexpr Iota operator""_iota(unsigned long long value) {
     return Iota{static_cast<Iota::StorageType>(value)};
-}
-
-/// @brief Converts Seconds to Ticks
-/// @param time The time to convert
-/// @return The Ticks value
-constexpr Ticks ConvertToTicks(Seconds const& time) {
-    // e.g. 1/2 seconds = 1/2 * 128 ticks = 64.0 ticks
-    float fraction = time.value() * ticks_per_second.value();
-    return Ticks{static_cast<Ticks::StorageType>(fraction)};
-}
-
-/// @brief Converts Ticks to Seconds
-/// @param ticks The ticks to convert
-/// @return The Seconds value
-constexpr Seconds ConvertToSeconds(Ticks const& ticks) {
-    // e.g. 64 ticks = 64 / 128 seconds = 0.5 seconds
-    float fraction = static_cast<Seconds::StorageType>(ticks.value()) / static_cast<Seconds::StorageType>(ticks_per_second.value());
-    return Seconds{fraction};
 }
 
 /// @brief Converts Hertz to Seconds

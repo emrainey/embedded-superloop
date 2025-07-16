@@ -17,8 +17,8 @@ protected:
 };
 
 Context &GetContext() {
-    static GlobalContext my_context;
-    return my_context;
+    static GlobalContext global_context;
+    return global_context;
 }
 
 }    // namespace jarnax

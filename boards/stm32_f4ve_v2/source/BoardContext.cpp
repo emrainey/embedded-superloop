@@ -1,10 +1,7 @@
-#include "board.hpp"
+#include "BoardContext.hpp"
 #include "segger/rtt.hpp"
 #include "jarnax.hpp"
 #include "strings.hpp"
-#include "core/BitMapHeap.hpp"
-#include "stm32/RandomNumberGenerator.hpp"
-#include "stm32/Timer.hpp"
 
 namespace stm32 {
 
@@ -34,7 +31,7 @@ ClockConfiguration const default_clock_configuration = {
 
 namespace jarnax {
 
-DriverContext::DriverContext()
+BoardContext::BoardContext()
     : timer_{stm32::registers::timer2}
     , random_number_generator_{}
     , wakeup_pin_{stm32::gpio::Port::A, 0}
@@ -72,11 +69,11 @@ DriverContext::DriverContext()
     // construct the driver objects as part of the constructor above.
 }
 
-DriverContext::~DriverContext() {
+BoardContext::~BoardContext() {
     // destruct the driver objects in the destructor below.
 }
 
-core::Status DriverContext::Initialize(void) {
+core::Status BoardContext::Initialize(void) {
     core::Status status;
     wakeup_pin_.SetMode(stm32::gpio::Mode::Input).SetResistor(stm32::gpio::Resistor::PullDown);
     mco1_pin_.SetOutputSpeed(stm32::gpio::Speed::VeryHigh).SetMode(stm32::gpio::Mode::AlternateFunction).SetAlternative(0);    // Alt 0 is MCO1
@@ -253,78 +250,79 @@ core::Status DriverContext::Initialize(void) {
     return status;
 }
 
-jarnax::Timer& DriverContext::GetTimer() {
+jarnax::Timer& BoardContext::GetTimer() {
     return timer_;
 }
 
-jarnax::RandomNumberGenerator& DriverContext::GetRandomNumberGenerator() {
+jarnax::RandomNumberGenerator& BoardContext::GetRandomNumberGenerator() {
     return random_number_generator_;
 }
 
-jarnax::Indicator& DriverContext::GetErrorIndicator() {
+jarnax::Indicator& BoardContext::GetErrorIndicator() {
     return error_indicator_;
 }
 
-jarnax::Indicator& DriverContext::GetStatusIndicator() {
+jarnax::Indicator& BoardContext::GetStatusIndicator() {
     return status_indicator_;
 }
 
-jarnax::Indicator& DriverContext::GetPerformanceIndicator() {
+jarnax::Indicator& BoardContext::GetPerformanceIndicator() {
     return performance_indicator_;
 }
 
-jarnax::Indicator& DriverContext::GetTimingIndicator() {
+jarnax::Indicator& BoardContext::GetTimingIndicator() {
     return timing_indicator_;
 }
 
-jarnax::Button& DriverContext::GetWakeupButton() {
+jarnax::Button& BoardContext::GetWakeupButton() {
     return wakeup_button_;
 }
 
-jarnax::Button& DriverContext::GetButton0() {
+jarnax::Button& BoardContext::GetButton0() {
     return key0_button_;
 }
 
-jarnax::Button& DriverContext::GetButton1() {
+jarnax::Button& BoardContext::GetButton1() {
     return key1_button_;
 }
 
-jarnax::Copier& DriverContext::GetCopier() {
+jarnax::Copier& BoardContext::GetCopier() {
     return dma_manager_;
 }
 
-jarnax::i2c::Driver& DriverContext::GetI2cDriver() {
+jarnax::i2c::Driver& BoardContext::GetI2cDriver() {
     return i2c1_driver_;
 }
 
-jarnax::spi::Driver& DriverContext::GetSpiDriver() {
+jarnax::spi::Driver& BoardContext::GetSpiDriver() {
     return spi1_driver_;
 }
 
-jarnax::usart::Driver& DriverContext::GetCameraUsart() {
+jarnax::usart::Driver& BoardContext::GetCameraUsart() {
     return usart1_driver_;
 }
 
-jarnax::gpio::Output& DriverContext::GetFlashChipSelect() {
+jarnax::gpio::Output& BoardContext::GetFlashChipSelect() {
     return flash_cs_;
 }
 
-core::Allocator& DriverContext::GetDmaAllocator() {
+core::Allocator& BoardContext::GetDmaAllocator() {
     return stm32::dma_heap_allocator;
 }
 
-jarnax::winbond::Driver& DriverContext::GetWinbondDriver() {
+jarnax::winbond::Driver& BoardContext::GetWinbondDriver() {
     return winbond_driver_;
 }
 
-jarnax::console::Service& DriverContext::GetConsole() {
+jarnax::console::Service& BoardContext::GetConsole() {
     return usart_console_;
 }
 
-DriverContext& GetDriverContext() {
-    static DriverContext context;
-    return context;
+BoardContext& GetBoardContext() {
+    static BoardContext board_context;
+    return board_context;
 }
+
 }    // namespace jarnax
 
 namespace stm32 {
@@ -335,7 +333,7 @@ bool are_drivers_initialized{false};
 void drivers(void) {
     using namespace stm32::registers;
     core::Status status;
-    status = jarnax::GetDriverContext().Initialize();
+    status = jarnax::GetBoardContext().Initialize();
     if (status) {
         are_drivers_initialized = true;
     }

@@ -18,7 +18,7 @@ public:
         current_ = current_ + 1_ticks;
         return tmp;
     }
-    Hertz GetTicksPerSecond(void) const override { return Hertz{core::units::ticks_per_second.value()}; }
+    Hertz GetTicksPerSecond(void) const override { return Hertz{core::units::ticks_per_second}; }
     Time GetTimeSinceBoot(void) const override { return core::units::ConvertToSeconds(GetTicksSinceBoot()); }
     Ticks GetTicks(void) const override { return GetTicksSinceBoot() + bias_; }
     Time GetTime(void) const override { return core::units::ConvertToSeconds(GetTicksSinceBoot() + bias_); }
@@ -40,6 +40,6 @@ Ticker &GetTicker() {
     return ticker;
 }
 
-}   // namespace jarnax
+}    // namespace jarnax
 
-#endif // JUMP_TICKER_HPP
+#endif    // JUMP_TICKER_HPP

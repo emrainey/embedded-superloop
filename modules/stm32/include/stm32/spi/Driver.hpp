@@ -8,10 +8,10 @@
 #include "stm32/registers/SerialPeripheralInterface.hpp"
 
 namespace stm32 {
-
-class SpiDriver : public jarnax::spi::Driver, private jarnax::spi::Transactor {
+namespace spi {
+class Driver : public jarnax::spi::Driver, private jarnax::spi::Transactor {
 public:
-    SpiDriver(
+    Driver(
         stm32::registers::SerialPeripheralInterface volatile& spi,
         jarnax::dma::Manager& dma_driver,
         jarnax::Peripheral rx_peripheral,
@@ -64,6 +64,7 @@ protected:
     /// The peripheral clock frequency
     core::units::Hertz peripheral_frequency_;
 };
+}    // namespace spi
 }    // namespace stm32
 
 #endif    // STM32_SPI_DRIVER_HPP

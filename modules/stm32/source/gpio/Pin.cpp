@@ -1,5 +1,5 @@
 #include "iso.hpp"
-#include "stm32/Pin.hpp"
+#include "stm32/gpio/Pin.hpp"
 #include "stm32/registers/GeneralPurposeInputOutput.hpp"
 
 namespace stm32 {

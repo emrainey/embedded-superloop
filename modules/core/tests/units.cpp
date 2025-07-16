@@ -4,6 +4,24 @@
 
 #include <iostream>
 
+namespace core {
+namespace units {
+/// @brief The number of Ticks in a second for this board
+constexpr static std::uint32_t ticks_per_second{128U};
+/// @brief Defines the system tick period value used to represent the passage of time in floats
+constexpr static float tick_period{1.0F / static_cast<float>(ticks_per_second)};
+/// @brief The number of iota per second (based on the ClockTree)
+constexpr static std::uint32_t iota_per_microsecond = 12U;
+/// @brief The number of iota per second (based on the ClockTree)
+constexpr static std::uint32_t iota_per_millisecond = 12'000U;
+/// @brief The number of iota per second (based on the ClockTree)
+constexpr static std::uint32_t iota_per_second = 12'000'000U;
+}    // namespace units
+}    // namespace core
+#define BOARD_HPP_    // this is to emulate the board.hpp include
+// This depends on the board specific stated conversions above
+#include "core/Conversions.hpp"
+
 TEST_CASE("Units - Equations") {
     core::units::Volts v{1.0f};
     core::units::Amperes i{2.0f};
@@ -73,16 +91,17 @@ TEST_CASE("Units - Conversions") {
     using namespace core::units;
     SECTION("Time to Ticks") {
         core::units::Ticks t = core::units::ConvertToTicks(1.0_sec);
-        REQUIRE(t == core::units::ticks_per_second);
+        REQUIRE(t == core::units::Ticks{core::units::ticks_per_second});
     }
 
     SECTION("Time to Ticks Half") {
         core::units::Ticks t = core::units::ConvertToTicks(0.5_sec);
-        REQUIRE(t == core::units::ticks_per_second / 2);
+        REQUIRE(t == core::units::Ticks{core::units::ticks_per_second / 2});
     }
 
     SECTION("Ticks to Time") {
         core::units::Seconds s0 = core::units::ConvertToSeconds(42_ticks);
         REQUIRE(s0.value() == 0.328125F);
+        REQUIRE(s0.value() == 42.0F * core::units::tick_period);
     }
 }

@@ -8,14 +8,14 @@ using namespace core::units;
 Demo::Demo()
     : ticker_{jarnax::GetTicker()}
     , timer_{jarnax::GetTimer()}
-    , usart_driver_{jarnax::GetDriverContext().GetCameraUsart()}
-    , rng_{jarnax::GetDriverContext().GetRandomNumberGenerator()}
-    , error_indicator_{jarnax::GetDriverContext().GetErrorIndicator()}
-    , wakeup_button_{jarnax::GetDriverContext().GetWakeupButton()}
-    , key0_button_{jarnax::GetDriverContext().GetButton0()}
-    , key1_button_{jarnax::GetDriverContext().GetButton1()}
-    , copier_{jarnax::GetDriverContext().GetCopier()}
-    , winbond_driver_{jarnax::GetDriverContext().GetWinbondDriver()}
+    , usart_driver_{jarnax::GetBoardContext().GetCameraUsart()}
+    , rng_{jarnax::GetBoardContext().GetRandomNumberGenerator()}
+    , error_indicator_{jarnax::GetBoardContext().GetErrorIndicator()}
+    , wakeup_button_{jarnax::GetBoardContext().GetWakeupButton()}
+    , key0_button_{jarnax::GetBoardContext().GetButton0()}
+    , key1_button_{jarnax::GetBoardContext().GetButton1()}
+    , copier_{jarnax::GetBoardContext().GetCopier()}
+    , winbond_driver_{jarnax::GetBoardContext().GetWinbondDriver()}
     , countdown_{timer_, core::units::Iota{250'000U}}
     , buffer_one_{}
     , buffer_two_{}
