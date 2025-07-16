@@ -317,6 +317,10 @@ jarnax::winbond::Driver& DriverContext::GetWinbondDriver() {
     return winbond_driver_;
 }
 
+jarnax::console::Service& DriverContext::GetConsole() {
+    return usart_console_;
+}
+
 DriverContext& GetDriverContext() {
     static DriverContext context;
     return context;

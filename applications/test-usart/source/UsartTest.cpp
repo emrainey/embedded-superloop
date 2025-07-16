@@ -4,6 +4,7 @@
 #include "jarnax/Assertion.hpp"
 
 using namespace core::units;
+using Level = jarnax::console::Service::Level;
 
 char const* const speech[] = {
     "====================================================\r\n",
@@ -21,6 +22,7 @@ UsartTest::UsartTest()
     , timer_{jarnax::GetTimer()}
     , usart_driver_{jarnax::GetDriverContext().GetCameraUsart()}
     , rng_{jarnax::GetDriverContext().GetRandomNumberGenerator()}
+    , console_{jarnax::GetDriverContext().GetConsole()}
     , countdown_time_msec_{1000U}
     , countdown_time_iotas_{core::units::ConvertToIota(countdown_time_msec_)}
     , countdown_{timer_, countdown_time_iotas_}
@@ -45,6 +47,7 @@ void UsartTest::OnEnter() {
         static_cast<unsigned long>(countdown_time_msec_.value())
     );
     delivered_ = false;
+    console_.SetLevel(Level::Debug);
 }
 
 void UsartTest::OnEntry(AppState state) {
@@ -57,6 +60,12 @@ void UsartTest::OnEntry(AppState state) {
     } else if (state == AppState::Speech) {
         speech_index_ = 0U;
     } else if (state == AppState::Error) {
+        delivered_ = false;
+    } else if (state == AppState::Warning) {
+        delivered_ = false;
+    } else if (state == AppState::Info) {
+        delivered_ = false;
+    } else if (state == AppState::Debug) {
         delivered_ = false;
     }
 }
@@ -114,16 +123,38 @@ AppState UsartTest::OnCycle(AppState state) {
         }
     } else if (state == AppState::Error) {
         if (not delivered_) {
-            char const* const literal = "Error, Will Rogers!\r\n";
-            auto span = core::SpanFrom(literal);
-            status = usart_driver_.Enqueue(span);
-            if (status.IsSuccess()) {
-                delivered_ = true;
-            }
+            console_.Print(Level::Error, "Error, Will Rogers!\r\n");
+            delivered_ = true;
+        }
+        if (countdown_.IsExpired()) {
+            state = AppState::Warning;
+        }
+    } else if (state == AppState::Warning) {
+        if (not delivered_) {
+            console_.Print(Level::Warning, "Warning, Will Rogers!\r\n");
+            delivered_ = true;
+        }
+        if (countdown_.IsExpired()) {
+            state = AppState::Info;
+        }
+    } else if (state == AppState::Info) {
+        if (not delivered_) {
+            console_.Print(Level::Info, "Info, Will Rogers!\r\n");
+            delivered_ = true;
+        }
+        if (countdown_.IsExpired()) {
+            state = AppState::Debug;
+        }
+    } else if (state == AppState::Debug) {
+        if (not delivered_) {
+            console_.Print(Level::Debug, "Debug, Will Rogers!\r\n");
+            delivered_ = true;
         }
         if (countdown_.IsExpired()) {
             state = AppState::Idle;
         }
+    } else {
+        jarnax::print("UsartTest: Unknown state %u\r\n", static_cast<std::uint8_t>(state));
     }
     return state;
 }
@@ -137,6 +168,12 @@ void UsartTest::OnExit(AppState state) {
     } else if (state == AppState::Speech) {
         countdown_.Reset();
     } else if (state == AppState::Error) {
+        countdown_.Reset();
+    } else if (state == AppState::Warning) {
+        countdown_.Reset();
+    } else if (state == AppState::Info) {
+        countdown_.Reset();
+    } else if (state == AppState::Debug) {
         countdown_.Reset();
     }
 }

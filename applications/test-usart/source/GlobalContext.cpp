@@ -22,6 +22,7 @@ public:
         result &= GetSuperLoop().Enlist(monitor_);
         result &= GetSuperLoop().Enlist(test_);
         result &= GetSuperLoop().Enlist(jarnax::GetDriverContext().GetCameraUsart());
+        result &= GetSuperLoop().Enlist(jarnax::GetDriverContext().GetConsole());
         if (result) {
             return core::Status{};
         } else {

@@ -12,6 +12,7 @@
 #include "jarnax/RandomNumberGenerator.hpp"
 #include "core/StateMachine.hpp"
 #include "core/Allocator.hpp"
+#include "jarnax/console/Service.hpp"
 
 using jarnax::Loopable;
 using jarnax::LoopInfo;
@@ -23,6 +24,9 @@ enum class AppState : std::uint8_t {
     Quote1,
     Speech,
     Error,
+    Warning,
+    Info,
+    Debug
 };
 
 class UsartTest final : public jarnax::Loopable, protected core::StateMachine<AppState>::Callback {
@@ -48,6 +52,8 @@ protected:
     jarnax::usart::Driver& usart_driver_;
     /// @brief The random number generator
     jarnax::RandomNumberGenerator& rng_;
+    /// @brief The console service
+    jarnax::console::Service& console_;
     /// @brief The number of milliseconds to wait before switching states
     core::units::MilliSeconds countdown_time_msec_;
     /// @brief The number of iotas to wait before switching states
