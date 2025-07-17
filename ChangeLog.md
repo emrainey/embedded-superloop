@@ -1,5 +1,15 @@
 # Versions
 
+## v0.2.0 Functional but basic system
+
+* DMA Manager/Resource & STM32 Driver
+* I2C Driver (IRQ only)
+* USART Driver (IRQ only)
+* SPI Driver (not fully tested)
+* Test apps
+* DriverContext -> BoardContext
+* Many other smaller changes
+
 ## v0.1.50 Milestone approaching
 
 * Added SuperLoop Cadence
