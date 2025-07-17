@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 
 
 project(embedded-superloop-jarnax
-        VERSION 0.1.50
+        VERSION 0.2.0
         LANGUAGES CXX ASM)
 
 option(BUILD_UNIT_TESTS "Build unit tests" ON)
