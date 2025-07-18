@@ -53,14 +53,20 @@ BoardContext::BoardContext()
     , spi1_mosi_{stm32::gpio::Port::B, 5}
     , spi1_miso_{stm32::gpio::Port::B, 4}
     , spi1_sclk_{stm32::gpio::Port::B, 3}
-    , flash_cs_{stm32::gpio::Port::B, 0}    // , nrf_cs_{stm32::gpio::Port::B, 7}
-                                            // , nrf_ce_{stm32::gpio::Port::B, 6}
-                                            // , nrf_irq_{stm32::gpio::Port::B, 8}
+    , flash_cs_{stm32::gpio::Port::B, 0}
+    , nrf_cs_{stm32::gpio::Port::B, 7}
+    , nrf_ce_{stm32::gpio::Port::B, 6}
+    , nrf_irq_{stm32::gpio::Port::B, 8}
+    , spi2_mosi_{stm32::gpio::Port::B, 15}
+    , spi2_miso_{stm32::gpio::Port::B, 14}
+    , spi2_sclk_{stm32::gpio::Port::B, 13}
+    , spi2_nss_{stm32::gpio::Port::B, 12}
     , dma_manager_{stm32::registers::direct_memory_access}
     , i2c1_scl_{stm32::gpio::Port::B, 8}
     , i2c1_sda_{stm32::gpio::Port::B, 9}
     , i2c1_driver_{stm32::registers::i2c1, dma_manager_, stm32::I2C1_RX, stm32::I2C1_TX}
     , spi1_driver_{stm32::registers::spi1, dma_manager_, stm32::SPI1_RX, stm32::SPI1_TX}
+    , spi2_driver_{stm32::registers::spi2, dma_manager_, stm32::SPI2_RX, stm32::SPI2_TX}
     , winbond_driver_{timer_, spi1_driver_, flash_cs_, GetDmaAllocator()}
     , usart1_tx_{stm32::gpio::Port::A, 9}
     , usart1_rx_{stm32::gpio::Port::A, 10}
@@ -125,15 +131,33 @@ core::Status BoardContext::Initialize(void) {
         .SetOutputType(stm32::gpio::OutputType::PushPull)
         .SetResistor(stm32::gpio::Resistor::None)
         .Value(true);    // CS is active low
-    // nrf_cs_.SetMode(stm32::gpio::Mode::Output)
-    //     .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
-    //     .SetOutputType(stm32::gpio::OutputType::PushPull)
-    //     .SetResistor(stm32::gpio::Resistor::None);
-    // nrf_ce_.SetMode(stm32::gpio::Mode::Output)
-    //     .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
-    //     .SetOutputType(stm32::gpio::OutputType::PushPull)
-    //     .SetResistor(stm32::gpio::Resistor::None);
-    // nrf_irq_.SetMode(stm32::gpio::Mode::Input).SetResistor(stm32::gpio::Resistor::PullUp);
+    nrf_cs_.SetMode(stm32::gpio::Mode::Output)
+        .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
+        .SetOutputType(stm32::gpio::OutputType::PushPull)
+        .SetResistor(stm32::gpio::Resistor::None)
+        .Value(true);
+    nrf_ce_.SetMode(stm32::gpio::Mode::Output)
+        .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
+        .SetOutputType(stm32::gpio::OutputType::PushPull)
+        .SetResistor(stm32::gpio::Resistor::None)
+        .Value(false);
+    nrf_irq_.SetMode(stm32::gpio::Mode::Input).SetResistor(stm32::gpio::Resistor::PullUp);
+    spi2_miso_.SetMode(stm32::gpio::Mode::AlternateFunction)
+        .SetAlternative(5)    // Alt 5 is SPI2
+        .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
+        .SetOutputType(stm32::gpio::OutputType::PushPull);
+    spi2_mosi_.SetMode(stm32::gpio::Mode::AlternateFunction)
+        .SetAlternative(5)    // Alt 5 is SPI2
+        .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
+        .SetOutputType(stm32::gpio::OutputType::PushPull);
+    spi2_sclk_.SetMode(stm32::gpio::Mode::AlternateFunction)
+        .SetAlternative(5)    // Alt 5 is SPI1
+        .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
+        .SetOutputType(stm32::gpio::OutputType::PushPull);
+    spi2_nss_.SetMode(stm32::gpio::Mode::AlternateFunction)
+        .SetAlternative(5)    // Alt 5 is SPI2
+        .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
+        .SetOutputType(stm32::gpio::OutputType::PushPull);
     usart1_tx_.SetMode(stm32::gpio::Mode::AlternateFunction)
         .SetAlternative(7)    // Alt 7 is USART1
         .SetOutputSpeed(stm32::gpio::Speed::High)
@@ -165,6 +189,7 @@ core::Status BoardContext::Initialize(void) {
     apb1_enable = stm32::registers::reset_and_clock_control.apb1_peripheral_clock_enable;    // read
     apb1_enable.bits.tim2en = 1U;                                                            // modify
     apb1_enable.bits.i2c1en = 1U;                                                            // modify
+    apb1_enable.bits.spi2en = 1U;                                                            // modify
     stm32::registers::reset_and_clock_control.apb1_peripheral_clock_enable = apb1_enable;    // write
 
     // enable the AHB1 peripherals in the Reset and Clock Control register
@@ -212,9 +237,16 @@ core::Status BoardContext::Initialize(void) {
         }
 
         // SPI1
-        status = spi1_driver_.Initialize(stm32::GetClockTree().apb2_peripheral, ::winbond::spi_clock_frequency);
+        status = spi1_driver_.Initialize(stm32::GetClockTree().apb2_peripheral, ::winbond::spi_bus_frequency);
         if (not status.IsSuccess()) {
             jarnax::print("SPI1 failed to initialize\r\n");
+            break;
+        }
+
+        // SPI2
+        status = spi2_driver_.Initialize(stm32::GetClockTree().apb1_peripheral, ::stm32::spi2_bus_frequency);
+        if (not status.IsSuccess()) {
+            jarnax::print("SPI2 failed to initialize\r\n");
             break;
         }
 
@@ -298,6 +330,10 @@ jarnax::spi::Driver& BoardContext::GetSpiDriver() {
     return spi1_driver_;
 }
 
+jarnax::spi::Driver& BoardContext::GetSpi2Driver() {
+    return spi2_driver_;
+}
+
 jarnax::usart::Driver& BoardContext::GetCameraUsart() {
     return usart1_driver_;
 }
@@ -331,7 +367,6 @@ namespace initialize {
 bool are_drivers_initialized{false};
 
 void drivers(void) {
-    using namespace stm32::registers;
     core::Status status;
     status = jarnax::GetBoardContext().Initialize();
     if (status) {

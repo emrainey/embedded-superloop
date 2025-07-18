@@ -28,9 +28,13 @@ void nvic(void) {
     cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::SerialPeripheralInterface1));
     cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::SerialPeripheralInterface1), 3);
 
+    // enable the SPI2 interrupt and the DMA interrupts for SPI2_RX and SPI2_TX
+    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::SerialPeripheralInterface2));
+    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::SerialPeripheralInterface2), 4);
+
     // enable the USART1 interrupt
     cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter1));
-    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter1), 4);
+    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter1), 5);
 }
 
 }    // namespace initialize

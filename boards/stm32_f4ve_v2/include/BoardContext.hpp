@@ -77,6 +77,9 @@ public:
     /// Returns the SPI Driver
     jarnax::spi::Driver& GetSpiDriver();
 
+    /// Returns the SPI Driver
+    jarnax::spi::Driver& GetSpi2Driver();
+
     /// Returns the debug USART Driver
     jarnax::usart::Driver& GetCameraUsart();
 
@@ -127,9 +130,20 @@ protected:
     stm32::gpio::Pin spi1_sclk_;
     /// The Flash Chip Select (CS)
     stm32::gpio::Pin flash_cs_;
-    // stm32::gpio::Pin nrf_cs_;
-    // stm32::gpio::Pin nrf_ce_;
-    // stm32::gpio::Pin nrf_irq_;
+    /// Near Field Chip Select
+    stm32::gpio::Pin nrf_cs_;
+    /// Near Field Chip Enable
+    stm32::gpio::Pin nrf_ce_;
+    /// Near Field Interrupt Line
+    stm32::gpio::Pin nrf_irq_;
+    /// The SPI1 Leader Out Follower In (SPI2_MOSI -> T_MOSI)
+    stm32::gpio::Pin spi2_mosi_;
+    /// The SPI1 Master In Slave Out (SPI2_MISO -> T_MISO)
+    stm32::gpio::Pin spi2_miso_;
+    /// The SPI1 Serial Clock (SPI2_SCLK -> T_SCK)
+    stm32::gpio::Pin spi2_sclk_;
+    /// The TFT Screen Chip Select (T_CS)
+    stm32::gpio::Pin spi2_nss_;
     /// The DMA Manager
     stm32::dma::Manager dma_manager_;
     /// The I2C Clock (SCL)
@@ -138,8 +152,10 @@ protected:
     stm32::gpio::Pin i2c1_sda_;
     /// The I2C Driver
     stm32::i2c::Driver i2c1_driver_;
-    /// The SPI Driver
+    /// The SPI1 Driver
     stm32::spi::Driver spi1_driver_;
+    /// The SPI2 Driver
+    stm32::spi::Driver spi2_driver_;
     /// The Winbond Driver
     jarnax::winbond::Driver winbond_driver_;
     /// USART1 Transmit Pin

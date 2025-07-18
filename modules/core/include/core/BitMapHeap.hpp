@@ -77,6 +77,7 @@ public:
         std::size_t used_blocks{0U};    ///< The number of used blocks
         std::size_t free_blocks{0U};    ///< The number of free blocks
         std::size_t waste_bytes{0U};    ///< The number of wasted bytes (overage from alignment or block size mismatches)
+        std::size_t zero_allocs{0U};    ///< The number of times a zero buffer size was allocated
         std::size_t count{0U};          ///< The number of allocations
     };
 
@@ -85,6 +86,7 @@ public:
     Statistics const& GetStatistics() { return stats_; }
 
     void* allocate(std::size_t bytes, std::size_t alignment) override {
+        // if our underlying buffer is missing we're misconfigured
         if (buffer_ == nullptr or size_ == 0) {
             if (upstream_) {
                 return upstream_->allocate(bytes, alignment);
@@ -95,8 +97,9 @@ public:
         }
         if (bytes == 0 or alignment == 0 or alignment > MaxAlignment) {
             GetPrinter()(
-                "FATAL: [%p] Invalid allocation request of %zu bytes with alignment %zu\r\n", reinterpret_cast<void*>(this), bytes, alignment
+                "WARNING: [%p] Invalid allocation request of %zu bytes with alignment %zu\r\n", reinterpret_cast<void*>(this), bytes, alignment
             );
+            stats_.zero_allocs++;
             return nullptr;
         }
         std::size_t blocks = bytes_to_blocks(bytes, alignment);

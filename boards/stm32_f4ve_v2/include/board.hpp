@@ -32,7 +32,7 @@ namespace debug {
 constexpr static bool i2c{true};
 constexpr static bool i2c_isr{false};
 constexpr static bool spi{true};
-constexpr static bool spi_isr{false};
+constexpr static bool spi_isr{true};
 constexpr static bool usart{true};
 constexpr static bool usart_isr{false};
 constexpr static bool dma{true};
@@ -55,7 +55,7 @@ using namespace core::units;
 /// The HSE value for this board.
 constexpr static Hertz high_speed_external_oscillator_frequency = 8_MHz;
 /// The LSE value for this board.
-constexpr static Hertz low_speed_external_oscillator_frequency{32768U};    // 32KiHz
+constexpr static Hertz low_speed_external_oscillator_frequency{32768U};    // 32_KiHz
 /// @brief The desired frequency of the Timer2 counter
 constexpr static Hertz timer2_frequency = 12_MHz;
 /// Number of bytes per DMA block for the Drivers
@@ -67,13 +67,16 @@ constexpr static size_t DmaBlockCount{32U};
 constexpr static std::uint32_t usart1_baud_rate = 230400U;
 /// The Bus Rate for the I2C1
 constexpr static core::units::Hertz i2c1_bus_frequency = 400_KHz;
-
+/// The SPI2 External Frequency
+constexpr static core::units::Hertz spi2_bus_frequency = 6_MHz;    // should get the /8
 /// The UxART TX DMA Buffer Size
 constexpr static std::uint32_t usart_tx_dma_buffer_size = 128U;
 /// The UxART RX DMA Buffer Size
 constexpr static std::uint32_t usart_rx_dma_buffer_size = 128U;
 /// The I2C DMA Buffer Size
 constexpr static std::uint32_t i2c_dma_buffer_size = 256U;
+/// The SPI2 DMA Buffer Size
+constexpr static std::uint32_t spi2_dma_buffer_size = 256U;
 /// The USART TX DMA Switch
 constexpr static bool use_dma_for_usart_tx{false};
 /// The USART RX DMA Switch
@@ -108,7 +111,7 @@ using core::units::operator""_MHz;
 /// The size of the flash chip in bytes
 constexpr static std::size_t flash_size = 16_MiB;
 /// @brief The maximum clock frequency of the SPI bus for Read Operations on the Flash W25Q16JV
-constexpr static core::units::Hertz spi_clock_frequency{21_MHz};
+constexpr static core::units::Hertz spi_bus_frequency{21_MHz};
 }    // namespace winbond
 
 #endif    // BOARD_HPP_

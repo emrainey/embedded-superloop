@@ -137,9 +137,9 @@ core::Status Driver::Initialize(core::units::Hertz peripheral_frequency, core::u
     control2.bits.frame_format = 0;              // motorola SPI format
     spi_.control2 = control2;                    // write
 
-    stm32::registers::SerialPeripheralInterface::InterIntegratedCircuitSoundConfiguration i2c_cfg = spi_.i2s_configuration;    // read
-    i2c_cfg.bits.i2smod = 0;                                                                                                   // disable the I2S
-    spi_.i2s_configuration = i2c_cfg;                                                                                          // write
+    stm32::registers::SerialPeripheralInterface::InterIntegratedCircuitSoundConfiguration i2s_cfg = spi_.i2s_configuration;    // read
+    i2s_cfg.bits.i2smod = 0;                                                                                                   // disable the I2S
+    spi_.i2s_configuration = i2s_cfg;                                                                                          // write
 
     control1 = spi_.control1;        // read
     control1.bits.spi_enable = 0;    // modify
@@ -300,7 +300,7 @@ core::Status Driver::Check(jarnax::spi::Transaction& transaction) {
         }
         complete = false;
     }
-    if constexpr (jarnax::debug::spi) {
+    if constexpr (false and jarnax::debug::spi) {
         registers::SerialPeripheralInterface::Status status_reg = spi_.status;    // read
         jarnax::print(
             "SPI Status u:%u o:%u tbe:%u rbne:%u crce:%u mf:%u b:%u\n",

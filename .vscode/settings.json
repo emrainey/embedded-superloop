@@ -125,15 +125,15 @@
     "cSpell.dictionaryDefinitions": [
         {
             "name": "thumb2-mnemonics",
-            "path": "documentation/thumb2-mnemonics.txt"
+            "path": "${workspaceFolder}/documentation/thumb2-mnemonics.txt"
         },
         {
             "name": "cortex-m-registers",
-            "path": "documentation/cortex-m-registers.txt"
+            "path": "${workspaceFolder}/documentation/cortex-m-registers.txt"
         },
         {
             "name": "vocabulary",
-            "path": "documentation/vocabulary.txt"
+            "path": "${workspaceFolder}/documentation/vocabulary.txt"
         }
     ],
     "cSpell.dictionaries": [
