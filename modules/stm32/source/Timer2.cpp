@@ -48,7 +48,7 @@ core::Status Timer::Initialize(core::units::Hertz internal_clock, core::units::H
     // set the prescaler for a MicroSecond clock
     std::uint32_t prescalar = (internal_clock.value() / desired_timer_frequency.value()) - 1U;
     timer_.prescalar = prescalar;
-    timer_.auto_reload = 0xFF'FF'FF'FFU;    // it's disabled, but we set it to the maximum value
+    timer_.auto_reload = timer2_reload_value;
     jarnax::print(
         "Timer::Initialize: CLK: %lu Hz, Desired: %lu Hz => Prescalar is %lu. Auto Reload is %lu\r\n",
         static_cast<unsigned long>(internal_clock.value()),
@@ -65,7 +65,7 @@ core::Status Timer::Initialize(core::units::Hertz internal_clock, core::units::H
 
     stm32::registers::Timer2::DmaInterruptEnable dma_interrupt;
     dma_interrupt = timer_.dma_interrupt;    // read
-    dma_interrupt.bits.update = 0U;          // disable
+    dma_interrupt.bits.update = 1U;          // enable
     timer_.dma_interrupt = dma_interrupt;    // write
 
     // stop the timer while we're in debug mode
@@ -94,7 +94,12 @@ core::units::Iota Timer::GetIotas(void) const {
         // read the low order bits
         low_order_bits = timer_.counter.whole;
     } while (high_order_bits != timer2_high_order_bits);
-    std::uint64_t value = std::uint64_t(high_order_bits) << 32U | std::uint64_t(low_order_bits);
+    std::uint64_t value = 0UL;
+    if (timer2_reload_value == 0xFF'FF'FF'FFU) {
+        value = std::uint64_t(high_order_bits) << 32U | std::uint64_t(low_order_bits);
+    } else {
+        value = (std::uint64_t(high_order_bits) * std::uint64_t(timer2_reload_value)) + std::uint64_t(low_order_bits);
+    }
     return core::units::Iota{value};
 }
 

@@ -58,6 +58,8 @@ constexpr static Hertz high_speed_external_oscillator_frequency = 8_MHz;
 constexpr static Hertz low_speed_external_oscillator_frequency{32768U};    // 32_KiHz
 /// @brief The desired frequency of the Timer2 counter
 constexpr static Hertz timer2_frequency = 12_MHz;
+/// The Timer2 Reload value
+constexpr static std::uint32_t timer2_reload_value = 12'000'000U;    // 1 second
 /// Number of bytes per DMA block for the Drivers
 constexpr static size_t DmaBlockSize{64U};
 /// Number of DMA blocks for the Drivers

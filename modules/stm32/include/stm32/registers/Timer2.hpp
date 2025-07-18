@@ -1,6 +1,6 @@
 
-#ifndef STM32_REGISTERS_Timer2__HPP_
-#define STM32_REGISTERS_Timer2__HPP_
+#ifndef STM32_REGISTERS_TIMER2_HPP_
+#define STM32_REGISTERS_TIMER2_HPP_
 
 /// @file
 /// Auto Generated Structure Definitions for Timer2 from the Peripheralyzer.
@@ -41,23 +41,23 @@ struct Timer2 final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Counter enable (CEN)
-            uint32_t enable  : 1;    // bit 0
+            uint32_t enable                     : 1;    // bit 0
             /// Update disable (UDIS)
-            uint32_t update_disable : 1;    // bit 1
+            uint32_t update_disable             : 1;    // bit 1
             /// Update request source (URS)
-            uint32_t update_request_source  : 1;    // bit 2
+            uint32_t update_request_source      : 1;    // bit 2
             /// One-pulse mode (OPM)
-            uint32_t one_pulse_mode  : 1;    // bit 3
+            uint32_t one_pulse_mode             : 1;    // bit 3
             /// Direction (DIR)
-            uint32_t direction  : 1;    // bit 4
+            uint32_t direction                  : 1;    // bit 4
             /// Center-aligned mode selection (CMS)
-            uint32_t center_aligned_mode  : 2;    // bits 5:6
+            uint32_t center_aligned_mode        : 2;    // bits 5:6
             /// Auto-reload preload enable (ARPE)
             uint32_t auto_reload_preload_enable : 1;    // bit 7
             /// Clock division (CKD)
-            uint32_t clock_division  : 2;    // bits 8:9
+            uint32_t clock_division             : 2;    // bits 8:9
             /// (reserved)
-            uint32_t      : 22;    // bits 10:31
+            uint32_t                            : 22;    // bits 10:31
         };
         //+=MEMORY======================================+
         union {
@@ -179,23 +179,23 @@ struct Timer2 final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Slave mode selection (SMS)
-            uint32_t follower_mode_selection  : 3;    // bits 0:2
+            uint32_t follower_mode_selection    : 3;    // bits 0:2
             /// (reserved)
-            uint32_t      : 1;    // bit 3
+            uint32_t                            : 1;    // bit 3
             /// Trigger selection (TS)
-            uint32_t trigger_selection   : 3;    // bits 4:6
+            uint32_t trigger_selection          : 3;    // bits 4:6
             /// Master/Slave mode (MSM)
-            uint32_t leader_mode_selection  : 1;    // bit 7
+            uint32_t leader_mode_selection      : 1;    // bit 7
             /// External trigger filter (ETF)
-            uint32_t external_trigger_filter  : 4;    // bits 8:11
+            uint32_t external_trigger_filter    : 4;    // bits 8:11
             /// External trigger prescaler (ETPS)
             uint32_t external_trigger_prescaler : 2;    // bits 12:13
             /// External clock enable (ECE)
-            uint32_t external_clock_enable  : 1;    // bit 14
+            uint32_t external_clock_enable      : 1;    // bit 14
             /// External trigger polarity (ETP)
             uint32_t external_trigger_polarity  : 1;    // bit 15
             /// (reserved)
-            uint32_t      : 16;    // bits 16:31
+            uint32_t                            : 16;    // bits 16:31
         };
         //+=MEMORY======================================+
         union {
@@ -252,37 +252,37 @@ struct Timer2 final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Update interrupt enable (UIE)
-            uint32_t update   : 1;    // bit 0
+            uint32_t update  : 1;    // bit 0
             /// Capture/Compare 1 interrupt enable (CC1IE)
-            uint32_t cc1ie : 1;    // bit 1
+            uint32_t cc1ie   : 1;    // bit 1
             /// Capture/Compare 2 interrupt enable (CC2IE)
-            uint32_t cc2ie : 1;    // bit 2
+            uint32_t cc2ie   : 1;    // bit 2
             /// Capture/Compare 3 interrupt enable (CC3IE)
-            uint32_t cc3ie : 1;    // bit 3
+            uint32_t cc3ie   : 1;    // bit 3
             /// Capture/Compare 4 interrupt enable (CC4IE)
-            uint32_t cc4ie : 1;    // bit 4
+            uint32_t cc4ie   : 1;    // bit 4
             /// (reserved)
-            uint32_t       : 1;    // bit 5
+            uint32_t         : 1;    // bit 5
             /// Trigger interrupt enable (TIE)
             uint32_t trigger : 1;    // bit 6
             /// (reserved)
-            uint32_t       : 1;    // bit 7
+            uint32_t         : 1;    // bit 7
             /// Update DMA request enable (UDE)
-            uint32_t ude   : 1;    // bit 8
+            uint32_t ude     : 1;    // bit 8
             /// Capture/Compare 1 DMA request enable (CC1DE)
-            uint32_t cc1de : 1;    // bit 9
+            uint32_t cc1de   : 1;    // bit 9
             /// Capture/Compare 2 DMA request enable (CC2DE)
-            uint32_t cc2de : 1;    // bit 10
+            uint32_t cc2de   : 1;    // bit 10
             /// Capture/Compare 3 DMA request enable (CC3DE)
-            uint32_t cc3de : 1;    // bit 11
+            uint32_t cc3de   : 1;    // bit 11
             /// Capture/Compare 4 DMA request enable (CC4DE)
-            uint32_t cc4de : 1;    // bit 12
+            uint32_t cc4de   : 1;    // bit 12
             /// (reserved)
-            uint32_t       : 1;    // bit 13
+            uint32_t         : 1;    // bit 13
             /// Trigger DMA request enable (TDE)
-            uint32_t tde   : 1;    // bit 14
+            uint32_t tde     : 1;    // bit 14
             /// (reserved)
-            uint32_t       : 17;    // bits 15:31
+            uint32_t         : 17;    // bits 15:31
         };
         //+=MEMORY======================================+
         union {
@@ -339,31 +339,31 @@ struct Timer2 final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Update interrupt flag (UIF)
-            uint32_t update_interrupt   : 1;    // bit 0
+            uint32_t update_interrupt : 1;    // bit 0
             /// Capture/compare 1 interrupt flag (CC1IF)
-            uint32_t cc1if : 1;    // bit 1
+            uint32_t cc1if            : 1;    // bit 1
             /// Capture/Compare 2 interrupt flag (CC2IF)
-            uint32_t cc2if : 1;    // bit 2
+            uint32_t cc2if            : 1;    // bit 2
             /// Capture/Compare 3 interrupt flag (CC3IF)
-            uint32_t cc3if : 1;    // bit 3
+            uint32_t cc3if            : 1;    // bit 3
             /// Capture/Compare 4 interrupt flag (CC4IF)
-            uint32_t cc4if : 1;    // bit 4
+            uint32_t cc4if            : 1;    // bit 4
             /// (reserved)
-            uint32_t       : 1;    // bit 5
+            uint32_t                  : 1;    // bit 5
             /// Trigger interrupt flag (TIF)
-            uint32_t tif   : 1;    // bit 6
+            uint32_t tif              : 1;    // bit 6
             /// (reserved)
-            uint32_t       : 2;    // bits 7:8
+            uint32_t                  : 2;    // bits 7:8
             /// Capture/Compare 1 overcapture flag (CC1OF)
-            uint32_t cc1of : 1;    // bit 9
+            uint32_t cc1of            : 1;    // bit 9
             /// Capture/compare 2 overcapture flag (CC2OF)
-            uint32_t cc2of : 1;    // bit 10
+            uint32_t cc2of            : 1;    // bit 10
             /// Capture/Compare 3 overcapture flag (CC3OF)
-            uint32_t cc3of : 1;    // bit 11
+            uint32_t cc3of            : 1;    // bit 11
             /// Capture/Compare 4 overcapture flag (CC4OF)
-            uint32_t cc4of : 1;    // bit 12
+            uint32_t cc4of            : 1;    // bit 12
             /// (reserved)
-            uint32_t       : 19;    // bits 13:31
+            uint32_t                  : 19;    // bits 13:31
         };
         //+=MEMORY======================================+
         union {
@@ -420,21 +420,21 @@ struct Timer2 final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Update generation (UG)
-            uint32_t update_generation   : 1;    // bit 0
+            uint32_t update_generation  : 1;    // bit 0
             /// Capture/compare 1 generation (CC1G)
-            uint32_t cc1g : 1;    // bit 1
+            uint32_t cc1g               : 1;    // bit 1
             /// Capture/compare 2 generation (CC2G)
-            uint32_t cc2g : 1;    // bit 2
+            uint32_t cc2g               : 1;    // bit 2
             /// Capture/compare 3 generation (CC3G)
-            uint32_t cc3g : 1;    // bit 3
+            uint32_t cc3g               : 1;    // bit 3
             /// Capture/compare 4 generation (CC4G)
-            uint32_t cc4g : 1;    // bit 4
+            uint32_t cc4g               : 1;    // bit 4
             /// (reserved)
-            uint32_t      : 1;    // bit 5
+            uint32_t                    : 1;    // bit 5
             /// Trigger generation (TG)
-            uint32_t trigger_generation   : 1;    // bit 6
+            uint32_t trigger_generation : 1;    // bit 6
             /// (reserved)
-            uint32_t      : 25;    // bits 7:31
+            uint32_t                    : 25;    // bits 7:31
         };
         //+=MEMORY======================================+
         union {
@@ -1651,4 +1651,4 @@ extern Timer2 volatile timer2;
 }    // namespace registers
 }    // namespace stm32
 
-#endif    // STM32_REGISTERS_Timer2__HPP_
+#endif    // STM32_REGISTERS_TIMER2_HPP_

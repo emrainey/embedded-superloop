@@ -27,6 +27,7 @@ void OnProjectLoad(void) {
     Break.SetOnSrc("jarnax::initialize::on_entry");
     Break.SetOnSrc("jarnax::main");
     Window.Add("Watched Data 1", "ticks_since_boot");
+    Window.Add("Watched Data 1", "timer2_high_order_bits");
     Window.Add("Watched Data 1", "vector_table_statistics");
     Window.Add("Watched Data 1", "external_interrupt_statistics");
     Window.Add("Watched Data 1", "dma_heap_allocator");
@@ -35,6 +36,7 @@ void OnProjectLoad(void) {
     Window.Add("Watched Data 1", "spi_statistics");
     Window.Add("Watched Data 1", "usart_statistics");
     Edit.RefreshRate("ticks_since_boot", FREQ_1_HZ);
+    Edit.RefreshRate("timer2_high_order_bits", FREQ_1_HZ);
     Edit.RefreshRate("vector_table_statistics", FREQ_1_HZ);
     Edit.RefreshRate("external_interrupt_statistics", FREQ_1_HZ);
     Edit.RefreshRate("dma_heap_allocator", FREQ_1_HZ);

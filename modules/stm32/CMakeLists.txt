@@ -16,7 +16,7 @@ add_module(NAME stm32
         ${CMAKE_CURRENT_SOURCE_DIR}/source/spi/Driver.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/uart/Driver.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/usart/Driver.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/Timer.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/Timer2.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/backup.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
