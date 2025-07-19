@@ -33,10 +33,13 @@ public:
     core::Status Cancel(jarnax::spi::Transaction& transaction) override;
 
     struct Statistics {
-        uint32_t underrun{0U};      ///< The number of underrun errors
-        uint32_t overrun{0U};       ///< The number of overrun errors
-        uint32_t crc_error{0U};     ///< The number of CRC errors
-        uint32_t mode_fault{0U};    ///< The number of mode faults
+        std::size_t interrupts{0U};                  ///< The number of interrupts handled
+        std::size_t underrun{0U};                    ///< The number of underrun errors
+        std::size_t overrun{0U};                     ///< The number of overrun errors
+        std::size_t crc_error{0U};                   ///< The number of CRC errors
+        std::size_t mode_fault{0U};                  ///< The number of mode faults
+        std::size_t transmit_buffer_empty{0U};       ///< The number of times the transmit buffer was empty
+        std::size_t receive_buffer_not_empty{0U};    ///< The number of times the
 
         uint32_t bytes_received{0U};       ///< The number of bytes received
         uint32_t bytes_transmitted{0U};    ///< The number of bytes transmitted

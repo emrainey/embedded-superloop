@@ -93,7 +93,7 @@ public:
         }
         crc_polynomial = 0x7U;    // default CRC-7
         use_hardware_crc = false;
-        use_data_as_bytes = false;
+        use_data_as_bytes = (sizeof(DataUnit) == sizeof(uint8_t));
         buffer.Release();
         send_size = 0U;
         sent_size = 0U;

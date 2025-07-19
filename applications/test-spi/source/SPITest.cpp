@@ -33,10 +33,12 @@ core::Status SPITest::TransactionCycle(std::uint8_t address) {
         spi_transaction_.chip_select = nullptr;    // use the NSS from the hardware
         spi_transaction_.crc_polynomial = 0;
         spi_transaction_.use_data_as_bytes = true;
-        spi_transaction_.send_size = 1U;
-        spi_transaction_.receive_size = 1U;
+        spi_transaction_.send_size = 2U;
+        spi_transaction_.receive_offset = spi_transaction_.send_size;
+        spi_transaction_.receive_size = 2U;
         auto span = spi_buffer_.as_span();
-        span[0] = address;    // command to turn on the display
+        memory::fill(span.data(), 0xFF, span.count());    // fill with 0xFF for now
+        span[0] = address;                                // the address of the register to read from?
         assertion(not spi_buffer_.IsEmpty());
         spi_transaction_.buffer = std::move(spi_buffer_);
         // tell it that we've initialized the transaction, now it can be queued
