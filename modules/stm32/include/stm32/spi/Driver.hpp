@@ -33,7 +33,8 @@ public:
     core::Status Cancel(jarnax::spi::Transaction& transaction) override;
 
     struct Statistics {
-        std::size_t interrupts{0U};                  ///< The number of interrupts handled
+        std::size_t interrupts{0U};    ///< The number of interrupts handled
+
         std::size_t underrun{0U};                    ///< The number of underrun errors
         std::size_t overrun{0U};                     ///< The number of overrun errors
         std::size_t crc_error{0U};                   ///< The number of CRC errors
@@ -41,13 +42,30 @@ public:
         std::size_t transmit_buffer_empty{0U};       ///< The number of times the transmit buffer was empty
         std::size_t receive_buffer_not_empty{0U};    ///< The number of times the
 
-        uint32_t bytes_received{0U};       ///< The number of bytes received
-        uint32_t bytes_transmitted{0U};    ///< The number of bytes transmitted
+        std::size_t bytes_received{0U};       ///< The number of bytes received
+        std::size_t bytes_transmitted{0U};    ///< The number of bytes transmitted
+
+        std::size_t transfers_received{0U};    ///< The number of TX transfers completed
+        std::size_t transfers_sent{0U};        ///< The number of RX transfers completed
     };
 
     inline Statistics const& GetStatistics(void) const { return statistics_; }
 
 protected:
+    /// @brief Enables the SPI peripheral which allows transactions to be started.
+    void Enable(void);
+
+    /// @brief Selects the external chip for the transaction.
+    /// @param transaction The SPI transaction to select the chip for.
+    void Select(jarnax::spi::Transaction& transaction);
+
+    /// @brief Deselects the external chip for the transaction.
+    /// @param transaction The SPI transaction to deselect the chip for.
+    void Deselect(jarnax::spi::Transaction& transaction);
+
+    /// @brief Disables the SPI peripheral which stops any ongoing transactions.
+    void Disable(void);
+
     /// The statistics for the SPI peripheral
     Statistics statistics_;
     /// @brief The Serial Peripheral Interface registers for this driver

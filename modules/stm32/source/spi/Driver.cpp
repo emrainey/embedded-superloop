@@ -1,5 +1,6 @@
 #include "board.hpp"
 #include "jarnax/print.hpp"
+#include "jarnax/Assertion.hpp"
 #include "stm32/spi/Driver.hpp"
 #include "stm32/registers/ResetAndClockControl.hpp"
 
@@ -179,16 +180,24 @@ core::Status Driver::Start(jarnax::spi::Transaction& transaction) {
     registers::SerialPeripheralInterface::Control1 control1;
     registers::SerialPeripheralInterface::Control2 control2;
 
-    control1 = spi_.control1;        // read
-    control1.bits.spi_enable = 0;    // modify
-    spi_.control1 = control1;        // write
+    Disable();    // start disabled
+
     //=========================================
     // configure the transaction
+    control1 = spi_.control1;    // read
     control1.bits.data_frame_format = (transaction.use_data_as_bytes) ? 0 : 1;
-    control1.bits.crc_enable = (transaction.use_hardware_crc) ? 1 : 0;
+    control1.bits.crc_enable = 0;    // TODO not supported yet (transaction.use_hardware_crc) ? 1 : 0;
     control1.bits.clock_polarity = (transaction.polarity == jarnax::spi::ClockPolarity::IdleHigh) ? 1 : 0;
     control1.bits.clock_phase = (transaction.phase == jarnax::spi::ClockPhase::FirstAfterEdge) ? 1 : 0;
     spi_.control1 = control1;    // write
+    //=========================================
+    transaction_ = &transaction;    // assign the transaction to the driver
+    //=========================================
+    Select(transaction);
+    //=========================================
+    // assertion(spi_.status.bits.transmit_buffer_empty == 1);
+    //=========================================
+    Enable();
     //=========================================
     control2 = spi_.control2;                    // read
     control2.bits.error_interrupt_enable = 1;    // interrupt on errors
@@ -217,19 +226,20 @@ core::Status Driver::Start(jarnax::spi::Transaction& transaction) {
     }
     spi_.control2 = control2;    // write
     //=========================================
-    transaction_ = &transaction;    // assign the transaction to the driver
-    //=========================================
-    // enable the peripheral
-    if (transaction.chip_select != nullptr) {
-        transaction.chip_select->Value(false);    // active low chip select
-    } else {
-        control1.bits.internal_follower_select = 0;    // enable the internal follower select
-    }
-    //=========================================
-    // enable the peripheral to start a transaction
-    control1.bits.spi_enable = 1;
-    spi_.control1 = control1;    // write
-    // the interrupts should start here
+    // if constexpr (not stm32::use_dma_for_spi) {
+    //     if (transaction.receive_size > 0U) {
+    //         // enable the receive buffer not empty interrupt
+    //         control2 = spi_.control2;    // read
+    //         control2.bits.receive_buffer_not_empty_interrupt_enable = 1;
+    //         spi_.control2 = control2;    // write
+    //     }
+    //     if (transaction.send_size > 0U) {
+    //         auto write_span = transaction.buffer.as_span().subspan(0, transaction.send_size);
+    //         spi_.data.bits.data = write_span[0];    // write the first byte to the data register
+    //         transaction.sent_size++;                // set the sent size to 1
+    //         statistics_.bytes_transmitted++;
+    //     }
+    // }    // the interrupts should start here
     //=========================================
     return core::Status{core::Result::Success, core::Cause::State};
 }
@@ -317,20 +327,47 @@ core::Status Driver::Check(jarnax::spi::Transaction& transaction) {
     }
 }    // namespace stm32
 
-core::Status Driver::Cancel(jarnax::spi::Transaction& transaction) {
+void Driver::Enable(void) {
+    // enable the peripheral
+    registers::SerialPeripheralInterface::Control1 control1;
+    control1 = spi_.control1;        // read
+    control1.bits.spi_enable = 1;    // modify
+    spi_.control1 = control1;        // write}
+}
+
+void Driver::Select(jarnax::spi::Transaction& transaction) {
+    if (transaction.chip_select != nullptr) {
+        transaction.chip_select->Value(false);    // active low chip select
+    } else {
+        registers::SerialPeripheralInterface::Control1 control1;
+        control1 = spi_.control1;                      // read
+        control1.bits.internal_follower_select = 0;    // enable the internal follower select
+        spi_.control1 = control1;                      // write
+    }
+}
+
+void Driver::Deselect(jarnax::spi::Transaction& transaction) {
+    if (transaction.chip_select != nullptr) {
+        transaction.chip_select->Value(true);    // active low chip select
+    } else {
+        registers::SerialPeripheralInterface::Control1 control1;
+        control1 = spi_.control1;                      // read
+        control1.bits.internal_follower_select = 1;    // disable the internal follower select
+        spi_.control1 = control1;                      // write
+    }
+}
+
+void Driver::Disable(void) {
     // disable the peripheral
     registers::SerialPeripheralInterface::Control1 control1;
     control1 = spi_.control1;        // read
     control1.bits.spi_enable = 0;    // modify
     spi_.control1 = control1;        // write
+}
 
-    if (transaction.chip_select != nullptr) {
-        transaction.chip_select->Value(true);    // active low chip select
-    } else {
-        control1.bits.internal_follower_select = 1;    // disable the internal follower select
-        spi_.control1 = control1;                      // write
-    }
-
+core::Status Driver::Cancel(jarnax::spi::Transaction& transaction) {
+    Disable();
+    Deselect(transaction);
     if constexpr (use_dma_for_spi) {
         // disable the streams
         tx_dma_resource_->Disable();
@@ -383,7 +420,7 @@ void Driver::HandleInterrupt(void) {
         statistics_.mode_fault++;
     }
 
-    if (status.bits.receive_buffer_not_empty) {
+    if (control2.bits.receive_buffer_not_empty_interrupt_enable and status.bits.receive_buffer_not_empty) {
         // reading from spi_.data will clear the RXNE flag
         statistics_.receive_buffer_not_empty++;
         if constexpr (not use_dma_for_spi) {
@@ -393,17 +430,19 @@ void Driver::HandleInterrupt(void) {
                 auto rx_span = transaction_->buffer.as_span().subspan(transaction_->receive_offset, transaction_->receive_size);
                 data = spi_.data;                                                                                      // read
                 rx_span[transaction_->received_size++] = static_cast<jarnax::spi::DataUnit>(data.bits.data & mask);    // write to buffer
+                jarnax::print("SPI Read %hx", data.bits.data);
                 statistics_.bytes_received++;
-            }
-            if (transaction_->received_size == transaction_->receive_size) {
-                control2 = spi_.control2;                                       // read
-                control2.bits.receive_buffer_not_empty_interrupt_enable = 0;    // disable RXNE interrupt
-                spi_.control2 = control2;                                       // write
+                if (transaction_->received_size == transaction_->receive_size) {
+                    control2 = spi_.control2;                                       // read
+                    control2.bits.receive_buffer_not_empty_interrupt_enable = 0;    // disable RXNE interrupt
+                    spi_.control2 = control2;                                       // write
+                    statistics_.transfers_received++;
+                }
             }
         }
     }
 
-    if (status.bits.transmit_buffer_empty) {
+    if (control2.bits.transmit_buffer_empty_interrupt_enable and status.bits.transmit_buffer_empty) {
         // writing into spi_.data will clear the TXE flag
         statistics_.transmit_buffer_empty++;
         if constexpr (not use_dma_for_spi) {
@@ -411,13 +450,25 @@ void Driver::HandleInterrupt(void) {
                 auto tx_span = transaction_->buffer.as_span().subspan(0, transaction_->send_size);
                 spi_.data.bits.data = tx_span[transaction_->sent_size++];    // write from the buffer to the register
                 statistics_.bytes_transmitted++;
-            }
-            if (transaction_->sent_size == transaction_->send_size) {
-                control2 = spi_.control2;                                    // read
-                control2.bits.transmit_buffer_empty_interrupt_enable = 0;    // disable TXE interrupt
-                spi_.control2 = control2;                                    // write
+            } else {
+                // we let this fire one more extra time so that we can disable the TXE interrupt and the transaction
+                if (transaction_->sent_size == transaction_->send_size) {
+                    control2 = spi_.control2;                                    // read
+                    control2.bits.transmit_buffer_empty_interrupt_enable = 0;    // disable TXE interrupt
+                    spi_.control2 = control2;                                    // write
+                    statistics_.transfers_sent++;
+                }
             }
         }
+    }
+
+    // if all the transactions are done, complete the transaction
+    if ((transaction_->sent_size == transaction_->send_size) and (transaction_->received_size == transaction_->receive_size)) {
+        Deselect(*transaction_);
+        Disable();
+        transaction_->Inform(jarnax::spi::Transaction::Event::Completed, core::Status{});    // inform the transaction that it is complete
+        // forget the pointer
+        transaction_ = nullptr;
     }
 }
 
