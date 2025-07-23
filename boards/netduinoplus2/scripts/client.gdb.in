@@ -1,0 +1,11 @@
+target remote localhost:2331
+file @LOCAL_TARGET_BINARY_PATH@
+load
+layout asm
+set print asm-demangle
+# set print frame-arguments all
+break jarnax::main
+
+monitor swo EnableTarget 0 0 0xFFFFFFFF 0
+monitor swo start 168000000 64000
+monitor reset

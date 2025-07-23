@@ -1,0 +1,77 @@
+void OnProjectLoad(void) {
+    //
+    // Dialog-generated settings
+    //
+    Project.ConfigSemihosting("ModeBKPT=2");
+    Debug.SetResetMode(RM_RESET_HALT);
+    Project.SetTraceSource("SWO");
+    Project.SetDevice("STM32F407VE");
+    Project.SetHostIF("USB", "");
+    // Project.SetHostIF("IP", "192.168.0.3");
+    Project.SetTargetIF("SWD");
+    Project.SetTIFSpeed("20 MHz");
+    Project.AddSvdFile("$(InstallDir)/Config/CPU/Cortex-M4F.svd");
+    Project.AddSvdFile("$(ProjectDir)/modules/stm32/scripts/STM32F405.svd");
+    File.Open("$(ProjectDir)/@LOCAL_TARGET_BINARY_PATH@");
+    //
+    // User settings
+    //
+    Edit.Preference(PREF_TIMESTAMP_FORMAT, TIMESTAMP_FORMAT_INST_CNT);
+    Edit.SysVar(VAR_RTT_ENABLED, 1);
+    Edit.SysVar(VAR_TARGET_POWER_ON, 1);
+    Edit.SysVar(VAR_STARTUP_COMPLETION_POINT, "jarnax::entry_after_stack");
+    Project.AddRTTSearchRange(0x20000000, 0x80000);
+    // Breaks on major milestones in boot
+    Break.SetOnSrc("reset_entry");
+    Break.SetOnSrc("jarnax::entry_after_stack");
+    Break.SetOnSrc("jarnax::initialize::on_entry");
+    Break.SetOnSrc("jarnax::main");
+    Window.Add("Watched Data 1", "ticks_since_boot");
+    Window.Add("Watched Data 1", "timer2_high_order_bits");
+    Window.Add("Watched Data 1", "vector_table_statistics");
+    Window.Add("Watched Data 1", "external_interrupt_statistics");
+    Window.Add("Watched Data 1", "dma_heap_allocator");
+    Window.Add("Watched Data 1", "default_allocator");
+    Window.Add("Watched Data 1", "i2c_statistics");
+    Window.Add("Watched Data 1", "spi_statistics");
+    Window.Add("Watched Data 1", "usart_statistics");
+    Edit.RefreshRate("ticks_since_boot", FREQ_1_HZ);
+    Edit.RefreshRate("timer2_high_order_bits", FREQ_1_HZ);
+    Edit.RefreshRate("vector_table_statistics", FREQ_1_HZ);
+    Edit.RefreshRate("external_interrupt_statistics", FREQ_1_HZ);
+    Edit.RefreshRate("dma_heap_allocator", FREQ_1_HZ);
+    Edit.RefreshRate("default_allocator", FREQ_1_HZ);
+    Edit.RefreshRate("i2c_statistics", FREQ_1_HZ);
+    Edit.RefreshRate("spi_statistics", FREQ_1_HZ);
+    Edit.RefreshRate("usart_statistics", FREQ_1_HZ);
+    // Catch all faults
+    Break.SetVectorCatch(0xFF);
+}
+
+void BeforeTargetReset(void) {
+    // Clear the PENDING interrupts and status if set
+    Target.WriteU32(0xE000ED24, 0x00000000);
+    Target.WriteU32(0xE000ED28, 0xFFFFFFFF);
+    Target.WriteU32(0xE000ED2C, 0xFFFFFFFF);
+    Target.WriteU32(0xE000ED34, 0x00000000);
+    Target.WriteU32(0xE000ED38, 0x00000000);
+}
+
+void AfterTargetReset(void) {
+    _SetupTarget();
+}
+
+void AfterTargetDownload(void) {
+    _SetupTarget();
+}
+
+void _SetupTarget(void) {
+    unsigned int SP;
+    unsigned int PC;
+    unsigned int VectorTableAddr;
+    VectorTableAddr = Elf.GetBaseAddr();
+    SP = Target.ReadU32(VectorTableAddr);
+    Target.SetReg("SP", SP);
+    PC = Elf.GetEntryPointPC();
+    Target.SetReg("PC", PC);
+}

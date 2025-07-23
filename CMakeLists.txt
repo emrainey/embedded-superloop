@@ -18,16 +18,15 @@ set(CMAKE_C_STANARD 17)
 
 add_custom_target(scrub
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}
-    COMMENT "Cleaning up build directories"
- )
+    COMMENT "Cleaning up build directories")
 
 # The following definitions control which subdirectories are included in the build, they don't define targets
 # The subdirectories are added in the order they are listed here
 list(APPEND LOCAL_MODULES memory core) # These don't depend on anything
 list(APPEND LOCAL_MODULES cortex stm32 segger jarnax native) # These depend on config and board
 list(APPEND LOCAL_APPLICATIONS unittests simple test-timers test-i2c test-ssd1306 test-usart test-spi)
-list(APPEND LOCAL_CONFIGURATIONS basic)
-list(APPEND LOCAL_BOARDS stm32_f4ve_v2)
+list(APPEND LOCAL_CONFIGURATIONS basic qemu)
+list(APPEND LOCAL_BOARDS stm32_f4ve_v2 netduinoplus2)
 
 add_subdirectory(external) # This is where we find Catch2, GoogleTest, etc.
 

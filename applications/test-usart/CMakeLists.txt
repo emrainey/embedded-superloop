@@ -7,7 +7,7 @@ add_firmware(NAME test-usart
     MODULES
         jarnax
     CONFIGURATIONS
-        ${LOCAL_CONFIGURATIONS}
+        basic
     BOARDS
-        ${LOCAL_BOARDS}
+        stm32_f4ve_v2
 )

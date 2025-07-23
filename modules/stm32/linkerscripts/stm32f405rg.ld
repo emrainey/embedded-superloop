@@ -3,7 +3,7 @@
  * @see https://ftp.gnu.org/old-gnu/Manuals/ld-2.9.1/html_mono/ld.html
  */
 
-FLASH_SIZE = 512K;
+FLASH_SIZE = 1024K;
 
 /* All 3 of these together are considered the available SRAM of 196K */
 CCM_SIZE = 64K;

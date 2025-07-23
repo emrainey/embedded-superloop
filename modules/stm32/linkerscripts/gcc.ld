@@ -67,7 +67,7 @@ SECTIONS {
         *(.data.*)
         . = ALIGN(4);
         __data_end = .;
-    } >REGION_DATA
+    } >REGION_DATA AT> REGION_TEXT
 
     /* The privileged memory section contains data which only Privileged mode should access.
      * It needs to be aligned to a larger power of 2, like 1K to support making an MPU region
@@ -77,7 +77,7 @@ SECTIONS {
         *(.privileged_data)
         . = ALIGN(1024);
         __privileged_data_end = .;
-    } >REGION_DATA
+    } >REGION_DATA AT> REGION_TEXT
     __privileged_data_size = SIZEOF(.privileged_data);
     __privileged_data_size_pow2 = LOG2CEIL(__privileged_data_size);
 

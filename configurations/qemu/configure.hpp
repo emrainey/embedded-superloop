@@ -43,7 +43,7 @@ constexpr static bool use_only_default_mpu_configuration{true};
 constexpr static std::uint32_t stack_watermark = 0x55AAAA55;
 
 /// Instructs the configuration to initialize the system clocks if they exist
-constexpr static bool initialize_system_clocks{true};
+constexpr static bool initialize_system_clocks{false};
 
 namespace address {
 /// The Code for the System runs in Flash

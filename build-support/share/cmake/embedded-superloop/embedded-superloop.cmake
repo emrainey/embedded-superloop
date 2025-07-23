@@ -418,7 +418,7 @@ function(add_firmware)
                 # add_dependencies(${ARG_NAME}.elf ${ARG_LINKERSCRIPT})
                 add_custom_target(disassembly-${LOCAL_TARGET} ALL DEPENDS ${ARG_DISASM})
                 # File the relative path from the build directory to the binary
-                file(RELATIVE_PATH LOCAL_TARGET_BINARY_PATH ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.elf)
+                file(RELATIVE_PATH LOCAL_TARGET_BINARY_PATH ${CMAKE_SOURCE_DIR} ${ARG_ELF})
                 # Generate a debug file for the Ozone debugger for this firmware
                 get_target_property(LOCAL_BOARD_OZONE ${LOCAL_BOARD} OZONE_TEMPLATE)
                 set(JDEBUG_FILE ${CMAKE_SOURCE_DIR}/${LOCAL_TARGET}.jdebug)
@@ -428,7 +428,7 @@ function(add_firmware)
                 configure_file(${LOCAL_BOARD_GDB_CLIENT} ${GDB_FILE} @ONLY)
                 add_custom_target(ozone-${LOCAL_TARGET}
                     COMMAND /Applications/SEGGER/Ozone/Ozone.app/Contents/MacOS/Ozone ${JDEBUG_FILE}
-                    DEPENDS ${JDEBUG_FILE} ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.elf)
+                    DEPENDS ${JDEBUG_FILE} ${ARG_ELF})
                 if (NOT TARGET gdb-server-${LOCAL_DEVICE})
                     message(STATUS "Adding gdb-server-${LOCAL_DEVICE}")
                     add_custom_target(gdb-server-${LOCAL_DEVICE}
@@ -437,8 +437,25 @@ function(add_firmware)
                     )
                 endif()
                 add_custom_target(gdb-client-${LOCAL_TARGET}
-                    COMMAND arm-none-eabi-gdb ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.elf -x ${GDB_FILE}
-                    DEPENDS ${GDB_FILE} ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.elf)
+                    COMMAND arm-none-eabi-gdb ${ARG_ELF} -x ${GDB_FILE}
+                    DEPENDS ${GDB_FILE} ${ARG_ELF})
+                list(APPEND REMOVE_SECTIONS)
+                set(ARG_BIN ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.bin)
+                add_custom_command(
+                    OUTPUT ${ARG_BIN}
+                    DEPENDS ${ARG_ELF}
+                    COMMAND ${CMAKE_OBJCOPY} -O binary ${ARG_ELF} ${REMOVE_SECTIONS} ${ARG_BIN}
+                    COMMENT "Creating Binary of ${LOCAL_TARGET}.elf"
+                )
+                add_custom_target(binary-${LOCAL_TARGET} ALL DEPENDS ${ARG_BIN})
+                set(ARG_HEX ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.hex)
+                add_custom_command(
+                    OUTPUT ${ARG_HEX}
+                    DEPENDS ${ARG_ELF}
+                    COMMAND ${CMAKE_OBJCOPY} -O ihex ${ARG_ELF} ${REMOVE_SECTIONS} ${ARG_HEX}
+                    COMMENT "Creating Hex of ${LOCAL_TARGET}.elf"
+                )
+                add_custom_target(hex-${LOCAL_TARGET} ALL DEPENDS ${ARG_HEX})
             else()
                 target_compile_definitions(${LOCAL_TARGET}.elf
                     PUBLIC

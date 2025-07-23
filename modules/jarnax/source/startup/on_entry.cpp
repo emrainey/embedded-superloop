@@ -23,8 +23,6 @@ void on_entry(void) {
     jarnax::configure();
     // let everyone know the configure step is done
     is_system_configured = true;    // @TODO determine this somehow
-    // now turn on interrupts (so we can check is configured in the exceptions)
-    thumb::interrupts::enable();
     // run the bist and collect a result *before* we drop privilege
     is_system_functional = cortex::bist(is_system_initialized, is_system_configured);
     // drop from elevated mode if configured
