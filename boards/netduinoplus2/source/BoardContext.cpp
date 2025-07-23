@@ -222,7 +222,7 @@ core::Status BoardContext::Initialize(void) {
         }
 
         // SPI1
-        status = spi1_driver_.Initialize(stm32::GetClockTree().apb2_peripheral, ::winbond::spi_bus_frequency);
+        status = spi1_driver_.Initialize(stm32::GetClockTree().apb2_peripheral, ::stm32::spi1_bus_frequency);
         if (not status.IsSuccess()) {
             jarnax::print("SPI1 failed to initialize\r\n");
             break;
@@ -258,6 +258,42 @@ core::Status BoardContext::Initialize(void) {
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // External Devices have to be done after the buses are initialized
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // Initialize the NVIC for these drivers
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    // 0 is the highest priority
+    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::Timer2), 1);
+    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::Timer2));
+
+    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream0));           // SPI1_RX
+    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream3));           // SPI1_TX
+    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream0), 2);    // SPI1_RX
+    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream3), 2);    // SPI1_TX
+
+    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream2));           // SPI2_RX
+    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream7));           // SPI2_TX
+    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream2), 2);    // SPI2_RX
+    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream7), 2);    // SPI2_TX
+
+    // enable the I2C1 event and error interrupts
+    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::InterIntegratedCircuit1_Event));
+    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::InterIntegratedCircuit1_Event), 3);
+    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::InterIntegratedCircuit1_Error));
+    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::InterIntegratedCircuit1_Error), 3);
+
+    // enable the SPI1 interrupt and the DMA interrupts for SPI1_RX and SPI1_TX
+    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::SerialPeripheralInterface1));
+    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::SerialPeripheralInterface1), 3);
+
+    // enable the SPI2 interrupt and the DMA interrupts for SPI2_RX and SPI2_TX
+    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::SerialPeripheralInterface2));
+    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::SerialPeripheralInterface2), 4);
+
+    // enable the USART1 interrupt
+    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter1));
+    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter1), 5);
 
     return status;
 }

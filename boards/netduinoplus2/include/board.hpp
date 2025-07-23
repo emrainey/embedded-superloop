@@ -29,13 +29,13 @@ constexpr static bool use_swo_for_printf = false;
 constexpr static bool use_uart_for_printf = false;
 constexpr static bool use_logger_for_printf = false;
 namespace debug {
-constexpr static bool i2c{true};
+constexpr static bool i2c{false};
 constexpr static bool i2c_isr{false};
 constexpr static bool spi{true};
-constexpr static bool spi_isr{true};
-constexpr static bool usart{true};
+constexpr static bool spi_isr{false};
+constexpr static bool usart{false};
 constexpr static bool usart_isr{false};
-constexpr static bool dma{true};
+constexpr static bool dma{false};
 constexpr static bool dma_isr{false};
 }    // namespace debug
 }    // namespace jarnax
@@ -53,7 +53,7 @@ constexpr static std::size_t baudrate{50'000U};
 namespace stm32 {    // Choices for STM32
 using namespace core::units;
 /// The HSE value for this board.
-constexpr static Hertz high_speed_external_oscillator_frequency = 8_MHz;
+constexpr static Hertz high_speed_external_oscillator_frequency = 25_MHz;
 /// The LSE value for this board.
 constexpr static Hertz low_speed_external_oscillator_frequency{32768U};    // 32_KiHz
 /// @brief The desired frequency of the Timer2 counter
@@ -66,9 +66,11 @@ constexpr static size_t DmaBlockSize{64U};
 constexpr static size_t DmaBlockCount{32U};
 
 /// The Baud Rate for the USART1
-constexpr static std::uint32_t usart1_baud_rate = 230400U;
+constexpr static std::uint32_t usart1_baud_rate = 115200U;
 /// The Bus Rate for the I2C1
 constexpr static core::units::Hertz i2c1_bus_frequency = 400_KHz;
+/// The SPI2 External Frequency
+constexpr static core::units::Hertz spi1_bus_frequency = 6_MHz;    // should get the /8
 /// The SPI2 External Frequency
 constexpr static core::units::Hertz spi2_bus_frequency = 6_MHz;    // should get the /8
 /// The UxART TX DMA Buffer Size
@@ -106,14 +108,5 @@ constexpr static std::uint32_t iota_per_second = stm32::timer2_frequency.value()
 
 // This depends on the board specific stated conversions above
 #include "core/Conversions.hpp"
-
-namespace winbond {
-using iso::operator""_MiB;
-using core::units::operator""_MHz;
-/// The size of the flash chip in bytes
-constexpr static std::size_t flash_size = 16_MiB;
-/// @brief The maximum clock frequency of the SPI bus for Read Operations on the Flash W25Q16JV
-constexpr static core::units::Hertz spi_bus_frequency{21_MHz};
-}    // namespace winbond
 
 #endif    // BOARD_HPP_

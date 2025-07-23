@@ -1,8 +1,8 @@
-#ifndef STM32_F4VE_V2_INCLUDE_BOARD_CONTEXT_HPP_
-#define STM32_F4VE_V2_INCLUDE_BOARD_CONTEXT_HPP_
+#ifndef NETDUINO_PLUS_2_INCLUDE_BOARD_CONTEXT_HPP_
+#define NETDUINO_PLUS_2_INCLUDE_BOARD_CONTEXT_HPP_
 
 /// @file
-/// The Board Context for the STM32 F4VE V2 Board
+/// The Board Context for the netduino+2 Board
 
 #include "board.hpp"
 
@@ -162,4 +162,4 @@ BoardContext& GetBoardContext();
 
 }    // namespace jarnax
 
-#endif    // STM32_F4VE_V2_INCLUDE_BOARD_CONTEXT_HPP_
+#endif    // NETDUINO_PLUS_2_INCLUDE_BOARD_CONTEXT_HPP_
