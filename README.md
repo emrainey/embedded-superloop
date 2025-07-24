@@ -130,6 +130,33 @@ $ cmake --workflow --preset unit-tests-clang"
 ./scripts/debug.sh client
 ```
 
+### Debug with QEMU
+
+The netduino+2 board can be run on qemu, however, ClockTree, I2C and DMA do not work.
+
+I'm using the arm cross-GDB, CGDB and QEMU from Homebrew.
+
+```bash
+qemu-system-arm -M netduinoplus2 -kernel build/cortex-gcc-arm-none-eabi/applications/unittests/ontarget-tests-stm32-qemu-netduinoplus2.bin -s -S
+```
+
+This starts the emulator then waits for the debugger to attach.
+
+```bash
+cgdb -d `which arm-none-eabi-gdb` build/cortex-gcc-arm-none-eabi/applications/unittests/ontarget-tests-stm32-qemu-netduinoplus2.elf
+```
+
+This will start GDB in Curses UI with the arm cross GDB as the backend.
+
+After it starts you have to use this to attach to the running qemu (this can be automated later with a -x script).
+
+```bash
+target remote localhost:1234
+# Now you should see the first instruction in the emulator!
+```
+
+The superloop on-target unit test now builds against a configuration for qemu which disables some things (ClockTree) which aren't implemented and cause hangs.
+
 ## Modules
 
 Components are separated into modules which are independent and require build support to interwork. This is done to prevent accidental inclusion in single `include/` folder systems for all components. After a dependency is formed in the build system, the appropriate include paths, defines, sources, etc. will be provided.

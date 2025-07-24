@@ -26,7 +26,7 @@
         {
             "name": "Cortex-Debug (JLink) On Target Tests",
             "cwd": "${workspaceRoot}",
-            "executable": "${workspaceFolder}/build/cortex-gcc-arm-none-eabi-13/applications/simple/ontarget-tests-stm32-basic-stm32_f4ve_v2.elf",
+            "executable": "${workspaceFolder}/build/cortex-gcc-arm-none-eabi/applications/simple/ontarget-tests-stm32-basic-stm32_f4ve_v2.elf",
             "request": "launch",
             "type": "cortex-debug",
             "servertype": "jlink",
@@ -88,7 +88,7 @@
                     "text": "-target-select remote localhost:50000"
                 },
                 {
-                    "text": "-file-exec-and-symbols build/cortex-gcc-arm-none-eabi-13/applications/simple/spi-demo-stm32-basic-stm32_f4ve_v2.elf"
+                    "text": "-file-exec-and-symbols build/cortex-gcc-arm-none-eabi/applications/simple/spi-demo-stm32-basic-stm32_f4ve_v2.elf"
                 },
                 {
                     "text": "-interpreter-exec console \"monitor halt\""
