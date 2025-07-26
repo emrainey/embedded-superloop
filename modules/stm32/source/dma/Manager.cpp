@@ -136,7 +136,8 @@ jarnax::dma::Resource* Manager::Assign(Peripheral const& peripheral) {
         for (size_t index = 0U; index < NumStreamsPerController; index++) {
             size_t number = GetNumber(controller, index);
             if (number == DedicatedMemoryStream) {
-                // this is dedicated to memory to memory transfers
+                // this is dedicated to memory to memory transfers, we
+                // won't hand it out with this interface
                 continue;
             }
             if (used_[number] == false) {
@@ -374,6 +375,17 @@ void Manager::HandleInterrupt(uint32_t controller, uint32_t stream) {
     }
 }
 
+
+stm32::registers::DirectMemoryAccess::Stream volatile* Manager::GetStreamFromNumber(size_t number) {
+    if (number < NumStreams) {
+        size_t controller{0u};
+        size_t stream{0u};
+        GetIndexes(number, controller, stream);
+        return &dma_[controller].streams[stream];
+    }
+    return nullptr;    // invalid stream number
+}
+
 core::Status Manager::Copy(
     std::uintptr_t destination,
     std::uintptr_t source,
@@ -388,7 +400,7 @@ core::Status Manager::Copy(
     if (resource) {
         using Direction = stm32::registers::DirectMemoryAccess::Stream::Configuration::DataTransferDirection;
         // ========================================
-        stm32::registers::DirectMemoryAccess::Stream volatile& stream = resource->GetUnderlying();
+        stm32::registers::DirectMemoryAccess::Stream volatile& stream = *GetStreamFromNumber(DedicatedMemoryStream);
         // ========================================
         stm32::registers::DirectMemoryAccess::Stream::FifoControl fifo_control = stream.fifo_control;            // read
         stm32::registers::DirectMemoryAccess::Stream::Configuration configuration = stream.configuration;        // read

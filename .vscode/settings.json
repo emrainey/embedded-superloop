@@ -205,12 +205,6 @@
     "clang.cflags": [
         "-std=c23",
     ],
-    "testMate.cpp.test.advancedExecutables": [
-        {
-            "pattern": "build/**/test-*",
-            "cwd": "${workspaceFolder}",
-        }
-    ],
     "cmake.allowCommentsInPresetsFile": true,
     "cmake.allowUnsupportedPresetsVersions": true,
     "cmake.buildEnvironment": {
@@ -220,6 +214,9 @@
         "--graphviz=embedded-superloop.dot"
     ],
     "cmake.deleteBuildDirOnCleanConfigure": true,
+    "cmake.format.allowOptionalArgumentIndentation": true,
     "C_Cpp.default.browse.databaseFilename": "${workspaceFolder}/build/browse.db",
-    "python.analysis.typeCheckingMode": "strict"
+    "python.analysis.typeCheckingMode": "strict",
+    "testMate.cpp.test.parallelExecutionLimit": 2,
+    "testMate.cpp.test.parallelExecutionOfExecutableLimit": 2
 }

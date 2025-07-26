@@ -149,7 +149,7 @@ public:
         std::size_t failed{0U};       ///< The transaction was unsuccessful.
     };
     /// @brief Returns a read-only view of the statistics
-    Statistics const& GetStatistics() const { return stats_; }
+    Statistics const& GetCoordinatorStatistics() const { return stats_; }
 
 protected:
     /// @brief The ring of transaction pointer which are the work queue

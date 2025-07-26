@@ -109,9 +109,16 @@ using Coordinator = jarnax::Coordinator<spi::Transaction, DefaultQueueDepth>;
 /// The SPI Driver Interface has a Transactor of SPI Transactions and is a Coordinator of the SPI Transactions
 class Driver : public Coordinator {
 public:
-    Driver(spi::Transactor& tr)
-        : Coordinator{tr} {}
+    Driver() = delete;
+    explicit Driver(jarnax::spi::Transactor& tr);
+
+    Driver(Driver const&) = delete;
+    Driver(Driver&&) = delete;
+    Driver& operator=(Driver const&) = delete;
+    Driver& operator=(Driver&&) = delete;
+    ~Driver() = default;
 };
+
 }    // namespace spi
 }    // namespace jarnax
 #endif    // JARNAX_SPI_DRIVER_HPP

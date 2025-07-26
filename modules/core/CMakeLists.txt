@@ -1,4 +1,3 @@
-
 # Generates a bunch of header files based on the UNIT_COMBOS list
 unset(UNIT_COMBOS)
 list(APPEND UNIT_COMBOS Volts:float:1)
@@ -15,7 +14,8 @@ list(APPEND UNIT_COMBOS MicroSeconds:uint64_t:1)
 list(APPEND UNIT_COMBOS Meters:float:1)
 list(APPEND UNIT_COMBOS SquareMeters:float:2)
 list(APPEND UNIT_COMBOS CubicMeters:float:3)
-foreach (combo IN LISTS UNIT_COMBOS)
+
+foreach(combo IN LISTS UNIT_COMBOS)
     string(REPLACE ":" ";" combo ${combo})
     list(GET combo 0 UNIT_NAME)
     list(GET combo 1 UNIT_STORAGE)
@@ -23,18 +23,19 @@ foreach (combo IN LISTS UNIT_COMBOS)
     set(_UNIT_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/generated/include/core/units/${UNIT_NAME}.hpp)
     message(STATUS "Generating ${_UNIT_HEADER}")
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Unit.in
-                   ${_UNIT_HEADER}
-                   @ONLY)
+        ${_UNIT_HEADER}
+        @ONLY)
     set(_UNIT_TEST_FILE ${CMAKE_CURRENT_SOURCE_DIR}/generated/tests/${UNIT_NAME}.cpp)
     message(STATUS "Generating ${_UNIT_TEST_FILE}")
-    if (${UNIT_STORAGE} STREQUAL "float")
+
+    if(${UNIT_STORAGE} STREQUAL "float")
         configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/UnitTest.float.in
-                       ${_UNIT_TEST_FILE}
-                       @ONLY)
+            ${_UNIT_TEST_FILE}
+            @ONLY)
     else()
         configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/UnitTest.unsigned.in
-                       ${_UNIT_TEST_FILE}
-                       @ONLY)
+            ${_UNIT_TEST_FILE}
+            @ONLY)
     endif()
 endforeach()
 
@@ -50,6 +51,7 @@ add_module(NAME core
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/generated/include # for generated headers like Units above
+        $<IF:$<BOOL:${BUILD_UNIT_TESTS}>,${CMAKE_CURRENT_SOURCE_DIR}/tests/include,>
     DEFINES
         DEFAULT_ALLOCATION_BLOCK_SIZE=32
         DEFAULT_ALLOCATION_BLOCK_COUNT=1024

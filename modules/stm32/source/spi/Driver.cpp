@@ -34,7 +34,7 @@ void spi3_isr(void) {
 namespace spi {
 Driver::Driver(
     stm32::registers::SerialPeripheralInterface volatile& spi,
-    dma::Manager& dma_driver,
+    jarnax::dma::Manager& dma_driver,
     jarnax::Peripheral rx_peripheral,
     jarnax::Peripheral tx_peripheral
 )
@@ -246,58 +246,40 @@ core::Status Driver::Start(jarnax::spi::Transaction& transaction) {
 
 core::Status Driver::Check(jarnax::spi::Transaction& transaction) {
     core::Status status;
-    dma::Manager::Flags flags;
-    bool fault{false};
-    bool complete{true};
+    bool tx_fault{false};
+    bool rx_fault{false};
+    // assume true then set false when not complete yet
+    bool tx_complete{true};
+    bool rx_complete{true};
     if (transaction.sent_size != transaction.send_size and transaction.send_size > 0U) {
         if constexpr (use_dma_for_spi) {
-            // check the RX stream
-            status = dma_manager_.GetStreamStatus(rx_dma_resource_->GetIdentifier(), flags);
-            if (status) {
-                if constexpr (jarnax::debug::spi) {
-                    jarnax::print(
-                        "SPI RX DMA[%u] flags: c:%u h:%u e:%u dme:%u fe:%u\n",
-                        rx_dma_resource_->GetIdentifier(),
-                        flags.complete,
-                        flags.half_complete,
-                        flags.error,
-                        flags.direct_mode_error,
-                        flags.fifo_error
-                    );
-                }
-                if (flags.complete) {
-                    transaction.received_size = transaction.receive_size;
-                } else if (flags.error or flags.direct_mode_error or flags.fifo_error) {
-                    fault = true;
-                }
+            // check the TX stream
+            status = tx_dma_resource_->GetStatus();
+            if (status.IsSuccess()) {
+                transaction.sent_size = transaction.send_size;
+            } else if (status.IsBusy()) {
+                // wait
+                tx_complete = false;
+            } else {
+                // failure
+                tx_fault = true;
             }
         }
-        complete = false;
     }
     if (transaction.received_size != transaction.receive_size and transaction.receive_size > 0U) {
         if constexpr (use_dma_for_spi) {
-            // check the TX stream
-            status = dma_manager_.GetStreamStatus(tx_dma_resource_->GetIdentifier(), flags);
-            if (status) {
-                if constexpr (jarnax::debug::spi) {
-                    jarnax::print(
-                        "SPI TX DMA[%u] flags: c:%u h:%u e:%u dme:%u fe:%u\n",
-                        tx_dma_resource_->GetIdentifier(),
-                        flags.complete,
-                        flags.half_complete,
-                        flags.error,
-                        flags.direct_mode_error,
-                        flags.fifo_error
-                    );
-                }
-                if (flags.complete) {
-                    transaction.received_size = transaction.receive_size;
-                } else if (flags.error or flags.direct_mode_error or flags.fifo_error) {
-                    fault = true;
-                }
+            // check the rX stream
+            status = rx_dma_resource_->GetStatus();
+            if (status.IsSuccess()) {
+                transaction.received_size = transaction.receive_size;
+            } else if (status.IsBusy()) {
+                // wait
+                rx_complete = false;
+            } else {
+                // failure
+                rx_fault = true;
             }
         }
-        complete = false;
     }
     if constexpr (false and jarnax::debug::spi) {
         registers::SerialPeripheralInterface::Status status_reg = spi_.status;    // read
@@ -315,9 +297,9 @@ core::Status Driver::Check(jarnax::spi::Transaction& transaction) {
     if (spi_.status.bits.busy) {
         return core::Status{core::Result::Busy, core::Cause::State};
     }
-    if (complete) {
+    if (tx_complete and rx_complete) {
         Cancel(transaction);
-        if (fault) {
+        if (tx_fault or rx_fault) {
             return core::Status{core::Result::Failure, core::Cause::Peripheral};
         } else {
             return core::Status{core::Result::Success, core::Cause::State};

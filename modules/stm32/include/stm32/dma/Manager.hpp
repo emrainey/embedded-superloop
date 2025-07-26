@@ -1,15 +1,16 @@
 #ifndef STM32_DMA_MANAGER_HPP
 #define STM32_DMA_MANAGER_HPP
 
-#include "jarnax/dma/Manager.hpp"
-#include "jarnax/dma/Resource.hpp"
+#include <jarnax/dma/Manager.hpp>
+#include <jarnax/Copier.hpp>
+
 #include "stm32/dma/Resource.hpp"
 
 namespace stm32 {
 namespace dma {
 
 /// @brief The Manager class is used to manage DMA resources, allowing for assignment, acquisition, and release of resources.
-class Manager final : public jarnax::dma::Manager_<stm32::dma::Resource>, public jarnax::Copier {
+class Manager final : public jarnax::dma::Manager, public jarnax::Copier {
 public:
     ///< spread across DMA1 and DMA2
     static constexpr std::size_t NumStreams{16u};
@@ -107,6 +108,11 @@ protected:
         stm32::registers::DirectMemoryAccess::Stream::Configuration::DataSize data_size,
         std::size_t count
     );
+
+    /// @brief Gets the stream from the number
+    /// @param number The stream number to get the stream for
+    /// @return A pointer to the stream, or nullptr if the number is invalid
+    stm32::registers::DirectMemoryAccess::Stream volatile* GetStreamFromNumber(size_t number);
 
     /// @brief The reference to the DMA controller registers
     stm32::registers::DirectMemoryAccess volatile (&dma_)[stm32::registers::NumberOfDmaControllers];
@@ -302,10 +308,12 @@ static_assert(GetChannelFromStreamPeripheral(1, 7, TIM8_CH4) == 7, "Must be this
 }    // namespace dma
 }    // namespace stm32
 
+#if not defined(UNITTEST)
 namespace jarnax {
 namespace dma {
 using Manager = stm32::dma::Manager;
 }    // namespace dma
 }    // namespace jarnax
+#endif
 
 #endif    // STM32_DMA_MANAGER_HPP

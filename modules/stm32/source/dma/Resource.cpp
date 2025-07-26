@@ -49,8 +49,8 @@ void Resource::Initialize(Peripheral const& peripheral) {
     stm32::dma::Manager::ClearStreamStatus(stream_number_, flags);    // clear the status flags
 }
 
-volatile stm32::registers::DirectMemoryAccess::Stream& Resource::GetUnderlying_(void) const {
-    return stream_;
+size_t Resource::GetIdentifier() const {
+    return stream_number_;
 }
 
 core::Status Resource::ConfigureCopyToPeripheral(uintptr_t source, size_t count, size_t unit_size, uintptr_t destination) {
@@ -193,7 +193,15 @@ core::Status Resource::GetStatus(void) const {
             flags.fifo_error
         );
     }
-    return core::Status{};
+    stm32::dma::Manager::ClearStreamStatus(stream_number_, flags);
+    if (flags.complete) {
+        return core::Status{core::Result::Success, core::Cause::Peripheral};
+    } else if (flags.error or flags.direct_mode_error or flags.fifo_error) {
+        return core::Status{core::Result::Failure, core::Cause::Peripheral};
+    } else {
+        // half complete is not imporatnt to this implementation for now.
+        return core::Status{core::Result::Busy, core::Cause::Peripheral};
+    }
 }
 
 core::Status Resource::Disable() {

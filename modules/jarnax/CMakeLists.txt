@@ -1,6 +1,6 @@
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/jarnax/version.hpp.in
-               ${CMAKE_CURRENT_BINARY_DIR}/include/jarnax/version.hpp)
+    ${CMAKE_CURRENT_BINARY_DIR}/include/jarnax/version.hpp)
 
 # Drivers and other modules that are not part of the jarnax module but need it's interface definitions take
 # a dependency on this library.
@@ -12,8 +12,9 @@ target_include_directories(jarnax-interfaces INTERFACE
 
 add_module(NAME jarnax
     SOURCES
-        # The startup code
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/on_entry.cpp
+
+    # The startup code
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/on_entry.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/zero_bss.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/static_constructors.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/static_destructors.cpp
@@ -23,30 +24,29 @@ add_module(NAME jarnax
         ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/class_globals.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/jump.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/configure.cpp
-        # System Functions
         ${CMAKE_CURRENT_SOURCE_DIR}/source/reset.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/print.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/yield.cpp
         $<IF:$<BOOL:BUILD_CROSS_TARGET>,${CMAKE_CURRENT_SOURCE_DIR}/source/main.cpp,> # Only build in on target builds
-        # System Classes
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Ticker.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SuperLoop.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CountDown.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/StopWatch.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Monitor.cpp
-        # Drivers
-        # Winbond SPI Flash Driver
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/spi/Driver.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/WinbondDriver.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/WinbondStateMachine.cpp
-        # SSD1306 OLED Display Driver
         ${CMAKE_CURRENT_SOURCE_DIR}/source/ssd1306.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/ssd1306/Driver.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/ssd1306/StateMachine.cpp
-        # Services
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/services/UsartConsole.cpp
+
+    # Services
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/services/UsartConsole.cpp
 
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/source/include # Internal includes
+        $<IF:$<BOOL:${BUILD_UNIT_TESTS}>,${CMAKE_CURRENT_SOURCE_DIR}/tests/mocks,>
+        $<IF:$<BOOL:${BUILD_UNIT_TESTS}>,${CMAKE_CURRENT_SOURCE_DIR}/tests/include,>
     LIBRARIES
         strict jarnax-interfaces
     GENERIC_MODULES

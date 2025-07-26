@@ -26,6 +26,29 @@ enum class Result : std::int8_t {
     NotConfigured = 14,     ///< The feature is not configured
 };
 
+constexpr char const * GetResultName(Result r) {
+    #define CASE_STR(x) case x: return #x
+    switch (r) {
+        CASE_STR(Result::Success);
+        CASE_STR(Result::Failure);
+        CASE_STR(Result::Busy);
+        CASE_STR(Result::InvalidValue);
+        CASE_STR(Result::OutOfRange);
+        CASE_STR(Result::NotReady);
+        CASE_STR(Result::NotEnough);
+        CASE_STR(Result::NotSupported);
+        CASE_STR(Result::NotExpected);
+        CASE_STR(Result::NotInitialized);
+        CASE_STR(Result::NotAvailable);
+        CASE_STR(Result::Timeout);
+        CASE_STR(Result::ExceededLimit);
+        CASE_STR(Result::NotImplemented);
+        CASE_STR(Result::NotConfigured);
+        default: return "<?>";
+    }
+    #undef CASE_STR
+}
+
 /// The enumeration of Causes in the system
 enum class Cause : std::uint8_t {
     Unknown = 0U,          ///< Unstated cause, usually paired with Success
@@ -36,6 +59,21 @@ enum class Cause : std::uint8_t {
     Hardware = 5U,         ///< External Hardware (i2C Chips, SPI chips)
     State = 6U,            ///< Some Finite State Machine or StateChart or process
 };
+
+constexpr char const * GetCauseName(Cause c) {
+    #define CASE_STR(x) case x: return #x
+    switch (c) {
+        CASE_STR(Cause::Unknown);
+        CASE_STR(Cause::Parameter);
+        CASE_STR(Cause::Resource);
+        CASE_STR(Cause::Peripheral);
+        CASE_STR(Cause::Configuration);
+        CASE_STR(Cause::Hardware);
+        CASE_STR(Cause::State);
+        default: return "<?>";
+    }
+    #undef CASE_STR
+}
 
 /// Locations are captured as addresses but are masked to be sub-ranges of the Flash Address Space
 using Location = std::uintptr_t;

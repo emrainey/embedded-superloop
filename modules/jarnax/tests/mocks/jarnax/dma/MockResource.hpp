@@ -1,14 +1,10 @@
 #ifndef JARNAX_MOCK_RESOURCE_HPP_
 #define JARNAX_MOCK_RESOURCE_HPP_
 
-#include <jarnax/dma/Manager.hpp>
-#include <jarnax/dma/Resource.hpp>
-#include <jarnax/Peripheral.hpp>
-
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include <jarnax/dma/MockResource.hpp>
+#include <jarnax/dma/Resource.hpp>
 
 namespace jarnax {
 namespace dma {
@@ -16,7 +12,7 @@ namespace dma {
 /// This class is a mock for the Resource class, which is used to represent a DMA Resource.
 /// It uses Google Mock to create a mock interface for testing purposes.
 /// The methods are defined as MOCK_METHOD to allow for expectations and verifications in tests.
-class MockResource : public jarnax::dma::Resource_<MockResource>, public jarnax::PeripheralCopier {
+class MockResource : public jarnax::dma::Resource {
 public:
     MOCK_METHOD(void, Initialize, (Peripheral const& peripheral), (override));
     MOCK_METHOD(
@@ -28,9 +24,8 @@ public:
     MOCK_METHOD(core::Status, Enable, (), (override));
     MOCK_METHOD(core::Status, Disable, (), (override));
     MOCK_METHOD(core::Status, GetStatus, (), (const, override));
+    MOCK_METHOD(size_t, GetIdentifier, (), (const, override));
 };
-
-using Resource = jarnax::dma::Resource_<MockResource>;
 
 }    // namespace dma
 }    // namespace jarnax

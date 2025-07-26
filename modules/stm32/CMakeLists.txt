@@ -4,12 +4,10 @@ add_module(NAME stm32
         ${CMAKE_CURRENT_SOURCE_DIR}/source/clocks.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gpio.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/nvic.cpp
-        # Objects
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gpio/Pin.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Indicator.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Button.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/RandomNumberGenerator.cpp
-        # ${CMAKE_CURRENT_SOURCE_DIR}/source/dma/Driver.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/dma/Manager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/dma/Resource.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/i2c/Driver.cpp
@@ -20,6 +18,9 @@ add_module(NAME stm32
         ${CMAKE_CURRENT_SOURCE_DIR}/source/backup.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+
+    # Add the tests/mocks/ folder if the build is for unit testing
+    $<IF:$<BOOL:${BUILD_UNIT_TESTS}>,${CMAKE_CURRENT_SOURCE_DIR}/tests/mocks,>
     LIBRARIES
         jarnax-interfaces
     GENERIC_MODULES
@@ -30,4 +31,32 @@ add_module(NAME stm32
         ${LOCAL_CONFIGURATIONS}
     BOARDS
         ${LOCAL_BOARDS}
+)
+
+host_unit_test(NAME test-stm32-i2c
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/i2c.cpp
+    LIBRARIES
+        strict core-none-all
+    MODULES
+        jarnax stm32
+    GOOGLETEST
+    CONFIGURATIONS
+        basic
+    BOARDS
+        stm32_f4ve_v2
+)
+
+host_unit_test(NAME test-stm32-spi
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/spi.cpp
+    LIBRARIES
+        strict core-none-all
+    MODULES
+        jarnax stm32
+    GOOGLETEST
+    CONFIGURATIONS
+        basic
+    BOARDS
+        stm32_f4ve_v2
 )

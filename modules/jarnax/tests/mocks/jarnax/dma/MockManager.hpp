@@ -13,14 +13,12 @@
 namespace jarnax {
 namespace dma {
 
-class MockManager : public jarnax::dma::Manager_<jarnax::dma::MockResource> {
+class MockManager : public jarnax::dma::Manager {
 public:
-    MOCK_METHOD(jarnax::dma::Resource_<jarnax::dma::MockResource>*, Assign, (Peripheral const& peripheral), (override));
-    MOCK_METHOD(jarnax::dma::Resource_<jarnax::dma::MockResource>*, Acquire, (size_t index, Peripheral const& peripheral), (override));
-    MOCK_METHOD(core::Status, Release, (jarnax::dma::Resource_<jarnax::dma::MockResource> * &resource), (override));
+    MOCK_METHOD(jarnax::dma::Resource*, Assign, (Peripheral const& peripheral), (override));
+    MOCK_METHOD(jarnax::dma::Resource*, Acquire, (size_t index, Peripheral const& peripheral), (override));
+    MOCK_METHOD(core::Status, Release, (jarnax::dma::Resource*& resource), (override));
 };
-
-using Manager = jarnax::dma::Manager_<jarnax::dma::MockResource>;
 
 }    // namespace dma
 }    // namespace jarnax

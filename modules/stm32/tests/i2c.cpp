@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
-
+#include "board.hpp"
+#include <jarnax/dma/MockManager.hpp>
+#include <jarnax/TestContext.hpp>
 #include <stm32/i2c/Driver.hpp>
 
 namespace stm32 {
@@ -19,8 +21,11 @@ public:
     }
 
 protected:
-    stm32::dma::MockManager dma_manager_;
+    jarnax::dma::MockManager dma_manager_;
     stm32::i2c::Driver i2c_driver_;
 };
+
+TEST_F(I2CDriverTest, Empty) {}
+
 }    // namespace i2c
 }    // namespace stm32

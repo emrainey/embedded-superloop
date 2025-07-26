@@ -7,9 +7,8 @@
 namespace stm32 {
 namespace dma {
 /// @brief The STM32 DMA Resource class is used to represent a DMA Resource which can be configured and used to perform transactions.
-/// On STM32, this is a stream of the DMA controller. We use CRTP to allow the derived class to provide the specific implementation details for the
-/// platform.
-class Resource final : public jarnax::dma::Resource_<stm32::dma::Resource>, public jarnax::PeripheralCopier {
+/// On STM32, this is a stream of the DMA controller.
+class Resource final : public jarnax::dma::Resource {
 public:
     /// The maximum number of units to copy in a single operation.
     static constexpr std::size_t MaximumMemoryCopyUnits{65535U};
@@ -20,19 +19,15 @@ public:
     inline size_t GetNumber(void) const { return stream_number_; }
 
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    // CRTP Resource Interface is a virtual interface for unit tests
+    // jarnax::dma::Resource Interface
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     void Initialize(Peripheral const& peripheral) override;
-    core::Status ConfigureCopyToPeripheral(std::uintptr_t source, size_t count, size_t unit_size, std::uintptr_t destination) override;
-    core::Status ConfigureCopyFromPeripheral(std::uintptr_t source, std::uintptr_t destination, size_t count, size_t unit_size) override;
+    core::Status ConfigureCopyToPeripheral(uintptr_t source, size_t count, size_t unit_size, uintptr_t destination) override;
+    core::Status ConfigureCopyFromPeripheral(uintptr_t source, uintptr_t destination, size_t count, size_t unit_size) override;
     core::Status Enable(void) override;
     core::Status Disable(void) override;
     core::Status GetStatus(void) const override;
-
-    /// @return The underlying stream of the DMA controller for this platform.
-    stm32::registers::DirectMemoryAccess::Stream volatile& GetUnderlying_(void) const;
-
-    size_t GetIdentifier(void) const;
+    size_t GetIdentifier(void) const override;
 
 protected:
     /// The method to configure a copy to a peripheral from memory.
@@ -46,11 +41,5 @@ protected:
 };
 }    // namespace dma
 }    // namespace stm32
-
-namespace jarnax {
-namespace dma {
-using Resource = jarnax::dma::Resource_<stm32::dma::Resource>;
-}    // namespace dma
-}    // namespace jarnax
 
 #endif    // STM32_DMA_RESOURCE_HPP

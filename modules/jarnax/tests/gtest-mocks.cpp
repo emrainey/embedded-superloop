@@ -44,7 +44,7 @@ TEST(Mocks, DMA) {
 
     EXPECT_CALL(mock_manager, Assign(peripheral)).WillOnce(testing::Return(&mock_resource));
     EXPECT_CALL(mock_resource, Initialize(peripheral)).Times(1);
-    jarnax::dma::Resource_<jarnax::dma::MockResource>* resource = mock_manager.Assign(peripheral);
+    jarnax::dma::Resource* resource = mock_manager.Assign(peripheral);
     ASSERT_NE(resource, nullptr);
     resource->Initialize(peripheral);
 }

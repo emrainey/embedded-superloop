@@ -51,7 +51,11 @@ void i2c3_error_isr(void) {
 }
 
 namespace i2c {
-Driver::Driver(stm32::registers::InterIntegratedCircuit volatile& i2c, dma::Manager& dma_driver, Peripheral rx_peripheral, Peripheral tx_peripheral)
+
+Driver::Driver(stm32::registers::InterIntegratedCircuit volatile& i2c,
+               jarnax::dma::Manager& dma_driver,
+               Peripheral rx_peripheral,
+               Peripheral tx_peripheral)
     : jarnax::i2c::Driver{static_cast<jarnax::i2c::Transactor&>(*this)}
     , jarnax::i2c::Transactor{}
     , statistics_{}
