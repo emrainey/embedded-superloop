@@ -7,21 +7,11 @@
         {
             "name": "Local Debug via LLDB",
             "cwd": "${workspaceRoot}",
-            "type": "cppdbg",
+            "type": "lldb",
             "request": "launch",
-            // "program": "${workspaceFolder}/build/native-llvm-18/modules/core/test-core-none-all",
             "args": [],
-            "stopAtEntry": false,
-            "environment": [],
-            "externalConsole": false,
-            "linux": {
-                "MIMode": "gdb",
-                "miDebuggerPath": "/usr/bin/gdb"
-            },
-            "osx": {
-                "MIMode": "lldb"
-            },
-            "launchCompleteCommand": "exec-run"
+            "linux": {},
+            "osx": {},
         },
         {
             "name": "Cortex-Debug (JLink) On Target Tests",
@@ -31,7 +21,7 @@
             "type": "cortex-debug",
             "servertype": "jlink",
             "interface": "swd",
-            "runToMain": true,
+            "runToEntryPoint": true,
             "device": "STM32F407VE",
             "internalConsoleOptions": "openOnSessionStart",
             //"internalConsoleOptions": "openOnFirstSessionStart",
@@ -47,71 +37,23 @@
         },
         {
             "name": "(gdb) Jlink Spi Demo",
-            "type": "cppdbg",
+            "type": "cortex-debug",
             "request": "launch",
-            "program": "${workspaceFolder}/build/cortex-gcc-arm-none-eabi-13/applications/simple/spi-demo-stm32-basic-stm32_f4ve_v2.elf",
-            "args": [],
-            "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
-            "logging": {
-                "trace": true,
-                //"traceResponse": true,
-                "engineLogging": true,
-                "programOutput": true,
-                "moduleLoad": true,
-                "exceptions": true
-            },
-            /* My Stuff Begin */
-            "debugServerArgs": "-if swd -port 2331 -swoport 2332 -telnetport 2333 -device STM32F407VE -s",
-            "serverLaunchTimeout": 10000,
-            "filterStderr": false,
-            "filterStdout": true,
-            "serverStarted": "Connected to target",
-            //"preLaunchTask": "Build",
-            "miDebuggerPath": "/Applications/ARM/bin/arm-none-eabi-gdb",
-            "debugServerPath": "/Applications/SEGGER/JLink/JLinkGDBServerCLExe",
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "text": "-environment-cd ${workspaceRoot}"
-                },
-                {
-                    "text": "-gdb-set target-async on"
-                },
-                //{ "text": "source c:/Users/hdm/.vscode/extensions/marus25.cortex-debug-0.2.3/support/gdbsupport.init"}
-                {
-                    "text": "-interpreter-exec console \"set mem inaccessible-by-default off\""
-                },
-                {
-                    "text": "-target-select remote localhost:50000"
-                },
-                {
-                    "text": "-file-exec-and-symbols build/cortex-gcc-arm-none-eabi/applications/simple/spi-demo-stm32-basic-stm32_f4ve_v2.elf"
-                },
-                {
-                    "text": "-interpreter-exec console \"monitor halt\""
-                },
-                {
-                    "text": "-interpreter-exec console \"monitor reset\""
-                },
-                {
-                    "text": "monitor device = STM32F407VE"
-                },
-                {
-                    "text": "load '${workspaceFolder}/build/cortex-gcc-arm-none-eabi-13/applications/simple/spi-demo-stm32-basic-stm32_f4ve_v2.elf'"
-                },
-                {
-                    "text": "-target-download"
-                },
-                {
-                    "text": "-interpreter-exec console \"monitor reset\""
-                },
-                {
-                    "text": "-enable-pretty-printing"
-                }
+            "executable": "${workspaceFolder}/build/cortex-gcc-arm-none-eabi/applications/simple/jlink-spi-demo-stm32_f4ve_v2.elf",
+            "servertype": "jlink",
+            "interface": "swd",
+            "runToEntryPoint": "true",
+            "device": "STM32F407VE",
+            "svdFile": "${workspaceFolder}/scripts/STM32F407.svd",
+            "internalConsoleOptions": "openOnSessionStart",
+            "showDevDebugOutput": "both",
+            "preLaunchCommands": [
+                "set mem inaccessible-by-default off"
             ],
+            "preRestartCommands": [
+                "monitor reset 0"
+            ]
         },
     ]
 }

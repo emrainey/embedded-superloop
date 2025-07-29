@@ -264,6 +264,8 @@ core::Status Driver::Check(jarnax::spi::Transaction& transaction) {
                 // failure
                 tx_fault = true;
             }
+        } else {
+            tx_complete = false;
         }
     }
     if (transaction.received_size != transaction.receive_size and transaction.receive_size > 0U) {
@@ -279,9 +281,11 @@ core::Status Driver::Check(jarnax::spi::Transaction& transaction) {
                 // failure
                 rx_fault = true;
             }
+        } else {
+            rx_complete = false;
         }
     }
-    if constexpr (false and jarnax::debug::spi) {
+    if constexpr (jarnax::debug::spi) {
         registers::SerialPeripheralInterface::Status status_reg = spi_.status;    // read
         jarnax::print(
             "SPI Status u:%u o:%u tbe:%u rbne:%u crce:%u mf:%u b:%u\n",
@@ -412,7 +416,9 @@ void Driver::HandleInterrupt(void) {
                 auto rx_span = transaction_->buffer.as_span().subspan(transaction_->receive_offset, transaction_->receive_size);
                 data = spi_.data;                                                                                      // read
                 rx_span[transaction_->received_size++] = static_cast<jarnax::spi::DataUnit>(data.bits.data & mask);    // write to buffer
-                jarnax::print("SPI Read %hx", data.bits.data);
+                if constexpr (jarnax::debug::spi_isr) {
+                    jarnax::print("SPI Read %hx\n", data.bits.data);
+                }
                 statistics_.bytes_received++;
                 if (transaction_->received_size == transaction_->receive_size) {
                     control2 = spi_.control2;                                       // read
@@ -448,7 +454,8 @@ void Driver::HandleInterrupt(void) {
     if ((transaction_->sent_size == transaction_->send_size) and (transaction_->received_size == transaction_->receive_size)) {
         Deselect(*transaction_);
         Disable();
-        transaction_->Inform(jarnax::spi::Transaction::Event::Completed, core::Status{});    // inform the transaction that it is complete
+        transaction_->Inform(jarnax::spi::Transaction::Event::Completed,
+                             core::Status{core::Result::Success, core::Cause::State});    // inform the transaction that it is complete
         // forget the pointer
         transaction_ = nullptr;
     }

@@ -35,7 +35,7 @@ add_module(NAME stm32
 
 host_unit_test(NAME test-stm32-i2c
     SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/i2c.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-stm32-i2c.cpp
     LIBRARIES
         strict core-none-all
     MODULES
@@ -49,7 +49,7 @@ host_unit_test(NAME test-stm32-i2c
 
 host_unit_test(NAME test-stm32-spi
     SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/spi.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-stm32-spi.cpp
     LIBRARIES
         strict core-none-all
     MODULES

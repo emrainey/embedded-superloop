@@ -44,7 +44,10 @@ public:
         , use_data_as_bytes{false}
         , buffer{}
         , send_size{0U}
-        , receive_size{0U} {}
+        , sent_size{0U}
+        , receive_offset{0U}
+        , receive_size{0U}
+        , received_size{0U} {}
 
     /// The SPI Clock Polarity (CPOL)
     ClockPolarity polarity;

@@ -12,9 +12,7 @@ target_include_directories(jarnax-interfaces INTERFACE
 
 add_module(NAME jarnax
     SOURCES
-
-    # The startup code
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/on_entry.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/on_entry.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/zero_bss.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/static_constructors.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/static_destructors.cpp
@@ -39,9 +37,7 @@ add_module(NAME jarnax
         ${CMAKE_CURRENT_SOURCE_DIR}/source/ssd1306.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/ssd1306/Driver.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/ssd1306/StateMachine.cpp
-
-    # Services
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/services/UsartConsole.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/services/UsartConsole.cpp
 
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/source/include # Internal includes
@@ -78,9 +74,9 @@ host_unit_test(NAME test-jarnax-catch
     CATCH2
     FAKEIT
     CONFIGURATIONS
-        ${LOCAL_CONFIGURATIONS}
+        basic
     BOARDS
-        ${LOCAL_BOARDS}
+        stm32_f4ve_v2
 )
 
 host_unit_test(NAME test-jarnax-googletest
@@ -97,7 +93,7 @@ host_unit_test(NAME test-jarnax-googletest
         jarnax
     GOOGLETEST
     CONFIGURATIONS
-        ${LOCAL_CONFIGURATIONS}
+        basic
     BOARDS
-        ${LOCAL_BOARDS}
+        stm32_f4ve_v2
 )

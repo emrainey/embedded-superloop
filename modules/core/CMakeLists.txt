@@ -68,21 +68,21 @@ list(SORT _GENERATED_CORE_TESTS) # for reproducibility
 
 host_unit_test(NAME test-core
     SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/array.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/avl.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/container.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/doublelink.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/enums.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/folds.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/intervals.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/pool.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/ring.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/span.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/stack.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/statemachine.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/status.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/units.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/variants.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-array.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-avl.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-container.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-doublelink.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-enums.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-folds.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-intervals.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-pool.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-ring.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-span.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-stack.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-statemachine.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-status.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-units.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-variants.cpp
         ${_GENERATED_CORE_TESTS}
     LIBRARIES
         strict core-none-all
@@ -93,7 +93,7 @@ host_unit_test(NAME test-core
 
 host_unit_test(NAME test-events
     SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/events.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-events.cpp
     LIBRARIES
         strict core-none-all
     CATCH2
@@ -103,8 +103,8 @@ host_unit_test(NAME test-events
 
 host_unit_test(NAME test-heap
     SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/heap.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/print.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-heap.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-print.cpp
     LIBRARIES
         strict core-none-all
     CATCH2
@@ -115,7 +115,7 @@ host_unit_test(NAME test-heap
 
 host_unit_test(NAME test-fraction
     SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/fraction.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-fraction.cpp
     LIBRARIES
         strict core-none-all
     GOOGLETEST

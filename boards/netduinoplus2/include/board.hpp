@@ -28,6 +28,7 @@ constexpr static bool use_rtt_for_printf = true;
 constexpr static bool use_swo_for_printf = false;
 constexpr static bool use_uart_for_printf = false;
 constexpr static bool use_logger_for_printf = false;
+constexpr static bool use_system_printf = true; ///< For UNITTEST
 namespace debug {
 constexpr static bool i2c{false};
 constexpr static bool i2c_isr{false};

@@ -97,7 +97,7 @@ public:
         }
         if (bytes == 0 or alignment == 0 or alignment > MaxAlignment) {
             GetPrinter()(
-                "WARNING: [%p] Invalid allocation request of %zu bytes with alignment %zu\r\n", reinterpret_cast<void*>(this), bytes, alignment
+                "WARNING: [%p] Allocation request of %zu bytes with alignment %zu\r\n", reinterpret_cast<void*>(this), bytes, alignment
             );
             stats_.zero_allocs++;
             return nullptr;
