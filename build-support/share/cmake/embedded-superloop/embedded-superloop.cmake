@@ -6,32 +6,33 @@ project(embedded-superloop
         LANGUAGES CXX ASM)
 
 set(EMBEDDED_SUPERLOOP_PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+
 # include(CMakePrintHelpers)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_STANARD 17)
 set(CMAKE_CXX_EXTENSIONS ON)
-#set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,readability-*)
 
-if (BUILD_UNIT_TESTS)
-enable_testing()
+# set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,readability-*)
+if(BUILD_UNIT_TESTS)
+    enable_testing()
 endif()
 
 set(BANNER
-"\n"
-"░        ░░  ░░░░  ░░       ░░░        ░░       ░░░       ░░░        ░░       ░░          \n"
-"▒  ▒▒▒▒▒▒▒▒   ▒▒   ▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒  ▒          \n"
-"▓      ▓▓▓▓        ▓▓       ▓▓▓      ▓▓▓▓  ▓▓▓▓  ▓▓  ▓▓▓▓  ▓▓      ▓▓▓▓  ▓▓▓▓  ▓          \n"
-"█  ████████  █  █  ██  ████  ██  ████████  ████  ██  ████  ██  ████████  ████  █          \n"
-"█        ██  ████  ██       ███        ██       ███       ███        ██       ██          \n"
-"                                                                                          \n"
-"░░      ░░░  ░░░░  ░░       ░░░        ░░       ░░░  ░░░░░░░░░      ░░░░      ░░░       ░░\n"
-"▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒  ▒\n"
-"▓▓      ▓▓▓  ▓▓▓▓  ▓▓       ▓▓▓      ▓▓▓▓       ▓▓▓  ▓▓▓▓▓▓▓▓  ▓▓▓▓  ▓▓  ▓▓▓▓  ▓▓       ▓▓\n"
-"███████  ██  ████  ██  ████████  ████████  ███  ███  ████████  ████  ██  ████  ██  ███████\n"
-"██      ████      ███  ████████        ██  ████  ██        ███      ████      ███  ███████\n"
-" A small embedded super loop firmware system for ARM Cortex-M microcontrollers\n"
-"\n"
+    "\n"
+    "░        ░░  ░░░░  ░░       ░░░        ░░       ░░░       ░░░        ░░       ░░          \n"
+    "▒  ▒▒▒▒▒▒▒▒   ▒▒   ▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒  ▒          \n"
+    "▓      ▓▓▓▓        ▓▓       ▓▓▓      ▓▓▓▓  ▓▓▓▓  ▓▓  ▓▓▓▓  ▓▓      ▓▓▓▓  ▓▓▓▓  ▓          \n"
+    "█  ████████  █  █  ██  ████  ██  ████████  ████  ██  ████  ██  ████████  ████  █          \n"
+    "█        ██  ████  ██       ███        ██       ███       ███        ██       ██          \n"
+    "                                                                                          \n"
+    "░░      ░░░  ░░░░  ░░       ░░░        ░░       ░░░  ░░░░░░░░░      ░░░░      ░░░       ░░\n"
+    "▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒  ▒▒  ▒▒▒▒  ▒\n"
+    "▓▓      ▓▓▓  ▓▓▓▓  ▓▓       ▓▓▓      ▓▓▓▓       ▓▓▓  ▓▓▓▓▓▓▓▓  ▓▓▓▓  ▓▓  ▓▓▓▓  ▓▓       ▓▓\n"
+    "███████  ██  ████  ██  ████████  ████████  ███  ███  ████████  ████  ██  ████  ██  ███████\n"
+    "██      ████      ███  ████████        ██  ████  ██        ███      ████      ███  ███████\n"
+    " A small embedded super loop firmware system for ARM Cortex-M microcontrollers\n"
+    "\n"
 )
 
 message(${BANNER})
@@ -74,7 +75,7 @@ target_include_directories(configuration-none INTERFACE ${CMAKE_SOURCE_DIR}/incl
 target_link_libraries(configuration-none INTERFACE strict)
 
 # Create an interface library per configuration
-foreach (cfg IN LISTS LOCAL_CONFIGURATIONS)
+foreach(cfg IN LISTS LOCAL_CONFIGURATIONS)
     set_configuration_name(LOCAL_TARGET ${cfg})
     message("Adding configuration ${LOCAL_TARGET}")
     add_library(${LOCAL_TARGET} INTERFACE)
@@ -96,10 +97,12 @@ function(add_architecture)
         "${singles}"
         "${multiples}"
         ${ARGN})
-    if (NOT DEFINED ARG_VENDOR)
+
+    if(NOT DEFINED ARG_VENDOR)
         message(FATAL_ERROR "No vendor specified for architecture ${ARG_NAME}")
     endif()
-    foreach (cfg IN LISTS ARG_CONFIGURATIONS)
+
+    foreach(cfg IN LISTS ARG_CONFIGURATIONS)
         set_arch_name(LOCAL_TARGET ${ARG_NAME} ${cfg})
         message("Adding architecture ${LOCAL_TARGET}")
         add_library(${LOCAL_TARGET} INTERFACE)
@@ -111,26 +114,33 @@ function(add_architecture)
         )
         set_configuration_name(LOCAL_CONFIGURATION ${cfg})
         target_link_libraries(${LOCAL_TARGET} INTERFACE ${LOCAL_CONFIGURATION})
-        if (DEFINED ARG_INCLUDES)
+
+        if(DEFINED ARG_INCLUDES)
             target_include_directories(${LOCAL_TARGET} INTERFACE ${ARG_INCLUDES})
         endif()
-        if (DEFINED ARG_LIBRARIES)
+
+        if(DEFINED ARG_LIBRARIES)
             target_link_libraries(${LOCAL_TARGET} INTERFACE ${ARG_LIBRARIES})
         endif()
-        if (DEFINED ARG_DEFINES)
+
+        if(DEFINED ARG_DEFINES)
             target_compile_definitions(${LOCAL_TARGET} INTERFACE ${ARG_DEFINES})
         endif()
-        foreach (module IN LISTS ARG_GENERIC_MODULES)
+
+        foreach(module IN LISTS ARG_GENERIC_MODULES)
             set_target_name(_MOD ${module} none all)
-            if (NOT TARGET ${_MOD})
+
+            if(NOT TARGET ${_MOD})
                 message(FATAL_ERROR "Module ${_MOD} not found while making ${LOCAL_TARGET}")
             else()
                 target_link_libraries(${LOCAL_TARGET} INTERFACE ${_MOD})
             endif()
         endforeach()
-        foreach (module IN LISTS ARG_SYSTEM_MODULES)
+
+        foreach(module IN LISTS ARG_SYSTEM_MODULES)
             set_target_name(_MOD ${module} ${cfg} all)
-            if (NOT TARGET ${_MOD})
+
+            if(NOT TARGET ${_MOD})
                 message(FATAL_ERROR "Module ${_MOD} not found while making ${LOCAL_TARGET}")
             else()
                 target_link_libraries(${LOCAL_TARGET} INTERFACE ${_MOD})
@@ -151,13 +161,16 @@ function(add_board)
         "${singles}"
         "${multiples}"
         ${ARGN})
-    if (NOT DEFINED ARG_CHIP)
+
+    if(NOT DEFINED ARG_CHIP)
         message(FATAL_ERROR "No chip specified for board ${ARG_NAME}")
     endif()
-    if (NOT DEFINED ARG_CONFIGURATIONS)
+
+    if(NOT DEFINED ARG_CONFIGURATIONS)
         message(FATAL_ERROR "No configurations specified for module ${ARG_NAME}")
     endif()
-    foreach (cfg IN LISTS ARG_CONFIGURATIONS)
+
+    foreach(cfg IN LISTS ARG_CONFIGURATIONS)
         set_board_name(LOCAL_TARGET ${ARG_NAME} ${cfg})
         message("Adding board ${LOCAL_TARGET}")
         add_library(${LOCAL_TARGET} STATIC ${ARG_SOURCES})
@@ -169,42 +182,53 @@ function(add_board)
             GDB_CLIENT_TEMPLATE ${CMAKE_CURRENT_SOURCE_DIR}/scripts/client.gdb.in
         )
         target_link_libraries(${LOCAL_TARGET} PUBLIC configuration-${cfg})
-        if (DEFINED ARG_INCLUDES)
+
+        if(DEFINED ARG_INCLUDES)
             target_include_directories(${LOCAL_TARGET} PUBLIC ${ARG_INCLUDES})
         endif()
-        if (DEFINED ARG_LIBRARIES)
+
+        if(DEFINED ARG_LIBRARIES)
             target_link_libraries(${LOCAL_TARGET} PUBLIC ${ARG_LIBRARIES})
         endif()
-        if (DEFINED ARG_DEFINES)
+
+        if(DEFINED ARG_DEFINES)
             target_compile_definitions(${LOCAL_TARGET} PUBLIC ${ARG_DEFINES})
         endif()
-        foreach (module IN LISTS ARG_GENERIC_MODULES)
+
+        foreach(module IN LISTS ARG_GENERIC_MODULES)
             set_target_name(_MOD ${module} none all)
-            if (NOT TARGET ${_MOD})
+
+            if(NOT TARGET ${_MOD})
                 message(FATAL_ERROR "Module ${_MOD} not found while making ${LOCAL_TARGET}")
             else()
                 target_link_libraries(${LOCAL_TARGET} PUBLIC ${_MOD})
             endif()
         endforeach()
-        foreach (module IN LISTS ARG_BOARD_MODULES)
+
+        foreach(module IN LISTS ARG_BOARD_MODULES)
             set_target_name(_MOD ${module} none ${ARG_NAME})
-            if (NOT TARGET ${_MOD})
+
+            if(NOT TARGET ${_MOD})
                 message(FATAL_ERROR "Module ${_MOD} not found while making ${LOCAL_TARGET}")
             else()
                 target_link_libraries(${LOCAL_TARGET} PUBLIC ${_MOD})
             endif()
         endforeach()
-        foreach (module IN LISTS ARG_SYSTEM_MODULES)
+
+        foreach(module IN LISTS ARG_SYSTEM_MODULES)
             set_target_name(_MOD ${module} ${cfg} all)
-            if (NOT TARGET ${_MOD})
+
+            if(NOT TARGET ${_MOD})
                 message(FATAL_ERROR "Module ${_MOD} not found while making ${LOCAL_TARGET}")
             else()
                 target_link_libraries(${LOCAL_TARGET} PUBLIC ${_MOD})
             endif()
         endforeach()
-        foreach (module IN LISTS ARG_MODULES)
+
+        foreach(module IN LISTS ARG_MODULES)
             set_target_name(_MOD ${module} ${cfg} ${ARG_NAME})
-            if (NOT TARGET ${_MOD})
+
+            if(NOT TARGET ${_MOD})
                 message(FATAL_ERROR "Module ${_MOD} not found while making ${LOCAL_TARGET}")
             else()
                 target_link_libraries(${LOCAL_TARGET} PUBLIC ${_MOD})
@@ -228,66 +252,81 @@ function(add_module)
         "${singles}"
         "${multiples}"
         ${ARGN})
-    if (NOT ARG_CONFIGURATIONS AND NOT ARG_NO_CONFIGURATIONS)
+
+    if(NOT ARG_CONFIGURATIONS AND NOT ARG_NO_CONFIGURATIONS)
         message(FATAL_ERROR "No configurations specified for module ${ARG_NAME}")
     endif()
-    if (NOT ARG_BOARDS AND NOT ARG_NO_BOARDS)
+
+    if(NOT ARG_BOARDS AND NOT ARG_NO_BOARDS)
         message(FATAL_ERROR "No boards specified for module ${ARG_NAME}")
     endif()
-    if (ARG_NO_CONFIGURATIONS)
+
+    if(ARG_NO_CONFIGURATIONS)
         set(ARG_CONFIGURATIONS none)
     endif()
-    if (ARG_NO_BOARDS)
+
+    if(ARG_NO_BOARDS)
         set(ARG_BOARDS all)
     endif()
+
     # message("Possible module ${ARG_NAME}")
-    foreach (cfg IN LISTS ARG_CONFIGURATIONS)
-        foreach (board IN LISTS ARG_BOARDS)
+    foreach(cfg IN LISTS ARG_CONFIGURATIONS)
+        foreach(board IN LISTS ARG_BOARDS)
             set_target_name(LOCAL_TARGET ${ARG_NAME} ${cfg} ${board})
             message("Adding module ${LOCAL_TARGET}")
             add_library(${LOCAL_TARGET} STATIC ${ARG_SOURCES})
             set_target_properties(${LOCAL_TARGET} PROPERTIES
                 LINKERSCRIPTS ${CMAKE_CURRENT_SOURCE_DIR}/linkerscripts
             )
-            if (ARG_INCLUDES)
+
+            if(ARG_INCLUDES)
                 target_include_directories(${LOCAL_TARGET} PUBLIC ${ARG_INCLUDES})
             endif()
-            if (ARG_LIBRARIES)
+
+            if(ARG_LIBRARIES)
                 target_link_libraries(${LOCAL_TARGET} PUBLIC ${ARG_LIBRARIES})
             endif()
-            if (ARG_DEFINES)
+
+            if(ARG_DEFINES)
                 target_compile_definitions(${LOCAL_TARGET} PUBLIC ${ARG_DEFINES})
             endif()
-            if (NOT ARG_NO_CONFIGURATIONS)
+
+            if(NOT ARG_NO_CONFIGURATIONS)
                 set_configuration_name(LOCAL_CONFIGURATION ${cfg})
                 target_link_libraries(${LOCAL_TARGET} PUBLIC ${LOCAL_CONFIGURATION})
             endif()
-            if (NOT ARG_NO_BOARDS)
+
+            if(NOT ARG_NO_BOARDS)
                 set_board_name(LOCAL_BOARD ${board} ${cfg})
                 message(STATUS "Linking ${LOCAL_TARGET} to ${LOCAL_BOARD}")
                 target_link_libraries(${LOCAL_TARGET} PUBLIC ${LOCAL_BOARD})
             endif()
-            if (ARG_ARCH)
+
+            if(ARG_ARCH)
                 set_arch_name(LOCAL_ARCH ${ARG_ARCH} ${cfg})
                 target_link_libraries(${LOCAL_TARGET} INTERFACE ${LOCAL_ARCH})
                 set_target_properties(${LOCAL_TARGET} PROPERTIES ARCHITECTURE ${ARG_ARCH})
             endif()
-            foreach (module IN LISTS ARG_GENERIC_MODULES)
+
+            foreach(module IN LISTS ARG_GENERIC_MODULES)
                 set_target_name(_MOD ${module} none all)
                 message(STATUS "Depends on ${_MOD}")
                 target_link_libraries(${LOCAL_TARGET} PUBLIC ${_MOD})
             endforeach()
-            foreach (module IN LISTS ARG_BOARD_MODULES)
+
+            foreach(module IN LISTS ARG_BOARD_MODULES)
                 set_target_name(_MOD ${module} none ${board})
                 message(STATUS "Depends on ${_MOD}")
                 target_link_libraries(${LOCAL_TARGET} PUBLIC ${_MOD})
             endforeach()
-            foreach (module IN LISTS ARG_SYSTEM_MODULES)
+
+            foreach(module IN LISTS ARG_SYSTEM_MODULES)
                 set_target_name(_MOD ${module} ${cfg} all)
                 message(STATUS "Depends on ${_MOD}")
                 target_link_libraries(${LOCAL_TARGET} PUBLIC ${_MOD})
             endforeach()
-            foreach (module IN LISTS ARG_MODULES)
+
+            foreach(module IN LISTS ARG_MODULES)
                 set_target_name(_MOD ${module} ${cfg} ${board})
                 message(STATUS "Depends on ${_MOD}")
                 target_link_libraries(${LOCAL_TARGET} PUBLIC ${_MOD})
@@ -316,63 +355,79 @@ function(add_firmware)
         "${singles}"
         "${multiples}"
         ${ARGN})
-    if (NOT ARG_CONFIGURATIONS)
+
+    if(NOT ARG_CONFIGURATIONS)
         message(FATAL_ERROR "No configurations specified for firmware ${ARG_TARGET}")
     endif()
-    if (NOT ARG_BOARDS)
+
+    if(NOT ARG_BOARDS)
         message(FATAL_ERROR "No boards specified for firmware ${ARG_TARGET}")
     endif()
-    foreach (cfg IN LISTS ARG_CONFIGURATIONS)
-        foreach (board IN LISTS ARG_BOARDS)
+
+    foreach(cfg IN LISTS ARG_CONFIGURATIONS)
+        foreach(board IN LISTS ARG_BOARDS)
             set_board_name(LOCAL_BOARD ${board} ${cfg})
             get_target_property(BOARD_CHIP ${LOCAL_BOARD} CHIP)
-            if (NOT ARG_LINKERSCRIPT)
+
+            if(NOT ARG_LINKERSCRIPT)
                 set(ARG_LINKERSCRIPT ${CMAKE_SOURCE_DIR}/modules/${BOARD_CHIP}/linkerscripts/gcc.ld)
             endif()
-            if (BUILD_CROSS_TARGET)
+
+            if(BUILD_CROSS_TARGET)
                 set(LOCAL_TARGET ${ARG_NAME}-${BOARD_CHIP}-${cfg}-${board})
             else()
                 set(LOCAL_TARGET ${ARG_NAME}-native-${cfg}-${board})
             endif()
+
             message("Adding firmware ${LOCAL_TARGET}")
             add_executable(${LOCAL_TARGET}.elf ${ARG_SOURCES})
-            if (ARG_LIBRARIES)
+
+            if(ARG_LIBRARIES)
                 target_link_libraries(${LOCAL_TARGET}.elf PUBLIC ${ARG_LIBRARIES})
             endif()
-            if (DEFINED COMPILER_MATH_LIBS AND NOT COMPILER_MATH_LIBS STREQUAL "")
+
+            if(DEFINED COMPILER_MATH_LIBS AND NOT COMPILER_MATH_LIBS STREQUAL "")
                 message(STATUS "Linking with math libraries ${COMPILER_MATH_LIBS}")
                 target_link_libraries(${LOCAL_TARGET}.elf PUBLIC ${COMPILER_MATH_LIBS})
             endif()
-            if (ARG_INCLUDES)
+
+            if(ARG_INCLUDES)
                 target_include_directories(${LOCAL_TARGET}.elf PRIVATE ${ARG_INCLUDES})
             endif()
-            if (ARG_DEFINES)
+
+            if(ARG_DEFINES)
                 target_compile_definitions(${LOCAL_TARGET}.elf PRIVATE ${ARG_DEFINES})
             endif()
-            foreach (module IN LISTS ARG_GENERIC_MODULES)
+
+            foreach(module IN LISTS ARG_GENERIC_MODULES)
                 set_target_name(_MOD ${module} none all)
                 message(STATUS "Depends on ${_MOD}")
                 target_link_libraries(${LOCAL_TARGET}.elf PUBLIC ${_MOD})
             endforeach()
-            foreach (module IN LISTS ARG_BOARD_MODULES)
+
+            foreach(module IN LISTS ARG_BOARD_MODULES)
                 set_target_name(_MOD ${module} none ${board})
                 message(STATUS "Depends on ${_MOD}")
                 target_link_libraries(${LOCAL_TARGET}.elf PUBLIC ${_MOD})
             endforeach()
-            foreach (module IN LISTS ARG_SYSTEM_MODULES)
+
+            foreach(module IN LISTS ARG_SYSTEM_MODULES)
                 set_target_name(_MOD ${module} ${cfg} all)
                 message(STATUS "Depends on ${_MOD}")
                 target_link_libraries(${LOCAL_TARGET}.elf PUBLIC ${_MOD})
             endforeach()
-            foreach (module IN LISTS ARG_MODULES)
+
+            foreach(module IN LISTS ARG_MODULES)
                 set_target_name(_MOD ${module} ${cfg} ${board})
                 message(STATUS "Depends on ${_MOD}")
                 target_link_libraries(${LOCAL_TARGET}.elf PUBLIC ${_MOD})
             endforeach()
+
             target_compile_options(${LOCAL_TARGET}.elf PRIVATE # -fverbose-asm -save-temps)
                 -fmacro-prefix-map=${CMAKE_SOURCE_DIR}=. # trims __FILE__ to be relative and deterministic
             )
-            if (BUILD_CROSS_TARGET)
+
+            if(BUILD_CROSS_TARGET)
                 # Pull the set of linkerscript paths from the board and the chip modules
                 # Sadly, this is a bit of a hack since ld can't handle the -L option correctly.
                 # (It only uses the values stated *before* the -T option)
@@ -387,6 +442,7 @@ function(add_firmware)
                 get_target_property(ARCH_LINKERSCRIPTS ${LOCAL_ARCH} LINKERSCRIPTS) # Get the architecture linkerscripts
                 target_link_options(${LOCAL_TARGET}.elf PRIVATE
                     -v -nostdlib
+
                     # --specs=nosys
                     -Wl,-V
                     -Wl,-L,${ARCH_LINKERSCRIPTS}
@@ -395,17 +451,21 @@ function(add_firmware)
                     $<$<CXX_COMPILER_ID:GNU>:-Wl,-T,${ARG_LINKERSCRIPT}>
                     -Wl,-Map,${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.map
                     -Wl,--print-memory-usage
+
                     # -Wl,--print-map
                     -Wl,--stats
                     -Wl,-gc-sections
                     -Wl,-cref
                 )
+
                 # Get the all the .ld files in the linkerscripts directories in order to form dependencies on them
                 file(GLOB_RECURSE LINKERSCRIPTS ${CHIP_LINKERSCRIPTS}/*.ld ${BOARD_LINKERSCRIPTS}/*.ld ${ARCH_LINKERSCRIPTS}/*.ld)
+
                 # Set the INTERFACE_LINK_DEPENDS property
                 set_target_properties(${LOCAL_TARGET}.elf PROPERTIES
                     INTERFACE_LINK_DEPENDS "${ARG_LINKERSCRIPT} ${LINKERSCRIPTS}"
                 )
+
                 # add_dependencies(${ARG_NAME}.elf ${ARG_NAME}-ld-script)
                 set(ARG_ELF ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.elf)
                 set(ARG_DISASM ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.s)
@@ -415,10 +475,13 @@ function(add_firmware)
                     COMMAND ${CMAKE_OBJDUMP} -d ${ARG_ELF} -marm -C -z > ${ARG_DISASM}
                     COMMENT "Creating Disassembly of ${ARG_ELF}"
                 )
+
                 # add_dependencies(${ARG_NAME}.elf ${ARG_LINKERSCRIPT})
                 add_custom_target(disassembly-${LOCAL_TARGET} ALL DEPENDS ${ARG_DISASM})
+
                 # File the relative path from the build directory to the binary
                 file(RELATIVE_PATH LOCAL_TARGET_BINARY_PATH ${CMAKE_SOURCE_DIR} ${ARG_ELF})
+
                 # Generate a debug file for the Ozone debugger for this firmware
                 get_target_property(LOCAL_BOARD_OZONE ${LOCAL_BOARD} OZONE_TEMPLATE)
                 set(JDEBUG_FILE ${CMAKE_SOURCE_DIR}/${LOCAL_TARGET}.jdebug)
@@ -429,13 +492,16 @@ function(add_firmware)
                 add_custom_target(ozone-${LOCAL_TARGET}
                     COMMAND /Applications/SEGGER/Ozone/Ozone.app/Contents/MacOS/Ozone ${JDEBUG_FILE}
                     DEPENDS ${JDEBUG_FILE} ${ARG_ELF})
-                if (NOT TARGET gdb-server-${LOCAL_DEVICE})
+
+                if(NOT TARGET gdb-server-${LOCAL_DEVICE})
                     message(STATUS "Adding gdb-server-${LOCAL_DEVICE}")
                     add_custom_target(gdb-server-${LOCAL_DEVICE}
+
                         # Default ports 2331, 2332, 2333
                         COMMAND JLinkGDBServer -if SWD -device ${LOCAL_DEVICE} -speed 20000 -usb -NoGUI=1 -ir -halt -vd
                     )
                 endif()
+
                 add_custom_target(gdb-client-${LOCAL_TARGET}
                     COMMAND arm-none-eabi-gdb ${ARG_ELF} -x ${GDB_FILE}
                     DEPENDS ${GDB_FILE} ${ARG_ELF})
@@ -468,12 +534,12 @@ function(add_firmware)
     endforeach()
 endfunction()
 
-if (NOT TARGET test AND BUILD_CROSS_TARGET)
+if(NOT TARGET test AND BUILD_CROSS_TARGET)
     # in this case, there's no test target, so we create a custom target
     add_custom_target(test)
 endif()
 
-if (NOT TARGET coverage AND BUILD_COVERAGE)
+if(NOT TARGET coverage AND BUILD_COVERAGE)
     add_custom_target(coverage)
     add_dependencies(coverage test)
 endif()
@@ -488,77 +554,94 @@ function(host_unit_test)
         "${singles}"
         "${multiples}"
         ${ARGN})
-    if (NOT ARG_CONFIGURATIONS AND NOT ARG_NO_CONFIGURATIONS)
-            message(FATAL_ERROR "No configurations specified for unit test ${ARG_TARGET}")
+
+    if(NOT ARG_CONFIGURATIONS AND NOT ARG_NO_CONFIGURATIONS)
+        message(FATAL_ERROR "No configurations specified for unit test ${ARG_TARGET}")
     endif()
-    if (NOT ARG_BOARDS AND NOT ARG_NO_BOARDS)
-            message(FATAL_ERROR "No boards specified for unit test ${ARG_TARGET}")
+
+    if(NOT ARG_BOARDS AND NOT ARG_NO_BOARDS)
+        message(FATAL_ERROR "No boards specified for unit test ${ARG_TARGET}")
     endif()
-    if (ARG_NO_CONFIGURATIONS AND NOT DEFINED ARG_CONFIGURATIONS)
+
+    if(ARG_NO_CONFIGURATIONS AND NOT DEFINED ARG_CONFIGURATIONS)
         set(ARG_CONFIGURATIONS none)
     endif()
-    if (ARG_NO_BOARDS AND NOT DEFINED ARG_BOARDS)
+
+    if(ARG_NO_BOARDS AND NOT DEFINED ARG_BOARDS)
         set(ARG_BOARDS all)
     endif()
-    if (NOT BUILD_CROSS_TARGET)
+
+    if(NOT BUILD_CROSS_TARGET)
         # message(STATUS "Adding host unit test ${ARG_NAME} ${ARG_CONFIGURATIONS} ${ARG_BOARDS}")
-        foreach (cfg IN LISTS ARG_CONFIGURATIONS)
-            foreach (board IN LISTS ARG_BOARDS)
+        foreach(cfg IN LISTS ARG_CONFIGURATIONS)
+            foreach(board IN LISTS ARG_BOARDS)
                 set_target_name(LOCAL_TARGET ${ARG_NAME} ${cfg} ${board})
                 message("Adding host unit test ${LOCAL_TARGET} for ${cfg} ${board}")
                 add_executable(${LOCAL_TARGET} ${ARG_SOURCES})
-                if (ARG_INCLUDES)
+
+                if(ARG_INCLUDES)
                     target_include_directories(${LOCAL_TARGET} PRIVATE ${ARG_INCLUDES})
                 endif()
-                if (ARG_LIBRARIES)
+
+                if(ARG_LIBRARIES)
                     target_link_libraries(${LOCAL_TARGET} PUBLIC ${ARG_LIBRARIES})
                 endif()
-                foreach (module IN LISTS ARG_GENERIC_MODULES)
+
+                foreach(module IN LISTS ARG_GENERIC_MODULES)
                     set_target_name(_MOD ${module} none all)
                     message(STATUS "Depends on ${_MOD}")
                     target_link_libraries(${LOCAL_TARGET} PUBLIC ${_MOD})
                 endforeach()
-                foreach (module IN LISTS ARG_BOARD_MODULES)
+
+                foreach(module IN LISTS ARG_BOARD_MODULES)
                     set_target_name(_MOD ${module} none ${board})
                     message(STATUS "Depends on ${_MOD}")
                     target_link_libraries(${LOCAL_TARGET} PUBLIC ${_MOD})
                 endforeach()
-                foreach (module IN LISTS ARG_SYSTEM_MODULES)
+
+                foreach(module IN LISTS ARG_SYSTEM_MODULES)
                     set_target_name(_MOD ${module} ${cfg} all)
                     message(STATUS "Depends on ${_MOD}")
                     target_link_libraries(${LOCAL_TARGET} PUBLIC ${_MOD})
                 endforeach()
-                foreach (module IN LISTS ARG_MODULES)
+
+                foreach(module IN LISTS ARG_MODULES)
                     set_target_name(_MOD ${module} ${cfg} ${board})
                     message(STATUS "Depends on ${_MOD}")
                     target_link_libraries(${LOCAL_TARGET} PUBLIC ${_MOD})
                 endforeach()
-                if (ARG_CATCH2)
+
+                if(ARG_CATCH2)
                     target_compile_definitions(${LOCAL_TARGET} PRIVATE CATCH2)
                     target_link_libraries(${LOCAL_TARGET} PUBLIC Catch2::Catch2WithMain)
                 endif()
-                if (ARG_FAKEIT)
+
+                if(ARG_FAKEIT)
                     target_compile_definitions(${LOCAL_TARGET} PRIVATE FAKEIT)
                     target_link_libraries(${LOCAL_TARGET} PRIVATE Catch2FakeIt)
                 endif()
-                if (ARG_GOOGLETEST)
+
+                if(ARG_GOOGLETEST)
                     target_compile_definitions(${LOCAL_TARGET} PRIVATE GOOGLETEST)
                     target_link_libraries(${LOCAL_TARGET} PUBLIC GTest::gtest GTest::gmock GTest::gtest_main)
                 endif()
+
                 target_compile_definitions(${LOCAL_TARGET} PRIVATE UNITTEST ${ARG_DEFINES})
 
-                if (NOT DEFINED UNIT_TEST_TARGETS)
+                if(NOT DEFINED UNIT_TEST_TARGETS)
                     set(UNIT_TEST_TARGETS "")
                     include(CTest)
                 endif()
+
                 list(APPEND UNIT_TEST_TARGETS ${LOCAL_TARGET})
 
                 # CTest
                 add_test(NAME ${LOCAL_TARGET} COMMAND ${LOCAL_TARGET} ${ARG_TEST_ARGUMENTS})
 
-                foreach (excl IN LISTS ARG_EXCLUDES)
+                foreach(excl IN LISTS ARG_EXCLUDES)
                     list(APPEND EXCLUDES --exclude ${excl})
                 endforeach()
+
                 # list(APPEND EXCLUDES --exclude '/tests/*' --exclude '*/catch2/*' --exclude '*/unittests/** --exclude **/googletest/*')
                 # message(STATUS "Defining coverage-${ARG_NAME}")
                 add_custom_target(coverage-${LOCAL_TARGET}
@@ -580,25 +663,25 @@ function(host_unit_test)
     endif()
 endfunction()
 
-if (LOCAL_MODULES)
+if(LOCAL_MODULES)
     message(STATUS "LOCAL_MODULES=${LOCAL_MODULES}")
 else()
     message(FATAL_ERROR "LOCAL_MODULES not defined")
 endif()
 
-if (LOCAL_APPLICATIONS)
+if(LOCAL_APPLICATIONS)
     message(STATUS "LOCAL_APPLICATIONS=${LOCAL_APPLICATIONS}")
 else()
     message(FATAL_ERROR "LOCAL_APPLICATIONS not defined")
 endif()
 
-if (LOCAL_CONFIGURATIONS)
+if(LOCAL_CONFIGURATIONS)
     message(STATUS "LOCAL_CONFIGURATIONS=${LOCAL_CONFIGURATIONS}")
 else()
     message(FATAL_ERROR "LOCAL_CONFIGURATIONS not defined")
 endif()
 
-if (LOCAL_BOARDS)
+if(LOCAL_BOARDS)
     message(STATUS "LOCAL_BOARDS=${LOCAL_BOARDS}")
 else()
     message(FATAL_ERROR "LOCAL_BOARDS not defined")
@@ -608,10 +691,12 @@ endif()
 foreach(module IN LISTS LOCAL_MODULES)
     add_subdirectory(${EMBEDDED_SUPERLOOP_PROJECT_ROOT}/modules/${module})
 endforeach()
+
 # Pulls in each board!
 foreach(board IN LISTS LOCAL_BOARDS)
     add_subdirectory(${EMBEDDED_SUPERLOOP_PROJECT_ROOT}/boards/${board})
 endforeach()
+
 # Pulls in each application!
 foreach(app IN LISTS LOCAL_APPLICATIONS)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/applications/${app})
@@ -619,7 +704,8 @@ endforeach()
 
 # Documentation
 find_package(Doxygen)
-if (Doxygen_FOUND)
+
+if(Doxygen_FOUND)
     set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)
     set(DOXYGEN_PROJECT_BRIEF "A simple C++ only Microcontroller System")
@@ -627,20 +713,23 @@ if (Doxygen_FOUND)
     set(DOXYGEN_GENERATE_TREEVIEW YES)
     set(DOXYGEN_DISABLE_SEARCH NO)
     set(DOXYGEN_FULL_SIDEBAR NO)
-    set(DOXYGEN_HTML_EXTRA_STYLESHEET doxygen-awesome-css/doxygen-awesome.css)
+    set(DOXYGEN_HTML_EXTRA_STYLESHEET documentation/doxygen-awesome-css/doxygen-awesome.css)
     set(DOXYGEN_HTML_COLORSTYLE LIGHT)
     set(DOXYGEN_PREDEFINED "__attribute__(x)=")
     set(DOXYGEN_IMAGE_PATH "documentation/images")
-    foreach (_mod IN LISTS LOCAL_MODULES)
+
+    foreach(_mod IN LISTS LOCAL_MODULES)
         file(GLOB_RECURSE _MOD_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/modules/${_mod}/include/**/*.hpp)
         list(APPEND DOXYGEN_INCLUDES ${_MOD_INCLUDES})
         file(GLOB_RECURSE _MOD_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/modules/${_mod}/source/*.cpp)
         list(APPEND DOXYGEN_SOURCES ${_MOD_SOURCES})
     endforeach()
+
     # message(STATUS "DOXYGEN_INCLUDES=${DOXYGEN_INCLUDES}")
     # message(STATUS "DOXYGEN_SOURCES=${DOXYGEN_SOURCES}")
     doxygen_add_docs(docs
-        #FILES
+
+        # FILES
         README.md
         ${DOXYGEN_INCLUDES}
         ${DOXYGEN_SOURCES}
