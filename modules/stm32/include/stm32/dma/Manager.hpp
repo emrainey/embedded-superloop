@@ -308,12 +308,4 @@ static_assert(GetChannelFromStreamPeripheral(1, 7, TIM8_CH4) == 7, "Must be this
 }    // namespace dma
 }    // namespace stm32
 
-#if not defined(UNITTEST)
-namespace jarnax {
-namespace dma {
-using Manager = stm32::dma::Manager;
-}    // namespace dma
-}    // namespace jarnax
-#endif
-
 #endif    // STM32_DMA_MANAGER_HPP

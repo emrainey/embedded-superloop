@@ -407,7 +407,7 @@ public:
         } else {
             va_list args;
             va_start(args, format);
-            unsigned long count = count = vsnprint(buffer_, PrintfBufferSize, format, args);
+            unsigned long count = vsnprint(buffer_, PrintfBufferSize, format, args);
             va_end(args);
             if constexpr (use_rtt_for_printf) {
                 rtt::control_block.GetUp(rtt::Index{0}).Write(count, buffer_);
