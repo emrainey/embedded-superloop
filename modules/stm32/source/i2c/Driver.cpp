@@ -131,7 +131,7 @@ core::Status Driver::Initialize(core::units::Hertz peripheral_frequency, core::u
     control1.bits.acknowledge = 0;                           // disable acknowledge
     i2c_.control1 = control1;                                // write
 
-    return core::Status{core::Result::Success, core::Cause::Hardware};
+    return core::Status{core::Result::Success, core::Cause::State};
 }
 
 uint32_t Driver::GetClockDivider(core::units::Hertz peripheral_frequency, core::units::Hertz desired_i2c_clock_frequency) {
@@ -160,6 +160,16 @@ void Driver::Reset(void) {
 void Driver::HandleEvent(void) {
     // Handle the event here
     stm32::registers::InterIntegratedCircuit::Status1 status1 = i2c_.status1;    // read
+    if constexpr (jarnax::debug::i2c_isr) {
+        jarnax::print(
+            "I2C Event Status1 st:%u a:%u rne:%u te:%u tf:%u\n",
+            status1.bits.start_bit,
+            status1.bits.address,
+            status1.bits.receive_not_empty,
+            status1.bits.transmit_empty,
+            status1.bits.byte_transfer_finished
+        );
+    }
     if (status1.bits.start_bit) {
         statistics_.events.start++;    // Increment the start condition count
         // write the address out to the bus, this write will clear the START BIT
@@ -177,7 +187,7 @@ void Driver::HandleEvent(void) {
     if (status1.bits.byte_transfer_finished) {
         statistics_.events.transfer_finished++;    // Increment the address received count
         if (transaction_) {
-            core::Status status{};
+            core::Status status{core::Result::Success, core::Cause::State};
             // If there is a transaction, we can inform it of the error
             transaction_->Inform(jarnax::i2c::Transaction::Event::Completed, status);
             transaction_ = nullptr;    // Clear the transaction pointer

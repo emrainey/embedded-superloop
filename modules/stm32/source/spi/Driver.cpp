@@ -89,6 +89,11 @@ stm32::registers::SerialPeripheralInterface::Control1::BaudRateDivider Driver::F
 }
 
 core::Status Driver::Initialize(core::units::Hertz peripheral_frequency, core::units::Hertz desired_spi_clock_frequency) {
+    if constexpr (use_dma_for_spi) {
+        jarnax::print("STM32 SPI Driver: Using DMA for SPI transactions.\r\n");
+    } else {
+        jarnax::print("STM32 SPI Driver: Using interrupts for SPI transactions.\r\n");
+    }
     core::Status status{};
     peripheral_frequency_ = peripheral_frequency;
     rx_dma_resource_ = dma_manager_.Assign(rx_peripheral_);

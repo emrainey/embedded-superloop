@@ -115,8 +115,14 @@ using Coordinator = jarnax::Coordinator<i2c::Transaction, DefaultQueueDepth>;
 /// The I2C Driver Interface has a Transactor of I2C Transactions and is a Coordinator of the I2C Transactions
 class Driver : public Coordinator {
 public:
-    Driver(i2c::Transactor& tr)
-        : Coordinator{tr} {}
+    Driver() = delete;
+    explicit Driver(jarnax::i2c::Transactor& tr);
+
+    Driver(Driver const&) = delete;
+    Driver(Driver&&) = delete;
+    Driver& operator=(Driver const&) = delete;
+    Driver& operator=(Driver&&) = delete;
+    ~Driver() = default;
 };
 }    // namespace i2c
 }    // namespace jarnax
