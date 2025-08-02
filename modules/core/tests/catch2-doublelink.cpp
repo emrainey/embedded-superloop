@@ -16,10 +16,12 @@ class PrintVisitor : public doublelink::Node<Dummy>::Visitor {
 public:
     void Visit(doublelink::Node<Dummy>& node) override { std::cout << "Ordinal " << node << std::endl; }
     void Visit(doublelink::Node<Dummy> const& node) const override { std::cout << "Ordinal " << node << std::endl; }
+    virtual ~PrintVisitor() = default;
 };
 
 class CountingVisitor : public doublelink::Node<Dummy>::Visitor {
 public:
+    virtual ~CountingVisitor() = default;
     void Visit(doublelink::Node<Dummy>& node) override {
         node().ordinal += visitation_cout;
         visitation_cout++;

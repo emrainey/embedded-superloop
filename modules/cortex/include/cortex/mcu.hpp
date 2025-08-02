@@ -13,7 +13,7 @@
 #include "core/Split.hpp"
 #include "core/Intervals.hpp"
 #include "cortex/thumb.hpp"
-#include "cortex/system.hpp"
+#include "cortex/SystemControlBlock.hpp"
 #include "cortex/exceptions.hpp"
 #include "cortex/mpu.hpp"
 #include "cortex/trace.hpp"

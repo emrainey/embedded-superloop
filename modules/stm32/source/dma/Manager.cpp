@@ -358,14 +358,14 @@ void Manager::HandleInterrupt(uint32_t controller, uint32_t stream) {
     if (status) {
         if constexpr (jarnax::debug::dma_isr) {
             jarnax::print(
-                "DMA Interrupt: %" PRIu32 ", %" PRIu32 " status: c:%u h:%u e:%u dme:%u fe:%u\n",
+                "DMA Interrupt: %" PRIu32 ", %" PRIu32 " status: c:%" PRIu32 " h:%" PRIu32 " e:%" PRIu32 " dme:%" PRIu32 " fe:%" PRIu32 "\n",
                 controller,
                 stream,
-                flags.complete,
-                flags.half_complete,
-                flags.error,
-                flags.direct_mode_error,
-                flags.fifo_error
+                static_cast<uint32_t>(flags.complete),
+                static_cast<uint32_t>(flags.half_complete),
+                static_cast<uint32_t>(flags.error),
+                static_cast<uint32_t>(flags.direct_mode_error),
+                static_cast<uint32_t>(flags.fifo_error)
             );
         }
         if (flags.complete) {

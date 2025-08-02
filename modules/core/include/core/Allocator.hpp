@@ -23,9 +23,8 @@ public:
     /// @param alignment The alignment of the memory. Defaults to the maximum alignment.
     virtual void deallocate(void* p, std::size_t bytes, std::size_t alignment = alignof(std::max_align_t)) = 0;
 
-protected:
-    /// Do not allow destruction through the interface
-    ~Allocator() = default;
+    /// Allow destruction through the interface
+    virtual ~Allocator() = default;
 };
 
 /// @brief Retrieves the default allocator for the system.

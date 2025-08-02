@@ -15,6 +15,9 @@ public:
 
     bool IsPressed() const override;
 
+    /// @brief Default Destructor since no pointers are contained within, this can be copied and moved.
+    virtual ~Button() = default;
+
 protected:
     stm32::gpio::Pin& pin_;
     bool pressed_state_;

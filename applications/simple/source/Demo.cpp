@@ -96,10 +96,11 @@ DemoState Demo::OnCycle(DemoState state) {
             jarnax::Time time = ticker_.GetTimeSinceBoot();
             uint32_t random = rng_.GetNextRandom();
             std::uint32_t iotas = static_cast<std::uint32_t>(timer_.GetIotas().value());
-            jarnax::print("Demo::Execute: %lu ticks, %lf sec, %lx Iotas: %lu\r\n", ticks.value(), time.value(), random, iotas);
+            jarnax::print("Demo::Execute: %" PRIu32 " ticks, %lf sec, %" PRIx32 " Iotas: %" PRIu32 "\r\n", ticks.value(), static_cast<double>(time.value()), random, iotas);
             countdown_.Reset();
         }
     } else if (state == DemoState::Error) {
+        // do nothing, the error indicator is already active
     }
     return state;
 }

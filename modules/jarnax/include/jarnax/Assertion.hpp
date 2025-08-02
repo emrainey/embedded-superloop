@@ -26,8 +26,7 @@ public:
     ~Assertion() {
         if (not condition_) {
             jarnax::print("Assertion in ");
-            jarnax::print(filename_);
-            jarnax::print("\r\n");
+            jarnax::print("%s\r\n", filename_);
             cortex::spinhalt();
         }
     }

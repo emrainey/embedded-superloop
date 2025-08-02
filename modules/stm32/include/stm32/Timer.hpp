@@ -12,11 +12,13 @@ namespace stm32 {
 using MicroSeconds = core::units::MicroSeconds;
 
 /// @brief The timer interface for the STM32
-class Timer : public jarnax::Timer {
+class Timer final : public jarnax::Timer {
 public:
     /// @brief Parameterized constructor
     /// @param timer The volatile reference to a timer
     Timer(stm32::registers::Timer2 volatile& timer);
+
+    ~Timer() = default;
 
     /// @brief The initializer of the Timer frequency
     /// @param internal_frequency The frequency of the internal clock

@@ -28,6 +28,7 @@ public:
     MOCK_METHOD(core::Status, Start, (TestTransaction&), (override));
     MOCK_METHOD(core::Status, Check, (TestTransaction&), (override));
     MOCK_METHOD(core::Status, Cancel, (TestTransaction&), (override));
+    virtual ~MockTransactor() = default;
 };
 
 static constexpr std::size_t Depth = 1U;

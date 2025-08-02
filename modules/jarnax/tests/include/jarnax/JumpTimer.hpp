@@ -12,6 +12,8 @@ public:
     JumpTimer()
         : current_{0U} {}
 
+    virtual ~JumpTimer() = default;
+
     Iota GetIotas(void) const override { return current_; }
 
     MicroSeconds GetMicroseconds(void) const override {

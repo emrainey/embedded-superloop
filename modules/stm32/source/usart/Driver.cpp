@@ -95,7 +95,10 @@ void Driver::ComputeBaudRate(uint32_t baud_rate) const {
     brr.bits.div_fraction = fraction & 0x0F;
     usart_.baudrate = brr;    // write
     if constexpr (jarnax::debug::usart) {
-        jarnax::print("USART divider: %lf mantissa:%u fraction:%u\r\n", divider, brr.bits.div_mantissa, brr.bits.div_fraction);
+        jarnax::print("USART divider: %lf mantissa:%" PRIu32 " fraction:%" PRIu32 "\r\n",
+            static_cast<double>(divider),
+            static_cast<uint32_t>(brr.bits.div_mantissa),
+            static_cast<uint32_t>(brr.bits.div_fraction));
     }
 }
 
@@ -108,7 +111,11 @@ uint32_t Driver::GetBaudRate(void) const {
     uint32_t baud_rate = static_cast<uint32_t>(static_cast<float>(peripheral_frequency_.value()) / (divider * over8f));
     if constexpr (jarnax::debug::usart) {
         jarnax::print(
-            "USART divider: %lf mantissa:%u fraction:%u => BaudRate: %lu\r\n", divider, brr.bits.div_mantissa, brr.bits.div_fraction, baud_rate
+            "USART divider: %lf mantissa:%" PRIu32 " fraction:%" PRIu32 " => BaudRate: %" PRIu32 "\r\n",
+            static_cast<double>(divider),
+            static_cast<uint32_t>(brr.bits.div_mantissa),
+            static_cast<uint32_t>(brr.bits.div_fraction),
+            static_cast<uint32_t>(baud_rate)
         );
     }
     return baud_rate;
@@ -185,7 +192,9 @@ core::Status Driver::Configure(uint32_t desired_baud_rate, bool parity, uint8_t 
         uint32_t distance = (actual_baud_rate > desired_baud_rate) ? actual_baud_rate - desired_baud_rate : desired_baud_rate - actual_baud_rate;
         float error = static_cast<float>(distance) / static_cast<float>(desired_baud_rate);
         if constexpr (jarnax::debug::usart) {
-            jarnax::print("USART BaudRate error: %f %% (%" PRIu32 ")\r\n", error * 100.0f, distance);
+            jarnax::print("USART BaudRate error: %lf %% (%" PRIu32 ")\r\n",
+                static_cast<double>(error * 100.0f),
+                static_cast<uint32_t>(distance));
         }
     }
 
@@ -207,16 +216,16 @@ void Driver::HandleInterrupt(void) {
     registers::UniversalSynchronousAsynchronousReceiverTransmitter::Status status = usart_.status;    // read
     if constexpr (jarnax::debug::usart_isr) {
         jarnax::print(
-            "USART Status: %" PRIx32 " pe:%u fe:%u nf:%u oe:%u id:%u rxne:%u txe:%u tc:%u\r\n",
+            "USART Status: %" PRIx32 " pe:%" PRIu32 " fe:%" PRIu32 " nf:%" PRIu32 " oe:%" PRIu32 " id:%" PRIu32 " rxne:%" PRIu32 " txe:%" PRIu32 " tc:%" PRIu32 "\r\n",
             status.whole,
-            status.bits.parity_error,
-            status.bits.framing_error,
-            status.bits.noise_flag,
-            status.bits.overrun_error,
-            status.bits.idle,
-            status.bits.receive_buffer_not_empty,
-            status.bits.transmit_buffer_empty,
-            status.bits.transmit_complete
+            static_cast<uint32_t>(status.bits.parity_error),
+            static_cast<uint32_t>(status.bits.framing_error),
+            static_cast<uint32_t>(status.bits.noise_flag),
+            static_cast<uint32_t>(status.bits.overrun_error),
+            static_cast<uint32_t>(status.bits.idle),
+            static_cast<uint32_t>(status.bits.receive_buffer_not_empty),
+            static_cast<uint32_t>(status.bits.transmit_buffer_empty),
+            static_cast<uint32_t>(status.bits.transmit_complete)
         );
     }
 

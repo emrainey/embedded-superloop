@@ -18,6 +18,7 @@ public:
     MOCK_METHOD(jarnax::dma::Resource*, Assign, (Peripheral const& peripheral), (override));
     MOCK_METHOD(jarnax::dma::Resource*, Acquire, (size_t index, Peripheral const& peripheral), (override));
     MOCK_METHOD(core::Status, Release, (jarnax::dma::Resource*& resource), (override));
+    virtual ~MockManager() = default;
 };
 
 }    // namespace dma

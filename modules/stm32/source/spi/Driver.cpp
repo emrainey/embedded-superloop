@@ -160,7 +160,7 @@ core::Status Driver::Verify(jarnax::spi::Transaction& transaction) {
     size_t total_size = transaction.receive_size + transaction.send_size;
     if constexpr (jarnax::debug::spi) {
         jarnax::print(
-            "SPI transaction: TX: %u RX: %u total: %u buffer: %u\n",
+            "SPI transaction: TX: %" PRIz " RX: %" PRIz " total: %" PRIz " buffer: %" PRIz "\n",
             transaction.send_size,
             transaction.receive_size,
             total_size,
@@ -293,14 +293,14 @@ core::Status Driver::Check(jarnax::spi::Transaction& transaction) {
     if constexpr (jarnax::debug::spi) {
         registers::SerialPeripheralInterface::Status status_reg = spi_.status;    // read
         jarnax::print(
-            "SPI Status u:%u o:%u tbe:%u rbne:%u crce:%u mf:%u b:%u\n",
-            status_reg.bits.underrun,
-            status_reg.bits.overrun,
-            status_reg.bits.transmit_buffer_empty,
-            status_reg.bits.receive_buffer_not_empty,
-            status_reg.bits.crc_error,
-            status_reg.bits.mode_fault,
-            status_reg.bits.busy
+            "SPI Status u:%" PRIu32 " o:%" PRIu32 " tbe:%" PRIu32 " rbne:%" PRIu32 " crce:%" PRIu32 " mf:%" PRIu32 " b:%" PRIu32 "\n",
+            static_cast<uint32_t>(status_reg.bits.underrun),
+            static_cast<uint32_t>(status_reg.bits.overrun),
+            static_cast<uint32_t>(status_reg.bits.transmit_buffer_empty),
+            static_cast<uint32_t>(status_reg.bits.receive_buffer_not_empty),
+            static_cast<uint32_t>(status_reg.bits.crc_error),
+            static_cast<uint32_t>(status_reg.bits.mode_fault),
+            static_cast<uint32_t>(status_reg.bits.busy)
         );
     }
     if (spi_.status.bits.busy) {
@@ -382,16 +382,16 @@ void Driver::HandleInterrupt(void) {
     statistics_.interrupts++;
     if constexpr (jarnax::debug::spi_isr) {
         jarnax::print(
-            "SPI ISR Status: %" PRIx32 " ISRs:%u u:%u o:%u tbe:%u rbne:%u crce:%u mf:%u b:%u\n",
+            "SPI ISR Status: %" PRIx32 " ISRs:%" PRIz " u:%" PRIu32 " o:%" PRIu32 " tbe:%" PRIu32 " rbne:%" PRIu32 " crce:%" PRIu32 " mf:%" PRIu32 " b:%" PRIu32 "\n",
             status.whole,
             statistics_.interrupts,
-            status.bits.underrun,
-            status.bits.overrun,
-            status.bits.transmit_buffer_empty,
-            status.bits.receive_buffer_not_empty,
-            status.bits.crc_error,
-            status.bits.mode_fault,
-            status.bits.busy
+            static_cast<uint32_t>(status.bits.underrun),
+            static_cast<uint32_t>(status.bits.overrun),
+            static_cast<uint32_t>(status.bits.transmit_buffer_empty),
+            static_cast<uint32_t>(status.bits.receive_buffer_not_empty),
+            static_cast<uint32_t>(status.bits.crc_error),
+            static_cast<uint32_t>(status.bits.mode_fault),
+            static_cast<uint32_t>(status.bits.busy)
         );
     }
     if (status.bits.overrun) {

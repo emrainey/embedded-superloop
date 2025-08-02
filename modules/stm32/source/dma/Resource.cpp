@@ -184,13 +184,13 @@ core::Status Resource::GetStatus(void) const {
     stm32::dma::Manager::GetStreamStatus(stream_number_, flags);
     if constexpr (jarnax::debug::dma) {
         jarnax::print(
-            "DMA Stream %u Status: Complete: %u, Half Complete: %u, Error: %u, Direct Mode Error: %u, FIFO Error: %u\n",
+            "DMA Stream %u Status: Complete: %lu, Half Complete: %lu, Error: %lu, Direct Mode Error: %lu, FIFO Error: %lu\n",
             stream_number_,
-            flags.complete,
-            flags.half_complete,
-            flags.error,
-            flags.direct_mode_error,
-            flags.fifo_error
+            static_cast<uint32_t>(flags.complete),
+            static_cast<uint32_t>(flags.half_complete),
+            static_cast<uint32_t>(flags.error),
+            static_cast<uint32_t>(flags.direct_mode_error),
+            static_cast<uint32_t>(flags.fifo_error)
         );
     }
     stm32::dma::Manager::ClearStreamStatus(stream_number_, flags);

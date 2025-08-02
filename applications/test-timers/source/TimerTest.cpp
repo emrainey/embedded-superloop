@@ -57,7 +57,7 @@ AppState TimerTest::OnCycle(AppState state) {
             "TimerTest::OnCycle: Timer is monotonic! Last: %" PRIx64 " <= Now: %" PRIx64 " (Sec: %lf)\r\n",
             last_value_.value(),
             now.value(),
-            sec.value()
+            static_cast<double>(sec.value())
         );
     }
     last_value_ = now;    // reset the last value to the current value

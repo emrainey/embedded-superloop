@@ -17,6 +17,7 @@ public:
     MOCK_METHOD(bool, IsCommandComplete, (), (const));
     MOCK_METHOD(core::Status, GetStatusAndData, (), ());
     MOCK_METHOD(bool, IsPresent, (), (const));
+    virtual ~MockDriver() = default;
 };
 
 class TestWinbondStateMachine : public ::testing::Test {

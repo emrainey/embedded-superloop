@@ -43,11 +43,11 @@ public:
     /// @param size  The size of the buffer in bytes
     /// @param upstream The (optional) upstream Allocator to use if the heap is exhausted
     BitMapHeap(void* buffer, std::size_t size, Allocator* upstream = nullptr)
-        : buffer_(buffer)
-        , size_(size)
+        : buffer_{buffer}
+        , size_{size}
         , bitmap_{}
         , stats_{}
-        , upstream_(upstream) {
+        , upstream_{upstream} {
         if (size_ < (BlockSize * BlockCount)) {
             buffer_ = nullptr;
             size_ = 0U;
@@ -62,6 +62,15 @@ public:
         stats_.used_blocks = 0U;
         stats_.waste_bytes = 0U;
         stats_.count = 0U;
+    }
+
+    virtual ~BitMapHeap() {
+        buffer_ = nullptr;
+        size_ = 0U;
+        if (upstream_) {
+            upstream_->~Allocator();
+            upstream_ = nullptr;
+        }
     }
 
 #if defined(UNITTEST)

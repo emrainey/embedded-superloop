@@ -9,6 +9,7 @@ class Dummy : public Yielder {
 public:
     Dummy()
         : Yielder() {}
+    virtual ~Dummy() = default;
     bool Execute() override { return true; }
 };
 

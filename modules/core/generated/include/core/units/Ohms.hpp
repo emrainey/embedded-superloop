@@ -8,6 +8,7 @@
 
 #include <type_traits>
 #include <cstdint>
+#include <cmath>
 
 #if defined(UNITTEST)
 #include <iostream>
@@ -86,10 +87,32 @@ public:
         return Ohms{lhs * rhs.value()};
     }
     friend constexpr inline bool operator==(Ohms const& lhs, Ohms const& rhs) {
-        return lhs.value() == rhs.value();
+        if constexpr (std::is_floating_point_v<float>) {
+            return std::fabs(lhs.value() - rhs.value()) < std::numeric_limits<float>::epsilon();
+        } else {
+            #if defined(__clang__)
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Wfloat-equal"
+            #endif
+            return lhs.value() == rhs.value();
+            #if defined(__clang__)
+            #pragma clang diagnostic pop
+            #endif
+        }
     }
     friend constexpr inline bool operator!=(Ohms const& lhs, Ohms const& rhs) {
-        return lhs.value() != rhs.value();
+        if constexpr (std::is_floating_point_v<float>) {
+            return std::fabs(lhs.value() - rhs.value()) >= std::numeric_limits<float>::epsilon();
+        } else {
+            #if defined(__clang__)
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Wfloat-equal"
+            #endif
+            return lhs.value() != rhs.value();
+            #if defined(__clang__)
+            #pragma clang diagnostic pop
+            #endif
+        }
     }
     friend constexpr inline bool operator<(Ohms const& lhs, Ohms const& rhs) {
         return lhs.value() < rhs.value();

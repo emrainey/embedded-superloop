@@ -9,7 +9,7 @@ namespace stm32 {
 /// Storage location for the extended vector table.
 /// If you need a compile time interrupt setup, do so here.
 LINKER_SECTION(".extended_vectors")
-ExternalInterrupts external_interrupts = {
+ExternalInterrupts external_interrupts = {{
     cortex::handlers::dummy,    // 0
     cortex::handlers::dummy,
     cortex::handlers::dummy,
@@ -92,7 +92,7 @@ ExternalInterrupts external_interrupts = {
     cortex::handlers::dummy,    // 79
     cortex::handlers::dummy,    // 80
     cortex::handlers::dummy,
-};
+}};
 static_assert(sizeof(external_interrupts) == (stm32::number_of_interrupt_channels * sizeof(void *)), "Must be this value exactly");
 
 // local storage for the external interrupt statistics

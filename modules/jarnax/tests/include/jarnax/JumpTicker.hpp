@@ -12,6 +12,9 @@ public:
     JumpTicker(Ticks starting)
         : current_{0u}
         , bias_{starting} {}
+
+    virtual ~JumpTicker() = default;
+
     Ticks GetTicksSinceBoot(void) const override {
         Ticks tmp;
         tmp = current_;

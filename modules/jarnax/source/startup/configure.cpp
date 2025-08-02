@@ -11,7 +11,7 @@ void configure(void) {
     cortex::SystemControlBlock::CpuIDBase cpu_id;
     cpu_id = cortex::system_control_block.cpu_id_base;    // read
     jarnax::print(
-        "CPUID: CortexM Revision:%u PartNumber:%u Variant:%u Implementor:%u\r\n",
+        "CPUID: CortexM Revision:%d PartNumber:%d Variant:%d Implementor:%d\r\n",
         cpu_id.parts.revision,
         cpu_id.parts.part_number,
         cpu_id.parts.variant,

@@ -17,7 +17,7 @@ SoftwareTriggeredInterrupt volatile software_triggered_interrupt;
 SystemTick volatile system_tick;
 NestedInterruptVectorController volatile nested_interrupt_vector_controller;
 InstructionTraceMacrocell volatile instruction_trace_macrocell;
-};    // namespace cortex
+}    // namespace cortex
 
 namespace stm32 {
 namespace registers {

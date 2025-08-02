@@ -12,6 +12,8 @@ public:
     GlacialTimer()
         : current_{0U} {}
 
+    virtual ~GlacialTimer() = default;
+
     Iota GetIotas(void) const override {
         auto now = current_;
         current_ = now + 1_iota; // Simulate a tick

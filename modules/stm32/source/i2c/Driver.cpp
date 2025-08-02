@@ -162,12 +162,12 @@ void Driver::HandleEvent(void) {
     stm32::registers::InterIntegratedCircuit::Status1 status1 = i2c_.status1;    // read
     if constexpr (jarnax::debug::i2c_isr) {
         jarnax::print(
-            "I2C Event Status1 st:%u a:%u rne:%u te:%u tf:%u\n",
-            status1.bits.start_bit,
-            status1.bits.address,
-            status1.bits.receive_not_empty,
-            status1.bits.transmit_empty,
-            status1.bits.byte_transfer_finished
+            "I2C Event Status1 st:%" PRIu32 " a:%" PRIu32 " rne:%" PRIu32 " te:%" PRIu32 " tf:%" PRIu32 "\n",
+            static_cast<uint32_t>(status1.bits.start_bit),
+            static_cast<uint32_t>(status1.bits.address),
+            static_cast<uint32_t>(status1.bits.receive_not_empty),
+            static_cast<uint32_t>(status1.bits.transmit_empty),
+            static_cast<uint32_t>(status1.bits.byte_transfer_finished)
         );
     }
     if (status1.bits.start_bit) {
@@ -282,7 +282,7 @@ core::Status Driver::Verify(jarnax::i2c::Transaction& transaction) {
 core::Status Driver::Start(jarnax::i2c::Transaction& transaction) {
     // print the buffer count and the first bytes (up to the first 16 if possible)
     jarnax::print(
-        "STM32 I2C Driver: Address: %" PRIx8 " Buffer capacity: %u count: %u\r\n",
+        "STM32 I2C Driver: Address: %" PRIx8 " Buffer capacity: %" PRIz " count: %" PRIz "\r\n",
         transaction.address.small.address,
         transaction.buffer.capacity(),
         transaction.desired_count

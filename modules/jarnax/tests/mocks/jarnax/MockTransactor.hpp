@@ -16,6 +16,7 @@ public:
     MOCK_METHOD(core::Status, Start, (TRANSACTABLE_TYPE & transaction), (override));
     MOCK_METHOD(core::Status, Check, (TRANSACTABLE_TYPE & transaction), (override));
     MOCK_METHOD(core::Status, Cancel, (TRANSACTABLE_TYPE & transaction), (override));
+    virtual ~MockTransactor() = default;
 };
 
 }    // namespace jarnax

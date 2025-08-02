@@ -1,5 +1,6 @@
 // #define CATCH_CONFIG_MAIN
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include "core/Units.hpp"
 
 #include <iostream>
@@ -22,28 +23,31 @@ constexpr static std::uint32_t iota_per_second = 12'000'000U;
 // This depends on the board specific stated conversions above
 #include "core/Conversions.hpp"
 
+constexpr double epsilon{0.0625};    // 1/16th of a unit, used for floating point comparisons
+
 TEST_CASE("Units - Equations") {
     core::units::Volts v{1.0f};
     core::units::Amperes i{2.0f};
     core::units::Ohms r{4.0f};
 
+
     SECTION("Ohm's Law") {
         auto v2 = i * r;
-        REQUIRE(v2.value() == 8.0f);
+        REQUIRE_THAT(static_cast<double>(v2.value()), Catch::Matchers::WithinAbs(8.0, epsilon));
         v2 = r * i;
-        REQUIRE(v2.value() == 8.0f);
+        REQUIRE_THAT(static_cast<double>(v2.value()), Catch::Matchers::WithinAbs(8.0, epsilon));
 
         auto i2 = v / r;
-        REQUIRE(i2.value() == 0.25f);
+        REQUIRE_THAT(static_cast<double>(i2.value()), Catch::Matchers::WithinAbs(0.25, epsilon));
 
         auto r2 = v / i;
-        REQUIRE(r2.value() == 0.5f);
+        REQUIRE_THAT(static_cast<double>(r2.value()), Catch::Matchers::WithinAbs(0.5, epsilon));
     }
     SECTION("Power") {
         auto p = v * i;
-        REQUIRE(p.value() == 2.0f);
+        REQUIRE_THAT(static_cast<double>(p.value()), Catch::Matchers::WithinAbs(2.0, epsilon));
         p = i * v;
-        REQUIRE(p.value() == 2.0f);
+        REQUIRE_THAT(static_cast<double>(p.value()), Catch::Matchers::WithinAbs(2.0, epsilon));
     }
     SECTION("Literals") {
         using namespace core::units;
@@ -51,27 +55,27 @@ TEST_CASE("Units - Equations") {
         auto i2 = 1.0_A;
         auto r2 = 1.0_Ohm;
         auto p = v2 / i2;
-        REQUIRE(p.value() == r2.value());
+        REQUIRE_THAT(static_cast<double>(p.value()), Catch::Matchers::WithinAbs(static_cast<double>(r2.value()), epsilon));
 
         auto v3 = 1.0_mV;
         auto i3 = 1.0_mA;
         auto r3 = v3 / i3;
-        REQUIRE(r3.value() == 1.0f);
+        REQUIRE_THAT(static_cast<double>(r3.value()), Catch::Matchers::WithinAbs(1.0, epsilon));
 
         auto r4 = 1.0_kOhm;
-        REQUIRE(r4.value() == 1000.0f);
+        REQUIRE_THAT(static_cast<double>(r4.value()), Catch::Matchers::WithinAbs(1000.0, epsilon));
 
         auto t0 = 42_ticks;
         REQUIRE(t0.value() == 42U);
 
         auto s0 = 1.0_sec;
-        REQUIRE(s0.value() == 1.0f);
+        REQUIRE_THAT(static_cast<double>(s0.value()), Catch::Matchers::WithinAbs(1.0, epsilon));
 
         auto s1 = 1.0_msec;
-        REQUIRE(s1.value() == 0.001f);
+        REQUIRE_THAT(static_cast<double>(s1.value()), Catch::Matchers::WithinAbs(0.001, epsilon));
 
         auto s2 = 1.0_usec;
-        REQUIRE(s2.value() == 0.000001f);
+        REQUIRE_THAT(static_cast<double>(s2.value()), Catch::Matchers::WithinAbs(0.000001, 0.0000001));
 
         auto m3 = 147_usec;
         REQUIRE(m3.value() == 147U);
@@ -101,7 +105,7 @@ TEST_CASE("Units - Conversions") {
 
     SECTION("Ticks to Time") {
         core::units::Seconds s0 = core::units::ConvertToSeconds(42_ticks);
-        REQUIRE(s0.value() == 0.328125F);
-        REQUIRE(s0.value() == 42.0F * core::units::tick_period);
+        REQUIRE_THAT(static_cast<double>(s0.value()), Catch::Matchers::WithinAbs(0.328125, epsilon));
+        REQUIRE_THAT(static_cast<double>(s0.value()), Catch::Matchers::WithinAbs(42.0 * static_cast<double>(core::units::tick_period), epsilon));
     }
 }

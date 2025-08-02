@@ -23,6 +23,9 @@ public:
     /// @param level The level of the indicator to use as it's "ON" state
     Indicator(stm32::gpio::Pin& pin, Level level);
 
+    /// @brief The default destructor is allowed
+    virtual ~Indicator() = default;
+
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // Overrides
     void Active() override;

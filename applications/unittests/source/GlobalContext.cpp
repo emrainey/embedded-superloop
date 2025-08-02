@@ -10,12 +10,16 @@ using jarnax::SuperLoop;
 
 class GlobalContext : public Context {
 public:
+    /// Default Constructor
     GlobalContext()
         : self_test_{}
         , libc_test_{}
         , tick_test_{}
         , stack_test_{}
         , superloop_{jarnax::GetTicker()} {}
+
+    /// Default Destructor
+    virtual ~GlobalContext() = default;
 
     Status Initialize(void) override {
         bool result = true;

@@ -42,15 +42,49 @@ add_library(strict INTERFACE)
 target_compile_options(strict
     INTERFACE
         -Wall -Wextra -Werror -pedantic
+        -Walloca
         -Wcast-align
+        -Wcast-align
+        -Wcast-qual
         -Wconversion
-        -Wsign-conversion
+        -Wctor-dtor-privacy
+        -Wdeprecated-copy-dtor
+        -Wdouble-promotion
+        -Wenum-conversion
+        -Wextra-semi
+        -Wfloat-equal
+        -Wformat-signedness
+        -Wformat=2
+        -Wmismatched-tags
+        -Wmissing-braces
+        -Wmultichar
+        -Wnon-virtual-dtor
         -Wold-style-cast
+        -Woverloaded-virtual
+        -Wpointer-arith
+        -Wrange-loop-construct
         -Wshadow
-        $<$<CXX_COMPILER_ID:GCC>:-Wlogical-op>
+        -Wshadow
+        -Wsign-conversion
         -Wsuggest-override
-        $<$<CXX_COMPILER_ID:GCC>:-Wsuggest-final-types>
+        -Wuninitialized
+        -Wvla
+        -Wwrite-strings
+        $<IF:$<BOOL:${BUILD_CROSS_TARGET}>,-Wframe-larger-than=1024,>
+        $<$<CXX_COMPILER_ID:GCC>:-Wcomma-subscript>
+        $<$<CXX_COMPILER_ID:GCC>:-Wduplicated-branches>
+        $<$<CXX_COMPILER_ID:GCC>:-Wduplicated-cond>
+        $<$<CXX_COMPILER_ID:GCC>:-Wformat-overflow=2>
+        $<$<CXX_COMPILER_ID:GCC>:-Wlogical-op>
+        $<$<CXX_COMPILER_ID:GCC>:-Wlogical-op>
+        $<$<CXX_COMPILER_ID:GCC>:-Wnoexcept>
+        $<$<CXX_COMPILER_ID:GCC>:-Wrestrict>
+        $<$<CXX_COMPILER_ID:GCC>:-Wstrict-null-sentinel>
+        $<$<CXX_COMPILER_ID:GCC>:-Wsuggest-attribute=format>
+        $<$<CXX_COMPILER_ID:GCC>:-Wsuggest-attribute=malloc>
         $<$<CXX_COMPILER_ID:GCC>:-Wsuggest-final-methods>
+        $<$<CXX_COMPILER_ID:GCC>:-Wsuggest-final-types>
+        $<$<CXX_COMPILER_ID:GCC>:-Wvolatile>
 )
 
 function(set_configuration_name VAR CFG)

@@ -60,6 +60,8 @@ public:
         Reset();
     }
 
+    virtual ~Transactable() = default;
+
     /// @brief The envent enumeration for the transaction
     enum class Event {
         None = 0,            ///< No event has occurred (after an event has been processed it will be set back to None)

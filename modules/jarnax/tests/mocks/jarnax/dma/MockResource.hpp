@@ -25,6 +25,7 @@ public:
     MOCK_METHOD(core::Status, Disable, (), (override));
     MOCK_METHOD(core::Status, GetStatus, (), (const, override));
     MOCK_METHOD(size_t, GetIdentifier, (), (const, override));
+    virtual ~MockResource() = default;
 };
 
 }    // namespace dma

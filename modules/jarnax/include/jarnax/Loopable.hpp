@@ -20,6 +20,8 @@ public:
         : execute_info_{}
         , loop_info_{} {}
 
+    virtual ~Loopable() = default;
+
     /// @brief The Loopable Object Information
     struct Info final {
         /// A small unique identifier for the Loopable Object to be used to differentiate between objects.

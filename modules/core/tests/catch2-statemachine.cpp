@@ -18,6 +18,8 @@ public:
         , event{}
         , counter{0U} {}
 
+    virtual ~StateMachineFixture() = default;
+
     void OnEnter() override {
         results.started = true;
         statistics.enter++;

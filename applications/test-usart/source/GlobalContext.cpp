@@ -17,6 +17,9 @@ public:
         , monitor_{jarnax::GetBoardContext().GetTimer(), jarnax::GetBoardContext().GetStatusIndicator(), jarnax::GetBoardContext().GetErrorIndicator()}
         , superloop_{jarnax::GetTicker()} {}
 
+    /// Default Destructor
+    virtual ~GlobalContext() = default;
+
     Status Initialize(void) override {
         bool result = true;
         result &= GetSuperLoop().Enlist(monitor_);

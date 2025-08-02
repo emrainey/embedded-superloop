@@ -66,13 +66,16 @@ class Pin : public jarnax::gpio::Input, public jarnax::gpio::Output {
 public:
     /// @brief The default constructor is deleted
     Pin() = delete;
+
     /// @brief The parameterized constructor
     Pin(Port port, uint8_t index);
-    // since no pointers are contained within, this can be copied and moved.
-    ~Pin() = default;
+
+    /// Default Destructor since no pointers are contained within, this can be copied and moved.
+    virtual ~Pin() = default;
 
     /// @return The value of the pin
     bool Value() const override;
+
     /// Sets the value of the Pin
     /// @param value The value to set the pin to
     void Value(bool value) override;

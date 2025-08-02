@@ -374,7 +374,17 @@ void print(const char *format, ...) {
     va_list args;
     va_start(args, format);
     if constexpr (use_system_printf) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
         std::vprintf(format, args);
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
+#pragma GCC diagnostic pop
     } else {
         vprint(format, args);
     }
@@ -398,11 +408,24 @@ public:
         operator()("SimplePrinter Initialized\r\n");
     }
 
+    /// Default Destructor
+    virtual ~SimplePrinter() = default;
+
     void operator()(const char *const format, ...) const override {
         if constexpr (use_system_printf) {
             va_list args;
             va_start(args, format);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
             std::vprintf(format, args);
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
+#pragma GCC diagnostic pop
             va_end(args);
         } else {
             va_list args;

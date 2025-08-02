@@ -74,7 +74,7 @@ protected:
     ~Executor() = default;
 };
 
-class WinbondStateMachine : public core::StateMachine<State>, protected core::StateMachine<State>::Callback {
+class WinbondStateMachine final : public core::StateMachine<State>, protected core::StateMachine<State>::Callback {
 public:
     /// @brief The parameter constructor
     /// @param listener The reference to the Event Listener

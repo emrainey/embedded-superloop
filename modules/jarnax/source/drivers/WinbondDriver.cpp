@@ -16,12 +16,17 @@ public:
     void operator()(core::Span<uint8_t>&) override {
         // do nothing
     }
+
+    virtual ~Empty() = default;
 };
 
 class Addresser : public Functor {
 public:
     Addresser(w25q16bv::Address& address)
         : address_{address} {}
+
+    virtual ~Addresser() = default;
+
     void operator()(core::Span<uint8_t>& data) override {
         // instruction goes into data[0U]
         data[1U] = address_.address[0U];
@@ -29,12 +34,15 @@ public:
         data[3U] = address_.address[2U];
     }
 
+
 protected:
     w25q16bv::Address address_;
 };
 
 class Reseter : public Functor {
 public:
+    virtual ~Reseter() = default;
+
     void operator()(core::Span<uint8_t>& data) override {
         // instruction goes into data[0U]
         data[1U] = to_underlying(::w25q16bv::Instruction::ResetDevice);

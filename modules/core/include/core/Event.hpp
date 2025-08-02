@@ -52,14 +52,19 @@ public:
     /// @brief The storage type of the Single Event, which reuses the Event's Type
     using StorageType = typename Event<STORAGE>::StorageType;
 
-    /// @brief Single Event do not initialize as fired by the default constructor
-    Single() = default;
+    /// @brief Default Constructor begins as not fired and set to the zero value of the StorageType
+    Single()
+        : fired_{false}
+        , value_{StorageType(0)} {}
 
     /// @brief Single Event do initialize as fired by the parameterized constructor
     /// @param initial The initial value of the Event
     Single(StorageType initial)
         : fired_{true}
         , value_{initial} {}
+
+    /// @brief Single Event do not initialize as fired by the default constructor
+    virtual ~Single() = default;
 
     /// @brief Explicit bool test
     explicit operator bool(void) const override { return fired_; }
@@ -97,6 +102,8 @@ public:
 
     /// @brief The default constructor does not set the events.
     Multiplier() = default;
+
+    virtual ~Multiplier() = default;
 
     /// @brief The initializer list will connect all the suborddinate Single Events into this Event, clearing them in
     /// the process.

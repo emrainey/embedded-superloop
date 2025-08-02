@@ -9,7 +9,7 @@
 
 namespace stm32 {
 namespace uart {
-class Driver : public jarnax::uart::Driver {
+class Driver final : public jarnax::uart::Driver {
 public:
     /// @brief Constructor
     /// @param uart The UART peripheral to use
@@ -23,6 +23,8 @@ public:
         jarnax::Peripheral tx_peripheral,
         core::Allocator& dma_allocator
     );
+
+    virtual ~Driver() = default;
 
     core::Status Initialize(core::units::Hertz peripheral_frequency);
 

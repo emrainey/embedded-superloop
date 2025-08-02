@@ -15,6 +15,9 @@ public:
     /// Retrieves the SuperLoop from the Context.
     /// @return The reference to the SuperLoop
     virtual SuperLoop& GetSuperLoop(void) = 0;
+protected:
+    /// The default destructor is hidden to prevent deletion through the interface.
+    ~Context() = default;
 };
 
 /// The mechanism to get the Context for the system.

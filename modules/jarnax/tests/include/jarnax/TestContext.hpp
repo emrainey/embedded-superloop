@@ -9,6 +9,7 @@ class GlobalContext : public Context {
 public:
     GlobalContext()
         : loop_{jarnax::GetTicker()} {}
+    virtual ~GlobalContext() = default;
     core::Status Initialize() override { return core::Status{}; }
     SuperLoop &GetSuperLoop(void) override { return loop_; }
 

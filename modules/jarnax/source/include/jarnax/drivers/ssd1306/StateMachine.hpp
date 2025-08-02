@@ -55,7 +55,15 @@ public:
     /// @brief The parameter constructor
     /// @param client The reference to the callback interface
     StateMachine(Client& client);
-    ~StateMachine() = default;
+
+    // Delete all copy/move ops
+    StateMachine(StateMachine const&) = delete;
+    StateMachine(StateMachine&&) = delete;
+    StateMachine& operator=(StateMachine const&) = delete;
+    StateMachine& operator=(StateMachine&&) = delete;
+
+    /// Default Destructor
+    virtual ~StateMachine() = default;
 
     /// @brief Processes the event for the state machine
     /// @param event

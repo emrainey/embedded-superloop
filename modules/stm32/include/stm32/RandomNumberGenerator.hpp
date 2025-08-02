@@ -9,9 +9,15 @@ namespace stm32 {
 /// The random number generator driver for STM32
 class RandomNumberGenerator : public jarnax::RandomNumberGenerator, public jarnax::Initializable {
 public:
+    /// Default Constructor
     RandomNumberGenerator() = default;
+    /// Default Destructor
+    virtual ~RandomNumberGenerator() = default;
+
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     core::Status Initialize() override;
     std::uint32_t GetNextRandom(void) override;
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 protected:
     constexpr static std::size_t kInitializeLimit{1000U};    ///< Don't let the object initialize forever.

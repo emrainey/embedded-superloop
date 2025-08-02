@@ -14,6 +14,8 @@ public:
     /// @brief Gets the current value of the pin
     /// @return True is logic high, False is logic low
     virtual bool Value(void) const = 0;
+protected:
+    ~Input() = default;
 };
 
 }  // namespace gpio
