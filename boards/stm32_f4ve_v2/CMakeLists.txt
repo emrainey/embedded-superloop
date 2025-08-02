@@ -15,6 +15,10 @@ add_board(NAME stm32_f4ve_v2
         memory
     MODULES
         stm32 segger jarnax
+        stm32-spi-driver
+        stm32-i2c-driver
+        stm32-uart-driver
+        stm32-usart-driver
     CONFIGURATIONS
         ${LOCAL_CONFIGURATIONS}
 )

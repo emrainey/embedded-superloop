@@ -38,7 +38,7 @@ namespace debug {
 constexpr static bool i2c{true};
 constexpr static bool i2c_isr{false};
 constexpr static bool spi{true};
-constexpr static bool spi_isr{true};
+constexpr static bool spi_isr{false}; // this seems to effect timing, be careful!
 constexpr static bool usart{true};
 constexpr static bool usart_isr{false};
 constexpr static bool dma{true};
@@ -76,7 +76,7 @@ constexpr static std::uint32_t usart1_baud_rate = 230400U;
 /// The Bus Rate for the I2C1
 constexpr static core::units::Hertz i2c1_bus_frequency = 400_KHz;
 /// The SPI2 External Frequency
-constexpr static core::units::Hertz spi2_bus_frequency = 6_MHz;    // should get the /8
+constexpr static core::units::Hertz spi2_bus_frequency = 1_MHz;
 /// The UxART TX DMA Buffer Size
 constexpr static std::uint32_t usart_tx_dma_buffer_size = 128U;
 /// The UxART RX DMA Buffer Size

@@ -1,4 +1,5 @@
 #include "board.hpp"
+#include "cortex/thumb.hpp"
 #include "jarnax/print.hpp"
 #include "jarnax/Assertion.hpp"
 #include "stm32/spi/Driver.hpp"
@@ -31,6 +32,7 @@ void spi3_isr(void) {
         spi_instances[2]->HandleInterrupt();
     }
 }
+
 namespace spi {
 Driver::Driver(
     stm32::registers::SerialPeripheralInterface volatile& spi,
@@ -290,22 +292,6 @@ core::Status Driver::Check(jarnax::spi::Transaction& transaction) {
             rx_complete = false;
         }
     }
-    if constexpr (jarnax::debug::spi) {
-        registers::SerialPeripheralInterface::Status status_reg = spi_.status;    // read
-        jarnax::print(
-            "SPI Status u:%" PRIu32 " o:%" PRIu32 " tbe:%" PRIu32 " rbne:%" PRIu32 " crce:%" PRIu32 " mf:%" PRIu32 " b:%" PRIu32 "\n",
-            static_cast<uint32_t>(status_reg.bits.underrun),
-            static_cast<uint32_t>(status_reg.bits.overrun),
-            static_cast<uint32_t>(status_reg.bits.transmit_buffer_empty),
-            static_cast<uint32_t>(status_reg.bits.receive_buffer_not_empty),
-            static_cast<uint32_t>(status_reg.bits.crc_error),
-            static_cast<uint32_t>(status_reg.bits.mode_fault),
-            static_cast<uint32_t>(status_reg.bits.busy)
-        );
-    }
-    if (spi_.status.bits.busy) {
-        return core::Status{core::Result::Busy, core::Cause::State};
-    }
     if (tx_complete and rx_complete) {
         Cancel(transaction);
         if (tx_fault or rx_fault) {
@@ -375,10 +361,12 @@ core::Status Driver::Cancel(jarnax::spi::Transaction& transaction) {
 }
 
 void Driver::HandleInterrupt(void) {
-    registers::SerialPeripheralInterface::Control1 control1 = spi_.control1;    // read
-    registers::SerialPeripheralInterface::Control2 control2 = spi_.control2;    // read
-    registers::SerialPeripheralInterface::Status status = spi_.status;          // read
+    registers::SerialPeripheralInterface::Status status;
+    registers::SerialPeripheralInterface::Control2 control2;
     registers::SerialPeripheralInterface::Data data;
+
+    status = spi_.status;    // read the status register
+
     statistics_.interrupts++;
     if constexpr (jarnax::debug::spi_isr) {
         jarnax::print(
@@ -394,23 +382,10 @@ void Driver::HandleInterrupt(void) {
             static_cast<uint32_t>(status.bits.busy)
         );
     }
-    if (status.bits.overrun) {
-        data = spi_.data;    // read to clear
-        statistics_.overrun++;
-    }
-    if (status.bits.underrun) {
-        data = spi_.data;    // read to clear
-        statistics_.underrun++;
-    }
-    if (status.bits.crc_error) {
-        data = spi_.data;    // read to clear
-        statistics_.crc_error++;
-    }
-    if (status.bits.mode_fault) {
-        data = spi_.data;    // read to clear
-        statistics_.mode_fault++;
-    }
-
+    control2 = spi_.control2;    // read the control2 register
+    thumb::nop();
+    thumb::nop();
+    thumb::nop();
     if (control2.bits.receive_buffer_not_empty_interrupt_enable and status.bits.receive_buffer_not_empty) {
         // reading from spi_.data will clear the RXNE flag
         statistics_.receive_buffer_not_empty++;
@@ -441,9 +416,10 @@ void Driver::HandleInterrupt(void) {
         if constexpr (not use_dma_for_spi) {
             if (transaction_->sent_size < transaction_->send_size) {
                 auto tx_span = transaction_->buffer.as_span().subspan(0, transaction_->send_size);
-                spi_.data.bits.data = tx_span[transaction_->sent_size++];    // write from the buffer to the register
+                data.bits.data = tx_span[transaction_->sent_size++];    // write from the buffer to the register
+                spi_.data = data;    // write
                 statistics_.bytes_transmitted++;
-            } else {
+            //} else {
                 // we let this fire one more extra time so that we can disable the TXE interrupt and the transaction
                 if (transaction_->sent_size == transaction_->send_size) {
                     control2 = spi_.control2;                                    // read
@@ -463,6 +439,21 @@ void Driver::HandleInterrupt(void) {
                              core::Status{core::Result::Success, core::Cause::State});    // inform the transaction that it is complete
         // forget the pointer
         transaction_ = nullptr;
+    }
+
+    if (status.bits.overrun) {
+        data = spi_.data;    // read the data register to clear the overrun flag
+        status = spi_.status;    // read the status register again to clear the overrun flag
+        statistics_.overrun++;
+    }
+    if (status.bits.underrun) {
+        statistics_.underrun++;
+    }
+    if (status.bits.crc_error) {
+        statistics_.crc_error++;
+    }
+    if (status.bits.mode_fault) {
+        statistics_.mode_fault++;
     }
 }
 

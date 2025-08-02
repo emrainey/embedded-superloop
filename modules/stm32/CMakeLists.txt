@@ -10,10 +10,6 @@ add_module(NAME stm32
         ${CMAKE_CURRENT_SOURCE_DIR}/source/RandomNumberGenerator.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/dma/Manager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/dma/Resource.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/i2c/Driver.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/spi/Driver.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/uart/Driver.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/usart/Driver.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Timer2.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/backup.cpp
     INCLUDES
@@ -33,13 +29,81 @@ add_module(NAME stm32
         ${LOCAL_BOARDS}
 )
 
+add_module(NAME stm32-spi-driver
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/spi/Driver.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+    LIBRARIES
+        jarnax-interfaces
+    GENERIC_MODULES
+        core
+    ARCH
+        cortex
+    CONFIGURATIONS
+        ${LOCAL_CONFIGURATIONS}
+    BOARDS
+        ${LOCAL_BOARDS}
+)
+
+add_module(NAME stm32-i2c-driver
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/i2c/Driver.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+    LIBRARIES
+        jarnax-interfaces
+    GENERIC_MODULES
+        core
+    ARCH
+        cortex
+    CONFIGURATIONS
+        ${LOCAL_CONFIGURATIONS}
+    BOARDS
+        ${LOCAL_BOARDS}
+)
+
+add_module(NAME stm32-uart-driver
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/uart/Driver.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+    LIBRARIES
+        jarnax-interfaces
+    GENERIC_MODULES
+        core
+    ARCH
+        cortex
+    CONFIGURATIONS
+        ${LOCAL_CONFIGURATIONS}
+    BOARDS
+        ${LOCAL_BOARDS}
+)
+
+add_module(NAME stm32-usart-driver
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/usart/Driver.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+    LIBRARIES
+        jarnax-interfaces
+    GENERIC_MODULES
+        core
+    ARCH
+        cortex
+    CONFIGURATIONS
+        ${LOCAL_CONFIGURATIONS}
+    BOARDS
+        ${LOCAL_BOARDS}
+)
+
 host_unit_test(NAME test-stm32-i2c
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-stm32-i2c.cpp
     LIBRARIES
         strict core-none-all
     MODULES
-        jarnax stm32
+        jarnax stm32 stm32-i2c-driver
     GOOGLETEST
     CONFIGURATIONS
         basic
@@ -53,7 +117,7 @@ host_unit_test(NAME test-stm32-spi
     LIBRARIES
         strict core-none-all
     MODULES
-        jarnax stm32
+        jarnax stm32 stm32-spi-driver
     GOOGLETEST
     CONFIGURATIONS
         basic

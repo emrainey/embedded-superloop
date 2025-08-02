@@ -15,6 +15,10 @@ add_board(NAME netduinoplus2
         memory
     MODULES
         stm32 segger jarnax
+        stm32-i2c-driver
+        stm32-spi-driver
+        stm32-uart-driver
+        stm32-usart-driver
     CONFIGURATIONS
         ${LOCAL_CONFIGURATIONS}
 )
