@@ -13,12 +13,14 @@
 #define NAKED
 #define USED
 #define ALWAYS_INLINE
+#define ISR
 #else
 #define ATTRIBUTE(x) __attribute__(x)
-#define LINKER_SECTION(x) __attribute__((used, section(x)))
-#define NAKED __attribute__((used, naked))
-#define USED __attribute__((used))
-#define ALWAYS_INLINE __attribute__((always_inline))
+#define LINKER_SECTION(x) ATTRIBUTE((used, section(x)))
+#define NAKED ATTRIBUTE((used, naked))
+#define USED ATTRIBUTE((used))
+#define ALWAYS_INLINE ATTRIBUTE((always_inline))
+#define ISR ATTRIBUTE((used, naked, nothrow, noreturn, weak, alias("dummy_isr")))
 #endif
 
 #include <cstdint>
