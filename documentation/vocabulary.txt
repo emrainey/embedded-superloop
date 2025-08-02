@@ -1,5 +1,10 @@
+aeabi
 bist
 bmfsl
+cmsis
+cxa
+cxx
+cxxflags
 eabi
 fclk
 hclk
@@ -8,8 +13,11 @@ i2s
 ifdef
 iic
 itemis
+járnøx
+jarnax
 libc
 mclk
+mcu
 miso
 MISRA
 mosi
@@ -24,6 +32,7 @@ sclk
 sda
 segger
 spi
+systick
 uart
 usart
 Yakindu

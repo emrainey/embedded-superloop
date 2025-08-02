@@ -16,7 +16,7 @@
         {
             "name": "Cortex-Debug (JLink) On Target Tests",
             "cwd": "${workspaceRoot}",
-            "executable": "${workspaceFolder}/build/cortex-gcc-arm-none-eabi/applications/simple/ontarget-tests-stm32-basic-stm32_f4ve_v2.elf",
+            "executable": "${workspaceFolder}/build/cortex-gcc-arm-none-eabi/applications/unittests/ontarget-tests-stm32-basic-stm32_f4ve_v2.elf",
             "request": "launch",
             "type": "cortex-debug",
             "servertype": "jlink",
@@ -25,7 +25,7 @@
             "device": "STM32F407VE",
             "internalConsoleOptions": "openOnSessionStart",
             //"internalConsoleOptions": "openOnFirstSessionStart",
-            "svdFile": "${workspaceFolder}/scripts/STM32F407.svd",
+            "svdFile": "${workspaceFolder}/modules/stm32/scripts/STM32F407.svd",
             //"preLaunchTask": "Build",
             "showDevDebugOutput": true,
             "preLaunchCommands": [
@@ -40,12 +40,12 @@
             "type": "cortex-debug",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "executable": "${workspaceFolder}/build/cortex-gcc-arm-none-eabi/applications/simple/jlink-spi-demo-stm32_f4ve_v2.elf",
+            "executable": "${workspaceFolder}/build/cortex-gcc-arm-none-eabi/applications/simple/spi-demo-stm32-basic-stm32_f4ve_v2.elf",
             "servertype": "jlink",
             "interface": "swd",
             "runToEntryPoint": "true",
             "device": "STM32F407VE",
-            "svdFile": "${workspaceFolder}/scripts/STM32F407.svd",
+            "svdFile": "${workspaceFolder}/modules/stm32/scripts/STM32F407.svd",
             "internalConsoleOptions": "openOnSessionStart",
             "showDevDebugOutput": "both",
             "preLaunchCommands": [
