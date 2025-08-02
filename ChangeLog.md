@@ -1,5 +1,11 @@
 # Versions
 
+## v0.3.0 Unit Tests for I2C/SPI
+
+* Working unit tests for I2C and SPI
+* SPI verified against temp sensor (disable the ISR debug!)
+* Drivers are built per config/board and linked on the board.
+
 ## v0.2.0 Functional but basic system
 
 * DMA Manager/Resource & STM32 Driver
