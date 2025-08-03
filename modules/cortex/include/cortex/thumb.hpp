@@ -171,10 +171,11 @@ ALWAYS_INLINE inline void stacks(void* main_stack, void* process_stack) {
 ALWAYS_INLINE inline cortex::word get_control() {
     cortex::word value{0u};
 #if defined(__arm__)
-    asm volatile("mrs %0, control    \r\n"
-                 : "=r"(value)       // outputs
-                 :                   // inputs
-                 : "cc", "memory"    // clobbers
+    asm volatile(
+        "mrs %0, control    \r\n"
+        : "=r"(value)       // outputs
+        :                   // inputs
+        : "cc", "memory"    // clobbers
     );
 #endif
     return value;
@@ -184,10 +185,11 @@ ALWAYS_INLINE inline cortex::word get_control() {
 /// @warning This is a privileged instruction that will result in a fault if not in privileged mode
 ALWAYS_INLINE inline void set_control(cortex::word value) {
 #if defined(__arm__)
-    asm volatile("msr control, %0    \r\n"
-                 :                   // outputs
-                 : "r"(value)        // inputs
-                 : "cc", "memory"    // clobbers
+    asm volatile(
+        "msr control, %0    \r\n"
+        :                   // outputs
+        : "r"(value)        // inputs
+        : "cc", "memory"    // clobbers
     );
 #else
     (void)value;
@@ -198,10 +200,11 @@ ALWAYS_INLINE inline void set_control(cortex::word value) {
 inline uintptr_t get_link_return(void) {
     uintptr_t link_return = 0U;
 #if defined(__arm__)
-    asm volatile("mov %0, lr\r\n"
-                 : "=r"(link_return)    // outputs
-                 :                      // inputs
-                 : "cc", "memory"       // clobbers
+    asm volatile(
+        "mov %0, lr\r\n"
+        : "=r"(link_return)    // outputs
+        :                      // inputs
+        : "cc", "memory"       // clobbers
     );
 #endif
     return link_return;
@@ -211,10 +214,11 @@ inline uintptr_t get_link_return(void) {
 inline std::uint32_t* get_current_stack_pointer(void) {
     std::uint32_t* sp = nullptr;
 #if defined(__arm__)
-    asm volatile("mov %0, sp\r\n"
-                 : "=r"(sp)          // outputs
-                 :                   // inputs
-                 : "cc", "memory"    // clobbers
+    asm volatile(
+        "mov %0, sp\r\n"
+        : "=r"(sp)          // outputs
+        :                   // inputs
+        : "cc", "memory"    // clobbers
     );
 #endif
     return sp;
@@ -224,10 +228,11 @@ inline std::uint32_t* get_current_stack_pointer(void) {
 inline uintptr_t get_current_stack_address(void) {
     uintptr_t stack_address = 0U;
 #if defined(__arm__)
-    asm volatile("mov %0, sp\r\n"
-                 : "=r"(stack_address)    // outputs
-                 :                        // inputs
-                 : "cc", "memory"         // clobbers
+    asm volatile(
+        "mov %0, sp\r\n"
+        : "=r"(stack_address)    // outputs
+        :                        // inputs
+        : "cc", "memory"         // clobbers
     );
 #endif
     return stack_address;
@@ -237,10 +242,11 @@ inline uintptr_t get_current_stack_address(void) {
 inline uintptr_t get_main_stack_address(void) {
     uintptr_t stack_address = 0U;
 #if defined(__arm__)
-    asm volatile("mrs %0, msp \r\n"
-                 : "=r"(stack_address)    // outputs
-                 :                        // inputs
-                 : "cc", "memory"         // clobbers
+    asm volatile(
+        "mrs %0, msp \r\n"
+        : "=r"(stack_address)    // outputs
+        :                        // inputs
+        : "cc", "memory"         // clobbers
     );
 #endif
     return stack_address;
@@ -250,10 +256,11 @@ inline uintptr_t get_main_stack_address(void) {
 inline void* get_main_stack_pointer(void) {
     void* stack_address = 0U;
 #if defined(__arm__)
-    asm volatile("mrs %0, msp\r\n"
-                 : "=r"(stack_address)    // outputs
-                 :                        // inputs
-                 : "cc", "memory"         // clobbers
+    asm volatile(
+        "mrs %0, msp\r\n"
+        : "=r"(stack_address)    // outputs
+        :                        // inputs
+        : "cc", "memory"         // clobbers
     );
 #endif
     return stack_address;
@@ -263,10 +270,11 @@ inline void* get_main_stack_pointer(void) {
 inline uintptr_t get_process_stack_address(void) {
     uintptr_t stack_address = 0U;
 #if defined(__arm__)
-    asm volatile("mrs %0, psp\r\n"
-                 : "=r"(stack_address)    // outputs
-                 :                        // inputs
-                 : "cc", "memory"         // clobbers
+    asm volatile(
+        "mrs %0, psp\r\n"
+        : "=r"(stack_address)    // outputs
+        :                        // inputs
+        : "cc", "memory"         // clobbers
     );
 #endif
     return stack_address;
@@ -276,10 +284,11 @@ inline uintptr_t get_process_stack_address(void) {
 inline void* get_process_stack_pointer(void) {
     void* stack_address = 0U;
 #if defined(__arm__)
-    asm volatile("mrs %0, psp \r\n"
-                 : "=r"(stack_address)    // outputs
-                 :                        // inputs
-                 : "cc", "memory"         // clobbers
+    asm volatile(
+        "mrs %0, psp \r\n"
+        : "=r"(stack_address)    // outputs
+        :                        // inputs
+        : "cc", "memory"         // clobbers
     );
 #endif
     return stack_address;
@@ -339,10 +348,11 @@ ALWAYS_INLINE inline TYPE* get_exception_frame(void) {
 /// @brief Saves the context from before the interrupt service routine
 ALWAYS_INLINE inline void interrupt_service_routine_context_save(void) {
 #if defined(__arm__)
-    asm volatile("push {r4-r11, lr} \r\n"
-                 :    // outputs
-                 :    // inputs
-                 :    // clobbers
+    asm volatile(
+        "push {r4-r11, lr} \r\n"
+        :    // outputs
+        :    // inputs
+        :    // clobbers
     );
 #endif
 }
@@ -350,10 +360,11 @@ ALWAYS_INLINE inline void interrupt_service_routine_context_save(void) {
 /// @brief Restores the context after the interrupt service routine
 ALWAYS_INLINE inline void interrupt_service_routine_context_restore(void) {
 #if defined(__arm__)
-    asm volatile("pop {r4-r11, pc} \r\n"
-                 :    // outputs
-                 :    // inputs
-                 :    // clobbers
+    asm volatile(
+        "pop {r4-r11, pc} \r\n"
+        :    // outputs
+        :    // inputs
+        :    // clobbers
     );
 #endif
 }

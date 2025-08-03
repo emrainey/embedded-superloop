@@ -6,9 +6,9 @@
 /// @details This driver is used to communicate with the SSD1306 OLED display over I2C.
 
 #include "jarnax/Timer.hpp"
+#include "jarnax/drivers/ssd1306/StateMachine.hpp"
 #include "jarnax/i2c/Driver.hpp"
 #include "jarnax/ssd1306/Driver.hpp"
-#include "jarnax/drivers/ssd1306/StateMachine.hpp"
 
 namespace jarnax {
 namespace drivers {

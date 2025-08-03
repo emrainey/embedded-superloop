@@ -157,10 +157,11 @@ struct ExceptionReturn final {
     __attribute__((always_inline)) inline static ExceptionReturn Extract(void) {
         ExceptionReturn exc_return;
 #if defined(__arm__)
-        asm volatile("mov %0, lr \r\n"           // ONLY during an exception will this work.
-                     : "=r"(exc_return.whole)    // outputs
-                     :                           // inputs
-                     : "cc", "memory"            // clobbers
+        asm volatile(
+            "mov %0, lr \r\n"           // ONLY during an exception will this work.
+            : "=r"(exc_return.whole)    // outputs
+            :                           // inputs
+            : "cc", "memory"            // clobbers
         );
 #endif
         return exc_return;
@@ -171,10 +172,11 @@ struct ExceptionReturn final {
     /// compiler seems to think that this function returns, which it can't.
     __attribute__((always_inline)) inline void return_from_exception(void) {
 #if defined(__arm__)
-        asm volatile("bx %0 \r\n"
-                     :                         // outputs
-                     : "r"(whole)              // inputs
-                     : "r0", "cc", "memory"    // clobbers
+        asm volatile(
+            "bx %0 \r\n"
+            :                         // outputs
+            : "r"(whole)              // inputs
+            : "r0", "cc", "memory"    // clobbers
         );
 #endif
     }

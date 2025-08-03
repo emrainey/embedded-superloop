@@ -4,8 +4,8 @@
 /// @file
 /// The Array Template
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #if defined(UNITTEST)
 #include <iostream>
 #endif

@@ -1,8 +1,8 @@
 #ifndef JARNAX_CONSOLE_HPP
 #define JARNAX_CONSOLE_HPP
 
-#include <cstdint>
 #include <core/Ring.hpp>
+#include <cstdint>
 #include <jarnax/Loopable.hpp>
 
 namespace jarnax {

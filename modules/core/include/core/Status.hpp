@@ -26,8 +26,10 @@ enum class Result : std::int8_t {
     NotConfigured = 14,     ///< The feature is not configured
 };
 
-constexpr char const * GetResultName(Result r) {
-    #define CASE_STR(x) case x: return #x
+constexpr char const* GetResultName(Result r) {
+#define CASE_STR(x) \
+    case x:         \
+        return #x
     switch (r) {
         CASE_STR(Result::Success);
         CASE_STR(Result::Failure);
@@ -44,9 +46,10 @@ constexpr char const * GetResultName(Result r) {
         CASE_STR(Result::ExceededLimit);
         CASE_STR(Result::NotImplemented);
         CASE_STR(Result::NotConfigured);
-        default: return "<?>";
+        default:
+            return "<?>";
     }
-    #undef CASE_STR
+#undef CASE_STR
 }
 
 /// The enumeration of Causes in the system
@@ -60,8 +63,10 @@ enum class Cause : std::uint8_t {
     State = 6U,            ///< Some Finite State Machine or StateChart or process
 };
 
-constexpr char const * GetCauseName(Cause c) {
-    #define CASE_STR(x) case x: return #x
+constexpr char const* GetCauseName(Cause c) {
+#define CASE_STR(x) \
+    case x:         \
+        return #x
     switch (c) {
         CASE_STR(Cause::Unknown);
         CASE_STR(Cause::Parameter);
@@ -70,9 +75,10 @@ constexpr char const * GetCauseName(Cause c) {
         CASE_STR(Cause::Configuration);
         CASE_STR(Cause::Hardware);
         CASE_STR(Cause::State);
-        default: return "<?>";
+        default:
+            return "<?>";
     }
-    #undef CASE_STR
+#undef CASE_STR
 }
 
 /// Locations are captured as addresses but are masked to be sub-ranges of the Flash Address Space

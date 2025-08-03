@@ -21,8 +21,9 @@ protected:
         DenominatorType c = static_cast<DenominatorType>(std::abs(a));    // ensure positive
         DenominatorType gcd = std::min(c, b);
         while (gcd > 0) {
-            if ((c % gcd) == 0 && (b % gcd) == 0)
+            if ((c % gcd) == 0 && (b % gcd) == 0) {
                 return gcd;
+            }
             gcd -= 1;
         }
         return 0;

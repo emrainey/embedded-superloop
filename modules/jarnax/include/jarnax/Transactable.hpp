@@ -4,12 +4,12 @@
 /// @file
 /// The Transactable Interface
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <limits>
+#include "core/StateMachine.hpp"
 #include "core/Status.hpp"
 #include "core/Units.hpp"
-#include "core/StateMachine.hpp"
 #include "jarnax/Timer.hpp"
 #include "jarnax/print.hpp"
 

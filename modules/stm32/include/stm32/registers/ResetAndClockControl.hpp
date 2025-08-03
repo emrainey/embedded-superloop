@@ -6,8 +6,8 @@
 /// Auto Generated Structure Definitions for ResetAndClockControl from the Peripheralyzer.
 /// @copyright
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <type_traits>
 
 namespace stm32 {

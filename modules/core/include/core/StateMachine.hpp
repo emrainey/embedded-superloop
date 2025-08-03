@@ -4,8 +4,8 @@
 /// @file
 /// The StateMachine Template
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <type_traits>
 #include <utility>
 #include "core/EnumType.hpp"

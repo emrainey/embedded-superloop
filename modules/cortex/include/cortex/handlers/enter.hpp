@@ -4,11 +4,11 @@
 /// @file
 /// The System Interface
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
-#include "configure.hpp"
 #include "compiler.hpp"
+#include "configure.hpp"
 #include "cortex/vectors.hpp"
 
 /// The namespace of the system level functions

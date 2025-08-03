@@ -1,8 +1,8 @@
 #ifndef JARNAX_I2C_MOCK_DRIVER_HPP_
 #define JARNAX_I2C_MOCK_DRIVER_HPP_
 
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
 #include "jarnax/i2c/Driver.hpp"
 #include "jarnax/i2c/MockTransactor.hpp"
 

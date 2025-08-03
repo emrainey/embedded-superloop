@@ -2,9 +2,9 @@
 #define JARNAX_I2C_DRIVER_HPP
 
 #include <cstdint>
-#include "jarnax/Transactable.hpp"
-#include "jarnax/Coordinator.hpp"
 #include "core/Buffer.hpp"
+#include "jarnax/Coordinator.hpp"
+#include "jarnax/Transactable.hpp"
 
 namespace jarnax {
 
@@ -47,8 +47,8 @@ union Address {
         std::uint16_t          : 4;     ///< Reserved and unused
         std::uint16_t is_large : 1;     ///< Indicates if the address is large (1) or small (0)
     } large;
-    std::uint8_t parts[2];    ///< The address as an array of 2 bytes
-    std::uint16_t whole;      ///< The whole address as an 8-bit value
+    std::uint8_t parts[2];              ///< The address as an array of 2 bytes
+    std::uint16_t whole;                ///< The whole address as an 8-bit value
 };
 
 /// @brief Defines a CRTP Transactable object for I2C transactions
@@ -98,7 +98,7 @@ public:
         if (actual_count > desired_count) {
             return false;    // actual count must not exceed desired count
         }
-        return true;    // all checks passed, transaction seems valid
+        return true;         // all checks passed, transaction seems valid
     }
 
     void Clear() {

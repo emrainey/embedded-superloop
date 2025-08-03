@@ -4,8 +4,8 @@
 /// @file
 /// The Ring Template
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <type_traits>
 #include <utility>
 #include "core/Span.hpp"

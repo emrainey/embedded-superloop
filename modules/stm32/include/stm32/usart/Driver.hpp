@@ -1,9 +1,9 @@
 #ifndef STM32_USART_DRIVER_HPP
 #define STM32_USART_DRIVER_HPP
 
-#include "jarnax/usart/Driver.hpp"
-#include "core/Units.hpp"
 #include "core/Buffer.hpp"
+#include "core/Units.hpp"
+#include "jarnax/usart/Driver.hpp"
 #include "stm32/dma/Manager.hpp"
 #include "stm32/registers/UniversalSynchronousAsynchronousReceiverTransmitter.hpp"
 
@@ -17,11 +17,8 @@ public:
     /// @param rx_peripheral The RX peripheral for the DMA Driver
     /// @param tx_peripheral The TX peripheral for the DMA Driver
     Driver(
-        registers::UniversalSynchronousAsynchronousReceiverTransmitter volatile& uart,
-        dma::Manager& dma_driver,
-        jarnax::Peripheral rx_peripheral,
-        jarnax::Peripheral tx_peripheral,
-        core::Allocator& dma_allocator
+        registers::UniversalSynchronousAsynchronousReceiverTransmitter volatile& uart, dma::Manager& dma_driver, jarnax::Peripheral rx_peripheral,
+        jarnax::Peripheral tx_peripheral, core::Allocator& dma_allocator
     );
 
     core::Status Initialize(core::units::Hertz peripheral_frequency);
@@ -35,10 +32,10 @@ public:
 
     /// @brief The statistics structure for the USART
     struct Statistics {
-        uint32_t overrun_error{0U};    ///< The number of overrun errors
-        uint32_t framing_error{0U};    ///< The number of framing errors
-        uint32_t noise_error{0U};      ///< The number of noise errors
-        uint32_t parity_error{0U};     ///< The number of parity errors
+        uint32_t overrun_error{0U};               ///< The number of overrun errors
+        uint32_t framing_error{0U};               ///< The number of framing errors
+        uint32_t noise_error{0U};                 ///< The number of noise errors
+        uint32_t parity_error{0U};                ///< The number of parity errors
 
         uint32_t idle{0U};                        ///< The number of idle interrupts
         uint32_t receive_buffer_not_empty{0U};    ///< The number of receive buffer not empty interrupts
@@ -47,8 +44,8 @@ public:
         uint32_t line_break_detection{0U};        ///< The number of line break detection interrupts
         uint32_t clear_to_send{0U};               ///< The number of clear to send interrupts
 
-        uint32_t bytes_received{0U};       ///< The number of bytes received
-        uint32_t bytes_transmitted{0U};    ///< The number of bytes transmitted
+        uint32_t bytes_received{0U};              ///< The number of bytes received
+        uint32_t bytes_transmitted{0U};           ///< The number of bytes transmitted
     };
 
     inline Statistics const& GetStatistics(void) const { return statistics_; }

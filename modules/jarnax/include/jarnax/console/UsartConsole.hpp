@@ -1,8 +1,8 @@
 #ifndef JARNAX_USART_CONSOLE_HPP
 #define JARNAX_USART_CONSOLE_HPP
 
-#include <jarnax/usart/Driver.hpp>
 #include <jarnax/console/Service.hpp>
+#include <jarnax/usart/Driver.hpp>
 
 namespace jarnax {
 namespace console {

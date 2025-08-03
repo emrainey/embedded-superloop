@@ -1,8 +1,8 @@
 #ifndef CORE_VARIANT_HPP
 #define CORE_VARIANT_HPP
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 // #include <variant>
 
 #include "core/Folds.hpp"

@@ -234,16 +234,16 @@ struct SystemControlBlock final {
             std::uint32_t active_pending_supervisor : 1;
             std::uint32_t active_system_tick        : 1;
 
-            std::uint32_t pending_usage_fault     : 1;
-            std::uint32_t pending_mem_fault       : 1;
-            std::uint32_t pending_bus_fault       : 1;
-            std::uint32_t pending_supervisor_call : 1;
+            std::uint32_t pending_usage_fault       : 1;
+            std::uint32_t pending_mem_fault         : 1;
+            std::uint32_t pending_bus_fault         : 1;
+            std::uint32_t pending_supervisor_call   : 1;
 
-            std::uint32_t enable_mem_fault   : 1;
-            std::uint32_t enable_bus_fault   : 1;
-            std::uint32_t enable_usage_fault : 1;
+            std::uint32_t enable_mem_fault          : 1;
+            std::uint32_t enable_bus_fault          : 1;
+            std::uint32_t enable_usage_fault        : 1;
 
-            std::uint32_t : 13;    ///< Reserved field
+            std::uint32_t                           : 13;    ///< Reserved field
         };
         /// @brief The union of the bit field and the whole register
         union {
@@ -318,7 +318,7 @@ struct SystemControlBlock final {
             : whole{other.whole} {}
         /// @brief The bit field for the Hard Fault Status Register
         struct Fields {
-            std::uint32_t                   : 1U;    ///< Reserved field
+            std::uint32_t                   : 1U;     ///< Reserved field
             std::uint32_t vector_table_read : 1U;
             std::uint32_t                   : 28U;    ///< Reserved field
             std::uint32_t forced            : 1U;

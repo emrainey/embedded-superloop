@@ -4,8 +4,8 @@
 /// @file
 /// The Span Template
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <strings.hpp>
 
 namespace core {

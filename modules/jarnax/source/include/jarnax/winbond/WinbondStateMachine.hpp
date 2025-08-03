@@ -22,16 +22,16 @@ enum class State : std::uint8_t {
 };
 
 enum class Event : std::uint16_t {
-    None = 0x0000U,    ///< No event
-    Entered,           ///< The StateMachine has been Entered
-    Exited,            ///< The StateMachine has been Exited
-    Reset,             ///< The reset event
-    PowerOn,           ///< The power on event
-    Identify,          ///< The identify event
+    None = 0x0000U,        ///< No event
+    Entered,               ///< The StateMachine has been Entered
+    Exited,                ///< The StateMachine has been Exited
+    Reset,                 ///< The reset event
+    PowerOn,               ///< The power on event
+    Identify,              ///< The identify event
 
-    ReadPage,     ///< The read page event
-    WritePage,    ///< The write page event
-    ErasePage,    ///< The erase page event
+    ReadPage,              ///< The read page event
+    WritePage,             ///< The write page event
+    ErasePage,             ///< The erase page event
 
     PowerOff,              ///< The power off event
     Faulted,               ///< The fault event

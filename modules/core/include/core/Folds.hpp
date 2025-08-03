@@ -1,8 +1,8 @@
 #ifndef CORE_FOLDS_HPP_
 #define CORE_FOLDS_HPP_
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 namespace core {
 

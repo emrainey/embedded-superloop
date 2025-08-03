@@ -8,10 +8,10 @@
 #include <new>
 #endif
 
-#include <cstdint>
-#include <cstddef>
-#include <utility>
 #include <core/core.hpp>
+#include <cstddef>
+#include <cstdint>
+#include <utility>
 
 /// @brief The namespace for the SEGGER RTT implementation.
 namespace rtt {

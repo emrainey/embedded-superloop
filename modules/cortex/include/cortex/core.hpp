@@ -4,8 +4,8 @@
 /// @file
 /// The Cortex M Core Header
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <limits>
 #include "compiler.hpp"
 

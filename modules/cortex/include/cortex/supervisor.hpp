@@ -4,9 +4,9 @@
 /// @file
 /// Supervisor Mode Functions
 
-#include "iso.hpp"
 #include "cortex/core.hpp"
 #include "cortex/thumb.hpp"
+#include "iso.hpp"
 
 namespace cortex {
 

@@ -4,19 +4,19 @@
 /// @file
 /// Core Library
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
-#include "core/std.hpp"
-#include "core/Span.hpp"
 #include "core/Array.hpp"
-#include "core/Split.hpp"
-#include "core/Ring.hpp"
-#include "core/Status.hpp"
-#include "core/Stack.hpp"
 #include "core/Container.hpp"
-#include "core/Variant.hpp"
 #include "core/Fraction.hpp"
+#include "core/Ring.hpp"
+#include "core/Span.hpp"
+#include "core/Split.hpp"
+#include "core/Stack.hpp"
+#include "core/Status.hpp"
+#include "core/Variant.hpp"
+#include "core/std.hpp"
 // #include "core/Optional.hpp"
 #include "core/EnumType.hpp"
 #include "core/Intervals.hpp"
@@ -26,8 +26,8 @@
 #include "core/Pool.hpp"
 #include "core/StateMachine.hpp"
 #include "core/Units.hpp"
-#include "core/doublelink/Node.hpp"
 #include "core/avl/Node.hpp"
+#include "core/doublelink/Node.hpp"
 
 /// @brief The core namespace which holds the generic but embedded focused template types
 namespace core {

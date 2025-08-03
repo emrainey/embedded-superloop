@@ -16,7 +16,7 @@ public:
 
     Iota GetIotas(void) const override {
         auto now = current_;
-        current_ = now + 1_iota; // Simulate a tick
+        current_ = now + 1_iota;    // Simulate a tick
         return current_;
     }
 

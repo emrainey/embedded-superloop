@@ -1,8 +1,8 @@
 #ifndef CORE_RESULT_HPP
 #define CORE_RESULT_HPP
 
-#include <cstdint>
 #include <core/EnumType.hpp>
+#include <cstdint>
 
 namespace core {
 

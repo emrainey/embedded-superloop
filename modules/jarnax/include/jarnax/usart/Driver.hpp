@@ -1,8 +1,8 @@
 #ifndef JARNAX_USART_DRIVER_HPP
 #define JARNAX_USART_DRIVER_HPP
 
-#include "core/Status.hpp"
 #include "core/Span.hpp"
+#include "core/Status.hpp"
 #include "jarnax/Loopable.hpp"
 
 namespace jarnax {

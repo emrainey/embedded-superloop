@@ -13,7 +13,7 @@ namespace jarnax {
 template <typename TRANSACTION_TYPE>
 class Transactor {
 public:
-    using TransactionType = TRANSACTION_TYPE; ///< Should be the Derived Type of the Transactable
+    using TransactionType = TRANSACTION_TYPE;    ///< Should be the Derived Type of the Transactable
 
     /// @brief Verifies the transaction for correctness before @ref Start is called on it.
     /// @param transaction The pointer to the transaction
@@ -34,6 +34,7 @@ public:
     /// @param transaction The pointer to the transaction
     /// @return
     virtual core::Status Cancel(TransactionType& transaction) = 0;
+
 protected:
     ~Transactor() = default;
 };

@@ -23,9 +23,9 @@
 #define ISR ATTRIBUTE((used, naked, nothrow, noreturn, weak, alias("dummy_isr")))
 #endif
 
-#include <cstdint>
-#include <cstddef>
 #include <compare>
+#include <cstddef>
+#include <cstdint>
 
 // clang-format off
 inline size_t operator""_Z( unsigned long long int value) {

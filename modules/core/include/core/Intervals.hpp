@@ -1,8 +1,8 @@
 #ifndef CORE_INTERVALS_HPP
 #define CORE_INTERVALS_HPP
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <limits>
 #include <type_traits>
 #if defined(UNITTEST)
@@ -10,8 +10,8 @@
 #include <iostream>
 #endif
 
-#include <polyfill.hpp>
 #include <core/Array.hpp>
+#include <polyfill.hpp>
 
 namespace core {
 

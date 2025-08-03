@@ -1,8 +1,8 @@
 #ifndef DEBUG_HPP_
 #define DEBUG_HPP_
 
-#include <type_traits>
 #include <cstddef>
+#include <type_traits>
 
 /// Contains features used to debug the system at compile time
 namespace debug {

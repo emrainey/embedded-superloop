@@ -9,8 +9,8 @@ namespace cortex {
 struct BuiltInSelfTest final {
     /// Used to hold information about a specific test.
     struct Element final {
-        bool is_testing{false};    //!< Indicates that the element is under test
-        bool has_passed{false};    //!< Indicates that the test was able to pass
+        bool is_testing{false};                   //!< Indicates that the element is under test
+        bool has_passed{false};                   //!< Indicates that the test was able to pass
     };
     Element trigger_non_maskable_interrupt{};     //!< Tests triggered the NMI
     Element trigger_hard_fault{};                 //!< Tests triggering the hard-fault

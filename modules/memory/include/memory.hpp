@@ -4,8 +4,8 @@
 /// @file
 /// The Memory Operations
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 /// @brief Standard C compatibility API for memory sets.
 /// @param dst The pointer to the location to write the value.

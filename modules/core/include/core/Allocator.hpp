@@ -3,8 +3,8 @@
 /// @file
 /// The Allocator Interface
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 namespace core {
 

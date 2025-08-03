@@ -1,8 +1,8 @@
 #ifndef CORE_UNITS_UNIT_HPP
 #define CORE_UNITS_UNIT_HPP
 
-#include <type_traits>
 #include <cstdint>
+#include <type_traits>
 
 #if defined(UNITTEST)
 #include <iostream>

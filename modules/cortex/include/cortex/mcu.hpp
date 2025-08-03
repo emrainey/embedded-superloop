@@ -4,25 +4,25 @@
 /// @file
 /// The Cortex Micro Controller Header
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <limits>
-#include "debug.hpp"
-#include "iso.hpp"
 #include "compiler.hpp"
-#include "core/Split.hpp"
 #include "core/Intervals.hpp"
-#include "cortex/thumb.hpp"
+#include "core/Split.hpp"
 #include "cortex/SystemControlBlock.hpp"
+#include "cortex/bist.hpp"
+#include "cortex/clocks.hpp"
+#include "cortex/debug.hpp"
 #include "cortex/exceptions.hpp"
 #include "cortex/mpu.hpp"
-#include "cortex/trace.hpp"
-#include "cortex/debug.hpp"
-#include "cortex/tick.hpp"
-#include "cortex/clocks.hpp"
 #include "cortex/nvic.hpp"
-#include "cortex/bist.hpp"
 #include "cortex/supervisor.hpp"
+#include "cortex/thumb.hpp"
+#include "cortex/tick.hpp"
+#include "cortex/trace.hpp"
+#include "debug.hpp"
+#include "iso.hpp"
 
 /// The Cortex M Namespace
 namespace cortex {

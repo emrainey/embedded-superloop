@@ -4,8 +4,8 @@
 /// @file
 /// jarnax::Yieldable Interface
 
-#include "jarnax/Executable.hpp"
 #include "core/Event.hpp"
+#include "jarnax/Executable.hpp"
 
 namespace jarnax {
 /// @brief Yieldable objects inherit this interface and implement the Execute method
@@ -92,11 +92,11 @@ protected:
     /// The watermark value of the stack
     constexpr static uint32_t kWaterMark{0x55AAAA55};
 
-    uint32_t const m_watermark;                  ///< Watermark to check for stack overflow
-    alignas(8u) uint8_t m_stack[STACK_SIZE];     ///< Stack for the executable
-    void *m_stack_pointer;                       ///< Stack pointer for the executable (when it's not being used)
-    core::events::Single<EVENT_TYPE> m_event;    ///< Event for the Yieldable
-    size_t m_index{SIZE_MAX};                    ///< Index of the Yieldable in the private list
+    uint32_t const m_watermark;                   ///< Watermark to check for stack overflow
+    alignas(8u) uint8_t m_stack[STACK_SIZE];      ///< Stack for the executable
+    void *m_stack_pointer;                        ///< Stack pointer for the executable (when it's not being used)
+    core::events::Single<EVENT_TYPE> m_event;     ///< Event for the Yieldable
+    size_t m_index{SIZE_MAX};                     ///< Index of the Yieldable in the private list
 private:
     static bool s_initialized;                    ///< Whether the Yieldable statics have been initialized
     static Yieldable *s_yieldable_list[COUNT];    ///< List of all Yieldables

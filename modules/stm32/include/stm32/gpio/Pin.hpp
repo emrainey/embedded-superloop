@@ -5,8 +5,8 @@
 /// Auto Generated Structure Definitions for GeneralPurposeInputOutput from the Peripheralyzer.
 /// @copyright
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <type_traits>
 #include "jarnax/gpio/Input.hpp"
 #include "jarnax/gpio/Output.hpp"

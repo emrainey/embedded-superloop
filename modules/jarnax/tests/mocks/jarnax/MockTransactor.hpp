@@ -1,11 +1,11 @@
 #ifndef JARNAX_MOCK_TRANSACTOR_HPP_
 #define JARNAX_MOCK_TRANSACTOR_HPP_
 
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
-#include "jarnax/Transactor.hpp"
 #include "jarnax/Transactable.hpp"
+#include "jarnax/Transactor.hpp"
 
 namespace jarnax {
 

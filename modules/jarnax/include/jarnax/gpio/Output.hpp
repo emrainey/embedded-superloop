@@ -4,8 +4,8 @@
 /// @file
 /// The GPIO Output Interface
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 namespace jarnax {
 namespace gpio {

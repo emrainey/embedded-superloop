@@ -4,9 +4,9 @@
 /// @file
 /// The Print Interface
 
-#include "compiler.hpp"
-#include <cstdarg>
 #include <cinttypes>
+#include <cstdarg>
+#include "compiler.hpp"
 #include "core/Printer.hpp"
 #include "core/Span.hpp"
 

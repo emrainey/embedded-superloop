@@ -4,10 +4,10 @@
 /// @file
 /// The C++ PolyFill for features which are not available in the current version of C++
 
-#include <utility>
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <type_traits>
+#include <utility>
 
 /// Return the number of elements in a C style array
 template <typename TYPE, std::size_t N>

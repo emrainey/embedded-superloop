@@ -1,8 +1,8 @@
 #ifndef STM32_DMA_MANAGER_HPP
 #define STM32_DMA_MANAGER_HPP
 
-#include <jarnax/dma/Manager.hpp>
 #include <jarnax/Copier.hpp>
+#include <jarnax/dma/Manager.hpp>
 
 #include "stm32/dma/Resource.hpp"
 
@@ -103,9 +103,7 @@ protected:
     /// @retval Result::NotAvailable if the DMA controller is not available
     /// @note This method is used internally by the Copier interface to perform the actual copy operation.
     core::Status Copy(
-        std::uintptr_t destination,
-        std::uintptr_t source,
-        stm32::registers::DirectMemoryAccess::Stream::Configuration::DataSize data_size,
+        std::uintptr_t destination, std::uintptr_t source, stm32::registers::DirectMemoryAccess::Stream::Configuration::DataSize data_size,
         std::size_t count
     );
 

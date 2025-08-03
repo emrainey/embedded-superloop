@@ -5,10 +5,10 @@
 /// The SSD1306 StateMachine implementation
 /// @details This driver is used to represent the state machine for the SSD1306 OLED display.
 
-#include "ssd1306.hpp"
-#include "core/StateMachine.hpp"
 #include "core/Span.hpp"
+#include "core/StateMachine.hpp"
 #include "core/Status.hpp"
+#include "ssd1306.hpp"
 
 namespace jarnax {
 namespace drivers {

@@ -4,8 +4,8 @@
 /// @file
 /// Declarations fo the Cortex Global Variables
 
-#include "cortex/tick.hpp"
 #include "cortex/bist.hpp"
+#include "cortex/tick.hpp"
 
 namespace cortex {
 /// @brief The number of of ticks since boot.

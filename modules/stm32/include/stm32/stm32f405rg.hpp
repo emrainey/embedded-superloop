@@ -2,8 +2,8 @@
 #define STM32F405RG_HPP_
 
 #include "core/Units.hpp"
-#include "stm32/stm32.hpp"
 #include "jarnax/Peripheral.hpp"
+#include "stm32/stm32.hpp"
 
 #define HAS_FLASH 1
 #undef HAS_ITCM

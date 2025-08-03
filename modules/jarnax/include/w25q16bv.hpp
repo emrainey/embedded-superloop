@@ -1,8 +1,8 @@
 #ifndef W25Q16BV_HPP
 #define W25Q16BV_HPP
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 namespace w25q16bv {
 
@@ -132,8 +132,8 @@ struct Status {
             uint16_t                      : 5;    ///< Reserved
             uint16_t erase_suspend_status : 1;    ///< Reserved
         } bits;
-        uint8_t u08[2];     ///< Raw bytes
-        uint16_t u16[1];    ///< Raw word
+        uint8_t u08[2];                           ///< Raw bytes
+        uint16_t u16[1];                          ///< Raw word
     } fields;
 };
 static_assert(sizeof(Status) == 2U, "Status is 16 bit");

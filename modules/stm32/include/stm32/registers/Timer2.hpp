@@ -7,8 +7,8 @@
 /// But heavily modified for names
 /// @copyright
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <type_traits>
 
 namespace stm32 {

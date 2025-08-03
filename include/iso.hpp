@@ -4,8 +4,8 @@
 /// @file
 /// The ISO Prefixes for base 10 and base 2 powers
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include "polyfill.hpp"
 
 /// the ISO (International Standards Organization) namespace

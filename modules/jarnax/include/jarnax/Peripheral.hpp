@@ -4,8 +4,8 @@
 /// @file
 /// @brief Contains the definition of the Peripheral class which is used to represent a hardware peripheral and it's related information.
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include "polyfill.hpp"
 
 namespace jarnax {
@@ -21,46 +21,46 @@ struct Peripheral {
     /// @TODO should Cortex M peripherals be included here?
     enum class Type : PeripheralType {
         None,
-        ADC,           ///< Analog to Digital Converter
-        CAN,           ///< Controller Area Network
-        CRYPTO,        ///< Cryptographic Accelerator
-        DAC,           ///< Digital to Analog Converter
-        DMA,           ///< Direct Memory Access Controller
-        DCMI,          ///< Digital Camera Memory Interface
-        EMAC,          ///< Ethernet Media Access Controller
-        FLASH,         ///< Flash Memory
-        FPU,           ///< (Cortex) Floating Point Unit
-        GMAC,          ///< Gigabit Media Access Controller
-        GPIO,          ///< General Purpose Input Output
-        HASH,          ///< Hash Accelerator
-        HSMCI,         ///< High Speed Multimedia Card Interface
-        ICI,           ///< Image-Controller Interface
-        ICM,           ///< Integrity Check Module
-        I2C,           ///< Inter-Integrated Circuit
-        I2S_EXT,       ///< External I2S Interface
-        LIN,           ///< Local Interconnect Network
-        MDIO,          ///< Media Data Input/Output
-        PIT,           ///< Periodic Interval Timer
-        PWM,           ///< Pulse Width Modulation
-        QSPI,          ///< Quad Serial Peripheral Interface
-        RTC,           ///< Real-Time Clock
-        SAI,           ///< Serial Audio Interface
-        SDIO,          ///< Secure Digital Input Output
-        SDRAM,         ///< Synchronous Dynamic Random Access Memory
-        SPI,           ///< Serial Peripheral Interface
-        TICK,          ///< (Cortex) Tick Timer (usually a system timer)
-        TIMER,         ///< Timer
-        TPIU,          ///< (Cortex) Trace Port Interface Unit
-        TRNG,          ///< True Random Number Generator
-        UART,          ///< Universal Asynchronous Receiver Transmitter
-        USART,         ///< Universal Synchronous Asynchronous Receiver Transmitter
-        USB,           ///< Universal Serial Bus (Full Speed)
-        USB_HS,        ///< Universal Serial Bus High Speed
-        USB_OTG,       ///< Universal Serial Bus On-The-Go (Full Speed)
-        USB_OTG_HS,    ///< Universal Serial Bus On-The-Go High Speed
-        W1,            ///< One-Wire Interface
-        WDT,           ///< Watchdog Timer
-        _max,          ///< The maximum value of the enumeration, used for bounds checking
+        ADC,                    ///< Analog to Digital Converter
+        CAN,                    ///< Controller Area Network
+        CRYPTO,                 ///< Cryptographic Accelerator
+        DAC,                    ///< Digital to Analog Converter
+        DMA,                    ///< Direct Memory Access Controller
+        DCMI,                   ///< Digital Camera Memory Interface
+        EMAC,                   ///< Ethernet Media Access Controller
+        FLASH,                  ///< Flash Memory
+        FPU,                    ///< (Cortex) Floating Point Unit
+        GMAC,                   ///< Gigabit Media Access Controller
+        GPIO,                   ///< General Purpose Input Output
+        HASH,                   ///< Hash Accelerator
+        HSMCI,                  ///< High Speed Multimedia Card Interface
+        ICI,                    ///< Image-Controller Interface
+        ICM,                    ///< Integrity Check Module
+        I2C,                    ///< Inter-Integrated Circuit
+        I2S_EXT,                ///< External I2S Interface
+        LIN,                    ///< Local Interconnect Network
+        MDIO,                   ///< Media Data Input/Output
+        PIT,                    ///< Periodic Interval Timer
+        PWM,                    ///< Pulse Width Modulation
+        QSPI,                   ///< Quad Serial Peripheral Interface
+        RTC,                    ///< Real-Time Clock
+        SAI,                    ///< Serial Audio Interface
+        SDIO,                   ///< Secure Digital Input Output
+        SDRAM,                  ///< Synchronous Dynamic Random Access Memory
+        SPI,                    ///< Serial Peripheral Interface
+        TICK,                   ///< (Cortex) Tick Timer (usually a system timer)
+        TIMER,                  ///< Timer
+        TPIU,                   ///< (Cortex) Trace Port Interface Unit
+        TRNG,                   ///< True Random Number Generator
+        UART,                   ///< Universal Asynchronous Receiver Transmitter
+        USART,                  ///< Universal Synchronous Asynchronous Receiver Transmitter
+        USB,                    ///< Universal Serial Bus (Full Speed)
+        USB_HS,                 ///< Universal Serial Bus High Speed
+        USB_OTG,                ///< Universal Serial Bus On-The-Go (Full Speed)
+        USB_OTG_HS,             ///< Universal Serial Bus On-The-Go High Speed
+        W1,                     ///< One-Wire Interface
+        WDT,                    ///< Watchdog Timer
+        _max,                   ///< The maximum value of the enumeration, used for bounds checking
 
         VENDOR_BASE = 0x80U,    ///< Vendor specific peripherals start here
     };

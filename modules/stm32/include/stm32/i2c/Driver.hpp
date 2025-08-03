@@ -1,19 +1,17 @@
 #ifndef STM32_I2C_DRIVER_HPP
 #define STM32_I2C_DRIVER_HPP
-#include "stm32/registers/InterIntegratedCircuit.hpp"
-#include "jarnax/i2c/Driver.hpp"
-#include "stm32/dma/Manager.hpp"
 #include "core/Buffer.hpp"
 #include "core/Units.hpp"
+#include "jarnax/i2c/Driver.hpp"
+#include "stm32/dma/Manager.hpp"
+#include "stm32/registers/InterIntegratedCircuit.hpp"
 
 namespace stm32 {
 namespace i2c {
 class Driver final : public jarnax::i2c::Driver, private jarnax::i2c::Transactor {
 public:
     Driver(
-        stm32::registers::InterIntegratedCircuit volatile &i2c,
-        jarnax::dma::Manager &dma_driver,
-        jarnax::Peripheral rx_peripheral,
+        stm32::registers::InterIntegratedCircuit volatile &i2c, jarnax::dma::Manager &dma_driver, jarnax::Peripheral rx_peripheral,
         jarnax::Peripheral tx_peripheral
     );
     ~Driver() = default;
@@ -46,8 +44,8 @@ public:
             size_t smbus_alert{0U};          ///< The number of SMBus alert events
             size_t stop{0U};                 ///< The number of stop conditions generated
         } events;
-        size_t bytes_received{0U};    ///< The number of bytes received
-        size_t transmit_empty{0U};    ///< The number of bytes transmitted
+        size_t bytes_received{0U};           ///< The number of bytes received
+        size_t transmit_empty{0U};           ///< The number of bytes transmitted
     };
 
     inline Statistics const &GetStatistics(void) const { return statistics_; }

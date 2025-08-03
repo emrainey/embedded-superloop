@@ -1,11 +1,11 @@
 #ifndef JARNAX_MONITOR_HPP
 #define JARNAX_MONITOR_HPP
 
-#include "jarnax/Loopable.hpp"
-#include "jarnax/Timer.hpp"
+#include "core/Status.hpp"
 #include "jarnax/CountDown.hpp"
 #include "jarnax/Indicator.hpp"
-#include "core/Status.hpp"
+#include "jarnax/Loopable.hpp"
+#include "jarnax/Timer.hpp"
 
 namespace jarnax {
 

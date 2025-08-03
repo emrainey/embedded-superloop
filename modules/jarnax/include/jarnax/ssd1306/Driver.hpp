@@ -1,8 +1,8 @@
 #ifndef JARNAX_SSD1306_DRIVER_HPP
 #define JARNAX_SSD1306_DRIVER_HPP
 
-#include "ssd1306.hpp"
 #include "jarnax/Loopable.hpp"
+#include "ssd1306.hpp"
 
 namespace jarnax {
 namespace ssd1306 {

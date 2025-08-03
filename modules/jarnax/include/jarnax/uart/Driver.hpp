@@ -1,8 +1,8 @@
 #ifndef JARNAX_UART_DRIVER_HPP
 #define JARNAX_UART_DRIVER_HPP
 
-#include "core/Status.hpp"
 #include "core/Span.hpp"
+#include "core/Status.hpp"
 
 namespace jarnax {
 

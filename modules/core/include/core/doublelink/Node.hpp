@@ -4,8 +4,8 @@
 /// @file
 /// The Double Linked List Node Template Class
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <utility>
 #if defined(UNITTEST)
 #include <iostream>
@@ -79,6 +79,7 @@ public:
         /// @brief The visitor function to be implemented by the client for const nodes. This function is called for each node in the list.
         /// @param node The const reference to the node being visited.
         virtual void Visit(Node const& node) const = 0;
+
     protected:
         // destructor is protected to prevent deletion through the interface
         ~Visitor() = default;

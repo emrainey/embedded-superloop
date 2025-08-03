@@ -5,14 +5,14 @@
 /// The Winbond Flash Driver over SPI
 /// @details This driver is used to communicate with the Winbond Flash memory over SPI.
 
-#include <core/Status.hpp>
-#include <core/Span.hpp>
 #include <core/Buffer.hpp>
 #include <core/Printer.hpp>
-#include <jarnax/Loopable.hpp>
-#include <jarnax/spi/Driver.hpp>
-#include <jarnax/Timer.hpp>
+#include <core/Span.hpp>
+#include <core/Status.hpp>
 #include <jarnax/CountDown.hpp>
+#include <jarnax/Loopable.hpp>
+#include <jarnax/Timer.hpp>
+#include <jarnax/spi/Driver.hpp>
 #include <jarnax/winbond/WinbondStateMachine.hpp>
 
 namespace jarnax {

@@ -1,10 +1,10 @@
 #ifndef STM32_TIMER_HPP
 #define STM32_TIMER_HPP
 
-#include "stm32/registers/Timer2.hpp"
-#include "jarnax/Timer.hpp"
 #include "core/Status.hpp"
 #include "core/Units.hpp"
+#include "jarnax/Timer.hpp"
+#include "stm32/registers/Timer2.hpp"
 
 namespace stm32 {
 

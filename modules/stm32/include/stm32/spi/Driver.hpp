@@ -1,8 +1,8 @@
 #ifndef STM32_SPI_DRIVER_HPP
 #define STM32_SPI_DRIVER_HPP
 
-#include "core/Units.hpp"
 #include "core/Array.hpp"
+#include "core/Units.hpp"
 #include "jarnax/spi/Driver.hpp"
 #include "stm32/dma/Manager.hpp"
 #include "stm32/registers/SerialPeripheralInterface.hpp"
@@ -12,9 +12,7 @@ namespace spi {
 class Driver : public jarnax::spi::Driver, private jarnax::spi::Transactor {
 public:
     Driver(
-        stm32::registers::SerialPeripheralInterface volatile& spi,
-        jarnax::dma::Manager& dma_driver,
-        jarnax::Peripheral rx_peripheral,
+        stm32::registers::SerialPeripheralInterface volatile& spi, jarnax::dma::Manager& dma_driver, jarnax::Peripheral rx_peripheral,
         jarnax::Peripheral tx_peripheral
     );
 
@@ -33,7 +31,7 @@ public:
     core::Status Cancel(jarnax::spi::Transaction& transaction) override;
 
     struct Statistics {
-        std::size_t interrupts{0U};    ///< The number of interrupts handled
+        std::size_t interrupts{0U};                  ///< The number of interrupts handled
 
         std::size_t underrun{0U};                    ///< The number of underrun errors
         std::size_t overrun{0U};                     ///< The number of overrun errors
@@ -42,11 +40,11 @@ public:
         std::size_t transmit_buffer_empty{0U};       ///< The number of times the transmit buffer was empty
         std::size_t receive_buffer_not_empty{0U};    ///< The number of times the
 
-        std::size_t bytes_received{0U};       ///< The number of bytes received
-        std::size_t bytes_transmitted{0U};    ///< The number of bytes transmitted
+        std::size_t bytes_received{0U};              ///< The number of bytes received
+        std::size_t bytes_transmitted{0U};           ///< The number of bytes transmitted
 
-        std::size_t transfers_received{0U};    ///< The number of TX transfers completed
-        std::size_t transfers_sent{0U};        ///< The number of RX transfers completed
+        std::size_t transfers_received{0U};          ///< The number of TX transfers completed
+        std::size_t transfers_sent{0U};              ///< The number of RX transfers completed
     };
 
     inline Statistics const& GetStatistics(void) const { return statistics_; }

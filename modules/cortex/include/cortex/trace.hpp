@@ -293,9 +293,9 @@ struct TracePortInterfaceUnit final {
 
     SupportedParallelPortSizes supported_parallel_port_sizes;
     CurrentParallelPortSizes current_parallel_port_sizes;
-    std::uint32_t _reserved1[2];    ///< Reserved field. Offset 0x08 to 0x0C
+    std::uint32_t _reserved1[2];      ///< Reserved field. Offset 0x08 to 0x0C
     AsynchronousClockPrescaler asynchronous_clock_prescaler;
-    std::uint32_t _reserved2[55];    ///< Reserved field. Offset 0x14 to 0xEC
+    std::uint32_t _reserved2[55];     ///< Reserved field. Offset 0x14 to 0xEC
     SelectedPinProtocol selected_pin_protocol;
     std::uint32_t _reserved4[131];    ///< Reserved field
     std::uint32_t format_and_flush_status;
@@ -312,7 +312,7 @@ struct TracePortInterfaceUnit final {
     std::uint32_t claim_clear;
     std::uint32_t _reserved8[8];    ///< Reserved field
     std::uint32_t device_id;
-    Type type;    // offset 0xFC8
+    Type type;                      // offset 0xFC8
 };
 static_assert(offsetof(TracePortInterfaceUnit, selected_pin_protocol) == 0xF0, "Must be at this offset");
 static_assert(offsetof(TracePortInterfaceUnit, type) == 0xFCC, "Must be at this offset");

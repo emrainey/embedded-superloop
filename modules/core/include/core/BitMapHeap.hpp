@@ -3,12 +3,12 @@
 /// @file
 /// The BitMapHeap Interface
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <limits>
 
-#include <core/Array.hpp>
 #include <core/Allocator.hpp>
+#include <core/Array.hpp>
 #include <core/Buffer.hpp>
 #include <core/Printer.hpp>
 
@@ -105,9 +105,7 @@ public:
             }
         }
         if (bytes == 0 or alignment == 0 or alignment > MaxAlignment) {
-            GetPrinter()(
-                "WARNING: [%p] Allocation request of %zu bytes with alignment %zu\r\n", reinterpret_cast<void*>(this), bytes, alignment
-            );
+            GetPrinter()("WARNING: [%p] Allocation request of %zu bytes with alignment %zu\r\n", reinterpret_cast<void*>(this), bytes, alignment);
             stats_.zero_allocs++;
             return nullptr;
         }

@@ -3,16 +3,16 @@
 
 #include "cortex/vendor.hpp"
 #include "stm32/registers/Debug.hpp"
-#include "stm32/registers/ResetAndClockControl.hpp"
-#include "stm32/registers/RandomNumberGenerator.hpp"
-#include "stm32/registers/GeneralPurposeInputOutput.hpp"
-#include "stm32/registers/FlashControl.hpp"
-#include "stm32/registers/Timer2.hpp"
 #include "stm32/registers/DirectMemoryAccess.hpp"
-#include "stm32/registers/SerialPeripheralInterface.hpp"
-#include "stm32/registers/UniversalSynchronousAsynchronousReceiverTransmitter.hpp"
-#include "stm32/registers/UniversalAsynchronousReceiverTransmitter.hpp"
+#include "stm32/registers/FlashControl.hpp"
+#include "stm32/registers/GeneralPurposeInputOutput.hpp"
 #include "stm32/registers/InterIntegratedCircuit.hpp"
+#include "stm32/registers/RandomNumberGenerator.hpp"
+#include "stm32/registers/ResetAndClockControl.hpp"
+#include "stm32/registers/SerialPeripheralInterface.hpp"
+#include "stm32/registers/Timer2.hpp"
+#include "stm32/registers/UniversalAsynchronousReceiverTransmitter.hpp"
+#include "stm32/registers/UniversalSynchronousAsynchronousReceiverTransmitter.hpp"
 
 /// The ST Micro 32 Namespace
 namespace stm32 {

@@ -1,8 +1,8 @@
 #ifndef CORE_STD_HPP
 #define CORE_STD_HPP
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 #if not defined(UNITTEST)
 // C++ Requires some global symbols defined in order to compile.

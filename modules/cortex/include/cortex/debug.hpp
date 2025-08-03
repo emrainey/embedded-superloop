@@ -17,7 +17,7 @@ struct DebugSystem final {
                 std::uint32_t processor             : 1U;
                 std::uint32_t step                  : 1U;
                 std::uint32_t mask_interrupts       : 1U;
-                std::uint32_t                       : 1U;    ///< Reserved field
+                std::uint32_t                       : 1U;     ///< Reserved field
                 std::uint32_t allow_imprecise_entry : 1U;
                 std::uint32_t                       : 10U;    ///< Reserved field
                 std::uint32_t register_ready        : 1U;
@@ -38,7 +38,7 @@ struct DebugSystem final {
     /// The Core Register Selector Register
     struct CoreRegisterSelector final {
         std::uint32_t selector : 7U;
-        std::uint32_t          : 1U;    ///< Reserved field
+        std::uint32_t          : 1U;     ///< Reserved field
         std::uint32_t access   : 1U;
         std::uint32_t          : 15U;    ///< Reserved field
     };

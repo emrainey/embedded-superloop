@@ -1,8 +1,8 @@
 #ifndef SDD1306_HPP
 #define SDD1306_HPP
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <limits>
 #include "memory.hpp"
 #if defined(UNITTEST)

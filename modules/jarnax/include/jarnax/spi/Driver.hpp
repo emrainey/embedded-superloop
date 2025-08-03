@@ -1,10 +1,10 @@
 #ifndef JARNAX_SPI_DRIVER_HPP
 #define JARNAX_SPI_DRIVER_HPP
 
-#include "jarnax/gpio/Output.hpp"
-#include "jarnax/Transactable.hpp"
-#include "jarnax/Coordinator.hpp"
 #include "core/Buffer.hpp"
+#include "jarnax/Coordinator.hpp"
+#include "jarnax/Transactable.hpp"
+#include "jarnax/gpio/Output.hpp"
 
 namespace jarnax {
 
@@ -94,7 +94,7 @@ public:
         if (chip_select) {
             chip_select->Value(true);    // almost all SPI devices are active low
         }
-        crc_polynomial = 0x7U;    // default CRC-7
+        crc_polynomial = 0x7U;           // default CRC-7
         use_hardware_crc = false;
         use_data_as_bytes = (sizeof(DataUnit) == sizeof(uint8_t));
         buffer.Release();

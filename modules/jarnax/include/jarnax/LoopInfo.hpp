@@ -4,8 +4,8 @@
 /// @file
 /// Loop Data Information Structure
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 namespace jarnax {
 

@@ -1,8 +1,8 @@
 #ifndef JARNAX_GPIO_INPUT_HPP
 #define JARNAX_GPIO_INPUT_HPP
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 namespace jarnax {
 namespace gpio {
@@ -14,11 +14,12 @@ public:
     /// @brief Gets the current value of the pin
     /// @return True is logic high, False is logic low
     virtual bool Value(void) const = 0;
+
 protected:
     ~Input() = default;
 };
 
-}  // namespace gpio
-}  // namespace jarnax
+}    // namespace gpio
+}    // namespace jarnax
 
-#endif // JARNAX_GPIO_INPUT_HPP
+#endif    // JARNAX_GPIO_INPUT_HPP

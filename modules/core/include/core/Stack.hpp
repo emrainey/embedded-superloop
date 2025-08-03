@@ -4,8 +4,8 @@
 /// @file
 /// The Stack Template
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <type_traits>
 #include <utility>
 
@@ -48,7 +48,7 @@ public:
         if (count() > 0 and index < count()) {
             return data_[head_ + index];    // bounded index
         } else {
-            return data_[limit_ - 1];    // return last element even if uninitialized
+            return data_[limit_ - 1];       // return last element even if uninitialized
         }
     }
 
@@ -58,7 +58,7 @@ public:
         if (count() > 0 and index < count()) {
             return data_[head_ + index];    // bounded index
         } else {
-            return data_[limit_ - 1];    // return last element even if uninitialized
+            return data_[limit_ - 1];       // return last element even if uninitialized
         }
     }
 

@@ -4,8 +4,8 @@
 /// @file
 /// jarnax::RandomNumberGenerator Interface
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 namespace jarnax {
 

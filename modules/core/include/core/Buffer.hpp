@@ -3,12 +3,12 @@
 /// @file
 /// core::Buffer Interface
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
-#include <core/Span.hpp>
 #include <core/Allocator.hpp>
 #include <core/Printer.hpp>
+#include <core/Span.hpp>
 
 namespace core {
 

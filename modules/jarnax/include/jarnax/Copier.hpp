@@ -4,8 +4,8 @@
 /// @file
 /// The Copier Interface
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 #include "core/Status.hpp"
 #include "jarnax/Peripheral.hpp"

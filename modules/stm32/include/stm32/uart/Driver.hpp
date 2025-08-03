@@ -1,9 +1,9 @@
 #ifndef STM32_UART_DRIVER_HPP
 #define STM32_UART_DRIVER_HPP
 
-#include "jarnax/uart/Driver.hpp"
-#include "core/Units.hpp"
 #include "core/Allocator.hpp"
+#include "core/Units.hpp"
+#include "jarnax/uart/Driver.hpp"
 #include "stm32/dma/Manager.hpp"
 #include "stm32/registers/UniversalAsynchronousReceiverTransmitter.hpp"
 
@@ -17,11 +17,8 @@ public:
     /// @param rx_peripheral The RX peripheral for the DMA Driver
     /// @param tx_peripheral The TX peripheral for the DMA Driver
     Driver(
-        registers::UniversalAsynchronousReceiverTransmitter volatile& uart,
-        dma::Manager& dma_driver,
-        jarnax::Peripheral rx_peripheral,
-        jarnax::Peripheral tx_peripheral,
-        core::Allocator& dma_allocator
+        registers::UniversalAsynchronousReceiverTransmitter volatile& uart, dma::Manager& dma_driver, jarnax::Peripheral rx_peripheral,
+        jarnax::Peripheral tx_peripheral, core::Allocator& dma_allocator
     );
 
     virtual ~Driver() = default;

@@ -4,8 +4,8 @@
 /// @file
 /// The Cortex M Core Header
 
-#include "cortex/core.hpp"
 #include "core/Split.hpp"
+#include "cortex/core.hpp"
 
 namespace cortex {
 
@@ -148,7 +148,7 @@ struct MemoryProtectionUnit {
             : whole{other.whole} {}
 
         /// @brief The bitfield definition of the register
-        class Fields {    // anonymous
+        class Fields {                    // anonymous
         public:
             std::uint32_t enable : 1U;    //!< Enable the region
 

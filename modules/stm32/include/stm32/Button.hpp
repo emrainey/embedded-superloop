@@ -4,8 +4,8 @@
 /// @file
 /// The Button Definition
 
-#include "stm32/gpio/Pin.hpp"
 #include "jarnax/Button.hpp"
+#include "stm32/gpio/Pin.hpp"
 
 namespace stm32 {
 
