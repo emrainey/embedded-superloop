@@ -1,5 +1,5 @@
-#include <memory.hpp>
 #include <jarnax/winbond/Driver.hpp>
+#include <memory.hpp>
 #include <w25q16bv.hpp>
 
 /// @file
@@ -34,7 +34,6 @@ public:
         data[3U] = address_.address[2U];
     }
 
-
 protected:
     w25q16bv::Address address_;
 };
@@ -63,8 +62,7 @@ Driver::Driver(Timer& timer, spi::Driver& driver, gpio::Output& chip_select, cor
     , state_machine_{*this, *this}
     , powered_{false}
     , last_instruction_{Instruction::None}
-    , next_event_{Event::None} {
-}
+    , next_event_{Event::None} {}
 
 Driver::~Driver() {
     buffer_.Release();
@@ -195,7 +193,7 @@ core::Status Driver::GetStatusAndData(void) {
         w25q16bv::Instruction instruction = last_instruction_;
         auto read_span = span.subspan(transaction_.receive_offset, transaction_.send_size + transaction_.receive_size);
         printer_("SPI Transaction Read Span = %p:%u\r\n", read_span.data(), read_span.count());
-        jarnax::print(read_span);
+        jarnax::print("SPI Transaction Read Span", read_span);
         if (instruction == w25q16bv::Instruction::ReleasePowerDown) {
             uint8_t device_id = read_span[0U];
             printer_("Device ID = %hhx\r\n", device_id);

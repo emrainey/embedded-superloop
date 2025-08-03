@@ -50,7 +50,7 @@ public:
 
     /// @brief Parameterized constructor
     /// @param timer The reference to the timer
-    Transactable(Timer& timer)
+    Transactable(Timer const& timer)
         : StateMachine<TransactionState>{*this, TransactionState::Uninitialized}
         , derived_{*static_cast<DERIVED_CLASS*>(this)}
         , timer_{timer}
@@ -267,7 +267,7 @@ protected:
     }
 
     DerivedType& derived_;                  ///< The reference to the derived class
-    Timer& timer_;                          ///< The reference to the timer
+    Timer const& timer_;                    ///< The reference to the timer
     bool done_;                             ///< The flag to indicate if the transaction is done (i.e. has onCycled Completed)
     Event event_;                           ///< The current event
     core::Status status_;                   ///< The current status

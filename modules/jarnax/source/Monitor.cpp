@@ -3,12 +3,11 @@
 
 namespace jarnax {
 
-Monitor::Monitor(jarnax::Timer& timer, jarnax::Indicator& status_indicator, jarnax::Indicator& error_indicator)
+Monitor::Monitor(jarnax::Timer const& timer, jarnax::Indicator& status_indicator, jarnax::Indicator& error_indicator)
     : timer_{timer}
     , status_indicator_{status_indicator}
     , error_indicator_{error_indicator}
-    , countdown_{timer, core::units::ConvertToIota(HalfPeriodStatusBlink)} {
-}
+    , countdown_{timer, core::units::ConvertToIota(HalfPeriodStatusBlink)} {}
 
 void Monitor::Report(core::Status status) {
     reported_status_ = status;

@@ -17,7 +17,7 @@ public:
     /// @param timer The timer to use for the monitor
     /// @param status_indicator The indicator to use for the status
     /// @param error_indicator The indicator to use for the error
-    Monitor(jarnax::Timer& timer, jarnax::Indicator& status_indicator, jarnax::Indicator& error_indicator);
+    Monitor(jarnax::Timer const& timer, jarnax::Indicator& status_indicator, jarnax::Indicator& error_indicator);
 
     /// @brief The execute method
     bool Execute() override;
@@ -26,7 +26,7 @@ public:
     void Report(core::Status status);
 
 protected:
-    jarnax::Timer& timer_;
+    jarnax::Timer const& timer_;
     jarnax::Indicator& status_indicator_;
     jarnax::Indicator& error_indicator_;
     jarnax::CountDown countdown_;    ///< Used to track when to indicate the status

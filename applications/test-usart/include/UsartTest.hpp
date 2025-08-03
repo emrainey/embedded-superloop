@@ -47,7 +47,7 @@ protected:
     /// @brief Reference to the ticker
     jarnax::Ticker& ticker_;
     /// @brief Reference to the timer
-    jarnax::Timer& timer_;
+    jarnax::Timer const& timer_;
     /// @brief The reference to the USART driver
     jarnax::usart::Driver& usart_driver_;
     /// @brief The random number generator

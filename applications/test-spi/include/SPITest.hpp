@@ -49,10 +49,10 @@ protected:
     void OnTransition(AppState from, AppState to) override;
     void OnExit() override;
 
-    core::Status TransactionCycle(std::uint8_t command);
+    core::Status TransactionCycle(std::uint8_t command, size_t count);
 
     jarnax::Ticker& ticker_;
-    jarnax::Timer& timer_;
+    jarnax::Timer const& timer_;
     jarnax::spi::Driver& spi_driver_;
     jarnax::spi::Transaction spi_transaction_;
     core::Buffer<jarnax::spi::DataUnit> spi_buffer_;

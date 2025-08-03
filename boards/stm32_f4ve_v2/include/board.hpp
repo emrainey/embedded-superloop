@@ -37,7 +37,7 @@ constexpr static bool use_system_printf =
 namespace debug {
 constexpr static bool i2c{true};
 constexpr static bool i2c_isr{false};
-constexpr static bool spi{true};
+constexpr static bool spi{false};
 constexpr static bool spi_isr{false};    // this seems to effect timing, be careful!
 constexpr static bool usart{true};
 constexpr static bool usart_isr{false};

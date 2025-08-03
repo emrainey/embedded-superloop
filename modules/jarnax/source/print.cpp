@@ -1,17 +1,17 @@
 /// @file
 /// Print Functions. Heavily inspired by ChatGPT which likely got these from the Arduino project.
 
+#include <cstdarg>
+#include <cstddef>
 #include <cstdint>
 #include <cstdlib>
-#include <cstddef>
-#include <cstdarg>
 #include <limits>
 
 #include "board.hpp"
-#include "strings.hpp"
+#include "cortex/mcu.hpp"
 #include "jarnax/system.hpp"
 #include "segger/rtt.hpp"
-#include "cortex/mcu.hpp"
+#include "strings.hpp"
 namespace jarnax {
 
 static constexpr unsigned int base2{2u};

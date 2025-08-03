@@ -64,6 +64,8 @@ protected:
     /// @brief Disables the SPI peripheral which stops any ongoing transactions.
     void Disable(void);
 
+    void PrintTransaction(char const* const prefix, jarnax::spi::Transaction const& transaction) const;
+
     /// The statistics for the SPI peripheral
     Statistics statistics_;
     /// @brief The Serial Peripheral Interface registers for this driver

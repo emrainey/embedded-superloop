@@ -9,6 +9,7 @@
 #include "core/BitMapHeap.hpp"
 #include "jarnax.hpp"
 #include "jarnax/console/UsartConsole.hpp"
+#include "jarnax/lps35hw/Driver.hpp"
 #include "jarnax/winbond/Driver.hpp"
 #include "stm32/Button.hpp"
 #include "stm32/Indicator.hpp"
@@ -95,6 +96,9 @@ public:
     /// Return the Console Service
     jarnax::console::Service& GetConsole();
 
+    /// Returns the LPS35HW Driver
+    jarnax::lps35hw::Driver& GetLps35hwDriver();
+
 protected:
     stm32::Timer timer_;
     /// The Random Number Generator
@@ -166,6 +170,8 @@ protected:
     stm32::usart::Driver usart1_driver_;
     /// Console Driver
     jarnax::console::UsartConsole usart_console_;
+    /// The LPS35HW Driver
+    jarnax::lps35hw::Driver lps35hw_driver_;
 };
 
 /// Gets the reference to the BoardContext

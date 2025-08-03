@@ -21,7 +21,7 @@ public:
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     // jarnax::dma::Resource Interface
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    void Initialize(Peripheral const& peripheral) override;
+    void Initialize(jarnax::Peripheral const& peripheral) override;
     core::Status ConfigureCopyToPeripheral(uintptr_t source, size_t count, size_t unit_size, uintptr_t destination) override;
     core::Status ConfigureCopyFromPeripheral(uintptr_t source, uintptr_t destination, size_t count, size_t unit_size) override;
     core::Status Enable(void) override;

@@ -48,7 +48,7 @@ protected:
     void OnExit() override;
 
     jarnax::Ticker& ticker_;
-    jarnax::Timer& timer_;
+    jarnax::Timer const& timer_;
     jarnax::usart::Driver& usart_driver_;
     jarnax::RandomNumberGenerator& rng_;
     jarnax::Indicator& error_indicator_;
@@ -56,8 +56,9 @@ protected:
     jarnax::Button& key0_button_;
     jarnax::Button& key1_button_;
     jarnax::Copier& copier_;
-    jarnax::winbond::Driver& winbond_driver_;
+    // jarnax::winbond::Driver& winbond_driver_;
     jarnax::CountDown countdown_;
+    jarnax::lps35hw::Driver& lps35hw_driver_;
 
     uint8_t buffer_one_[256U];
     uint8_t buffer_two_[256U];

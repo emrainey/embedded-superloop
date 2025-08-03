@@ -1,14 +1,14 @@
 /// @file
 /// The SSD1306 Driver implementation
 
-#include "memory.hpp"
 #include "jarnax/drivers/ssd1306/Driver.hpp"
+#include "memory.hpp"
 
 namespace jarnax {
 namespace drivers {
 namespace ssd1306 {
 
-Driver::Driver(jarnax::Timer& timer, jarnax::i2c::Driver& i2c_driver, core::Allocator& allocator)
+Driver::Driver(jarnax::Timer const& timer, jarnax::i2c::Driver& i2c_driver, core::Allocator& allocator)
     : Loopable{}
     , timer_{timer}
     , i2c_driver_{i2c_driver}
@@ -22,8 +22,7 @@ Driver::Driver(jarnax::Timer& timer, jarnax::i2c::Driver& i2c_driver, core::Allo
     , next_event_{Event::None}
     , powered_{false}
     , updated_{false}
-    , statistics_{} {
-}
+    , statistics_{} {}
 
 core::Status Driver::Initialize(jarnax::i2c::Address address) {
     address_ = address;                                                // Set the I2C address for the SSD1306 display
@@ -37,11 +36,11 @@ core::Status Driver::GetStatus(void) const {
     if (not powered_) {
         return core::Status{core::Result::NotReady, core::Cause::State};    // Not ready if the display is not powered
     }
-    core::Status status = i2c_transaction_.GetStatus();    // Get the status from the I2C driver
+    core::Status status = i2c_transaction_.GetStatus();                     // Get the status from the I2C driver
     if (status.IsBusy()) {
-        return status;    // If the I2C transaction is busy, return that status
+        return status;                                                      // If the I2C transaction is busy, return that status
     }
-    return core::Status{core::Result::Success, core::Cause::State};    // Otherwise, return success
+    return core::Status{core::Result::Success, core::Cause::State};         // Otherwise, return success
 }
 
 jarnax::ssd1306::Image128x32& Driver::GetImage(void) {
@@ -75,15 +74,15 @@ bool Driver::IsPresent(void) const {
 core::Status Driver::Prepare(Sequence sequence) {
     // Prepare the command sequence for the SSD1306
     if (i2c_transaction_.IsUninitialized()) {
-        auto now = timer_.GetMicroseconds();                                       // Get the current time
-        i2c_transaction_.SetDeadline(now + core::units::MicroSeconds{10'000U});    // Set a deadline for the transaction
-        i2c_transaction_.address.whole = address_.whole;                           // Set the I2C address
-        i2c_transaction_.desired_count = sequence.count();                         // Set the desired count to the size of the command sequence
-        i2c_transaction_.actual_count = 0U;                                        // Reset the actual count
-        if (not i2c_buffer_.IsEmpty()) {                                           // limit the scope of the span to avoid dangling pointers
+        auto now = timer_.GetMicroseconds();                                           // Get the current time
+        i2c_transaction_.SetDeadline(now + core::units::MicroSeconds{10'000U});        // Set a deadline for the transaction
+        i2c_transaction_.address.whole = address_.whole;                               // Set the I2C address
+        i2c_transaction_.desired_count = sequence.count();                             // Set the desired count to the size of the command sequence
+        i2c_transaction_.actual_count = 0U;                                            // Reset the actual count
+        if (not i2c_buffer_.IsEmpty()) {                                               // limit the scope of the span to avoid dangling pointers
             auto span = i2c_buffer_.as_span().subspan(0, i2c_transaction_.desired_count);
-            memory::copy(span.data(), sequence.data(), sequence.size());    // Copy the command sequence into the I2C buffer
-            i2c_transaction_.buffer = std::move(i2c_buffer_);               // Set the buffer for the transaction
+            memory::copy(span.data(), sequence.data(), sequence.size());               // Copy the command sequence into the I2C buffer
+            i2c_transaction_.buffer = std::move(i2c_buffer_);                          // Set the buffer for the transaction
         } else {
             statistics_.buffer_invalid++;                                              // Increment the buffer invalid count if the buffer is empty
             return core::Status{core::Result::NotAvailable, core::Cause::Resource};    // If the buffer is empty, return not available
@@ -99,12 +98,12 @@ core::Status Driver::Prepare(Sequence sequence) {
 
 core::Status Driver::PrepareRender(Sequence sequence) {
     if (i2c_transaction_.IsUninitialized()) {
-        auto now = timer_.GetMicroseconds();                                        // Get the current time
-        i2c_transaction_.SetDeadline(now + core::units::MicroSeconds{100'000U});    // Set a deadline for the transaction
-        i2c_transaction_.address.whole = address_.whole;                            // Set the I2C address for the transaction
-        i2c_transaction_.desired_count = sequence.size() + image_.GetSize();        // Set the desired count to the size of the image
-        i2c_transaction_.actual_count = 0U;                                         // Reset the actual count
-        if (not i2c_buffer_.IsEmpty()) {                                            // Check if the I2C buffer is not empty
+        auto now = timer_.GetMicroseconds();                                                     // Get the current time
+        i2c_transaction_.SetDeadline(now + core::units::MicroSeconds{100'000U});                 // Set a deadline for the transaction
+        i2c_transaction_.address.whole = address_.whole;                                         // Set the I2C address for the transaction
+        i2c_transaction_.desired_count = sequence.size() + image_.GetSize();                     // Set the desired count to the size of the image
+        i2c_transaction_.actual_count = 0U;                                                      // Reset the actual count
+        if (not i2c_buffer_.IsEmpty()) {                                                         // Check if the I2C buffer is not empty
             auto span = i2c_buffer_.as_span().subspan(0, i2c_transaction_.desired_count);
             memory::copy(span.data(), sequence.data(), sequence.size());                         // Copy the command sequence into the I2C buffer
             memory::copy(&span.data()[sequence.count()], image_.GetData(), image_.GetSize());    // Copy the image data into the I2C buffer
@@ -141,7 +140,7 @@ bool Driver::AreCommandsComplete(core::Status& status) {
         status = i2c_transaction_.GetStatus();          // Get the status of the transaction
         jarnax::print(
             "Transaction took %" PRIu64 " microseconds\r\n", i2c_transaction_.GetDuration().value()
-        );    // Log the elapsed time of the transaction
+        );                                                           // Log the elapsed time of the transaction
         if (status.IsFailure()) {
             statistics_.failures++;                                  // Increment the failure count if the transaction failed
             jarnax::print("SSD1306 Transaction Error: ", status);    // Log the error if the transaction failed

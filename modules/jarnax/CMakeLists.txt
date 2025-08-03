@@ -32,18 +32,18 @@ add_module(NAME jarnax
         ${CMAKE_CURRENT_SOURCE_DIR}/source/StopWatch.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Monitor.cpp
 
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/i2c/Driver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/i2c/Driver.cpp
 
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/spi/Driver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/spi/Driver.cpp
 
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/WinbondDriver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/WinbondDriver.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/WinbondStateMachine.cpp
 
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/ssd1306.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/ssd1306.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/ssd1306/Driver.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/ssd1306/StateMachine.cpp
 
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/services/UsartConsole.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/services/UsartConsole.cpp
 
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/source/include # Internal includes
@@ -61,6 +61,20 @@ add_module(NAME jarnax
         ${LOCAL_CONFIGURATIONS}
     BOARDS
         ${LOCAL_BOARDS}
+)
+
+add_module(NAME jarnax-lps35hw-driver
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/lps35hw/Driver.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/lps35hw/StateMachine.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+    LIBRARIES
+        strict jarnax-interfaces
+    GENERIC_MODULES
+        memory core
+    NO_CONFIGURATIONS
+    NO_BOARDS
 )
 
 host_unit_test(NAME test-jarnax-catch
@@ -90,6 +104,7 @@ host_unit_test(NAME test-jarnax-googletest
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-mocks.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-coordinator.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-winbondstatemachine.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-lps35hw-statemachine.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/include
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/mocks

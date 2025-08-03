@@ -39,8 +39,8 @@ void print(const char* format, ...) ATTRIBUTE((format(printf, 1, 2)));
 unsigned long vsnprint(char buffer[], size_t buffer_size, const char* format, va_list args);
 
 template <typename T>
-void print(core::Span<T> const& span) {
-    print("Span: %p:%zu\r\n", span.data(), span.count());
+void print(char const* const prefix, core::Span<T> const& span) {
+    print("%s span: %p:%zu\r\n", prefix, span.data(), span.count());
     for (size_t i = 0U; i < span.count(); i++) {
         bool is_first = ((i % 8U) == 0U);
         if (is_first) {

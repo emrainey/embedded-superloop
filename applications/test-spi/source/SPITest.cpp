@@ -1,7 +1,7 @@
-#include "memory.h"
 #include "SPITest.hpp"
 #include "board.hpp"
 #include "jarnax/Assertion.hpp"
+#include "memory.h"
 
 using namespace core::units;
 
@@ -27,15 +27,20 @@ bool SPITest::Execute() {
     return true;
 }
 
-core::Status SPITest::TransactionCycle(std::uint8_t address) {
+core::Status SPITest::TransactionCycle(std::uint8_t address, size_t count) {
     if (spi_transaction_.IsUninitialized()) {
         stats_.uninitialized++;
+        size_t pad = 1U;
+        spi_transaction_.polarity = jarnax::spi::ClockPolarity::IdleHigh;
+        spi_transaction_.phase = jarnax::spi::ClockPhase::FirstAfterEdge;
         spi_transaction_.chip_select = nullptr;    // use the NSS from the hardware
         spi_transaction_.crc_polynomial = 0;
         spi_transaction_.use_data_as_bytes = true;
-        spi_transaction_.send_size = 2U;
+        spi_transaction_.sent_size = 0U;
+        spi_transaction_.send_size = 1U + pad + count;
         spi_transaction_.receive_offset = spi_transaction_.send_size;
-        spi_transaction_.receive_size = 2U;
+        spi_transaction_.received_size = 0U;
+        spi_transaction_.receive_size = 1U + count + pad;
         auto span = spi_buffer_.as_span();
         memory::fill(span.data(), 0xFF, span.count());    // fill with 0xFF for now
         span[0] = address;                                // the address of the register to read from?
@@ -104,7 +109,7 @@ void SPITest::OnEntry(AppState state) {
 AppState SPITest::OnCycle(AppState state) {
     // jarnax::print("SPITest::OnCycle: %u\r\n", static_cast<std::uint8_t>(state));
     if (state == AppState::Identify) {
-        if (TransactionCycle(0x0F | 0x80).IsSuccess()) {
+        if (TransactionCycle(0x0F | 0x80, 6U).IsSuccess()) {
             state = AppState::Waiting;
         }
     } else if (state == AppState::Waiting) {

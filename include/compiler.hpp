@@ -33,6 +33,13 @@ inline size_t operator""_Z( unsigned long long int value) {
 }
 // clang-format on
 
+/// On 32 bit system the precision type that is passed around on the stack is a float, on 64 bit systems it is a double.
+#if defined(__SIZEOF_POINTER__) && __SIZEOF_POINTER__ == 8
+using precision = double;
+#else
+using precision = float;
+#endif
+
 /// A concept that requires the type to implement all the comparison operators
 template <typename TYPE>
 concept Comparible = requires(std::remove_reference_t<TYPE> const& t, std::remove_reference_t<TYPE> const& u) {

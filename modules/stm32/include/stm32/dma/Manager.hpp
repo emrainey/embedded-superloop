@@ -4,6 +4,7 @@
 #include <jarnax/Copier.hpp>
 #include <jarnax/dma/Manager.hpp>
 
+#include "jarnax/Peripheral.hpp"
 #include "stm32/dma/Resource.hpp"
 
 namespace stm32 {
@@ -67,7 +68,7 @@ public:
 
     //===[jarnax::dma::Manager]=============================================================================
     jarnax::dma::Resource* Assign(jarnax::Peripheral const& peripheral) override;
-    jarnax::dma::Resource* Acquire(size_t index, jarnax::Peripheral const& peripheral = _) override;
+    jarnax::dma::Resource* Acquire(size_t index, jarnax::Peripheral const& peripheral = jarnax::_) override;
     core::Status Release(jarnax::dma::Resource*& resource) override;
 
     //===[jarnax::Copier]===================================================================================

@@ -22,7 +22,7 @@ public:
     /// @param timer The system timer to use for transactions.
     /// @param i2c_driver The I2C driver to use for communication.
     /// @param allocator The allocator to use for dynamic memory.
-    Driver(jarnax::Timer& timer, jarnax::i2c::Driver& i2c_driver, core::Allocator& allocator);
+    Driver(jarnax::Timer const& timer, jarnax::i2c::Driver& i2c_driver, core::Allocator& allocator);
 
     /// @brief Initializes the SSD1306 Driver with the given I2C address.
     /// @param address The I2C address of the SSD1306 display.
@@ -68,7 +68,7 @@ protected:
     bool AreCommandsComplete(core::Status& status) override;
     void OnEvent(Event event, core::Status status) override;
 
-    jarnax::Timer& timer_;                              ///< The System Timer to use for transactions
+    jarnax::Timer const& timer_;                        ///< The System Timer to use for transactions
     jarnax::i2c::Driver& i2c_driver_;                   ///< The I2C Driver to use
     core::Buffer<jarnax::i2c::DataUnit> i2c_buffer_;    ///< The I2C Buffer to use for transactions
     jarnax::i2c::Transaction i2c_transaction_;          ///< The I2C Transaction to use

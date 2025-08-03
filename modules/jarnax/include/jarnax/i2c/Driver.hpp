@@ -54,7 +54,7 @@ union Address {
 /// @brief Defines a CRTP Transactable object for I2C transactions
 class Transaction : public jarnax::Transactable<Transaction, DefaultRetries> {
 public:
-    Transaction(jarnax::Timer& timer)
+    Transaction(jarnax::Timer const& timer)
         : jarnax::Transactable<Transaction, DefaultRetries>{timer}
         , address{}
         , buffer{}

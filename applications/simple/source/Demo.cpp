@@ -1,7 +1,7 @@
-#include "memory.h"
 #include "Demo.hpp"
 #include "board.hpp"
 #include "jarnax/Assertion.hpp"
+#include "memory.h"
 
 using namespace core::units;
 
@@ -14,13 +14,12 @@ Demo::Demo()
     , wakeup_button_{jarnax::GetBoardContext().GetWakeupButton()}
     , key0_button_{jarnax::GetBoardContext().GetButton0()}
     , key1_button_{jarnax::GetBoardContext().GetButton1()}
-    , copier_{jarnax::GetBoardContext().GetCopier()}
-    , winbond_driver_{jarnax::GetBoardContext().GetWinbondDriver()}
+    , copier_{jarnax::GetBoardContext().GetCopier()}    // , winbond_driver_{jarnax::GetBoardContext().GetWinbondDriver()}
     , countdown_{timer_, core::units::Iota{250'000U}}
+    , lps35hw_driver_{jarnax::GetBoardContext().GetLps35hwDriver()}
     , buffer_one_{}
     , buffer_two_{}
-    , state_machine_{*this, DemoState::StartUp} {
-}
+    , state_machine_{*this, DemoState::StartUp} {}
 
 void Demo::KeyLoop() {
     if (wakeup_button_.IsPressed()) {
@@ -79,9 +78,9 @@ void Demo::OnEntry(DemoState state) {
 DemoState Demo::OnCycle(DemoState state) {
     jarnax::print("Demo::OnCycle: %u\r\n", static_cast<std::uint8_t>(state));
     if (state == DemoState::StartUp) {
-        if (winbond_driver_.IsReady()) {
-            state = DemoState::KeyLoop;
-        }
+        // if (winbond_driver_.IsReady()) {
+        state = DemoState::KeyLoop;
+        //}
     } else if (state == DemoState::KeyLoop) {
         KeyLoop();
         if (countdown_.IsExpired()) {
@@ -96,7 +95,13 @@ DemoState Demo::OnCycle(DemoState state) {
             jarnax::Time time = ticker_.GetTimeSinceBoot();
             uint32_t random = rng_.GetNextRandom();
             std::uint32_t iotas = static_cast<std::uint32_t>(timer_.GetIotas().value());
-            jarnax::print("Demo::Execute: %" PRIu32 " ticks, %lf sec, %" PRIx32 " Iotas: %" PRIu32 "\r\n", ticks.value(), static_cast<double>(time.value()), random, iotas);
+            jarnax::print(
+                "Demo::Execute: %" PRIu32 " ticks, %lf sec, %" PRIx32 " Iotas: %" PRIu32 "\r\n",
+                ticks.value(),
+                static_cast<double>(time.value()),
+                random,
+                iotas
+            );
             countdown_.Reset();
         }
     } else if (state == DemoState::Error) {

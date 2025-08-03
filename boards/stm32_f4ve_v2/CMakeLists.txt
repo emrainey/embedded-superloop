@@ -13,6 +13,7 @@ add_board(NAME stm32_f4ve_v2
         stm32f407ve
     GENERIC_MODULES
         memory
+        jarnax-lps35hw-driver
     MODULES
         stm32 segger jarnax
         stm32-spi-driver

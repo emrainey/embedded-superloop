@@ -1,0 +1,64 @@
+#ifndef LPS35HW_DRIVER_HPP_
+#define LPS35HW_DRIVER_HPP_
+
+#include <core/Buffer.hpp>
+#include <core/Units.hpp>
+#include "jarnax/Loopable.hpp"
+#include "jarnax/lps35hw/StateMachine.hpp"
+#include "jarnax/spi/Driver.hpp"
+#include "lps35hw.hpp"
+
+namespace jarnax {
+namespace lps35hw {
+
+class Driver : public jarnax::Loopable, protected jarnax::lps35hw::Callback {
+public:
+    /// @brief Constructor for the LPS35HW Driver
+    /// @param timer The Timer to use for the state machine.
+    /// @param duration The duration for the state machine polling cycles.
+    /// @param spi The SPI Driver to use for communication with the chip.
+    /// @param allocator The Allocator to use for the buffer.
+    Driver(jarnax::Timer const& timer, core::units::Iota duration, jarnax::spi::Driver& spi, core::Allocator& allocator);
+
+    /// @brief Initializes the LPS35HW Driver
+    core::Status Initialize();
+
+    /// @return The last pressure reading
+    core::units::Pressure GetLastPressure();
+
+    /// @return The last temperature reading
+    core::units::Temperature GetLastTemperature();
+
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // Loopable
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    bool Execute() override;
+
+protected:
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // StateMachine::Callback
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    core::Status StartRegisterRead(uint8_t address, uint8_t count) override;
+    core::Status StartRegisterWrite(uint8_t address, uint8_t count, uint8_t value[]) override;
+    core::Status GetRegisterValue(uint8_t address, uint8_t count, uint8_t value[]) override;
+    void OnError(core::Status status) override;
+    void OnReading(::lps35hw::RawPressure pressure, ::lps35hw::RawTemperature temperature) override;
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    core::Status InitializeTransaction(bool is_read, uint8_t address, uint8_t count, uint8_t data[]);
+
+private:
+    jarnax::spi::Driver& spi_;                       ///< The SPI Driver to use for communication with the chip.
+    core::Buffer<jarnax::spi::DataUnit> buffer_;     ///< The buffer to use for communication with the chip.
+    jarnax::spi::Transaction transaction_;           ///< The SPI transaction to use for communication.
+    core::units::Pressure last_pressure_;            ///< The last pressure reading
+    core::units::Temperature last_temperature_;      ///< The last temperature reading
+    jarnax::lps35hw::StateMachine state_machine_;    ///< The state machine for the LPS35HW driver
+    jarnax::lps35hw::Event event_;                   ///< The current event to process
+    size_t const data_padding_{0U};                  ///< The data padding size for the SPI transaction
+};
+
+}    // namespace lps35hw
+}    // namespace jarnax
+
+#endif    // LPS35HW_DRIVER_HPP_

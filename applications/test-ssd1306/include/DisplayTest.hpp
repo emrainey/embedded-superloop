@@ -50,7 +50,7 @@ protected:
     core::Status TransactionCycle(ssd1306::Command command);
 
     jarnax::Ticker& ticker_;
-    jarnax::Timer& timer_;
+    jarnax::Timer const& timer_;
     jarnax::drivers::ssd1306::Driver& display_driver_;
     core::units::MicroSeconds change_duration_;
     core::units::Iota change_duration_iota_;

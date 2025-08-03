@@ -1,6 +1,7 @@
 #include "BoardContext.hpp"
-#include "segger/rtt.hpp"
 #include "jarnax.hpp"
+#include "lps35hw.hpp"
+#include "segger/rtt.hpp"
 #include "strings.hpp"
 
 namespace stm32 {
@@ -71,7 +72,8 @@ BoardContext::BoardContext()
     , usart1_tx_{stm32::gpio::Port::A, 9}
     , usart1_rx_{stm32::gpio::Port::A, 10}
     , usart1_driver_{stm32::registers::usart1, dma_manager_, stm32::USART1_RX, stm32::USART1_TX, GetDmaAllocator()}
-    , usart_console_{usart1_driver_} {
+    , usart_console_{usart1_driver_}
+    , lps35hw_driver_{timer_, core::units::ConvertToIota(::lps35hw::DefaultPollingInterval), spi2_driver_, GetDmaAllocator()} {
     // construct the driver objects as part of the constructor above.
 }
 
@@ -274,10 +276,25 @@ core::Status BoardContext::Initialize(void) {
     // External Devices have to be done after the buses are initialized
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    while (status.IsSuccess()) {
+    do {
         status = winbond_driver_.Initialize();
+        if (not status.IsSuccess()) {
+            jarnax::print("Winbond Flash failed to initialize\r\n");
+            break;
+        }
+
+        status = lps35hw_driver_.Initialize();
+        if (not status.IsSuccess()) {
+            jarnax::print("LPS35HW failed to initialize\r\n");
+            break;
+        }
+
         // force out
         break;
+    } while (true);
+
+    if (not status.IsSuccess()) {
+        cortex::spinhalt();
     }
 
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -389,6 +406,10 @@ jarnax::winbond::Driver& BoardContext::GetWinbondDriver() {
 
 jarnax::console::Service& BoardContext::GetConsole() {
     return usart_console_;
+}
+
+jarnax::lps35hw::Driver& BoardContext::GetLps35hwDriver() {
+    return lps35hw_driver_;
 }
 
 BoardContext& GetBoardContext() {

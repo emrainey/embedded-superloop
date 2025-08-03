@@ -41,7 +41,7 @@ protected:
     /// @brief Reference to the ticker
     jarnax::Ticker& ticker_;
     /// @brief Reference to the timer
-    jarnax::Timer& timer_;
+    jarnax::Timer const& timer_;
     /// @brief Reference to the GPIO for measurement externally
     jarnax::Indicator& indicator_;
     /// @brief The number of milliseconds to wait before switching states

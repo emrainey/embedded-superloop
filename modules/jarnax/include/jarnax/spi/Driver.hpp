@@ -34,7 +34,7 @@ using DataUnit = uint8_t;
 /// @brief Defines a CRTP Transactable object for SPI transactions
 class Transaction : public jarnax::Transactable<Transaction, DefaultRetries> {
 public:
-    Transaction(jarnax::Timer& timer)
+    Transaction(jarnax::Timer const& timer)
         : jarnax::Transactable<Transaction, DefaultRetries>{timer}
         , polarity{ClockPolarity::IdleLow}
         , phase{ClockPhase::ImmediateEdge}

@@ -54,7 +54,7 @@ protected:
     core::Status TransactionCycle(std::uint8_t command);
 
     jarnax::Ticker& ticker_;
-    jarnax::Timer& timer_;
+    jarnax::Timer const& timer_;
     jarnax::i2c::Driver& i2c_driver_;
     jarnax::i2c::Transaction i2c_transaction_;
     core::Buffer<jarnax::i2c::DataUnit> i2c_buffer_;
