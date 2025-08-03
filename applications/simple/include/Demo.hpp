@@ -3,18 +3,18 @@
 
 #include <memory.hpp>
 #include "BoardContext.hpp"
-#include "jarnax/CountDown.hpp"
-#include "jarnax/Loopable.hpp"
-#include "jarnax/Timer.hpp"
-#include "jarnax/Ticker.hpp"
-#include "jarnax/RandomNumberGenerator.hpp"
-#include "jarnax/Indicator.hpp"
+#include "core/Allocator.hpp"
 #include "jarnax/Button.hpp"
 #include "jarnax/Copier.hpp"
+#include "jarnax/CountDown.hpp"
+#include "jarnax/Indicator.hpp"
+#include "jarnax/Loopable.hpp"
+#include "jarnax/RandomNumberGenerator.hpp"
+#include "jarnax/Ticker.hpp"
+#include "jarnax/Timer.hpp"
 #include "jarnax/i2c/Driver.hpp"
 #include "jarnax/usart/Driver.hpp"
 #include "jarnax/winbond/Driver.hpp"
-#include "core/Allocator.hpp"
 
 using jarnax::Loopable;
 using jarnax::LoopInfo;

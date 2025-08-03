@@ -2,17 +2,17 @@
 #define TEST_USART_HPP
 
 #include "BoardContext.hpp"
-#include "jarnax/CountDown.hpp"
-#include "jarnax/Loopable.hpp"
-#include "jarnax/Timer.hpp"
-#include "jarnax/Ticker.hpp"
-#include "jarnax/Indicator.hpp"
-#include "jarnax/Copier.hpp"
-#include "jarnax/usart/Driver.hpp"
-#include "jarnax/RandomNumberGenerator.hpp"
-#include "core/StateMachine.hpp"
 #include "core/Allocator.hpp"
+#include "core/StateMachine.hpp"
+#include "jarnax/Copier.hpp"
+#include "jarnax/CountDown.hpp"
+#include "jarnax/Indicator.hpp"
+#include "jarnax/Loopable.hpp"
+#include "jarnax/RandomNumberGenerator.hpp"
+#include "jarnax/Ticker.hpp"
+#include "jarnax/Timer.hpp"
 #include "jarnax/console/Service.hpp"
+#include "jarnax/usart/Driver.hpp"
 
 using jarnax::Loopable;
 using jarnax::LoopInfo;

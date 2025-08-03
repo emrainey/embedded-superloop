@@ -1,9 +1,9 @@
 #ifndef STACK_UNITTEST_HPP_
 #define STACK_UNITTEST_HPP_
 
+#include "core/Stack.hpp"
 #include "jarnax.hpp"
 #include "jarnax/UnitTest.hpp"    // the template
-#include "core/Stack.hpp"
 
 using jarnax::Executable;
 using jarnax::LoopInfo;

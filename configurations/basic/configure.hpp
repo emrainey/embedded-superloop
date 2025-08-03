@@ -4,8 +4,8 @@
 /// @file
 /// The Configuration of the Embedded SuperLoop system
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 #include "core/Units.hpp"
 

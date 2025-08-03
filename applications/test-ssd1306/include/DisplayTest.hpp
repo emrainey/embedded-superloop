@@ -3,15 +3,15 @@
 
 #include <memory.hpp>
 #include "BoardContext.hpp"
-#include "jarnax/CountDown.hpp"
-#include "jarnax/Loopable.hpp"
-#include "jarnax/Timer.hpp"
-#include "jarnax/Ticker.hpp"
-#include "jarnax/Indicator.hpp"
-#include "jarnax/Copier.hpp"
-#include "jarnax/i2c/Driver.hpp"
-#include "jarnax/drivers/ssd1306/Driver.hpp"
 #include "core/Allocator.hpp"
+#include "jarnax/Copier.hpp"
+#include "jarnax/CountDown.hpp"
+#include "jarnax/Indicator.hpp"
+#include "jarnax/Loopable.hpp"
+#include "jarnax/Ticker.hpp"
+#include "jarnax/Timer.hpp"
+#include "jarnax/drivers/ssd1306/Driver.hpp"
+#include "jarnax/i2c/Driver.hpp"
 #include "ssd1306.hpp"
 
 using jarnax::Loopable;

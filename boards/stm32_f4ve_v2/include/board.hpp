@@ -5,9 +5,9 @@
 /// Contains configuration information for this specific board.
 
 #include <cstdint>
-#include "iso.hpp"
 #include <memory.hpp>
 #include "core/Units.hpp"
+#include "iso.hpp"
 
 // Pull in the Chip specific definitions
 #include "stm32/stm32f407ve.hpp"
@@ -30,15 +30,15 @@ constexpr static bool use_uart_for_printf = false;
 constexpr static bool use_logger_for_printf = false;
 constexpr static bool use_system_printf =
 #if defined(UNITTEST)
-    true; ///< For UNITTEST
+    true;    ///< For UNITTEST
 #else
-    false; ///< For normal operation
+    false;    ///< For normal operation
 #endif
 namespace debug {
 constexpr static bool i2c{true};
 constexpr static bool i2c_isr{false};
 constexpr static bool spi{true};
-constexpr static bool spi_isr{false}; // this seems to effect timing, be careful!
+constexpr static bool spi_isr{false};    // this seems to effect timing, be careful!
 constexpr static bool usart{true};
 constexpr static bool usart_isr{false};
 constexpr static bool dma{true};

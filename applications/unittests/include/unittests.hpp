@@ -1,9 +1,9 @@
 #ifndef UNITTESTS_HPP_
 #define UNITTESTS_HPP_
 
-#include "SelfTest.hpp"
-#include "TickTest.hpp"
 #include "LibcTest.hpp"
+#include "SelfTest.hpp"
 #include "StackTest.hpp"
+#include "TickTest.hpp"
 
 #endif    // UNITTESTS_HPP_

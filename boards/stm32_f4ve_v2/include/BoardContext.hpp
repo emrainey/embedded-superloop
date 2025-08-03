@@ -8,16 +8,16 @@
 
 #include "core/BitMapHeap.hpp"
 #include "jarnax.hpp"
-#include "stm32/Timer.hpp"
+#include "jarnax/console/UsartConsole.hpp"
+#include "jarnax/winbond/Driver.hpp"
 #include "stm32/Button.hpp"
 #include "stm32/Indicator.hpp"
+#include "stm32/RandomNumberGenerator.hpp"
+#include "stm32/Timer.hpp"
 #include "stm32/i2c/Driver.hpp"
 #include "stm32/spi/Driver.hpp"
 #include "stm32/uart/Driver.hpp"
 #include "stm32/usart/Driver.hpp"
-#include "stm32/RandomNumberGenerator.hpp"
-#include "jarnax/console/UsartConsole.hpp"
-#include "jarnax/winbond/Driver.hpp"
 
 namespace jarnax {
 
