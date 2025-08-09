@@ -2,7 +2,7 @@ Diagnostics:
   ClangTidy:
     Checks: "modernize-*,readability-*"
     CheckOptions:
-      readability-identifier-naming.VariableCase: CamelCase
+      readability-identifier-naming.VariableCase: lower_case
       readability-identifier-naming.FunctionCase: CamelCase
       readability-identifier-naming.ClassCase: CamelCase
       readability-identifier-naming.EnumCase: CamelCase
@@ -13,5 +13,5 @@ Diagnostics:
       readability-identifier-naming.GlobalVariableCase: CamelCase
       readability-identifier-naming.GlobalFunctionCase: CamelCase
       readability-identifier-naming.TypeAliasCase: CamelCase
-      readability-identifier-naming.NamespaceCase: snake_case
+      readability-identifier-naming.NamespaceCase: lower_case
       readability-identifier-naming.EnumConstantCase: CamelCase
