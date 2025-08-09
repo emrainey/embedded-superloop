@@ -34,7 +34,7 @@ void spi3_isr(void) {
     }
 }
 
-constexpr static bool trigger_isr_from_start = true;    ///< Whether to trigger the ISR from the start of the transaction
+constexpr static bool trigger_isr_from_start = false;    ///< Whether to trigger the ISR from the start of the transaction
 
 namespace spi {
 Driver::Driver(

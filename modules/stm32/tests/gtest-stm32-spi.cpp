@@ -1,13 +1,13 @@
 #include <gtest/gtest.h>
+#include <core/Buffer.hpp>
 #include <gtest/Status.hpp>
-#include "board.hpp"
-#include <memory.hpp>
-#include <jarnax/dma/MockManager.hpp>
-#include <jarnax/TestContext.hpp>
 #include <jarnax/GlacialTimer.hpp>
+#include <jarnax/TestContext.hpp>
+#include <jarnax/dma/MockManager.hpp>
+#include <memory.hpp>
 #include <stm32/spi/Driver.hpp>
 #include <stm32/vectors.hpp>
-#include <core/Buffer.hpp>
+#include "board.hpp"
 
 using namespace ::testing;
 // using WillOnce;
@@ -57,8 +57,8 @@ public:
 protected:
     void Initialize(size_t count, uint8_t injected_tx[]) {
         ASSERT_TRUE(txn_.IsUninitialized());
-        auto tx_span = buffer_.as_span().subspan(0U, BufferSize/2U);
-        auto rx_span = buffer_.as_span().subspan(BufferSize/2U, BufferSize/2U);
+        auto tx_span = buffer_.as_span().subspan(0U, BufferSize / 2U);
+        auto rx_span = buffer_.as_span().subspan(BufferSize / 2U, BufferSize / 2U);
         ASSERT_FALSE(tx_span.IsEmpty());
         ASSERT_FALSE(rx_span.IsEmpty());
         memory::fill(tx_span.data(), 0xFF, tx_span.count());
@@ -69,7 +69,7 @@ protected:
         }
         txn_.sent_size = 0U;
         txn_.send_size = count;
-        txn_.receive_offset = BufferSize/2U;
+        txn_.receive_offset = BufferSize / 2U;
         txn_.received_size = 0U;
         txn_.receive_size = count;
         // Move the buffer into the transaction, we'll lose it until after the transaction is complete
@@ -93,23 +93,23 @@ protected:
                 stm32::registers::SerialPeripheralInterface::Status status;
                 stm32::registers::SerialPeripheralInterface::Data data;
                 status = stm32::registers::spi1.status;
-                status.bits.transmit_buffer_empty = 1;    // TXE
+                status.bits.transmit_buffer_empty = 1;     // TXE
                 stm32::registers::spi1.status = status;    // write
-                stm32::spi1_isr();    // call the ISR to handle the TXE
-                ASSERT_EQ(old_interrupts+1, spi_driver_.GetStatistics().interrupts);
-                ASSERT_EQ((i+1), spi_driver_.GetStatistics().transmit_buffer_empty);
+                stm32::spi1_isr();                         // call the ISR to handle the TXE
+                ASSERT_EQ(old_interrupts + 1, spi_driver_.GetStatistics().interrupts);
+                ASSERT_EQ((i + 1), spi_driver_.GetStatistics().transmit_buffer_empty);
                 data = stm32::registers::spi1.data;    // read the data register
-                ASSERT_EQ(expected_tx[i], static_cast<uint8_t>(data.bits.data));
+                ASSERT_EQ(expected_tx[i], static_cast<uint8_t>(data.bits.data)) << "i=" << i;
                 data.whole = injected_rx[i];
-                stm32::registers::spi1.data = data;    // write the injected RX
-                status.bits.transmit_buffer_empty = 0; // TXE is handled
-                status.bits.receive_buffer_not_empty = 1; // RXNE
-                stm32::registers::spi1.status = status;    // write
-                stm32::spi1_isr();    // call the ISR to handle the RXNE
-                ASSERT_EQ(old_interrupts+2, spi_driver_.GetStatistics().interrupts);
-                ASSERT_EQ((i+1), spi_driver_.GetStatistics().receive_buffer_not_empty);
-                status.bits.receive_buffer_not_empty = 0; // RXNE is handled
-                stm32::registers::spi1.status = status;    // write
+                stm32::registers::spi1.data = data;          // write the injected RX
+                status.bits.transmit_buffer_empty = 0;       // TXE is handled
+                status.bits.receive_buffer_not_empty = 1;    // RXNE
+                stm32::registers::spi1.status = status;      // write
+                stm32::spi1_isr();                           // call the ISR to handle the RXNE
+                ASSERT_EQ(old_interrupts + 2, spi_driver_.GetStatistics().interrupts);
+                ASSERT_EQ((i + 1), spi_driver_.GetStatistics().receive_buffer_not_empty);
+                status.bits.receive_buffer_not_empty = 0;    // RXNE is handled
+                stm32::registers::spi1.status = status;      // write
             }
         } else {
             // the TX DMA stream should have been triggered
@@ -159,5 +159,3 @@ TEST_F(SPIDriverTest, Simple) {
 
 }    // namespace spi
 }    // namespace stm32
-
-
