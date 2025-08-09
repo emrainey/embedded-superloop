@@ -68,7 +68,7 @@ BoardContext::BoardContext()
     , i2c1_driver_{stm32::registers::i2c1, dma_manager_, stm32::I2C1_RX, stm32::I2C1_TX}
     , spi1_driver_{stm32::registers::spi1, dma_manager_, stm32::SPI1_RX, stm32::SPI1_TX}
     , spi2_driver_{stm32::registers::spi2, dma_manager_, stm32::SPI2_RX, stm32::SPI2_TX}
-    , winbond_driver_{timer_, spi1_driver_, flash_cs_, GetDmaAllocator()}
+    , w25q16bv_driver_{timer_, spi1_driver_, flash_cs_, GetDmaAllocator()}
     , usart1_tx_{stm32::gpio::Port::A, 9}
     , usart1_rx_{stm32::gpio::Port::A, 10}
     , usart1_driver_{stm32::registers::usart1, dma_manager_, stm32::USART1_RX, stm32::USART1_TX, GetDmaAllocator()}
@@ -277,9 +277,9 @@ core::Status BoardContext::Initialize(void) {
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
     do {
-        status = winbond_driver_.Initialize();
+        status = w25q16bv_driver_.Initialize();
         if (not status.IsSuccess()) {
-            jarnax::print("Winbond Flash failed to initialize\r\n");
+            jarnax::print("W25Q16BV Flash failed to initialize\r\n");
             break;
         }
 
@@ -400,8 +400,8 @@ core::Allocator& BoardContext::GetDmaAllocator() {
     return stm32::dma_heap_allocator;
 }
 
-jarnax::winbond::Driver& BoardContext::GetWinbondDriver() {
-    return winbond_driver_;
+jarnax::w25q16bv::Driver& BoardContext::GetW25q16bvDriver() {
+    return w25q16bv_driver_;
 }
 
 jarnax::console::Service& BoardContext::GetConsole() {

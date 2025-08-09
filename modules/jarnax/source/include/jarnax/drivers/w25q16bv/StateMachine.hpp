@@ -1,14 +1,15 @@
-#ifndef JARNAX_WINBOND_STATE_MACHINE_HPP
-#define JARNAX_WINBOND_STATE_MACHINE_HPP
+#ifndef JARNAX_W25Q16BV_STATE_MACHINE_HPP
+#define JARNAX_W25Q16BV_STATE_MACHINE_HPP
 
-#include "core/Printer.hpp"
 #include "core/StateMachine.hpp"
+#include "core/Status.hpp"
 #include "w25q16bv.hpp"
 
 namespace jarnax {
-namespace winbond {
+namespace drivers {
+namespace w25q16bv {
 
-using Instruction = ::w25q16bv::Instruction;    ///< The Winbond Instruction type
+using Instruction = ::w25q16bv::Instruction;    ///< The W25Q16BV Instruction type
 
 enum class State : std::uint8_t {
     Undefined = 0U,    ///< The undefined state, required by StateMachine
@@ -58,7 +59,7 @@ public:
     /// @brief The command callback interface to be implemented by users of the StateMachine
     /// @details This is called when the StateMachine has a command to report.
     /// @param instruction The instruction to send
-    virtual core::Status Command(winbond::Instruction instruction) = 0;
+    virtual core::Status Command(::w25q16bv::Instruction instruction) = 0;
 
     /// @brief Is the command done?
     virtual bool IsCommandComplete(void) const = 0;
@@ -74,15 +75,15 @@ protected:
     ~Executor() = default;
 };
 
-class WinbondStateMachine final : public core::StateMachine<State>, protected core::StateMachine<State>::Callback {
+class StateMachine final : public core::StateMachine<State>, protected core::StateMachine<State>::Callback {
 public:
     /// @brief The parameter constructor
     /// @param listener The reference to the Event Listener
     /// @param executor The reference to the Executor
-    WinbondStateMachine(Listener& listener, Executor& executor);
+    StateMachine(Listener& listener, Executor& executor);
 
     /// @brief The destructor
-    ~WinbondStateMachine() = default;
+    ~StateMachine() = default;
 
     /// @brief Call this to initialize the StateMachine
     void Initialize(void);
@@ -113,7 +114,8 @@ protected:
     core::Status status_;
 };
 
-}    // namespace winbond
+}    // namespace w25q16bv
+}    // namespace drivers
 }    // namespace jarnax
 
-#endif    // JARNAX_WINBOND_STATE_MACHINE_HPP
+#endif    // JARNAX_W25Q16BV_STATE_MACHINE_HPP

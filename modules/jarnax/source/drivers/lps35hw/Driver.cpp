@@ -1,9 +1,9 @@
-#include "jarnax/lps35hw/Driver.hpp"
-#include "core/Status.hpp"
+#include "jarnax/drivers/lps35hw/Driver.hpp"
 #include "jarnax/print.hpp"
 #include "memory.hpp"
 
 namespace jarnax {
+namespace drivers {
 namespace lps35hw {
 
 constexpr static bool debug{false};    ///< Debug flag for the LPS35HW driver
@@ -164,4 +164,5 @@ core::Status Driver::InitializeTransaction(bool is_read, uint8_t address, uint8_
 }
 
 }    // namespace lps35hw
+}    // namespace drivers
 }    // namespace jarnax

@@ -9,8 +9,8 @@
 #include "core/BitMapHeap.hpp"
 #include "jarnax.hpp"
 #include "jarnax/console/UsartConsole.hpp"
-#include "jarnax/lps35hw/Driver.hpp"
-#include "jarnax/winbond/Driver.hpp"
+#include "jarnax/drivers/lps35hw/Driver.hpp"
+#include "jarnax/drivers/w25q16bv/Driver.hpp"
 #include "stm32/Button.hpp"
 #include "stm32/Indicator.hpp"
 #include "stm32/RandomNumberGenerator.hpp"
@@ -90,8 +90,8 @@ public:
     /// Returns the DMA Allocator
     core::Allocator& GetDmaAllocator();
 
-    /// Returns the Winbond Driver
-    jarnax::winbond::Driver& GetWinbondDriver();
+    /// Returns the w25q16bv Driver
+    jarnax::w25q16bv::Driver& GetW25q16bvDriver();
 
     /// Return the Console Service
     jarnax::console::Service& GetConsole();
@@ -160,8 +160,8 @@ protected:
     stm32::spi::Driver spi1_driver_;
     /// The SPI2 Driver
     stm32::spi::Driver spi2_driver_;
-    /// The Winbond Driver
-    jarnax::winbond::Driver winbond_driver_;
+    /// The W25Q16BV Driver
+    jarnax::drivers::w25q16bv::Driver w25q16bv_driver_;
     /// USART1 Transmit Pin
     stm32::gpio::Pin usart1_tx_;
     /// USART1 Receive Pin
@@ -171,7 +171,7 @@ protected:
     /// Console Driver
     jarnax::console::UsartConsole usart_console_;
     /// The LPS35HW Driver
-    jarnax::lps35hw::Driver lps35hw_driver_;
+    jarnax::drivers::lps35hw::Driver lps35hw_driver_;
 };
 
 /// Gets the reference to the BoardContext

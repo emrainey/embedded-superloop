@@ -1,12 +1,12 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include "jarnax/lps35hw/StateMachine.hpp"
+#include "jarnax/drivers/lps35hw/StateMachine.hpp"
 
 namespace jarnax {
-
+namespace drivers {
 namespace lps35hw {
 
-class MockCallback : public jarnax::lps35hw::Callback {
+class MockCallback : public jarnax::drivers::lps35hw::Callback {
 public:
     MOCK_METHOD(core::Status, StartRegisterRead, (uint8_t address, uint8_t count), ());
     MOCK_METHOD(core::Status, StartRegisterWrite, (uint8_t address, uint8_t count, uint8_t value[]), ());
@@ -17,5 +17,5 @@ public:
 };
 
 }    // namespace lps35hw
-
+}    // namespace drivers
 }    // namespace jarnax

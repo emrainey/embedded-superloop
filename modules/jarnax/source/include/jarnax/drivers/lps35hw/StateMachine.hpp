@@ -8,6 +8,7 @@
 #include "jarnax/print.hpp"
 
 namespace jarnax {
+namespace drivers {
 namespace lps35hw {
 
 /// @brief The states of the LPS35HW state machine
@@ -93,6 +94,7 @@ protected:
 };
 
 }    // namespace lps35hw
+}    // namespace drivers
 }    // namespace jarnax
 
 #endif    // LPS35HW_STATEMACHINE_HPP_

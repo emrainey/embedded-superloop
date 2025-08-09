@@ -14,7 +14,7 @@
 #include "jarnax/Timer.hpp"
 #include "jarnax/i2c/Driver.hpp"
 #include "jarnax/usart/Driver.hpp"
-#include "jarnax/winbond/Driver.hpp"
+#include "jarnax/w25q16bv/Driver.hpp"
 
 using jarnax::Loopable;
 using jarnax::LoopInfo;

@@ -2,8 +2,8 @@
 #include <gtest/gtest.h>
 #include <core/Units.hpp>
 #include <jarnax/JumpTimer.hpp>
-#include <jarnax/lps35hw/MockCallback.hpp>
-#include <jarnax/lps35hw/StateMachine.hpp>
+#include <jarnax/drivers/lps35hw/MockCallback.hpp>
+#include <jarnax/drivers/lps35hw/StateMachine.hpp>
 
 using ::testing::_;
 using ::testing::Invoke;
@@ -52,7 +52,7 @@ protected:
         // the oncycle will be called and we'll exit Idling then enter the next state
         // on entry to Identifying state
         EXPECT_CALL(mock_callback_, StartRegisterRead(0x0F, 1)).WillOnce(Return(core::Status{}));
-        state_machine_.Process(lps35hw::Event::Initialize);
+        state_machine_.Process(drivers::lps35hw::Event::Initialize);
         Verify();
         //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         EXPECT_CALL(mock_callback_, GetRegisterValue(0x0F, 1, _)).WillOnce(Invoke([](uint8_t, uint8_t, uint8_t value[]) {
@@ -61,13 +61,13 @@ protected:
         }));
         // on entry to Configuring state
         EXPECT_CALL(mock_callback_, StartRegisterWrite(0x10, 3, _)).WillOnce(Return(core::Status{}));
-        state_machine_.Process(lps35hw::Event::None);    // keeps it going
+        state_machine_.Process(drivers::lps35hw::Event::None);    // keeps it going
         Verify();
         //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         EXPECT_CALL(mock_callback_, GetRegisterValue(0x10, 3, _)).WillOnce(Invoke([](uint8_t, uint8_t, uint8_t[]) { return core::Status{}; }));
         // on entry to ReadingReference state
         EXPECT_CALL(mock_callback_, StartRegisterRead(0x15, 3)).WillOnce(Return(core::Status{}));
-        state_machine_.Process(lps35hw::Event::None);    // keeps it going
+        state_machine_.Process(drivers::lps35hw::Event::None);    // keeps it going
         Verify();
         //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         EXPECT_CALL(mock_callback_, GetRegisterValue(0x15, 3, _)).WillOnce(Invoke([this](uint8_t, uint8_t, uint8_t value[]) {
@@ -76,7 +76,7 @@ protected:
             value[2] = static_cast<uint8_t>((reference_pressure_ >> 16) & 0xFF);
             return core::Status{};
         }));
-        state_machine_.Process(lps35hw::Event::None);    // keeps it going
+        state_machine_.Process(drivers::lps35hw::Event::None);    // keeps it going
         Verify();
         //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         ASSERT_TRUE(state_machine_.IsIdling());    // should be idling after initialization
@@ -84,12 +84,12 @@ protected:
 
     void Measure() {
         EXPECT_CALL(mock_callback_, StartRegisterRead(0x28, 5)).WillOnce(Return(core::Status{}));
-        state_machine_.Process(lps35hw::Event::Measure);    // starts the state machine
+        state_machine_.Process(drivers::lps35hw::Event::Measure);    // starts the state machine
         Verify();
         //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         EXPECT_CALL(mock_callback_, GetRegisterValue(0x28, 5, _)).WillOnce(Return(core::Status{core::Result::NotReady, core::Cause::State}));
         EXPECT_CALL(mock_callback_, OnError(core::Status{core::Result::NotReady, core::Cause::State})).Times(0);
-        state_machine_.Process(lps35hw::Event::None);    // keeps it going
+        state_machine_.Process(drivers::lps35hw::Event::None);    // keeps it going
         Verify();
         //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         EXPECT_CALL(mock_callback_, GetRegisterValue(0x28, 5, _)).WillOnce(Invoke([](uint8_t, uint8_t, uint8_t value[]) {
@@ -108,15 +108,15 @@ protected:
         }));
         EXPECT_CALL(mock_callback_, OnError(core::Status{core::Result::NotReady, core::Cause::State})).Times(0);
 
-        state_machine_.Process(lps35hw::Event::None);    // keeps it going
+        state_machine_.Process(drivers::lps35hw::Event::None);    // keeps it going
         Verify();
         //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         ASSERT_TRUE(state_machine_.IsIdling());    // should be idling after initialization
     }
 
     jarnax::JumpTimer jump_timer_;
-    jarnax::lps35hw::MockCallback mock_callback_;
-    jarnax::lps35hw::StateMachine state_machine_;
+    jarnax::drivers::lps35hw::MockCallback mock_callback_;
+    jarnax::drivers::lps35hw::StateMachine state_machine_;
     int32_t const reference_pressure_{4058521};    // 800ft in hPa*4096
 };
 

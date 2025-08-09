@@ -1,6 +1,7 @@
-#include "jarnax/lps35hw/StateMachine.hpp"
+#include "jarnax/drivers/lps35hw/StateMachine.hpp"
 
 namespace jarnax {
+namespace drivers {
 namespace lps35hw {
 
 StateMachine::StateMachine(jarnax::Timer const& timer, core::units::Iota duration, lps35hw::Callback& callback)
@@ -251,4 +252,5 @@ void StateMachine::OnTransition(State from, State to) {
 }
 
 }    // namespace lps35hw
+}    // namespace drivers
 }    // namespace jarnax

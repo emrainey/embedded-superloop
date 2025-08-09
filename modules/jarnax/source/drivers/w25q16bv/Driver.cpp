@@ -1,4 +1,4 @@
-#include <jarnax/winbond/Driver.hpp>
+#include <jarnax/drivers/w25q16bv/Driver.hpp>
 #include <memory.hpp>
 #include <w25q16bv.hpp>
 
@@ -7,7 +7,8 @@
 /// @details This driver is used to communicate with the Winbond Flash memory over SPI.
 
 namespace jarnax {
-namespace winbond {
+namespace drivers {
+namespace w25q16bv {
 
 /// This is a no-op function to be used as a callback for instruction that do not
 /// require additional data to be written to the buffer.
@@ -22,7 +23,7 @@ public:
 
 class Addresser : public Functor {
 public:
-    Addresser(w25q16bv::Address& address)
+    Addresser(::w25q16bv::Address& address)
         : address_{address} {}
 
     virtual ~Addresser() = default;
@@ -35,7 +36,7 @@ public:
     }
 
 protected:
-    w25q16bv::Address address_;
+    ::w25q16bv::Address address_;
 };
 
 class Reseter : public Functor {
@@ -144,7 +145,7 @@ bool Driver::Execute(void) {
     return true;
 }
 
-core::Status Driver::Command(winbond::Instruction instruction) {
+core::Status Driver::Command(::w25q16bv::Instruction instruction) {
     core::Status status;
     if (transaction_.IsResetable()) {
         transaction_.Reset();
@@ -155,14 +156,14 @@ core::Status Driver::Command(winbond::Instruction instruction) {
         Empty empty;
         // Addresser address{w25q16bv::Address{}};
 
-        if (instruction == winbond::Instruction::EnableReset) {
+        if (instruction == ::w25q16bv::Instruction::EnableReset) {
             Reseter reseter;
             status = Reinitialize(instruction, 2U, 0U, reseter);
-        } else if (instruction == winbond::Instruction::ReleasePowerDown) {
+        } else if (instruction == ::w25q16bv::Instruction::ReleasePowerDown) {
             status = Reinitialize(instruction, 4U, 0U, empty);
-        } else if (instruction == winbond::Instruction::PowerDown) {
+        } else if (instruction == ::w25q16bv::Instruction::PowerDown) {
             status = Reinitialize(instruction, 3U, 0U, empty);
-        } else if (instruction == winbond::Instruction::ReadUniqueId) {
+        } else if (instruction == ::w25q16bv::Instruction::ReadUniqueId) {
             status = Reinitialize(instruction, 5U, 13U, empty);
         } else {
             status = core::Status{core::Result::NotAvailable, core::Cause::State};
@@ -251,5 +252,6 @@ void Driver::OnEvent(Event event, core::Status status) {
     printer_("OnEvent had status ", status);
 }
 
-}    // namespace winbond
+}    // namespace w25q16bv
+}    // namespace drivers
 }    // namespace jarnax

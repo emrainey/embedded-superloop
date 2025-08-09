@@ -31,19 +31,9 @@ add_module(NAME jarnax
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CountDown.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/StopWatch.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Monitor.cpp
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/i2c/Driver.cpp
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/spi/Driver.cpp
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/WinbondDriver.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/WinbondStateMachine.cpp
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/ssd1306.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/ssd1306/Driver.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/ssd1306/StateMachine.cpp
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/services/UsartConsole.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/i2c/Driver.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/spi/Driver.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/services/UsartConsole.cpp
 
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/source/include # Internal includes
@@ -63,12 +53,44 @@ add_module(NAME jarnax
         ${LOCAL_BOARDS}
 )
 
+add_module(NAME jarnax-ssd1306-driver
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/ssd1306.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/ssd1306/Driver.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/ssd1306/StateMachine.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/include # Internal includes
+    LIBRARIES
+        strict jarnax-interfaces
+    GENERIC_MODULES
+        memory core
+    NO_CONFIGURATIONS
+    NO_BOARDS
+)
+
+add_module(NAME jarnax-w25q16bv-driver
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/w25q16bv/Driver.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/w25q16bv/StateMachine.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/include # Internal includes
+    LIBRARIES
+        strict jarnax-interfaces
+    GENERIC_MODULES
+        memory core
+    NO_CONFIGURATIONS
+    NO_BOARDS
+)
+
 add_module(NAME jarnax-lps35hw-driver
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/lps35hw/Driver.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/lps35hw/StateMachine.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/include # Internal includes
     LIBRARIES
         strict jarnax-interfaces
     GENERIC_MODULES
@@ -103,7 +125,7 @@ host_unit_test(NAME test-jarnax-googletest
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-mocks.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-coordinator.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-winbondstatemachine.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-w25q16bv-statemachine.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-lps35hw-statemachine.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/include

@@ -12,11 +12,13 @@
 #include <jarnax/CountDown.hpp>
 #include <jarnax/Loopable.hpp>
 #include <jarnax/Timer.hpp>
+#include <jarnax/drivers/w25q16bv/StateMachine.hpp>
 #include <jarnax/spi/Driver.hpp>
-#include <jarnax/winbond/WinbondStateMachine.hpp>
+#include <jarnax/w25q16bv/Driver.hpp>
 
 namespace jarnax {
-namespace winbond {
+namespace drivers {
+namespace w25q16bv {
 
 /// @brief A convenience class to be used as a callback for filling out instructions to write to the Chip
 class Functor {
@@ -28,25 +30,22 @@ protected:
 };
 
 /// @brief The Winbond Flash Driver over SPI
-class Driver : public jarnax::Loopable, protected jarnax::winbond::Listener, protected jarnax::winbond::Executor {
+class Driver : public jarnax::w25q16bv::Driver, public jarnax::Loopable, protected Listener, protected Executor {
 public:
     /// @brief Parameterized constructor
     Driver(Timer& timer, spi::Driver& driver, gpio::Output& chip_select, core::Allocator& dma_allocator);
     /// @brief Destructor
     ~Driver();
 
-    /// @brief Initializes the driver before main
-    core::Status Initialize(void);
-
     //==========================
     bool Execute(void) override;
     //==========================
-
-    void PowerUp(void);
-    bool IsPowered(void) const;
-    bool IsIdentified(void) const;
-    bool IsReady(void) const;
-    void PowerDown(void);
+    core::Status Initialize(void) override;
+    void PowerUp(void) override;
+    bool IsPowered(void) const override;
+    bool IsIdentified(void) const override;
+    bool IsReady(void) const override;
+    void PowerDown(void) override;
 
 protected:
     /// @brief Reinitializes the transaction
@@ -55,10 +54,10 @@ protected:
     /// @param read_size The size of the read buffer
     /// @param callback The callback used to write the data into the buffer
     /// @return
-    core::Status Reinitialize(winbond::Instruction instruction, size_t write_size, size_t read_size, Functor& callback);
+    core::Status Reinitialize(::w25q16bv::Instruction instruction, size_t write_size, size_t read_size, Functor& callback);
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // StateMachine Callbacks
-    core::Status Command(winbond::Instruction instruction) override;
+    core::Status Command(::w25q16bv::Instruction instruction) override;
     bool IsCommandComplete(void) const override;
     core::Status GetStatusAndData(void) override;
     bool IsPresent(void) const override;
@@ -84,8 +83,8 @@ protected:
     core::Buffer<spi::DataUnit> buffer_;
     /// @brief The countdown for the startup time
     jarnax::CountDown startup_countdown_;
-    /// @brief The StateMachine for the Winbond driver
-    jarnax::winbond::WinbondStateMachine state_machine_;
+    /// @brief The StateMachine for the W25Q16BV driver
+    jarnax::drivers::w25q16bv::StateMachine state_machine_;
     /// @brief Shortcut to know if the chip is powered
     bool powered_;
     /// @brief Shortcut to know if the chip is identified
@@ -93,9 +92,10 @@ protected:
     /// @brief The last Instruction
     Instruction last_instruction_;
     /// The next event to send to the state machine
-    jarnax::winbond::Event next_event_;
+    jarnax::drivers::w25q16bv::Event next_event_;
 };
-}    // namespace winbond
+}    // namespace w25q16bv
+}    // namespace drivers
 }    // namespace jarnax
 
 #endif    // JARNAX_WINBOND_DRIVER_HPP

@@ -1,28 +1,29 @@
-#include "jarnax/winbond/WinbondStateMachine.hpp"
+#include "jarnax/drivers/w25q16bv/StateMachine.hpp"
+#include "jarnax/print.hpp"
 
 namespace jarnax {
-namespace winbond {
+namespace drivers {
+namespace w25q16bv {
 
-WinbondStateMachine::WinbondStateMachine(Listener& listener, Executor& executor)
+StateMachine::StateMachine(Listener& listener, Executor& executor)
     : core::StateMachine<State>{*this, State::Detection}
     , listener_{listener}
     , executor_{executor}
     , event_{Event::None}
-    , status_{core::Status{core::Result::Success, core::Cause::State}} {
-}
+    , status_{core::Status{core::Result::Success, core::Cause::State}} {}
 
-void WinbondStateMachine::Initialize(void) {
+void StateMachine::Initialize(void) {
     event_ = Event::None;
     status_ = core::Status{core::Result::Success, core::Cause::State};
     Enter();    // enter the StateMachine
 }
 
-bool WinbondStateMachine::IsReady(void) const {
+bool StateMachine::IsReady(void) const {
     // Check if the StateMachine is in a state which can take commands
     return Is(State::Waiting);
 }
 
-void WinbondStateMachine::Process(Event event) {
+void StateMachine::Process(Event event) {
     if (not IsFinal()) {
         // capture the input
         event_ = event;
@@ -36,11 +37,11 @@ void WinbondStateMachine::Process(Event event) {
     }
 }
 
-void WinbondStateMachine::OnEnter() {
+void StateMachine::OnEnter() {
     listener_.OnEvent(Event::Entered, status_);
 }
 
-void WinbondStateMachine::OnEntry(State state) {
+void StateMachine::OnEntry(State state) {
     if (state == State::Detection) {
         // we don't know if the chip exists or if it's powered so there's nothing to do
         // here, proceed to onCycle
@@ -65,7 +66,7 @@ void WinbondStateMachine::OnEntry(State state) {
     }
 }
 
-State WinbondStateMachine::WhenTransactionDone(State state, State on_success, State on_failure) {
+State StateMachine::WhenTransactionDone(State state, State on_success, State on_failure) {
     if (executor_.IsCommandComplete()) {
         status_ = executor_.GetStatusAndData();
         if (status_.IsSuccess()) {
@@ -80,7 +81,7 @@ State WinbondStateMachine::WhenTransactionDone(State state, State on_success, St
     return state;
 }
 
-State WinbondStateMachine::OnCycle(State state) {
+State StateMachine::OnCycle(State state) {
     if (state == State::Detection) {
         // Check if the chip is present, powered and ready
         if (executor_.IsPresent()) {
@@ -115,7 +116,7 @@ State WinbondStateMachine::OnCycle(State state) {
     return state;
 }
 
-void WinbondStateMachine::OnExit(State state) {
+void StateMachine::OnExit(State state) {
     if (state == State::Detection) {
         // do nothing
     } else if (state == State::PowerUp) {
@@ -131,14 +132,15 @@ void WinbondStateMachine::OnExit(State state) {
     }    // else if (state == State::Error) {}
 }
 
-void WinbondStateMachine::OnTransition(State from, State to) {
+void StateMachine::OnTransition(State from, State to) {
     // do nothing for now
-    core::GetPrinter()("WinbondStateMachine %hx -> %hx\r\n", to_underlying(from), to_underlying(to));
+    core::GetPrinter()("StateMachine %hx -> %hx\r\n", to_underlying(from), to_underlying(to));
 }
 
-void WinbondStateMachine::OnExit() {
+void StateMachine::OnExit() {
     listener_.OnEvent(Event::Exited, status_);
 }
 
-}    // namespace winbond
+}    // namespace w25q16bv
+}    // namespace drivers
 }    // namespace jarnax
