@@ -30,7 +30,7 @@ protected:
 };
 
 /// @brief The Winbond Flash Driver over SPI
-class Driver : public jarnax::w25q16bv::Driver, public jarnax::Loopable, protected Listener, protected Executor {
+class Driver : public jarnax::w25q16bv::Driver, protected Listener, protected Executor {
 public:
     /// @brief Parameterized constructor
     Driver(Timer& timer, spi::Driver& driver, gpio::Output& chip_select, core::Allocator& dma_allocator);
@@ -38,9 +38,11 @@ public:
     ~Driver();
 
     //==========================
+    // Jarnax Driver
+    core::Status Initialize(void) override;
     bool Execute(void) override;
     //==========================
-    core::Status Initialize(void) override;
+    // jarnax::w25q16bv::Driver
     void PowerUp(void) override;
     bool IsPowered(void) const override;
     bool IsIdentified(void) const override;

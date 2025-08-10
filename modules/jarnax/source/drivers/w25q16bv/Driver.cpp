@@ -50,7 +50,7 @@ public:
 };
 
 Driver::Driver(Timer& timer, spi::Driver& driver, gpio::Output& chip_select, core::Allocator& dma_allocator)
-    : Loopable()
+    : jarnax::w25q16bv::Driver()
     , printer_{core::GetPrinter()}
     , timer_{timer}
     , driver_{driver}

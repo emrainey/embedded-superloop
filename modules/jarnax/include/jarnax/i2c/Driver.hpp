@@ -2,6 +2,7 @@
 #define JARNAX_I2C_DRIVER_HPP
 
 #include <cstdint>
+#include "compiler.hpp"
 #include "core/Buffer.hpp"
 #include "jarnax/Coordinator.hpp"
 #include "jarnax/Transactable.hpp"
@@ -113,15 +114,15 @@ using Transactor = jarnax::Transactor<i2c::Transaction>;
 using Coordinator = jarnax::Coordinator<i2c::Transaction, DefaultQueueDepth>;
 
 /// The I2C Driver Interface has a Transactor of I2C Transactions and is a Coordinator of the I2C Transactions
-class Driver : public Coordinator {
+class Driver : public Coordinator, public UnCopyMoveable {
 public:
     Driver() = delete;
+
+    /// @brief Constructs a new I2C Driver
+    /// @param tr The Transactor to use for I2C transactions
     explicit Driver(jarnax::i2c::Transactor& tr);
 
-    Driver(Driver const&) = delete;
-    Driver(Driver&&) = delete;
-    Driver& operator=(Driver const&) = delete;
-    Driver& operator=(Driver&&) = delete;
+protected:
     ~Driver() = default;
 };
 }    // namespace i2c

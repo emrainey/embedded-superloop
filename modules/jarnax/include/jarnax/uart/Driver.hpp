@@ -3,13 +3,14 @@
 
 #include "core/Span.hpp"
 #include "core/Status.hpp"
+#include "jarnax/Driver.hpp"
 
 namespace jarnax {
 
 /// @brief The UART Namespace
 namespace uart {
 
-class Driver {
+class Driver : public jarnax::Driver {
 public:
     /// The data unit of the UART Driver
     using DataUnit = uint8_t;
@@ -23,7 +24,7 @@ public:
     /// @param data The data to be sent
     /// @retval Success if the Data was enqueued.
     /// @retval NoResource if the queue is full.
-    virtual core::Status Enqueue(core::Span<DataUnit> const& data) = 0;
+    virtual core::Status Enqueue(core::Span<DataUnit const> const& data) = 0;
 
     /// @brief Dequeues the data from the UART
     /// @param data The span to receive the data into

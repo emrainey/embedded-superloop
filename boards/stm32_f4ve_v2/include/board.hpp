@@ -39,6 +39,8 @@ constexpr static bool i2c{true};
 constexpr static bool i2c_isr{false};
 constexpr static bool spi{false};
 constexpr static bool spi_isr{false};    // this seems to effect timing, be careful!
+constexpr static bool uart{true};
+constexpr static bool uart_isr{false};
 constexpr static bool usart{true};
 constexpr static bool usart_isr{false};
 constexpr static bool dma{true};
@@ -78,6 +80,10 @@ constexpr static core::units::Hertz i2c1_bus_frequency = 400_KHz;
 /// The SPI2 External Frequency
 constexpr static core::units::Hertz spi2_bus_frequency = 1_MHz;
 /// The UxART TX DMA Buffer Size
+constexpr static std::uint32_t uart_tx_dma_buffer_size = 128U;
+/// The UxART RX DMA Buffer Size
+constexpr static std::uint32_t uart_rx_dma_buffer_size = 128U;
+/// The UxART TX DMA Buffer Size
 constexpr static std::uint32_t usart_tx_dma_buffer_size = 128U;
 /// The UxART RX DMA Buffer Size
 constexpr static std::uint32_t usart_rx_dma_buffer_size = 128U;
@@ -85,6 +91,10 @@ constexpr static std::uint32_t usart_rx_dma_buffer_size = 128U;
 constexpr static std::uint32_t i2c_dma_buffer_size = 256U;
 /// The SPI2 DMA Buffer Size
 constexpr static std::uint32_t spi2_dma_buffer_size = 256U;
+/// The UART TX DMA Switch
+constexpr static bool use_dma_for_uart_tx{false};
+/// The UART RX DMA Switch
+constexpr static bool use_dma_for_uart_rx{false};
 /// The USART TX DMA Switch
 constexpr static bool use_dma_for_usart_tx{false};
 /// The USART RX DMA Switch

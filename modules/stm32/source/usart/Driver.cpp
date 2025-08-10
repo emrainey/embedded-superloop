@@ -1,12 +1,11 @@
-#include "board.hpp"
-#include <cmath>
-#include "memory.hpp"
-#include "jarnax/print.hpp"
 #include "stm32/usart/Driver.hpp"
+#include <cmath>    // for std::floor
+#include <jarnax/print.hpp>
+#include "board.hpp"
 
 namespace stm32 {
-usart::Driver* usart_instances[4] = {nullptr, nullptr, nullptr, nullptr};                 // 4, 5, 7, 8
-usart::Driver::Statistics* usart_statistics[4] = {nullptr, nullptr, nullptr, nullptr};    // 4, 5, 7, 8
+usart::Driver* usart_instances[4] = {nullptr, nullptr, nullptr, nullptr};         // 4, 5, 7, 8
+usart::Statistics* usart_statistics[4] = {nullptr, nullptr, nullptr, nullptr};    // 4, 5, 7, 8
 
 void usart1_isr(void) {
     external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter1)]++;
@@ -38,13 +37,11 @@ void usart6_isr(void) {
 
 namespace usart {
 Driver::Driver(
-    registers::UniversalSynchronousAsynchronousReceiverTransmitter volatile& usart,
-    dma::Manager& dma_driver,
-    jarnax::Peripheral rx_peripheral,
-    jarnax::Peripheral tx_peripheral,
-    core::Allocator& dma_allocator
+    registers::UniversalSynchronousAsynchronousReceiverTransmitter volatile& usart, dma::Manager& dma_driver, jarnax::Peripheral rx_peripheral,
+    jarnax::Peripheral tx_peripheral, core::Allocator& dma_allocator
 )
-    : usart_{usart}
+    : Statistician{}
+    , usart_{usart}
     , dma_manager_{dma_driver}
     , rx_peripheral_{rx_peripheral}
     , rx_dma_resource_{nullptr}
@@ -56,8 +53,7 @@ Driver::Driver(
     , tx_dma_buffer_{usart_tx_dma_buffer_size, dma_allocator_}
     , tx_ready_{true}
     , tx_span_{}
-    , tx_index_{0U}
-    , statistics_{} {
+    , tx_index_{0U} {
     if (&usart == &registers::usart1) {
         usart_instances[0] = this;
         usart_statistics[0] = &statistics_;
@@ -95,10 +91,12 @@ void Driver::ComputeBaudRate(uint32_t baud_rate) const {
     brr.bits.div_fraction = fraction & 0x0F;
     usart_.baudrate = brr;    // write
     if constexpr (jarnax::debug::usart) {
-        jarnax::print("USART divider: %lf mantissa:%" PRIu32 " fraction:%" PRIu32 "\r\n",
+        jarnax::print(
+            "USART divider: %lf mantissa:%" PRIu32 " fraction:%" PRIu32 "\r\n",
             static_cast<double>(divider),
             static_cast<uint32_t>(brr.bits.div_mantissa),
-            static_cast<uint32_t>(brr.bits.div_fraction));
+            static_cast<uint32_t>(brr.bits.div_fraction)
+        );
     }
 }
 
@@ -119,6 +117,10 @@ uint32_t Driver::GetBaudRate(void) const {
         );
     }
     return baud_rate;
+}
+
+core::Status Driver::Initialize(void) {
+    return Initialize(peripheral_frequency_);
 }
 
 core::Status Driver::Initialize(core::units::Hertz peripheral_frequency) {
@@ -152,8 +154,6 @@ core::Status Driver::Initialize(core::units::Hertz peripheral_frequency) {
     control3 = usart_.control3;    // read
     control3.whole = 0U;           // clear
     usart_.control3 = control3;    // write
-
-    // Allocate a buffer for the RX and TX streams
     return status;
 }
 
@@ -170,17 +170,17 @@ core::Status Driver::Configure(uint32_t desired_baud_rate, bool parity, uint8_t 
     control1.whole = 0U;                                     // clear
     control1.bits.parity_control_enable = parity ? 1 : 0;    // parity enabled or not
     if (parity) {
-        control1.bits.parity_select = 1;    // even parity
+        control1.bits.parity_select = 1;                     // even parity
     }
-    control1.bits.receiver_enable = 1;       // receiver enabled
-    control1.bits.transmitter_enable = 1;    // transmitter enabled
-    control1.bits.uxart_enable = 1;          // USART enabled
+    control1.bits.receiver_enable = 1;                       // receiver enabled
+    control1.bits.transmitter_enable = 1;                    // transmitter enabled
+    control1.bits.uxart_enable = 1;                          // USART enabled
     // control2
     control2.whole = 0U;                             // clear
     control2.bits.stop = stop_bits ? 0b00 : 0b10;    // 1 stop bit, 2 stop bits
 
     // control3
-    control3.whole = 0U;    // clear
+    control3.whole = 0U;           // clear
 
     usart_.control1 = control1;    // write
     usart_.control2 = control2;    // write
@@ -192,9 +192,7 @@ core::Status Driver::Configure(uint32_t desired_baud_rate, bool parity, uint8_t 
         uint32_t distance = (actual_baud_rate > desired_baud_rate) ? actual_baud_rate - desired_baud_rate : desired_baud_rate - actual_baud_rate;
         float error = static_cast<float>(distance) / static_cast<float>(desired_baud_rate);
         if constexpr (jarnax::debug::usart) {
-            jarnax::print("USART BaudRate error: %lf %% (%" PRIu32 ")\r\n",
-                static_cast<double>(error * 100.0f),
-                static_cast<uint32_t>(distance));
+            jarnax::print("USART BaudRate error: %lf %% (%" PRIu32 ")\r\n", static_cast<double>(error * 100.0f), static_cast<uint32_t>(distance));
         }
     }
 
@@ -216,7 +214,8 @@ void Driver::HandleInterrupt(void) {
     registers::UniversalSynchronousAsynchronousReceiverTransmitter::Status status = usart_.status;    // read
     if constexpr (jarnax::debug::usart_isr) {
         jarnax::print(
-            "USART Status: %" PRIx32 " pe:%" PRIu32 " fe:%" PRIu32 " nf:%" PRIu32 " oe:%" PRIu32 " id:%" PRIu32 " rxne:%" PRIu32 " txe:%" PRIu32 " tc:%" PRIu32 "\r\n",
+            "USART Status: %" PRIx32 " pe:%" PRIu32 " fe:%" PRIu32 " nf:%" PRIu32 " oe:%" PRIu32 " id:%" PRIu32 " rxne:%" PRIu32 " txe:%" PRIu32
+            " tc:%" PRIu32 "\r\n",
             status.whole,
             static_cast<uint32_t>(status.bits.parity_error),
             static_cast<uint32_t>(status.bits.framing_error),
@@ -264,7 +263,7 @@ void Driver::HandleInterrupt(void) {
         control1.bits.transfer_complete_interrupt_enable = 0;                                                   // disable TC interrupt
         usart_.control1 = control1;                                                                             // write
 
-        tx_ready_ = true;    // set the flag to indicate that the DMA is ready to send more data
+        tx_ready_ = true;      // set the flag to indicate that the DMA is ready to send more data
     }
     status.whole = 0U;         // clear all the flags
     usart_.status = status;    // write

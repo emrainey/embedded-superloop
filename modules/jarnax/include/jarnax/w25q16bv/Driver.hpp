@@ -1,13 +1,14 @@
 #ifndef JARNAX_W25Q16BV_DRIVER_HPP
 #define JARNAX_W25Q16BV_DRIVER_HPP
+
 /// @file
-/// The w25q16bv Flash Driver over SPI
-/// @details This driver is used to communicate with the w25q16bv Flash memory over SPI.
+/// The w25q16bv Flash Driver
+/// @details This driver is used to communicate with the w25q16bv Flash memory
 
 #include <core/Buffer.hpp>
 #include <core/Printer.hpp>
 #include <core/Span.hpp>
-#include <core/Status.hpp>
+#include <jarnax/Driver.hpp>
 
 namespace jarnax {
 namespace w25q16bv {
@@ -21,11 +22,9 @@ protected:
     ~Functor() = default;
 };
 
-/// @brief The Winbond Flash Driver over SPI
-class Driver {
+/// @brief The w25q16bv Flash Driver
+class Driver : public jarnax::Driver {
 public:
-    /// @brief Initializes the driver before main
-    virtual core::Status Initialize(void) = 0;
     /// @brief Initiates a Power Up sequence
     virtual void PowerUp(void) = 0;
     /// @return True if the chip is powered up, false otherwise

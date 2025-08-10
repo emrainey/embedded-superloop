@@ -7,6 +7,8 @@
 #include "jarnax/Peripheral.hpp"
 #include "stm32/dma/Resource.hpp"
 
+#include "board.hpp"
+
 namespace stm32 {
 namespace dma {
 

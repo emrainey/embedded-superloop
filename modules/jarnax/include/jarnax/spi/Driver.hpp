@@ -110,15 +110,15 @@ using Transactor = jarnax::Transactor<spi::Transaction>;
 using Coordinator = jarnax::Coordinator<spi::Transaction, DefaultQueueDepth>;
 
 /// The SPI Driver Interface has a Transactor of SPI Transactions and is a Coordinator of the SPI Transactions
-class Driver : public Coordinator {
+class Driver : public Coordinator, public UnCopyMoveable {
 public:
     Driver() = delete;
+
+    /// The constructor for the SPI Driver
+    /// @param tr The Transactor to use for SPI transactions
     explicit Driver(jarnax::spi::Transactor& tr);
 
-    Driver(Driver const&) = delete;
-    Driver(Driver&&) = delete;
-    Driver& operator=(Driver const&) = delete;
-    Driver& operator=(Driver&&) = delete;
+protected:
     ~Driver() = default;
 };
 

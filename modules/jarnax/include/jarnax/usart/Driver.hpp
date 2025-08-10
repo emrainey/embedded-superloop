@@ -3,14 +3,14 @@
 
 #include "core/Span.hpp"
 #include "core/Status.hpp"
-#include "jarnax/Loopable.hpp"
+#include "jarnax/Driver.hpp"
 
 namespace jarnax {
 
 /// @brief The USART Namespace
 namespace usart {
 
-class Driver : public Loopable {
+class Driver : public jarnax::Driver {
 public:
     /// The data unit of the UART Driver
     using DataUnit = uint8_t;

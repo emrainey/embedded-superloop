@@ -31,6 +31,7 @@ add_module(NAME jarnax
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CountDown.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/StopWatch.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Monitor.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/Driver.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/i2c/Driver.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/spi/Driver.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/services/UsartConsole.cpp

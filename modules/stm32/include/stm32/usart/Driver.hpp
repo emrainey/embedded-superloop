@@ -1,15 +1,35 @@
 #ifndef STM32_USART_DRIVER_HPP
 #define STM32_USART_DRIVER_HPP
 
-#include "core/Buffer.hpp"
-#include "core/Units.hpp"
-#include "jarnax/usart/Driver.hpp"
+#include <core/Allocator.hpp>
+#include <core/Buffer.hpp>
+#include <core/Statistician.hpp>
+#include <jarnax/usart/Driver.hpp>
 #include "stm32/dma/Manager.hpp"
 #include "stm32/registers/UniversalSynchronousAsynchronousReceiverTransmitter.hpp"
 
 namespace stm32 {
 namespace usart {
-class Driver : public jarnax::usart::Driver {
+
+/// @brief The statistics structure for the USART
+struct Statistics {
+    uint32_t overrun_error{0U};               ///< The number of overrun errors
+    uint32_t framing_error{0U};               ///< The number of framing errors
+    uint32_t noise_error{0U};                 ///< The number of noise errors
+    uint32_t parity_error{0U};                ///< The number of parity errors
+
+    uint32_t idle{0U};                        ///< The number of idle interrupts
+    uint32_t receive_buffer_not_empty{0U};    ///< The number of receive buffer not empty interrupts
+    uint32_t transmit_buffer_empty{0U};       ///< The number of transmit buffer empty interrupts
+    uint32_t transmit_complete{0U};           ///< The number of transmit complete interrupts
+    uint32_t line_break_detection{0U};        ///< The number of line break detection interrupts
+    uint32_t clear_to_send{0U};               ///< The number of clear to send interrupts
+
+    uint32_t bytes_received{0U};              ///< The number of bytes received
+    uint32_t bytes_transmitted{0U};           ///< The number of bytes transmitted
+};
+
+class Driver final : public jarnax::usart::Driver, public core::Statistician<Statistics> {
 public:
     /// @brief Constructor
     /// @param uart The UART peripheral to use
@@ -21,34 +41,28 @@ public:
         jarnax::Peripheral tx_peripheral, core::Allocator& dma_allocator
     );
 
+    virtual ~Driver() = default;
+
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    // Jarnax::Driver Interface
+    core::Status Initialize(void) override;
+    bool Execute(void) override;
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+    /// @brief Initializes the USART Driver
+    /// @param peripheral_frequency The frequency of the peripheral
+    /// @return The status of the initialization
     core::Status Initialize(core::units::Hertz peripheral_frequency);
 
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    // Jarnax::usart::Driver Interface
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     core::Status Configure(uint32_t baud_rate, bool parity, uint8_t stop_bits) override;
     core::Status Enqueue(core::Span<DataUnit const> const& data) override;
     core::Status Dequeue(core::Span<DataUnit>& data) override;
 
+    /// @brief Handles the USART interrupt(s)
     void HandleInterrupt(void);
-    bool Execute(void) override;
-
-    /// @brief The statistics structure for the USART
-    struct Statistics {
-        uint32_t overrun_error{0U};               ///< The number of overrun errors
-        uint32_t framing_error{0U};               ///< The number of framing errors
-        uint32_t noise_error{0U};                 ///< The number of noise errors
-        uint32_t parity_error{0U};                ///< The number of parity errors
-
-        uint32_t idle{0U};                        ///< The number of idle interrupts
-        uint32_t receive_buffer_not_empty{0U};    ///< The number of receive buffer not empty interrupts
-        uint32_t transmit_buffer_empty{0U};       ///< The number of transmit buffer empty interrupts
-        uint32_t transmit_complete{0U};           ///< The number of transmit complete interrupts
-        uint32_t line_break_detection{0U};        ///< The number of line break detection interrupts
-        uint32_t clear_to_send{0U};               ///< The number of clear to send interrupts
-
-        uint32_t bytes_received{0U};              ///< The number of bytes received
-        uint32_t bytes_transmitted{0U};           ///< The number of bytes transmitted
-    };
-
-    inline Statistics const& GetStatistics(void) const { return statistics_; }
 
 protected:
     /// @brief Computes the dividers and sets them for the given baud rate
@@ -89,8 +103,6 @@ protected:
     core::Span<DataUnit> tx_span_;
     /// The current index in the TX DMA Buffer
     size_t tx_index_;
-    /// The statistics for the USART peripheral
-    Statistics statistics_;    ///< The USART statistics
 };
 }    // namespace usart
 }    // namespace stm32
