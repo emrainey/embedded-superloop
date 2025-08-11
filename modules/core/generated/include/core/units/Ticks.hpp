@@ -86,6 +86,9 @@ public:
     friend constexpr inline Ticks operator*(uint32_t lhs, Ticks const& rhs) {
         return Ticks{lhs * rhs.value()};
     }
+    friend constexpr inline Ticks operator-(Ticks const& other) {
+        return Ticks{other.value() * static_cast<uint32_t>(-1)};
+    }
     friend constexpr inline bool operator==(Ticks const& lhs, Ticks const& rhs) {
         if constexpr (std::is_floating_point_v<uint32_t>) {
             return std::fabs(lhs.value() - rhs.value()) < std::numeric_limits<uint32_t>::epsilon();

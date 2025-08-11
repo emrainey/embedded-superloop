@@ -86,6 +86,9 @@ public:
     friend constexpr inline Celsius operator*(float lhs, Celsius const& rhs) {
         return Celsius{lhs * rhs.value()};
     }
+    friend constexpr inline Celsius operator-(Celsius const& other) {
+        return Celsius{other.value() * static_cast<float>(-1)};
+    }
     friend constexpr inline bool operator==(Celsius const& lhs, Celsius const& rhs) {
         if constexpr (std::is_floating_point_v<float>) {
             return std::fabs(lhs.value() - rhs.value()) < std::numeric_limits<float>::epsilon();

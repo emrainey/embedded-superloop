@@ -86,6 +86,9 @@ public:
     friend constexpr inline Hertz operator*(uint32_t lhs, Hertz const& rhs) {
         return Hertz{lhs * rhs.value()};
     }
+    friend constexpr inline Hertz operator-(Hertz const& other) {
+        return Hertz{other.value() * static_cast<uint32_t>(-1)};
+    }
     friend constexpr inline bool operator==(Hertz const& lhs, Hertz const& rhs) {
         if constexpr (std::is_floating_point_v<uint32_t>) {
             return std::fabs(lhs.value() - rhs.value()) < std::numeric_limits<uint32_t>::epsilon();

@@ -4,7 +4,7 @@
 
 /// @file
 /// AUTO GENERATED FILE, DO NOT MODIFY!
-/// Header for the Amperes unit of measurement
+/// Header for the Gauss unit of measurement
 
 #include <type_traits>
 #include <cstdint>
@@ -18,78 +18,78 @@
 
 namespace core {
 namespace units {
-class Amperes : public Unit<float, 1> {
+class Gauss : public Unit<float, 1> {
 public:
     using StorageType = float;
-    constexpr Amperes()
+    constexpr Gauss()
         : Unit<float, 1>{} {
     }
-    constexpr explicit Amperes(float v)
+    constexpr explicit Gauss(float v)
         : Unit<float, 1>{v} {
     }
-    // constexpr Amperes(Amperes& other)
+    // constexpr Gauss(Gauss& other)
     //     : Unit<float, 1>{other.value()} {
     // }
-    constexpr Amperes(Amperes const& other)
+    constexpr Gauss(Gauss const& other)
         : Unit<float, 1>{other.value()} {
     }
-    // constexpr Amperes(Amperes volatile & other)
+    // constexpr Gauss(Gauss volatile & other)
     //     : Unit<float, 1>{other.value()} {
     // }
-    // constexpr Amperes(Amperes const volatile & other)
+    // constexpr Gauss(Gauss const volatile & other)
     //     : Unit<float, 1>{other.value()} {
     // }
-    constexpr Amperes& operator=(Amperes& other) {
+    constexpr Gauss& operator=(Gauss& other) {
         value_ = other.value();
        return *this;
     }
-    constexpr Amperes& operator=(Amperes const& other) {
+    constexpr Gauss& operator=(Gauss const& other) {
         value_ = other.value();
         return *this;
     }
-    inline Amperes& operator=(Amperes volatile& other) {
+    inline Gauss& operator=(Gauss volatile& other) {
         value_ = other.value();
         return *this;
     }
-    // constexpr Amperes& operator=(Amperes const volatile& other) {
+    // constexpr Gauss& operator=(Gauss const volatile& other) {
     //     value_ = other.value();
     //     return *this;
     // }
-    inline Amperes volatile& operator=(Amperes& other) volatile {
+    inline Gauss volatile& operator=(Gauss& other) volatile {
         value_ = other.value();
         return *this;
     }
-    // constexpr Amperes volatile& operator=(Amperes const& other) volatile {
+    // constexpr Gauss volatile& operator=(Gauss const& other) volatile {
     //     value_ = other.value();
     //     return *this;
     // }
-    // constexpr Amperes volatile& operator=(Amperes volatile& other) volatile {
+    // constexpr Gauss volatile& operator=(Gauss volatile& other) volatile {
     //     value_ = other.value();
     //     return *this;
     // }
-    // constexpr Amperes volatile& operator=(Amperes const volatile& other) volatile {
+    // constexpr Gauss volatile& operator=(Gauss const volatile& other) volatile {
     //     value_ = other.value();
     //     return *this;
     // }
-    friend constexpr inline Amperes operator+(Amperes const& lhs, Amperes const& rhs) {
-        return Amperes{lhs.value() + rhs.value()};
+    friend constexpr inline Gauss operator+(Gauss const& lhs, Gauss const& rhs) {
+        return Gauss{lhs.value() + rhs.value()};
     }
-    friend constexpr inline Amperes operator-(Amperes const& lhs, Amperes const& rhs) {
-        return Amperes{lhs.value() - rhs.value()};
+    friend constexpr inline Gauss operator-(Gauss const& lhs, Gauss const& rhs) {
+        return Gauss{lhs.value() - rhs.value()};
     }
-    friend constexpr inline Amperes operator*(Amperes const& lhs, float rhs) {
-        return Amperes{lhs.value() * rhs};
+    friend constexpr inline Gauss operator*(Gauss const& lhs, float rhs) {
+        return Gauss{lhs.value() * rhs};
     }
-    friend constexpr inline Amperes operator/(Amperes const& lhs, float rhs) {
-        return Amperes{lhs.value() / rhs};
+    friend constexpr inline Gauss operator/(Gauss const& lhs, float rhs) {
+        return Gauss{lhs.value() / rhs};
     }
-    friend constexpr inline Amperes operator*(float lhs, Amperes const& rhs) {
-        return Amperes{lhs * rhs.value()};
+    friend constexpr inline Gauss operator*(float lhs, Gauss const& rhs) {
+        return Gauss{lhs * rhs.value()};
     }
-    friend constexpr inline Amperes operator-(Amperes const& other) {
-        return Amperes{other.value() * static_cast<float>(-1)};
+    friend constexpr inline Gauss operator-(Gauss const& other) {
+        return Gauss{other.value() * static_cast<float>(-1)};
     }
-    friend constexpr inline bool operator==(Amperes const& lhs, Amperes const& rhs) {
+    friend constexpr inline bool operator==(Gauss const& lhs, Gauss const& rhs) {
         if constexpr (std::is_floating_point_v<float>) {
             return std::fabs(lhs.value() - rhs.value()) < std::numeric_limits<float>::epsilon();
         } else {
@@ -103,7 +103,7 @@ public:
             #endif
         }
     }
-    friend constexpr inline bool operator!=(Amperes const& lhs, Amperes const& rhs) {
+    friend constexpr inline bool operator!=(Gauss const& lhs, Gauss const& rhs) {
         if constexpr (std::is_floating_point_v<float>) {
             return std::fabs(lhs.value() - rhs.value()) >= std::numeric_limits<float>::epsilon();
         } else {
@@ -117,23 +117,23 @@ public:
             #endif
         }
     }
-    friend constexpr inline bool operator<(Amperes const& lhs, Amperes const& rhs) {
+    friend constexpr inline bool operator<(Gauss const& lhs, Gauss const& rhs) {
         return lhs.value() < rhs.value();
     }
-    friend constexpr inline bool operator<=(Amperes const& lhs, Amperes const& rhs) {
+    friend constexpr inline bool operator<=(Gauss const& lhs, Gauss const& rhs) {
         return lhs.value() <= rhs.value();
     }
-    friend constexpr inline bool operator>(Amperes const& lhs, Amperes const& rhs) {
+    friend constexpr inline bool operator>(Gauss const& lhs, Gauss const& rhs) {
         return lhs.value() > rhs.value();
     }
-    friend constexpr inline bool operator>=(Amperes const& lhs, Amperes const& rhs) {
+    friend constexpr inline bool operator>=(Gauss const& lhs, Gauss const& rhs) {
         return lhs.value() >= rhs.value();
     }
 };
 
 #if defined(UNITTEST)
-constexpr std::ostream& operator<<(std::ostream& os, Amperes const& v) {
-        os << "Amperes" << " " << v.value();
+constexpr std::ostream& operator<<(std::ostream& os, Gauss const& v) {
+        os << "Gauss" << " " << v.value();
         return os;
     }
 #endif

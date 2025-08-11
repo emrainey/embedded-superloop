@@ -128,6 +128,7 @@ host_unit_test(NAME test-jarnax-googletest
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-coordinator.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-w25q16bv-statemachine.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-lps35hw-statemachine.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-lsm9ds1-statemachine.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/include
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/mocks

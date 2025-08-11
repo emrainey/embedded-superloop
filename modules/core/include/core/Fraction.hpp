@@ -7,6 +7,7 @@
 
 namespace core {
 
+/// @brief A class representing a fraction of integral types (not floats)
 template <typename NumeratorType, typename DenominatorType>
 class Fraction_ {
     static_assert(std::is_integral<NumeratorType>::value, "Must be integral numerator_");

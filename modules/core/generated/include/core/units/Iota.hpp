@@ -86,6 +86,9 @@ public:
     friend constexpr inline Iota operator*(uint64_t lhs, Iota const& rhs) {
         return Iota{lhs * rhs.value()};
     }
+    friend constexpr inline Iota operator-(Iota const& other) {
+        return Iota{other.value() * static_cast<uint64_t>(-1)};
+    }
     friend constexpr inline bool operator==(Iota const& lhs, Iota const& rhs) {
         if constexpr (std::is_floating_point_v<uint64_t>) {
             return std::fabs(lhs.value() - rhs.value()) < std::numeric_limits<uint64_t>::epsilon();

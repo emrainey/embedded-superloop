@@ -18,6 +18,8 @@
 #include "core/units/Amperes.hpp"
 #include "core/units/Celsius.hpp"
 #include "core/units/CubicMeters.hpp"
+#include "core/units/Degrees.hpp"
+#include "core/units/Gauss.hpp"
 #include "core/units/Hertz.hpp"
 #include "core/units/Iota.hpp"
 #include "core/units/Meters.hpp"
@@ -30,6 +32,8 @@
 #include "core/units/Ticks.hpp"
 #include "core/units/Volts.hpp"
 #include "core/units/Watts.hpp"
+
+#include "core/units/Ratio.hpp"
 
 namespace core {
 /// @brief The namespace for the core units of measure and their constants
@@ -47,6 +51,12 @@ using Time = Seconds;
 using Temperature = Celsius;
 /// @brief The unit of Pressure is Pascals
 using Pressure = Pascals;
+/// @brief The unit of Speed is Meters per Second
+using Speed = Ratio<Length, Time>;
+/// @brief The unit of Acceleration is Meters per Second Squared
+using Acceleration = Ratio<Speed, Time>;
+/// @brief The unit of Angular Speed is Degrees per Second
+using AngularSpeed = Ratio<Degrees, Seconds>;
 
 /// @brief Computes an Area from two Lengths
 /// @param x a length
@@ -264,6 +274,69 @@ constexpr Pascals operator""_hPa(long double value) {
 /// @return The Celsius value
 constexpr Celsius operator""_C(long double value) {
     return Celsius{static_cast<Celsius::StorageType>(value)};
+}
+
+/// @brief Quote Operator for Kilometers per Hour
+/// @param value The value to convert
+/// @return The Kilometers per Hour value
+constexpr Speed operator""_kph(long double value) {
+    return Speed{Meters{static_cast<Meters::StorageType>(value) * 1000.0f}, Time{3600.0f}};
+}
+
+/// @brief Quote Operator for Meters per Second
+/// @param value The value to convert
+/// @return The Meters per Second value
+constexpr Speed operator""_mps(long double value) {
+    return Speed{Meters{static_cast<Meters::StorageType>(value)}, Time{1.0F}};
+}
+
+namespace physics {
+/// The speed of causality (and light)
+constexpr static Speed c = 299'792'458.0_mps;
+}    // namespace physics
+
+constexpr Speed operator""_c(long double value) {
+    return Speed{physics::c.value() * static_cast<Speed::Type>(value)};
+}
+
+/// @brief Quote Operator for Acceleration in m/s^2
+/// @param value The value to convert
+/// @return The Acceleration value
+constexpr Acceleration operator""_mps2(long double value) {
+    return Acceleration{Speed{Meters{static_cast<Meters::StorageType>(value)}, Time{1.0F}}, Time{1.0F}};
+}
+
+namespace gravity {
+/// Standard gravity in m/s^2 at sea-level
+constexpr static core::units::Acceleration Earth = 9.80665_mps2;
+}    // namespace gravity
+
+/// @brief Quote Operator for Units of Earth Gravity
+/// @param value The value to convert
+/// @return The Gravity value
+constexpr Acceleration operator""_g(long double value) {
+    return Acceleration{gravity::Earth.value() * static_cast<Acceleration::Type>(value)};
+}
+
+/// @brief Quote Operator for Gauss
+/// @param value The value to convert
+/// @return The Gauss value
+constexpr Gauss operator""_G(long double value) {
+    return Gauss{static_cast<Gauss::StorageType>(value)};
+}
+
+/// @brief Quote Operator for Degrees
+/// @param value The value to convert
+/// @return The Degrees value
+constexpr Degrees operator""_deg(long double value) {
+    return Degrees{static_cast<Degrees::StorageType>(value)};
+}
+
+/// @brief Quote Operator for Degrees per Second
+/// @param value The value to convert
+/// @return The Degrees per Second value
+constexpr Ratio<Degrees, Seconds> operator""_dps(long double value) {
+    return Ratio<Degrees, Seconds>{static_cast<Degrees::StorageType>(value)};
 }
 
 }    // namespace units

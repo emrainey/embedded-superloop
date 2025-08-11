@@ -30,7 +30,6 @@ TEST_CASE("Units - Equations") {
     core::units::Amperes i{2.0f};
     core::units::Ohms r{4.0f};
 
-
     SECTION("Ohm's Law") {
         auto v2 = i * r;
         REQUIRE_THAT(static_cast<double>(v2.value()), Catch::Matchers::WithinAbs(8.0, epsilon));
@@ -88,6 +87,19 @@ TEST_CASE("Units - Equations") {
 
         auto h2 = 1_MHz;
         REQUIRE(h2.value() == 1000000U);
+
+        auto c = 299'792'458.0_mps;
+        REQUIRE_THAT(static_cast<double>(c.value()), Catch::Matchers::WithinAbs(299792458.0, epsilon));
+
+        auto kph = 631.0_kph;
+        REQUIRE(kph == 175.27777778_mps);
+        REQUIRE_THAT(static_cast<double>(kph.value()), Catch::Matchers::WithinAbs(175.27777778, epsilon));
+
+        auto c_kph = 1'079'252'848.8_kph;    // c in kph
+        REQUIRE(c_kph == 1.0_c);
+        REQUIRE_THAT(static_cast<double>(c_kph.value()), Catch::Matchers::WithinAbs(299792458.0, epsilon));
+        auto d = c_kph * 0.5f;
+        REQUIRE(d == 0.5_c);
     }
 }
 
@@ -107,5 +119,43 @@ TEST_CASE("Units - Conversions") {
         core::units::Seconds s0 = core::units::ConvertToSeconds(42_ticks);
         REQUIRE_THAT(static_cast<double>(s0.value()), Catch::Matchers::WithinAbs(0.328125, epsilon));
         REQUIRE_THAT(static_cast<double>(s0.value()), Catch::Matchers::WithinAbs(42.0 * static_cast<double>(core::units::tick_period), epsilon));
+    }
+}
+
+TEST_CASE("Units - Ratios") {
+    using namespace core::units;
+    using core::units::operator""_g;
+    auto one = 1.0_g;
+    auto two = 2.0_g;
+    Acceleration g = one;
+    SECTION("Equality") {
+        REQUIRE(one == one);
+        REQUIRE_THAT(static_cast<double>(g.Numerator().Numerator().value()), Catch::Matchers::WithinAbs(9.80665, epsilon));
+        REQUIRE_THAT(static_cast<double>(g.Numerator().Denominator().value()), Catch::Matchers::WithinAbs(1.0, epsilon));
+        REQUIRE_THAT(static_cast<double>(g.Denominator().value()), Catch::Matchers::WithinAbs(1.0, epsilon));
+    }
+
+    SECTION("Operations") {
+        auto three = one + two;
+        REQUIRE(three == 3.0_g);
+        REQUIRE(two == (three - one));
+    }
+
+    SECTION("Comparison") {
+        REQUIRE(one < two);
+        REQUIRE(two > one);
+        REQUIRE(one <= one);
+        REQUIRE(one <= two);
+        REQUIRE(two >= two);
+        REQUIRE(two >= one);
+    }
+
+    SECTION("Scalar Multiplication") {
+        REQUIRE(2.0_g == (1.0_g * 2.0));
+        REQUIRE((2.0 * 1.0_g) == 2.0_g);
+    }
+
+    SECTION("Scalar Division") {
+        REQUIRE((1.0_g / 2.0) == 0.5_g);
     }
 }

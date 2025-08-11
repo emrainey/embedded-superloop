@@ -17,23 +17,24 @@ template <typename STORAGE_TYPE, std::size_t POWER = 1U>
 class Unit {
 public:
     static_assert(std::is_floating_point<STORAGE_TYPE>::value or std::is_integral<STORAGE_TYPE>::value, "Must be a floating point type or integral");
+    using Type = STORAGE_TYPE;    ///< The type of the unit
 
     /// @brief Get the value of the unit (normal)
-    constexpr STORAGE_TYPE& value() { return value_; }
+    constexpr Type& value() { return value_; }
     /// @brief Get the value of the unit (const)
-    constexpr STORAGE_TYPE const& value() const { return value_; }
+    constexpr Type const& value() const { return value_; }
     /// @brief Get the value of the unit (volatile)
-    constexpr STORAGE_TYPE volatile& value() volatile { return value_; }
+    constexpr Type volatile& value() volatile { return value_; }
     /// @brief Get the value of the unit (const volatile)
-    constexpr STORAGE_TYPE const volatile& value() const volatile { return value_; }
+    constexpr Type const volatile& value() const volatile { return value_; }
     /// @brief Get the value of the unit via explicit casting (normal)
-    constexpr explicit operator STORAGE_TYPE(void) { return value_; }
+    constexpr explicit operator Type(void) { return value_; }
     /// @brief Get the value of the unit via explicit casting (const)
-    constexpr explicit operator STORAGE_TYPE(void) const { return value_; }
+    constexpr explicit operator Type(void) const { return value_; }
     /// @brief Get the value of the unit via explicit casting (volatile)
-    constexpr explicit operator STORAGE_TYPE(void) volatile { return value_; }
-    /// @brief Get the value of the unit via explicit casting (volatile)
-    constexpr explicit operator STORAGE_TYPE(void) const volatile { return value_; }
+    constexpr explicit operator Type(void) volatile { return value_; }
+    /// @brief Get the value of the unit via explicit casting (const volatile)
+    constexpr explicit operator Type(void) const volatile { return value_; }
     /// Returns the Power of the Unit
     constexpr std::size_t power() const { return power_; }
 
@@ -43,12 +44,8 @@ protected:
         : Unit(0) {}
     /// @brief Construct a new Unit object, but only for derived classes
     /// @param v The value of the unit
-    constexpr explicit Unit(STORAGE_TYPE v)
-        : value_{POWER == 0u ? static_cast<STORAGE_TYPE>(1) : v} {}
-    /// @brief Copy Constructor
-    /// @param other The other mutable value
-    constexpr Unit(Unit& other)
-        : value_{other.value()} {}
+    constexpr explicit Unit(Type v)
+        : value_{POWER == 0u ? static_cast<Type>(1) : v} {}
     /// @brief The copy constructor
     /// @param other The other const value
     constexpr Unit(Unit const& other)
@@ -62,8 +59,8 @@ protected:
     constexpr Unit(Unit const volatile& other)
         : value_{other.value()} {}
 
-    STORAGE_TYPE value_;          ///< The value of the unit
-    std::size_t power_{POWER};    ///< The power of the unit (can be zero)
+    Type value_;                  ///< The value of the unit
+    std::size_t power_{POWER};    ///< The power of the unit (can not be zero)
 };
 
 }    // namespace units

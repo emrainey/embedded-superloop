@@ -86,6 +86,9 @@ public:
     friend constexpr inline @UNIT_NAME@ operator*(@UNIT_STORAGE@ lhs, @UNIT_NAME@ const& rhs) {
         return @UNIT_NAME@{lhs * rhs.value()};
     }
+    friend constexpr inline @UNIT_NAME@ operator-(@UNIT_NAME@ const& other) {
+        return @UNIT_NAME@{other.value() * static_cast<@UNIT_STORAGE@>(-1)};
+    }
     friend constexpr inline bool operator==(@UNIT_NAME@ const& lhs, @UNIT_NAME@ const& rhs) {
         if constexpr (std::is_floating_point_v<@UNIT_STORAGE@>) {
             return std::fabs(lhs.value() - rhs.value()) < std::numeric_limits<@UNIT_STORAGE@>::epsilon();

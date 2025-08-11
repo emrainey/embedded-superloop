@@ -86,6 +86,9 @@ public:
     friend constexpr inline Volts operator*(float lhs, Volts const& rhs) {
         return Volts{lhs * rhs.value()};
     }
+    friend constexpr inline Volts operator-(Volts const& other) {
+        return Volts{other.value() * static_cast<float>(-1)};
+    }
     friend constexpr inline bool operator==(Volts const& lhs, Volts const& rhs) {
         if constexpr (std::is_floating_point_v<float>) {
             return std::fabs(lhs.value() - rhs.value()) < std::numeric_limits<float>::epsilon();

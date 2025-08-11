@@ -86,6 +86,9 @@ public:
     friend constexpr inline MicroSeconds operator*(uint64_t lhs, MicroSeconds const& rhs) {
         return MicroSeconds{lhs * rhs.value()};
     }
+    friend constexpr inline MicroSeconds operator-(MicroSeconds const& other) {
+        return MicroSeconds{other.value() * static_cast<uint64_t>(-1)};
+    }
     friend constexpr inline bool operator==(MicroSeconds const& lhs, MicroSeconds const& rhs) {
         if constexpr (std::is_floating_point_v<uint64_t>) {
             return std::fabs(lhs.value() - rhs.value()) < std::numeric_limits<uint64_t>::epsilon();

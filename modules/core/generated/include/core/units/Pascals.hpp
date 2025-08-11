@@ -86,6 +86,9 @@ public:
     friend constexpr inline Pascals operator*(float lhs, Pascals const& rhs) {
         return Pascals{lhs * rhs.value()};
     }
+    friend constexpr inline Pascals operator-(Pascals const& other) {
+        return Pascals{other.value() * static_cast<float>(-1)};
+    }
     friend constexpr inline bool operator==(Pascals const& lhs, Pascals const& rhs) {
         if constexpr (std::is_floating_point_v<float>) {
             return std::fabs(lhs.value() - rhs.value()) < std::numeric_limits<float>::epsilon();
