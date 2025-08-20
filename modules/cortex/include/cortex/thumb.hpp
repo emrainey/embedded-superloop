@@ -382,6 +382,10 @@ ALWAYS_INLINE inline uint32_t semihosting(uint32_t operation, void const* argume
         : [operation] "r"(operation), [argument] "r"(argument)    // inputs
         : "r0", "r1", "cc", "memory"                              // clobbers
     );
+#else
+    static_cast<void>(operation);
+    static_cast<void>(argument);
+    result = static_cast<uint32_t>(-1);
 #endif
     return result;
 }

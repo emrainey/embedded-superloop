@@ -51,7 +51,7 @@ Handle Open(core::Span<char const> name, Mode mode) {
         const char* name;
         Mode mode;
         uint32_t len;
-    } args{name.data(), mode, name.size()};
+    } args{name.data(), mode, static_cast<uint32_t>(name.size())};
     // Use the Thumb instruction to call the semihosting Open API
     Handle handle = static_cast<Handle>(thumb::semihosting(to_underlying(Operation::Open), &args));
     return handle;
@@ -66,7 +66,7 @@ Result Write(Handle handle, core::Span<char const> buffer) {
         Handle handle;
         void const* buffer;
         uint32_t len;
-    } args{handle, buffer.data(), buffer.size()};
+    } args{handle, buffer.data(), static_cast<uint32_t>(buffer.size())};
     return static_cast<Result>(thumb::semihosting(to_underlying(Operation::Write), &args));
 }
 
@@ -75,7 +75,7 @@ Result Read(Handle handle, core::Span<char> buffer) {
         Handle handle;
         void* buffer;
         uint32_t len;
-    } args{handle, buffer.data(), buffer.size()};
+    } args{handle, buffer.data(), static_cast<uint32_t>(buffer.size())};
     return static_cast<Result>(thumb::semihosting(to_underlying(Operation::Read), &args));
 }
 
@@ -108,7 +108,7 @@ Result TempName(core::Span<char const> name, uint8_t id) {
         char const* name;
         uint32_t id;
         uint32_t length;
-    } args{name.data(), id, name.size()};
+    } args{name.data(), id, static_cast<uint32_t>(name.size())};
     return static_cast<Result>(thumb::semihosting(to_underlying(Operation::TempName), &args));
 }
 
@@ -116,7 +116,7 @@ Result Remove(core::Span<char const> name) {
     struct Args {
         char const* name;
         uint32_t length;
-    } args{name.data(), name.size()};
+    } args{name.data(), static_cast<uint32_t>(name.size())};
     return static_cast<Result>(thumb::semihosting(to_underlying(Operation::Remove), &args));
 }
 
@@ -126,7 +126,7 @@ Result Rename(core::Span<char const> old_name, core::Span<char const> new_name) 
         uint32_t old_length;
         char const* new_name;
         uint32_t new_length;
-    } args{old_name.data(), old_name.size(), new_name.data(), new_name.size()};
+    } args{old_name.data(), static_cast<uint32_t>(old_name.size()), new_name.data(), static_cast<uint32_t>(new_name.size())};
     return static_cast<Result>(thumb::semihosting(to_underlying(Operation::Rename), &args));
 }
 
@@ -166,7 +166,7 @@ Result System(core::Span<char const> command) {
     struct Args {
         char const* command;
         uint32_t length;
-    } args{command.data(), command.size()};
+    } args{command.data(), static_cast<uint32_t>(command.size())};
     return static_cast<Result>(thumb::semihosting(to_underlying(Operation::System), &args));
 }
 
