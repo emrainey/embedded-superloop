@@ -173,7 +173,7 @@ struct MemoryProtectionUnit {
             inline bool set_power2_size(std::uint32_t bytes) volatile {
                 if (::is_power_of_two(bytes)) {
                     core::Split<std::uint32_t, 5U> tmp;
-                    tmp.whole = polyfill::log2(bytes);
+                    tmp.whole = polyfill::log2(bytes) - 1U;
                     pow2_size = tmp.parts.lower;
                     return true;
                 }
@@ -183,8 +183,10 @@ struct MemoryProtectionUnit {
             /// to ensure it is done correctly w/ all the strict flags on.
             inline void set_power2_size(std::uint8_t power2) volatile {
                 core::Split<std::uint32_t, 5U> tmp;
-                tmp.whole = power2;
-                pow2_size = tmp.parts.lower;
+                if (power2 > 1) {
+                    tmp.whole = power2 - 1U;
+                    pow2_size = tmp.parts.lower;
+                }
             }
         };
 

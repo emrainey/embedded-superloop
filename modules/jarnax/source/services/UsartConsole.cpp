@@ -1,18 +1,17 @@
-#include <jarnax/print.hpp>
+#include <core/vsnprint.hpp>
 #include <jarnax/console/UsartConsole.hpp>
 
 namespace jarnax {
 namespace console {
 
 UsartConsole::UsartConsole(jarnax::usart::Driver& driver)
-    : driver_{driver} {
-}
+    : driver_{driver} {}
 
 void UsartConsole::Print(Level level, char const format[], ...) {
     if (to_underlying(level_) >= to_underlying(level)) {
         va_list args;
         va_start(args, format);
-        unsigned long count = vsnprint(buffer_, sizeof(buffer_), format, args);
+        unsigned long count = core::vsnprint(buffer_, sizeof(buffer_), format, args);
         va_end(args);
 
         if (count <= output_.Spaces()) {

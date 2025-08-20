@@ -1,6 +1,6 @@
-#include "segger/rtt.hpp"
-#include "jarnax/system.hpp"
 #include "cortex/vectors.hpp"
+#include "jarnax/system.hpp"
+#include "segger/rtt.hpp"
 
 namespace jarnax {
 
@@ -21,7 +21,7 @@ void configure(void) {
     jarnax::print("Vector Table @ %p\r\n", static_cast<void const *>(&cortex::vector_table));
     if constexpr (cortex::initialize_system_clocks) {
         jarnax::print("Initializing System Clocks\r\n");
-     // each vendors clock tree is a unique and confusing flower, let them deal with it!
+        // each vendors clock tree is a unique and confusing flower, let them deal with it!
         vendor::initialize::clocks();
         jarnax::print("Core Clock Frequency is %lu Hz\r\n", vendor::GetClockFrequency().value());
         jarnax::print("System Clock Frequency is %lu Hz\r\n", vendor::GetSystemClockFrequency().value());

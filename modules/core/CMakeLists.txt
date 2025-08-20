@@ -51,6 +51,7 @@ add_module(NAME core
         ${CMAKE_CURRENT_SOURCE_DIR}/source/constexpr_tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Status.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Allocator.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/vsnprint.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/generated/include # for generated headers like Units above
@@ -62,6 +63,7 @@ add_module(NAME core
         memory
     LIBRARIES
         configuration-none
+        $<IF:$<CXX_COMPILER_ID:GNU>,gcc m,> # GCC specific libraries to provide things like __aeabi_d2f
     NO_CONFIGURATIONS
     NO_BOARDS
 )

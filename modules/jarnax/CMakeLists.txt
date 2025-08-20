@@ -66,8 +66,10 @@ add_module(NAME jarnax-ssd1306-driver
         strict jarnax-interfaces
     GENERIC_MODULES
         memory core
-    NO_CONFIGURATIONS
-    NO_BOARDS
+    CONFIGURATIONS
+        ${LOCAL_CONFIGURATIONS}
+    BOARDS
+        ${LOCAL_BOARDS}
 )
 
 add_module(NAME jarnax-w25q16bv-driver
@@ -81,8 +83,10 @@ add_module(NAME jarnax-w25q16bv-driver
         strict jarnax-interfaces
     GENERIC_MODULES
         memory core
-    NO_CONFIGURATIONS
-    NO_BOARDS
+    CONFIGURATIONS
+        ${LOCAL_CONFIGURATIONS}
+    BOARDS
+        ${LOCAL_BOARDS}
 )
 
 add_module(NAME jarnax-lps35hw-driver
@@ -96,8 +100,10 @@ add_module(NAME jarnax-lps35hw-driver
         strict jarnax-interfaces
     GENERIC_MODULES
         memory core
-    NO_CONFIGURATIONS
-    NO_BOARDS
+    CONFIGURATIONS
+        ${LOCAL_CONFIGURATIONS}
+    BOARDS
+        ${LOCAL_BOARDS}
 )
 
 host_unit_test(NAME test-jarnax-catch

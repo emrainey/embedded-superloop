@@ -368,6 +368,24 @@ ALWAYS_INLINE inline void interrupt_service_routine_context_restore(void) {
     );
 #endif
 }
+
+/// @brief Calls a Semihosting function via the bkpt instruction
+ALWAYS_INLINE inline uint32_t semihosting(uint32_t operation, void const* argument) {
+    uint32_t result = 0U;
+#if defined(__arm__)
+    asm volatile(
+        "mov r0, %[operation] \r\n"                               // move operation into r0
+        "mov r1, %[argument] \r\n"                                // move argument into r1
+        "bkpt #0xab \r\n"                                         // trigger the debugger to act!
+        "mov %[result], r0\r\n"                                   // move the result into r0
+        : [result] "=r"(result)                                   // outputs
+        : [operation] "r"(operation), [argument] "r"(argument)    // inputs
+        : "r0", "r1", "cc", "memory"                              // clobbers
+    );
+#endif
+    return result;
+}
+
 }    // namespace thumb
 
 #endif    // THUMB_HPP_

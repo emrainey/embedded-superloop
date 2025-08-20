@@ -101,6 +101,26 @@ struct InstructionTraceMacrocell final {
 
     /// Control Register
     struct Control final {
+        /// Default Constructor
+        Control()
+            : whole{0u} {}
+        /// Copy Constructor from volatile
+        Control(Control volatile const& other)
+            : whole{other.whole} {}
+        /// Copy Construction from nonvolatile
+        Control(Control const& other)
+            : whole{other.whole} {}
+        /// Move Constructor is deleted
+        Control(Control&&) = delete;
+        /// Parameterized Constructor for constant references
+        explicit Control(uint32_t const& value)
+            : whole{value} {}
+        /// Parameterized Constructor for volatile references
+        explicit Control(uint32_t volatile& value)
+            : whole{value} {}
+        /// Destructor is empty
+        ~Control() = default;
+
         /// @brief The bitfield definition of the register
         struct Fields final {
             std::uint32_t enable                   : 1U;

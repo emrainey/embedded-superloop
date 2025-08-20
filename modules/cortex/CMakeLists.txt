@@ -14,6 +14,7 @@ add_architecture(NAME cortex
         ${CMAKE_CURRENT_SOURCE_DIR}/source/bist.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/ticks.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/clocks.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/semihosting.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/handlers/dummy.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/handlers/tick.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/handlers/entry.cpp

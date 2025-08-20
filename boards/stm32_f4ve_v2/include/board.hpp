@@ -52,9 +52,9 @@ namespace cortex {
 /// Control SWO features
 namespace swo {
 /// The flag to control enabling the SWO and TPIU/ITM
-constexpr static bool enable{false};
+constexpr static bool enable{true};
 /// The desired SWO baudrate
-constexpr static std::size_t baudrate{50'000U};
+constexpr static std::size_t baudrate{2'240'000U};    // should be /75
 }    // namespace swo
 }    // namespace cortex
 

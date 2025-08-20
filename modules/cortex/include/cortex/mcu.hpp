@@ -269,14 +269,8 @@ void fpu(void);
 /// Initializes the MPU entries
 void mpu(void);
 
-/// Initializes the SWO output
+/// Initializes the TPIU, ITM and then SWO output
 void swo(std::uint32_t desired_baud, Hertz clock_frequency);
-
-/// Initializes the Instruction Trace Macrocell
-void itm(void);
-
-/// Initializes the Trace Port Interface Unit
-void tpiu(void);
 
 /// Initializes the Standard Faults in the System
 void faults(void);

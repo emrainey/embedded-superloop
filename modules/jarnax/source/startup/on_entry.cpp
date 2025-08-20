@@ -1,5 +1,5 @@
-#include "jarnax/system.hpp"
 #include "cortex/thumb.hpp"
+#include "jarnax/system.hpp"
 namespace jarnax {
 namespace initialize {
 

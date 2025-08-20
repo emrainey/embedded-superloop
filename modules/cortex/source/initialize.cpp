@@ -1,9 +1,11 @@
 #include "configure.hpp"
-#include "cortex/m4.hpp"
 #include "core/core.hpp"
-#include "cortex/linker.hpp"
 #include "cortex/globals.hpp"
+#include "cortex/linker.hpp"
+#include "cortex/m4.hpp"
+#include "cortex/mcu.hpp"
 #include "cortex/thumb.hpp"
+#include "jarnax/Assertion.hpp"
 
 namespace cortex {
 
@@ -155,6 +157,11 @@ void class_globals() {
 
     // save the number of Desired Regions.
     DesiredRegions = idx;
+
+    // there's a serious problem if the number of desired regions exceeds the limit
+    if (not use_only_default_mpu_configuration and DesiredRegions > kDefaultRegionLimit) {
+        cortex::spinhalt();
+    }
 }
 
 void fpu(void) {
@@ -218,6 +225,7 @@ void swo(std::uint32_t desired_baud, Hertz clock_frequency) {
     if constexpr (not cortex::swo::enable) {
         return;
     }
+    // @see https://black-magic.org/usage/swo.html
 
     // compute the clock divider as a zero based value
     std::uint32_t clock_divider = (clock_frequency.value() / desired_baud) - 1U;
@@ -262,14 +270,6 @@ void swo(std::uint32_t desired_baud, Hertz clock_frequency) {
     // enable 2 sub channels for now
     instruction_trace_macrocell.enable(0);
     instruction_trace_macrocell.enable(1);
-}
-
-void itm(void) {
-    /// @todo Initialize the ITM
-}
-
-void tpiu(void) {
-    /// @todo Initialize the TPIU
 }
 
 void faults(void) {
