@@ -226,15 +226,15 @@ Chip specific drivers live in the vendor specific namespace like `stm32`. These 
     * `include/stm32` - only path to `include` is made as a dependency
     * `source/*.cpp`
 
-## Supported Boards
+## Vendors
 
-The first board supported is the `stm32_f4ve_v2` board. The STM32F4VE has the following high level diagram supporting many peripherals (taken from the PDF from ST Electronics, not mine).
+### STM32
 
-![STM32F4VE Microcontroller Diagram](documentation/images/en.bd_stm32f407_1mb.avif)
+The first supported Cortex M process are the ST, a Cortex M4 series w/ float support.
 
 ### Linkerscripts
 
-Each vendor will contain it's own version of the linker script under `<vendor>/linkerscripts/<compiler>.ld`. As architectures or variation are added, it may be necessary to build a hierarchy but not yet. Generally the pattern followed in the linkerscript is to explicitly assign address to hardware peripherals here and _only_ here, so that unit tests never have to have `#ifdef`s to know if they are referencing 32 bit pointer or a 64 bit pointers and to that Drivers never worry about uninitialized pointers.
+Each vendor will contain it's own version of the linker script under `modules/<vendor>/linkerscripts/<compiler>.ld`. As architectures or variation are added, it may be necessary to build a hierarchy but not yet. Generally the pattern followed in the linkerscript is to explicitly assign address to hardware peripherals here and _only_ here, so that unit tests never have to have `#ifdef`s to know if they are referencing 32 bit pointer or a 64 bit pointers and to that Drivers never worry about uninitialized pointers to peripherals.
 
 ```text
     /* Arm Private Bus 1 */
@@ -246,7 +246,7 @@ Each vendor will contain it's own version of the linker script under `<vendor>/l
     PROVIDE(_ZN5stm329registers6timer2E = _stm32_tim2);
 ```
 
-This is the gcc linkerscript so it follows gcc name mangling. Then in the C++ code we simply declare that the timer2 exists `extern`.
+This is the gcc linkerscript so it follows gcc name mangling. Then in the C++ code we simply declare that the timer2 exists using `extern`.
 
 ```c++
 namespace stm32 {
@@ -258,4 +258,66 @@ extern Timer2 volatile timer2;
 }    // namespace stm32
 ```
 
-Thus only the memory map in the linker needs to know it's real address. If it needs to be known in code, we simply refer to it naturally as `&stm32::registers::timer2`. This works seemlessly in unit test and on-target.
+Thus only the memory map in the linker needs to know it's real address. If it needs to be known in code, we simply refer to it naturally as `&stm32::registers::timer2`. This works seemlessly in unit test and on-target, where we simply define a structure out in a global location for each peripheral.
+
+```c++
+// in peripherals.cpp for the board, used by unit tests
+stm32::registers::Timer2 volatile timer2;
+```
+
+These should be moved to the chip specific vendor area for per-mcu builds.
+
+#### Exceptions to the Linker rule
+
+Currently it's challenging to get the MPU related entries for size/log2(size) and start/end address to resolve correctly. Some of those are still defined as `std::uintptr_t` types with fixed 32 addresses at the moment. This will be removed in the future.
+
+Additionally one of the only allowed macros are the `LINKER_SYMBOL` macros which are used to help define link-time values in `<linker.hpp>` like `__vector_table_start` and others. These are used the MPU code to help narrow the range of specific regions to exactly where they are in memory and in the startup code to help zero out `__ccm_beg` to `__ccm_end` and other ranges. Ultimately these just need to be byte pointers but in order to use them in low level code without casting oddly the macro does this:
+
+```c++
+#define LINKER_TYPED_SYMBOL(symbol, type) extern type symbol[]
+#define LINKER_SYMBOL(symbol) LINKER_TYPED_SYMBOL(symbol, std::uint32_t)
+LINKER_SYMBOL(__sram_beg);
+LINKER_SYMBOL(__sram_end);
+```
+
+Sadly we also have to communicate _sizes_ this way too from the Linker and that's done using the _same_ mechanism.
+
+```ld
+    /* Main Stack Guard */
+    .main_stack (NOLOAD) : {
+        __main_stack_bottom = .;
+        . = . + STACK_SIZE - 64;
+        __main_stack_ceiling = .;
+        . = . + 64;
+        __main_stack_top = .;
+    } >REGION_STACK
+    __main_stack_size = SIZEOF(.main_stack);
+    __main_stack_size_pow2 = LOG2CEIL(__main_stack_size);
+```
+
+```c++
+LINKER_SYMBOL(__main_stack_size);
+
+// then in the MPU code this sadness
+std::uint32_t const volatile main_stack_size = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(__main_stack_size));
+```
+
+I look forward to eradicating these macros and solving _sizes_ in a different way.
+
+### Boards
+
+The first board supported is the `stm32_f4ve_v2` board. The STM32F4VE has the following high level diagram supporting many peripherals (taken from the PDF from ST Electronics, not mine).
+
+![STM32F4VE Microcontroller Diagram](documentation/images/en.bd_stm32f407_1mb.avif)
+
+### Additions
+
+![Board](documentation/images/stm32_f4ve_v2_breakouts.jpg)
+
+I've added several sensors:
+
+* LPS35HW Pressure/Temp Sensor (via SPI)
+* SSD1306 OLED Screen (via I2C)
+* LSM9DS1 9-DOF IMU/Gyro/Temp/Mag (via SPI)
+
+Each will get it's own driver in `jarnax`. These won't depend on any specific board but instead on the generic `jarnax::spi::Driver` or `jarnax::i2c::Driver` interfaces. This allows them to be portable across all future boards and chips.
