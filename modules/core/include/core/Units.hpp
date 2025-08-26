@@ -292,6 +292,7 @@ constexpr Speed operator""_mps(long double value) {
 
 namespace physics {
 /// The speed of causality (and light)
+/// @warning In single precision this is off by -10.0f!
 constexpr static Speed c = 299'792'458.0_mps;
 }    // namespace physics
 
