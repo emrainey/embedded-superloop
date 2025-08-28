@@ -84,6 +84,7 @@ host_unit_test(NAME test-core
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-ring.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-span.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-stack.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-statechart.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-statemachine.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-status.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-tokenizer.cpp
