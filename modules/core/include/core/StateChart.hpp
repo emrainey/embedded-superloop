@@ -2,7 +2,7 @@
 #define CORE_STATE_MACHINE_HPP
 
 /// @file
-/// The StateMachine Template
+/// The StateChart Template
 
 #include <cstddef>
 #include <cstdint>
@@ -11,6 +11,12 @@
 #include "core/EnumType.hpp"
 
 namespace core {
+/// A State typically represents a specific configuration of the system. A state can be nested in another state.
+///
+template <typename EnumType, EnumType ParentState = EnumType::Undefined>
+class State {
+    // State properties and methods
+};
 
 /// @brief Implements a State Chart via a callback interface and a given State Enumeration.
 /// The order of callbacks is: Enter() -> OnEnter(), OnEntry(initial_state)
@@ -61,78 +67,90 @@ public:
 
     /// @brief The parameter constructor
     /// @param callback The reference to the callback interface
-    /// @param initial_state The initial state of the StateMachine
-    /// @param final_state The final state of the StateMachine
-    StateChart(Callback& callback, StateType initial_state)
+    /// @param initial_state The initial state of the StateChart
+    /// @param final_state The final state of the StateChart
+    StateChart(Callback& callback)
         : callback_{callback}
-        , initial_state_{initial_state}
-        , current_state_{StateType::Undefined} {
-        if (initial_state == StateType::Undefined or initial_state == StateType::Final) {
-            malformed_ = true;
-        }
-    }
+        , state_{StateType::Undefined} {}
 
     /// @param state The state to query for
     /// @return True if the machine is in the given state
-    bool Is(StateType state) const { return current_state_ == state; }
+    bool Is(StateType state) const { return state_ == state; }
 
-    /// @return True if the StateMachine is final
+    /// @return True if the StateChart is final
     bool IsFinal() const { return stopped_; }
 
-    /// @return True if the StateMachine is malformed
-    /// @details A malformed state machine is one that has an initial state that is the same as the final state or
-    ///          has an initial state or final state that is Undefined. A malformed state machine will not run and will not enter.
-    bool IsMalformed() const { return malformed_; }
+    struct Statistics {
+        size_t entered{0U};        ///< The number of times OnEnter() was called
+        size_t entries{0U};        ///< The number of times OnEntry() was called
+        size_t guards{0U};         ///< The number of times OnGuard() was called
+        size_t cycles{0U};         ///< The number of times OnCycle() was called
+        size_t exits{0U};          ///< The number of times OnExit() was called
+        size_t transitions{0U};    ///< The number of times OnTransition() was called
+        size_t exited{0U};         ///< The number of times OnExit() was called
+    };
 
-    /// @brief Enters the StateMachine if previously Stopped.
+    /// @return The statistics of the StateChart
+    Statistics const& GetStatistics() const { return statistics_; }
+
+    /// @brief Enters the StateChart if previously Stopped.
     /// Before a State Machine is Entered, it's State is Undefined
     void Enter() {
-        if (malformed_) {
-            return;
-        }
         if (stopped_) {
             stopped_ = false;
-            current_state_ = StateType::Undefined;
+            state_ = StateType::Undefined;
             callback_.OnEnter();
-            current_state_ = initial_state_;
-            callback_.OnEntry(initial_state_);
+            statistics_.entered++;
+            state_ = callback_.OnTransition(state_);
+            statistics_.transitions++;
+            if (state_ == StateType::Undefined or state_ == StateType::Final) {
+                callback_.OnExit();
+                statistics_.exited++;
+                stopped_ = true;
+            } else {
+                callback_.OnEntry(state_);
+                statistics_.entries++;
+            }
         }
     }
 
-    /// @brief Runs the StateMachine for one cycle.
-    /// This will process the StateMachine if it is not stopped or malformed.
-    /// If it is stopped or malformed, it will not process the StateMachine.
+    /// @brief Runs the StateChart for one cycle.
+    /// This will process the StateChart if it is not stopped or malformed.
+    /// If it is stopped or malformed, it will not process the StateChart.
     void RunOnce() {
-        if (malformed_) {
-            return;
-        }
         if (not stopped_) {
-            if (callback_.OnGuard(current_state_)) {
+            bool guard_signaled = callback_.OnGuard(state_);
+            statistics_.guards++;
+            if (guard_signaled) {
                 StateType next = StateType::Undefined;
                 StateType last = StateType::Undefined;
-                callback_.OnExit(current_state_);
-                last = current_state_;
-                current_state_ = StateType::Undefined;
+                callback_.OnExit(state_);
+                statistics_.exits++;
+                last = state_;
+                state_ = StateType::Undefined;
                 next = callback_.OnTransition(last);
+                statistics_.transitions++;
                 if (next == StateType::Final or next == StateType::Undefined) {
                     callback_.OnExit();
+                    statistics_.exited++;
                     stopped_ = true;
                 } else {
                     callback_.OnEntry(next);
-                    current_state_ = next;
+                    statistics_.entries++;
+                    state_ = next;
                 }
             } else {
-                callback_.OnCycle(current_state_);
+                callback_.OnCycle(state_);
+                statistics_.cycles++;
             }
         }
     }
 
 protected:
-    Callback& callback_;               ///< The reference to the callback interface
-    StateType const initial_state_;    ///< The initial state of the StateMachine
-    StateType current_state_;          ///< The current state of the StateMachine
-    bool stopped_{true};               ///< We start in the final state
-    bool malformed_{false};            ///< The flag to indicate if the state machine is malformed
+    Callback& callback_;       ///< The reference to the callback interface
+    StateType state_;          ///< The current state of the StateChart
+    bool stopped_{true};       ///< We start in the final state
+    Statistics statistics_;    ///< The statistics of the StateChart
 };
 
 }    // namespace core
