@@ -47,16 +47,16 @@ public:
         }
     }
 
-    bool OnGuard(State state) const override {
+    Ordinal OnGuard(State state) const override {
         results.guard = true;
         if (state == State::Initializing) {
-            return counter >= 3U;
+            return counter >= 3U ? 1U : 0U;
         } else if (state == State::Running) {
-            return value == 2;
+            return value == 2 ? 1U : 0U;
         } else if (state == State::Completing) {
-            return true;    // always leave Completing
+            return 1U;    // always leave Completing
         }
-        return false;       // should not get here
+        return 0U;       // should not get here
     }
 
     void OnExit(State state) override {
@@ -64,17 +64,17 @@ public:
         results.exit = true;
     }
 
-    State OnTransition(State from) override {
+    State OnTransition(State from, Ordinal ordinal) override {
         results.transitioned = true;
-        if (from == State::Undefined) {
+        if (from == State::Undefined and ordinal == 1U) {
             return State::Initializing;
-        } else if (from == State::Initializing) {
+        } else if (from == State::Initializing and ordinal == 1U) {
             results.initial_to_running = true;
             return State::Running;
-        } else if (from == State::Running) {
+        } else if (from == State::Running and ordinal == 1U) {
             results.running_to_completing = true;
             return State::Completing;
-        } else if (from == State::Completing) {
+        } else if (from == State::Completing and ordinal == 1U) {
             return State::Final;
         }
         return State::Undefined;
