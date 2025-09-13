@@ -1,0 +1,74 @@
+vars: {
+    d2-config: {
+        layout-engine: elk
+        # Terminal theme code
+        dark-theme-id: 300
+    }
+}
+
+Callback {
+    shape: class
+{%- for method in interface %}
+    {{method.name}}({{method.params}}): {{method.return_type}}
+{%- endfor %}
+    OnOutput(Outputs): void
+}
+
+Inputs: |c++
+enum class Inputs {
+    None = 0,
+{%- for input in inputs %}
+    {{input.name}} = {{loop.index}},
+{%- endfor %}
+};
+|
+
+Outputs: |c++
+enum class Outputs {
+    None = 0,
+{%- for output in outputs %}
+    {{output.name}} = {{loop.index}},
+{%- endfor %}
+};
+|
+
+{{ClassName}} {
+    Undefined: " " {
+        shape: Circle
+        style: {
+            fill: black
+        }
+    }
+
+{%- for state in states %}
+{%- for s in chart.states %}
+{%- if state.name == s.in %}
+{#- === #}
+    {{state.name}}: |md
+# {{state.name}}
+### _on entry_
+{{'/ ' | on_action('\n', s.on_entry)}}
+### _on cycle_
+{{'/ ' | on_action('\n', s.on_cycle)}}
+### _on exit_
+{{'/ ' | on_action('\n', s.on_exit)}}
+    |
+    {{state.name}}.shape: parallelogram
+{%- endif %}
+{%- endfor %}
+{%- endfor %}
+    Final: "X" {
+        shape: Circle
+        style: {
+            fill: black
+            font-color: white
+        }
+    }
+}
+
+{{ClassName}}.Undefined -> {{ClassName}}.{{chart.entry}}: {{'always / '|on_action('', chart.enter)}}
+{%- for state in chart.states %}
+{%- for transition in state.transitions %}
+{{ClassName}}.{{state.in}} -> {{ClassName}}.{{transition.target}}: {{'' | on_action('', transition.trigger)}} / {{'' | on_action('', guard)}}
+{%- endfor %}
+{%- endfor %}

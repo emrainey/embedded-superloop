@@ -1,0 +1,131 @@
+NameSpace: core
+ClassName: ExampleStateChart
+
+states: # Will add Undefined and Final automatically
+  - name: Starting
+    description: "State Starting description"
+  - name: Idling
+    description: "State Idling description"
+  - name: Active
+    description: "State Active description"
+  - name: Closing
+    description: "State Closing description"
+
+inputs: # can only be processed as Triggers, will all None
+  - name: Start
+    type: int
+    description: "Input for state Starting"
+  - name: Next
+    type: int
+    description: "Input for state Idling"
+  - name: End
+    type: int
+    description: "Input for state Closing"
+
+outputs: # can be emitted on entry, cycle or exit
+  - name: Started
+    type: int
+    description: "Output when leaving State Starting"
+  - name: Idled
+    type: int
+    description: "Output when entering State Idling"
+  - name: Activated
+    type: int
+    description: "Output when entering State Active"
+  - name: Closed
+    type: int
+    description: "Output when entering State Closing"
+
+variables:
+  - name: active_
+    type: bool
+    count: 1
+    initializer: false
+    description: "Is the state machine active?"
+  - name: counter_
+    type: std::uint32_t
+    count: 1
+    initializer: 0U
+    description: "An internal counter"
+
+countdowns: # time based events
+  - name: after_one_second_
+    duration_ms: 1000U
+    description: "A Countdown that triggers after 1 second"
+
+interface: # The Interface that the StateChart uses to query the state of external elements.
+  - name: Initialize
+    return_type: Status
+    description: "Initialize the interface"
+    params: void
+    modifiers: ""
+  - name: CanStart
+    description: "Check if the state machine can start"
+    return_type: bool
+    params: void
+    modifiers: const
+  - name: Close
+    description: "Closes the interface"
+    return_type: void
+    params: void
+    modifiers: ""
+
+chart:
+  enter:
+    expression: active_ = true
+  exit:
+    expression: active_ = false
+  entry: Starting
+  states:
+    - in: Starting
+      on_entry:
+        expression: after_one_second_.Reset()
+      on_cycle:
+        expression: callback_.Initialize()
+      on_exit:
+        output: Started
+      transitions:
+        - trigger:
+            condition: after_one_second_.IsExpired()
+          guard:
+            condition: callback_.CanStart()
+          target: Idling
+    - in: Idling
+      on_entry:
+        output: Idled
+      on_cycle:
+        output: Idled
+      on_exit: None
+      transitions:
+        - trigger:
+            input: Start
+          guard: None
+          target: Active
+        - trigger:
+            input: End
+          guard: None
+          target: Closing
+    - in: Active
+      on_entry:
+        expression: counter_ = 0U
+        output: Activated
+      on_cycle:
+        output: Activated
+        expression: counter_ = counter_ + 1U
+      on_exit: None
+      transitions:
+        - trigger:
+            input: End
+          guard:
+            condition: counter_ > 5U
+          target: Closing
+    - in: Closing
+      on_entry:
+        interface: Close
+      on_cycle: None
+      on_exit:
+        output: Closed
+      transitions:
+        - trigger: always
+          guard: None
+          target: Final

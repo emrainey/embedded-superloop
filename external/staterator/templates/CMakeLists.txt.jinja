@@ -1,0 +1,8 @@
+
+add_executable(gtest_{{ClassName}}
+    gtest_{{ClassName}}.cpp
+    {{ClassName}}.cpp
+)
+target_include_directories(gtest_{{ClassName}} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_definitions(gtest_{{ClassName}} PRIVATE GOOGLETEST)
+target_link_libraries(gtest_{{ClassName}} PUBLIC GTest::gtest GTest::gmock GTest::gtest_main)

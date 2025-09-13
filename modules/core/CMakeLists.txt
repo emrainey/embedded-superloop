@@ -51,6 +51,7 @@ add_module(NAME core
         ${CMAKE_CURRENT_SOURCE_DIR}/source/constexpr_tests.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Status.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Allocator.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/CountDown.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/vsnprint.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -76,6 +77,7 @@ host_unit_test(NAME test-core
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-array.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-avl.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-container.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-countdown.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-doublelink.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-enums.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-folds.cpp
@@ -123,6 +125,24 @@ host_unit_test(NAME test-heap
 host_unit_test(NAME test-fraction
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-fraction.cpp
+    LIBRARIES
+        strict core-none-all
+    GOOGLETEST
+    NO_CONFIGURATIONS
+    NO_BOARDS
+)
+
+generate_statechart(
+    YAML_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/tests
+    YAML_FILE ExampleStateChart.yaml
+    GENERATED_DIR ${CMAKE_BINARY_DIR}/generated/core/tests
+    TYPES CPP HPP DOT GTEST
+)
+
+host_unit_test(NAME test-generated-statechart
+    SOURCES
+        ${CMAKE_BINARY_DIR}/generated/core/tests/gtest_ExampleStateChart.cpp
+        ${CMAKE_BINARY_DIR}/generated/core/tests/ExampleStateChart.cpp
     LIBRARIES
         strict core-none-all
     GOOGLETEST

@@ -1,6 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include "core/StateMachine.hpp"
-#include "core/Event.hpp"
+#include "core/events/Single.hpp"
 
 enum class State : std::uint32_t {
     Undefined = 0,    ///< Required by StateMachine

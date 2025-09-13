@@ -4,7 +4,7 @@
 /// @file
 /// jarnax::Yieldable Interface
 
-#include "core/Event.hpp"
+#include "core/events/Single.hpp"
 #include "jarnax/Executable.hpp"
 
 namespace jarnax {

@@ -1,0 +1,106 @@
+#pragma once
+
+#include <core/StateChart.hpp> // parent
+#include <core/time/CountDown.hpp>
+#include <core/time/MonotonicClock.hpp>
+#include <core/Event.hpp> // Inputs, Outputs
+#include <core/Status.hpp>
+#include <cstdint>
+#include <limits>
+
+namespace {{NameSpace}} {
+
+using Status = core::Status;
+using MicroSeconds = core::time::MicroSeconds;
+using MonotonicClock = core::time::MonotonicClock;
+
+/// The State Enumeration by Bits.
+/// @note No bits set is defined as the Undefined state and all bits set is defined as the Final State.
+enum class State : {{StateType}} {
+    Undefined = 0b0,
+{%- for state in enum_states(states) %}
+    {{state.name}} = {{state.value}}, ///< {{state.description}}
+{%- endfor %}
+    Final = std::numeric_limits<{{StateType}}>::max()
+};
+constexpr static size_t NumberOfStates = {{states|length}}U;
+static_assert(std::is_integral<{{StateType}}>::value, "StateType must be an integral type");
+static_assert(NumberOfStates < (std::numeric_limits<{{StateType}}>::max() - 2U), "The number of States can not exceed the max minus 2 (for reserved names)");
+
+enum class Inputs : {{EventType}} {
+    None = 0,
+{%- for input in inputs %}
+    {{input.name}} = {{loop.index}}, ///< {{input.description}}
+{%- endfor %}
+};
+
+enum class Outputs : {{EventType}} {
+    None = 0,
+{%- for output in outputs %}
+    {{output.name}} = {{loop.index}}, ///< {{output.description}}
+{%- endfor %}
+};
+
+/// The StateChart implementation for {{ClassName}}
+class {{ClassName}} : public core::StateChart<State>, protected core::StateChart<State>::Callback {
+public:
+    /// Indicates the ordinal of the transition (1's based, 0 means no transition)
+    using Ordinal = core::StateChart<State>::Ordinal;
+
+    /// The callback for {{ClassName}} which users will implement.
+    class Callback {
+    public:
+{%- for method in interface %}
+        /// {{method.description}}
+        virtual {{method.return_type}} {{method.name}}({{method.params}}) {{method.modifiers}}= 0;
+{%- endfor %}
+        /// The output event callback
+        virtual void OnOutput(core::Event<Outputs> output) = 0;
+    protected:
+        ~Callback() = default;
+    };
+
+    /// Constructor
+    {{ClassName}}(Callback& callback, MonotonicClock& clock);
+
+    // Remove the Copy and Move Constructors and Assignment Operators
+    {{ClassName}}() = delete;
+    {{ClassName}}({{ClassName}}&&) = delete;
+    {{ClassName}}({{ClassName}} const&) = delete;
+    {{ClassName}}& operator=({{ClassName}} const&) = delete;
+    {{ClassName}}& operator=({{ClassName}}&&) = delete;
+    virtual ~{{ClassName}}() = default;
+
+    /// The interface to Raise events into the StateChart
+    void Trigger(Inputs input);
+
+    /// The Interface to get the Raised Outputs from the StateChart
+    core::Event<Outputs> const& GetOutput() const;
+
+    //=== core::StateChart<State> interface ===//
+    void OnEnter() override;
+    void OnEntry(State state) override;
+    void OnCycle(State state) override;
+    void OnExit(State state) override;
+    Ordinal OnGuard(State state) const override;
+    State OnTransition(State from, Ordinal ordinal) override;
+    void OnExit() override;
+
+protected:
+    Callback& callback_; ///< The reference to the callback object
+    core::time::MonotonicClock& clock_;
+    mutable core::Event<Inputs> input_;
+    core::Event<Outputs> output_;
+{%- for variable in variables %}
+{%- if variable.count > 1 %}
+    {{variable.type}} {{variable.name}}[{{variable.count}}]; ///< {{variable.description}}
+{%- else %}
+    {{variable.type}} {{variable.name}}; ///< {{variable.description}}
+{%- endif %}
+{%- endfor %}
+{%- for countdown in countdowns %}
+    core::time::CountDown {{countdown.name}}; ///< {{countdown.description}}
+{%- endfor %}
+};
+
+}  // namespace {{NameSpace}}

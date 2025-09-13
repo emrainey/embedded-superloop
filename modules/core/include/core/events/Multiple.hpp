@@ -1,0 +1,76 @@
+#ifndef CORE_EVENTS_MULTIPLE_HPP_
+#define CORE_EVENTS_MULTIPLE_HPP_
+
+#include <core/events/Single.hpp>
+
+/// @file
+/// The Events Namespace and Event Interface
+
+namespace core {
+/// @brief The events Namespace contains objects which are used to transmit events.
+namespace events {
+
+/// @brief Allows multiple Single Events to be set simultaneously via the same Event interface.
+/// @tparam STORAGE The storage of the Single subordinate Events
+/// @tparam COUNT The number of Single subordinate Events.
+template <typename STORAGE, size_t COUNT>
+class Multiplier : public Event<STORAGE> {
+public:
+    /// @brief The storage type of the Multiplier Event, which reuses the Event's Type
+    using StorageType = typename Event<STORAGE>::StorageType;
+
+    /// @brief The default constructor does not set the events.
+    Multiplier() = default;
+
+    virtual ~Multiplier() = default;
+
+    /// @brief The initializer list will connect all the suborddinate Single Events into this Event, clearing them in
+    /// the process.
+    /// @param list The list of pointers to Events.
+    Multiplier(std::initializer_list<Event<STORAGE> *> list) {
+        for (auto item : list) {
+            Hook(item);
+        }
+    }
+
+    /// @brief The explicit bool test
+    explicit operator bool(void) const override { return bool(input_); }
+
+    /// @brief The explicit cast operator to the StorageType
+    explicit operator StorageType(void) override { return StorageType(input_); }
+
+    /// @brief The assignment operator
+    /// @param other The Storage Type to assign from
+    void operator=(StorageType const &other) override {
+        input_ = other;
+        for (size_t i = 0; i < count_; i++) {
+            printf("Test [%zu] = %p\r\n", i, reinterpret_cast<void *>(outputs_[i]));
+            if (outputs_[i]) {
+                *outputs_[i] = other;
+            }
+        }
+    }
+    /// @brief The hook function to connect a Single Event to this Multiplier Event.
+    bool Hook(Event<STORAGE> *other) {
+        for (size_t i = count_; i < COUNT; i++) {
+            if (outputs_[i] == nullptr) {
+                count_++;
+                outputs_[i] = other;
+                StorageType volatile tmp = StorageType(*outputs_[i]);    // get the event, thus clearing it
+                (void)tmp;
+                return true;
+            }
+        }
+        return false;
+    }
+
+protected:
+    Single<STORAGE> input_;               ///< The input event
+    size_t count_{0u};                    ///< The number of events connected to this event
+    Event<STORAGE> *outputs_[COUNT]{};    ///< The list of events connected to this event
+};
+
+}    // namespace events
+}    // namespace core
+
+#endif    // CORE_EVENTS_MULTIPLE_HPP_

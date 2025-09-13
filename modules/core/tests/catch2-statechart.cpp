@@ -1,5 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include "core/Event.hpp"
+#include "core/events/Multiple.hpp"
 #include "core/StateChart.hpp"
 
 enum class State : std::uint32_t {

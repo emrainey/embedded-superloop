@@ -1,0 +1,181 @@
+#include "{{ ClassName }}.hpp"
+
+namespace {{ NameSpace }} {
+
+{{ ClassName }}::{{ ClassName }}(Callback& callback, MonotonicClock& clock)
+    : core::StateChart<State>{static_cast<core::StateChart<State>::Callback&>(*this)} // we are the callback to the parent StateChart base class
+    , callback_{callback}
+    , clock_{clock}
+    , input_{Inputs::None}
+    , output_{Outputs::None}
+{%-for member in variables %}
+    , {{ member.name }}{ {{member.initializer|replace_bools}} }
+{%- endfor %}
+{%- for countdown in countdowns %}
+    , {{countdown.name}}{clock_, MicroSeconds{ {{countdown.duration_ms}} } } ///< {{countdown.description}}
+{%- endfor %}
+    {}
+
+void {{ ClassName }}::Trigger(Inputs event) {
+    output_ = Outputs::None; // lower any outputs in preparation for the next one
+    input_ = event;
+    RunOnce();
+    if (output_.Peek() != Outputs::None) {
+        callback_.OnOutput(std::move(output_));
+    }
+    input_ = Inputs::None; // reset the input after processing
+}
+
+core::Event<Outputs> const& {{ ClassName }}::GetOutput() const {
+    return output_;
+}
+
+void {{ ClassName }}::OnEnter() {
+    {%- if chart.enter.expression %}
+    {{chart.enter.expression|replace_bools}};
+    {%- endif %}
+}
+
+void {{ ClassName }}::OnEntry(State state) {
+    switch (state) {
+        {%- for state in chart.states %}
+        case State::{{state.in}}:
+            {%- if state.on_entry == 'None' %}
+            // do nothing
+            {%- else %}
+            {%- if state.on_entry.expression %}
+            {{state.on_entry.expression|replace_bools}};
+            {%- endif %}
+            {%- if state.on_entry.output %}
+            output_ = Outputs::{{state.on_entry.output}};
+            {%- endif %}
+            {%- endif %}
+            break;
+        {%- endfor %}
+        default:
+            // Undefined or Final is not allowed!
+            break;
+    }
+}
+
+void {{ ClassName }}::OnCycle(State state) {
+    switch (state) {
+        {%- for state in chart.states %}
+        case State::{{state.in}}:
+            {%- if state.on_cycle == 'None' %}
+            // do nothing
+            {%- else %}
+            {%- if state.on_cycle.expression %}
+            {{state.on_cycle.expression}};
+            {%- endif %}
+            {%- if state.on_cycle.output %}
+            output_ = Outputs::{{state.on_cycle.output}};
+            {%- endif %}
+            {%- endif %}
+            break;
+        {%- endfor %}
+        default:
+            // Undefined or Final is not allowed!
+            break;
+    }
+}
+
+void {{ ClassName }}::OnExit(State state) {
+    switch (state) {
+        {%- for state in chart.states %}
+        case State::{{state.in}}:
+            {%- if state.on_exit == 'None' %}
+            // do nothing
+            {%- else %}
+            {%- if state.on_exit.expression %}
+            {{state.on_exit.expression}};
+            {%- endif %}
+            {%- if state.on_exit.output %}
+            output_ = Outputs::{{state.on_exit.output}};
+            {%- endif %}
+            {%- endif %}
+            break;
+        {%- endfor %}
+        default:
+            // Undefined or Final is not allowed!
+            break;
+    }
+}
+
+{{ ClassName }}::Ordinal {{ ClassName }}::OnGuard(State state) const {
+    {{ ClassName }}::Ordinal ordinal = 0;
+    switch (state) {
+        {%- for state in chart.states %}
+        case State::{{state.in}}:
+            {%- for transition in state.transitions %}
+            {%- if transition.trigger.input %}
+            if (input_.IsRaised() and input_.Peek() == Inputs::{{transition.trigger.input}}) {
+                input_.Clear();
+            {%- elif transition.trigger.condition %}
+            if ({{transition.trigger.condition}}) {
+            {%- elif transition.trigger == 'always' %}
+            // No trigger, immediate transition
+            if (true) {
+            {%- else %}
+            #error We do not know what {{transition.trigger}} means
+            if (false) { // should never happen
+            {%- endif %}
+            {%- if transition.guard.interface %}
+                if (callback_.{{transition.guard.interface}}()) {
+            {%- elif transition.guard.condition %}
+                if ({{transition.guard.condition}}) {
+            {%- elif transition.guard == 'true' or transition.guard == 'None' %}
+                // No guard, always true
+                if (true) {
+            {%- else %}
+                #error We do not know what {{transition.guard}} means
+                if (false) { // should never happen
+            {%- endif %}
+                    ordinal = {{loop.index}};
+                    break;
+                }
+            }
+            {%- endfor %}
+            break;
+        {%- endfor %}
+        default:
+            // Undefined or Final is not allowed!
+            break;
+    }
+    // zero indicates that no transition was taken
+    return ordinal;
+}
+
+State {{ ClassName }}::OnTransition(State from, Ordinal ordinal) {
+    if (ordinal == 0U) {
+        // not allowed
+        return State::Undefined;
+    }
+    switch (from) {
+        case State::Undefined: // ordinal is ignored here
+            return State::{{chart.entry}};
+        {%- for state in chart.states %}
+        case State::{{state.in}}:
+            {%- for transition in state.transitions %}
+            if (ordinal == {{loop.index}}) {
+                // TODO add capability to run out of State logic like choices, etc.
+                return State::{{transition.target}};
+            }
+            {%- endfor %}
+            break;
+        {%- endfor %}
+        default:
+            // Undefined or Final is not allowed!
+            break;
+    }
+    // if the state not take, return from where you came
+    return from;
+}
+
+void {{ ClassName }}::OnExit() {
+    {%- if chart.exit.expression %}
+    {{chart.exit.expression}};
+    {%- endif %}
+}
+
+} // namespace {{NameSpace}}
