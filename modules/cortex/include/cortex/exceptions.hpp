@@ -2,10 +2,10 @@
 #define CORTEX_M_EXCEPTIONS_HPP_
 
 /// @file
-/// The Cortex M Hardware Exceptions Header
+/// The Cortex Microcontroller Hardware Exceptions Header
 
 #include <cstdint>
-#include "cortex/core.hpp"
+#include "cortex/types.hpp"
 
 namespace cortex {
 
@@ -71,7 +71,7 @@ enum class InterruptServiceRoutine : std::uint32_t {
 /// An ISR Handler takes no direct arguments
 using HandlerFunction = void (*)(void);
 
-/// The Cortex M Vector Table
+/// The Cortex Microcontroller Vector Table
 struct VectorTable final {
     void* stack_pointer;
     /// Contains the Exception Handlers (Reset + Faults + Interrupts)

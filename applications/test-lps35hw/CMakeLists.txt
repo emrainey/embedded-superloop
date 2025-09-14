@@ -4,8 +4,6 @@ add_firmware(NAME test-lps35hw
         ${CMAKE_CURRENT_SOURCE_DIR}/source/LPS35HWTest.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
-    MODULES
-        jarnax
     CONFIGURATIONS
         basic
     BOARDS

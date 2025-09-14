@@ -1,4 +1,3 @@
-#include "configure.hpp"
 #include "cortex/globals.hpp"
 #include "cortex/handlers/enter.hpp"
 #include "cortex/thumb.hpp"

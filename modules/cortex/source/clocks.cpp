@@ -1,7 +1,4 @@
-/// @file
-/// Defines the Cortex M Clock interface
-
-#include "configure.hpp"
+#include "cortex/clocks.hpp"
 #include "cortex/globals.hpp"
 
 namespace cortex {

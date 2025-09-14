@@ -1,6 +1,6 @@
-#include "board.hpp"
-#include "jarnax/print.hpp"
 #include "stm32/i2c/Driver.hpp"
+#include "jarnax/print.hpp"
+#include "stm32/configure.hpp"
 
 namespace stm32 {
 i2c::Driver* i2c_instances[3] = {nullptr, nullptr, nullptr};
@@ -52,10 +52,9 @@ void i2c3_error_isr(void) {
 
 namespace i2c {
 
-Driver::Driver(stm32::registers::InterIntegratedCircuit volatile& i2c,
-               jarnax::dma::Manager& dma_driver,
-               Peripheral rx_peripheral,
-               Peripheral tx_peripheral)
+Driver::Driver(
+    stm32::peripherals::InterIntegratedCircuit volatile& i2c, jarnax::dma::Manager& dma_driver, Peripheral rx_peripheral, Peripheral tx_peripheral
+)
     : jarnax::i2c::Driver{static_cast<jarnax::i2c::Transactor&>(*this)}
     , jarnax::i2c::Transactor{}
     , statistics_{}
@@ -67,20 +66,20 @@ Driver::Driver(stm32::registers::InterIntegratedCircuit volatile& i2c,
     , tx_dma_resource_{nullptr}
     , transaction_{nullptr}
     , peripheral_frequency_{0_Hz} {
-    if (&i2c == &registers::i2c1) {
+    if (&i2c == &peripherals::i2c1) {
         i2c_instances[0] = this;
         i2c_statistics[0] = &statistics_;
-    } else if (&i2c == &registers::i2c2) {
+    } else if (&i2c == &peripherals::i2c2) {
         i2c_instances[1] = this;
         i2c_statistics[1] = &statistics_;
-    } else if (&i2c == &registers::i2c3) {
+    } else if (&i2c == &peripherals::i2c3) {
         i2c_instances[2] = this;
         i2c_statistics[2] = &statistics_;
     }
 }
 
 core::Status Driver::Initialize(core::units::Hertz peripheral_frequency, core::units::Hertz desired_i2c_clock_frequency) {
-    if constexpr (use_dma_for_i2c) {
+    if constexpr (configure::use_i2c_as == configure::Mode::Dma) {
         jarnax::print("STM32 I2C Driver: Using DMA for I2C transactions.\r\n");
     } else {
         jarnax::print("STM32 I2C Driver: Using interrupts for I2C transactions.\r\n");
@@ -102,7 +101,7 @@ core::Status Driver::Initialize(core::units::Hertz peripheral_frequency, core::u
     tx_dma_resource_->Initialize(tx_peripheral_);
     Reset();
     // Configure the I2C clock control register
-    stm32::registers::InterIntegratedCircuit::ClockControl clock_control;
+    stm32::peripherals::InterIntegratedCircuit::ClockControl clock_control;
     clock_control = i2c_.clock_control;                                                                               // read
     clock_control.bits.clock_control = GetClockDivider(peripheral_frequency, desired_i2c_clock_frequency) & 0xFFF;    // mask to 12 bits
     clock_control.bits.duty = 0;                                                                                      // set to 0 for standard mode
@@ -110,14 +109,14 @@ core::Status Driver::Initialize(core::units::Hertz peripheral_frequency, core::u
     i2c_.clock_control = clock_control;                                                                               // write
 
     // Set the Freq in the I2C peripheral
-    stm32::registers::InterIntegratedCircuit::Control2 control2;
+    stm32::peripherals::InterIntegratedCircuit::Control2 control2;
     control2 = i2c_.control2;                                // read
     auto mhz = peripheral_frequency.value() / 1'000'000U;    // convert to MHz
     control2.bits.frequency = mhz & 0x3F;                    // mask to 6 bits (0-63)
     i2c_.control2 = control2;                                // write back
 
     // Enable the I2C peripheral
-    stm32::registers::InterIntegratedCircuit::Control1 control1;
+    stm32::peripherals::InterIntegratedCircuit::Control1 control1;
     control1 = i2c_.control1;                                // read
     control1.bits.peripheral_enable = 1;                     // enable the I2C peripheral
     control1.bits.system_management_bus = 0;                 // disable SMBus mode
@@ -148,7 +147,7 @@ uint32_t Driver::GetClockDivider(core::units::Hertz peripheral_frequency, core::
 
 void Driver::Reset(void) {
     // Reset the I2C peripheral
-    stm32::registers::InterIntegratedCircuit::Control1 control1;
+    stm32::peripherals::InterIntegratedCircuit::Control1 control1;
     control1 = i2c_.control1;            // read
     control1.bits.software_reset = 1;    // reset the I2C peripheral
     i2c_.control1 = control1;            // write
@@ -159,8 +158,8 @@ void Driver::Reset(void) {
 
 void Driver::HandleEvent(void) {
     // Handle the event here
-    stm32::registers::InterIntegratedCircuit::Status1 status1 = i2c_.status1;    // read
-    if constexpr (jarnax::debug::i2c_isr) {
+    stm32::peripherals::InterIntegratedCircuit::Status1 status1 = i2c_.status1;    // read
+    if constexpr (debug::i2c_isr) {
         jarnax::print(
             "I2C Event Status1 st:%" PRIu32 " a:%" PRIu32 " rne:%" PRIu32 " te:%" PRIu32 " tf:%" PRIu32 "\n",
             static_cast<uint32_t>(status1.bits.start_bit),
@@ -180,7 +179,7 @@ void Driver::HandleEvent(void) {
         }
     }
     if (status1.bits.address) {
-        stm32::registers::InterIntegratedCircuit::Status2 status2;
+        stm32::peripherals::InterIntegratedCircuit::Status2 status2;
         status2 = i2c_.status2;                // read, this clears the ADDRESS BIT
         statistics_.events.address_match++;    // Increment the address sent count
     }
@@ -211,7 +210,7 @@ void Driver::HandleEvent(void) {
             i2c_.data.bits.data = span[transaction_->actual_count++];
         } else {
             // If we have sent all the data, we can set the stop condition
-            stm32::registers::InterIntegratedCircuit::Control1 control1;
+            stm32::peripherals::InterIntegratedCircuit::Control1 control1;
             control1 = i2c_.control1;    // read
             control1.bits.stop = 1;      // set stop condition
             i2c_.control1 = control1;    // write
@@ -222,8 +221,8 @@ void Driver::HandleEvent(void) {
 void Driver::HandleError(void) {
     bool should_stop = false;    // Flag to indicate if we should stop the transaction
     core::Status status;
-    stm32::registers::InterIntegratedCircuit::Status1 status1 = i2c_.status1;
-    stm32::registers::InterIntegratedCircuit::Status2 status2 = i2c_.status2;
+    stm32::peripherals::InterIntegratedCircuit::Status1 status1 = i2c_.status1;
+    stm32::peripherals::InterIntegratedCircuit::Status2 status2 = i2c_.status2;
     if (status1.bits.bus_error) {
         statistics_.errors.bus++;    // Increment the bus error count
         should_stop = true;          // Set the flag to stop the transaction
@@ -259,7 +258,7 @@ void Driver::HandleError(void) {
     }
     if (should_stop) {
         // If we should stop the transaction, we can set the stop condition
-        stm32::registers::InterIntegratedCircuit::Control1 control1;
+        stm32::peripherals::InterIntegratedCircuit::Control1 control1;
         control1 = i2c_.control1;    // read
         control1.bits.stop = 1;      // set stop condition
         i2c_.control1 = control1;    // write
@@ -294,9 +293,9 @@ core::Status Driver::Start(jarnax::i2c::Transaction& transaction) {
     }
     jarnax::print("\r\n");
 
-    if constexpr (use_dma_for_i2c) {
+    if constexpr (configure::use_i2c_as == configure::Mode::Dma) {
         // enable the interrupts for the I2C peripheral
-        stm32::registers::InterIntegratedCircuit::Control2 control2;
+        stm32::peripherals::InterIntegratedCircuit::Control2 control2;
         control2 = i2c_.control2;                         // read
         control2.bits.error_interrupt_enable = 1;         // enable error interrupt
         control2.bits.event_interrupt_enable = 1;         // enable event interrupt
@@ -315,7 +314,7 @@ core::Status Driver::Start(jarnax::i2c::Transaction& transaction) {
         }
     } else {
         // enable the interrupts for the I2C peripheral
-        stm32::registers::InterIntegratedCircuit::Control2 control2;
+        stm32::peripherals::InterIntegratedCircuit::Control2 control2;
         control2 = i2c_.control2;                     // read
         control2.bits.error_interrupt_enable = 1;     // enable error interrupt
         control2.bits.event_interrupt_enable = 1;     // enable event interrupt
@@ -328,7 +327,7 @@ core::Status Driver::Start(jarnax::i2c::Transaction& transaction) {
     // memorize the transaction pointer to so that the interrupt can use it
     transaction_ = &transaction;
 
-    stm32::registers::InterIntegratedCircuit::Control1 control1;
+    stm32::peripherals::InterIntegratedCircuit::Control1 control1;
     control1 = i2c_.control1;    // read
     control1.bits.start = 1;     // set start condition
     i2c_.control1 = control1;    // write
@@ -339,7 +338,7 @@ core::Status Driver::Start(jarnax::i2c::Transaction& transaction) {
 }
 
 core::Status Driver::Check(jarnax::i2c::Transaction& transaction) {
-    if constexpr (use_dma_for_i2c) {
+    if constexpr (configure::use_i2c_as == configure::Mode::Dma) {
         // @TODO check to see if the DMA is complete yet.
     } else {
         // compare the send vs send or received vs receive size
@@ -354,14 +353,14 @@ core::Status Driver::Check(jarnax::i2c::Transaction& transaction) {
 core::Status Driver::Cancel(jarnax::i2c::Transaction& transaction) {
     (void)transaction;    // suppress unused parameter warning
     // disable the interrupts for the I2C peripheral
-    stm32::registers::InterIntegratedCircuit::Control2 control2;
+    stm32::peripherals::InterIntegratedCircuit::Control2 control2;
     control2 = i2c_.control2;                     // read
     control2.bits.error_interrupt_enable = 0;     // disable error interrupt
     control2.bits.event_interrupt_enable = 0;     // disable event interrupt
     control2.bits.buffer_interrupt_enable = 0;    // disable buffer interrupt
     i2c_.control2 = control2;                     // write
     // clear the start condition
-    stm32::registers::InterIntegratedCircuit::Control1 control1;
+    stm32::peripherals::InterIntegratedCircuit::Control1 control1;
     control1 = i2c_.control1;    // read
     control1.bits.start = 0;     // clear start condition
     control1.bits.stop = 1;      // set stop condition

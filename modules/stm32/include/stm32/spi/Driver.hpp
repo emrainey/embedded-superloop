@@ -5,20 +5,26 @@
 #include "core/Units.hpp"
 #include "jarnax/spi/Driver.hpp"
 #include "stm32/dma/Manager.hpp"
-#include "stm32/registers/SerialPeripheralInterface.hpp"
+#include "stm32/peripherals/SerialPeripheralInterface.hpp"
 
 namespace stm32 {
 namespace spi {
 class Driver : public jarnax::spi::Driver, private jarnax::spi::Transactor {
 public:
+    /// @brief Constructor
+    /// @param spi The SPI peripheral to use
+    /// @param dma_manager The DMA Manager to use
+    /// @param rx_peripheral The RX peripheral for the DMA Driver
+    /// @param tx_peripheral The TX peripheral for the DMA Driver
+    /// @param dma_allocator The Allocator to use for DMA memory
     Driver(
-        stm32::registers::SerialPeripheralInterface volatile& spi, jarnax::dma::Manager& dma_driver, jarnax::Peripheral rx_peripheral,
-        jarnax::Peripheral tx_peripheral
+        stm32::peripherals::SerialPeripheralInterface volatile& spi, jarnax::dma::Manager& dma_manager, cortex::Peripheral rx_peripheral,
+        cortex::Peripheral tx_peripheral
     );
 
     core::Status Initialize(core::units::Hertz peripheral_frequency, core::units::Hertz desired_spi_clock_frequency);
 
-    stm32::registers::SerialPeripheralInterface::Control1::BaudRateDivider FindClosestDivider(
+    stm32::peripherals::SerialPeripheralInterface::Control1::BaudRateDivider FindClosestDivider(
         core::units::Hertz peripheral_frequency, core::units::Hertz desired_spi_clock_frequency
     );
 
@@ -69,15 +75,15 @@ protected:
     /// The statistics for the SPI peripheral
     Statistics statistics_;
     /// @brief The Serial Peripheral Interface registers for this driver
-    registers::SerialPeripheralInterface volatile& spi_;
+    peripherals::SerialPeripheralInterface volatile& spi_;
     /// @brief The DMA manager for the SPI driver
     jarnax::dma::Manager& dma_manager_;
     /// @brief  The Peripheral for Receive operations
-    jarnax::Peripheral rx_peripheral_;
+    cortex::Peripheral rx_peripheral_;
     /// @brief  The DMA resource for the receive stream
     jarnax::dma::Resource* rx_dma_resource_;
     /// @brief  The Peripheral for Transmit operations
-    jarnax::Peripheral tx_peripheral_;
+    cortex::Peripheral tx_peripheral_;
     /// @brief  The DMA resource for the transmit stream
     jarnax::dma::Resource* tx_dma_resource_;
     /// @brief  The current transaction which may need to be altered by an interrupt

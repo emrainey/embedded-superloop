@@ -1,7 +1,10 @@
 #ifndef CORTEX_CLOCKS_HPP_
 #define CORTEX_CLOCKS_HPP_
 
-#include "cortex/tick.hpp"
+/// @file
+/// The Cortex Microcontroller Clocks Interface
+
+#include "cortex/types.hpp"
 
 namespace cortex {
 

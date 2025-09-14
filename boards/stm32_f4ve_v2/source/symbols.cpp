@@ -7,25 +7,25 @@
 // Fake Flash
 std::uint8_t flash[stm32::sizes::flash];
 #endif
-#if defined(HAS_CCM)
+#if defined(CORTEX_HAS_CCM)
 // Fake Couple Memory
 alignas(8) uint8_t ccm[stm32::sizes::ccm];
 uint32_t *__ccm_beg = reinterpret_cast<std::uint32_t *>(&ccm[0]);
 uint32_t *__ccm_end = reinterpret_cast<std::uint32_t *>(&ccm[sizeof(ccm)]);
 #endif
-#if defined(HAS_ITCM)
+#if defined(CORTEX_HAS_ITCM)
 // Fake Instruction TCM
 alignas(8) uint8_t itcm[stm32::sizes::itcm];
 uint32_t *__itcm_beg = reinterpret_cast<std::uint32_t *>(&itcm[0]);
 uint32_t *__itcm_end = reinterpret_cast<std::uint32_t *>(&itcm[sizeof(itcm)]);
 #endif
-#if defined(HAS_DTCM)
+#if defined(CORTEX_HAS_DTCM)
 // Fake Data TCM
 alignas(8) uint8_t dtcm[stm32::sizes::dtcm];
 uint32_t *__dtcm_beg = reinterpret_cast<std::uint32_t *>(&dtcm[0]);
 uint32_t *__dtcm_end = reinterpret_cast<std::uint32_t *>(&dtcm[dimof(dtcm)]);
 #endif
-#if defined(HAS_SRAM)
+#if defined(CORTEX_HAS_SRAM)
 // Fake System RAM
 alignas(8) uint8_t sram[stm32::sizes::sram];
 uint32_t *__sram_beg = reinterpret_cast<std::uint32_t *>(&sram[0]);

@@ -1,6 +1,8 @@
-#include "cortex/mpu.hpp"
+#include "cortex/peripherals/MemoryProtectionUnit.hpp"
 
 namespace cortex {
+
+using namespace peripherals;
 
 MemoryProtectionUnit::Access make_access(MemoryProtectionUnit::Attribute attribute) {
     MemoryProtectionUnit::Access access;

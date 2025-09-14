@@ -7,9 +7,8 @@
 #include <cstdlib>
 #include <limits>
 
-#include "board.hpp"
 #include "core/vsnprint.hpp"
-#include "cortex/mcu.hpp"
+#include "cortex/swo.hpp"
 #include "jarnax/system.hpp"
 #include "segger/rtt.hpp"
 #include "strings.hpp"

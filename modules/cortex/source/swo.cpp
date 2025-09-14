@@ -4,9 +4,10 @@ namespace cortex {
 namespace swo {
 void emit(Port port, std::uint8_t value) {
     auto index = to_underlying(port);
-    while (instruction_trace_macrocell.stimulus_port[index].read.fifo_ready == 0U) { /* spin */
+    while (peripherals::instruction_trace_macrocell.stimulus_port[index].read.fifo_ready == 0U) {
+        /* spin */
     }
-    instruction_trace_macrocell.stimulus_port[index].write.u08 = value;
+    peripherals::instruction_trace_macrocell.stimulus_port[index].write.u08 = value;
 }
 
 void emit(Port port, char const array[], std::size_t bytes) {

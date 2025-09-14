@@ -1,6 +1,5 @@
-#include "board.hpp"
-#include "jarnax/print.hpp"
 #include "stm32/dma/Manager.hpp"
+#include "jarnax/print.hpp"
 
 namespace stm32 {
 
@@ -106,7 +105,7 @@ void dma2_stream7_isr() {
 
 namespace dma {
 
-Manager::Manager(stm32::registers::DirectMemoryAccess volatile (&dma)[stm32::registers::NumberOfDmaControllers])
+Manager::Manager(stm32::peripherals::DirectMemoryAccess volatile (&dma)[stm32::peripherals::NumberOfDmaControllers])
     : dma_{dma}
     , used_{}
     , resources_{
@@ -132,7 +131,7 @@ Manager::Manager(stm32::registers::DirectMemoryAccess volatile (&dma)[stm32::reg
 
 jarnax::dma::Resource* Manager::Assign(Peripheral const& peripheral) {
     // this is called during Constructor-time. NONE of the peripherals are initialized or clocked yet, just assign pointer and leave
-    for (size_t controller = 0U; controller < stm32::registers::NumberOfDmaControllers; controller++) {
+    for (size_t controller = 0U; controller < stm32::peripherals::NumberOfDmaControllers; controller++) {
         for (size_t index = 0U; index < NumStreamsPerController; index++) {
             size_t number = GetNumber(controller, index);
             if (number == DedicatedMemoryStream) {
@@ -145,7 +144,7 @@ jarnax::dma::Resource* Manager::Assign(Peripheral const& peripheral) {
                     if (peripheral == dma_endpoints[controller][index][channel]) {
                         used_[number] = true;
                         // assign the Channel!
-                        if constexpr (jarnax::debug::dma) {
+                        if constexpr (debug::dma) {
                             jarnax::print(
                                 "Assigning DMA Stream: %u on controller: %u (%u) (will be channel %u)\n", index, controller, number, channel
                             );
@@ -169,7 +168,7 @@ jarnax::dma::Resource* Manager::Acquire(size_t number, Peripheral const& periphe
         used_[number] = true;
         size_t c{0U}, i{0U};
         dma::Manager::GetIndexes(number, c, i);
-        if constexpr (jarnax::debug::dma) {
+        if constexpr (debug::dma) {
             jarnax::print("Acquiring DMA Stream: %u on controller: %u (%u)\n", i, c, number);
         }
         resources_[number].Initialize(peripheral);
@@ -198,8 +197,8 @@ core::Status Manager::GetStreamStatus(size_t number, Flags& flags) {
 
     size_t controller{0U}, stream{0U};
     GetIndexes(number, controller, stream);
-    auto low = stm32::registers::direct_memory_access[controller].low_interrupt_status;
-    auto high = stm32::registers::direct_memory_access[controller].high_interrupt_status;
+    auto low = stm32::peripherals::direct_memory_access[controller].low_interrupt_status;
+    auto high = stm32::peripherals::direct_memory_access[controller].high_interrupt_status;
 
     switch (stream) {
         case 0:
@@ -262,10 +261,10 @@ core::Status Manager::GetStreamStatus(size_t number, Flags& flags) {
     return core::Status{};
 }
 
-std::size_t Manager::GetStreamNumber(stm32::registers::DirectMemoryAccess::Stream volatile& stream) {
-    for (std::size_t c = 0U; c < stm32::registers::NumberOfDmaControllers; c++) {
+std::size_t Manager::GetStreamNumber(stm32::peripherals::DirectMemoryAccess::Stream volatile& stream) {
+    for (std::size_t c = 0U; c < stm32::peripherals::NumberOfDmaControllers; c++) {
         for (std::size_t i = 0U; i < NumStreamsPerController; i++) {
-            if (&stream == &stm32::registers::direct_memory_access[c].streams[i]) {
+            if (&stream == &stm32::peripherals::direct_memory_access[c].streams[i]) {
                 return dma::Manager::GetNumber(c, i);
             }
         }
@@ -279,8 +278,8 @@ core::Status Manager::ClearStreamStatus(size_t number, Flags const& flags) {
     }
     size_t controller{0U}, stream{0U};
     GetIndexes(number, controller, stream);
-    auto low = stm32::registers::direct_memory_access[controller].low_interrupt_flag_clear;
-    auto high = stm32::registers::direct_memory_access[controller].high_interrupt_flag_clear;
+    auto low = stm32::peripherals::direct_memory_access[controller].low_interrupt_flag_clear;
+    auto high = stm32::peripherals::direct_memory_access[controller].high_interrupt_flag_clear;
 
     switch (stream) {
         case 0:
@@ -289,7 +288,7 @@ core::Status Manager::ClearStreamStatus(size_t number, Flags const& flags) {
             low.bits.clear_transfer_error_interrupt0 = flags.error;
             low.bits.clear_half_transfer_interrupt0 = flags.half_complete;
             low.bits.clear_transfer_complete_interrupt0 = flags.complete;
-            stm32::registers::direct_memory_access[controller].low_interrupt_flag_clear = low;
+            stm32::peripherals::direct_memory_access[controller].low_interrupt_flag_clear = low;
             break;
         case 1:
             low.bits.clear_fifo_error_interrupt1 = flags.fifo_error;
@@ -297,7 +296,7 @@ core::Status Manager::ClearStreamStatus(size_t number, Flags const& flags) {
             low.bits.clear_transfer_error_interrupt1 = flags.error;
             low.bits.clear_half_transfer_interrupt1 = flags.half_complete;
             low.bits.clear_transfer_complete_interrupt1 = flags.complete;
-            stm32::registers::direct_memory_access[controller].low_interrupt_flag_clear = low;
+            stm32::peripherals::direct_memory_access[controller].low_interrupt_flag_clear = low;
             break;
         case 2:
             low.bits.clear_fifo_error_interrupt2 = flags.fifo_error;
@@ -305,7 +304,7 @@ core::Status Manager::ClearStreamStatus(size_t number, Flags const& flags) {
             low.bits.clear_transfer_error_interrupt2 = flags.error;
             low.bits.clear_half_transfer_interrupt2 = flags.half_complete;
             low.bits.clear_transfer_complete_interrupt2 = flags.complete;
-            stm32::registers::direct_memory_access[controller].low_interrupt_flag_clear = low;
+            stm32::peripherals::direct_memory_access[controller].low_interrupt_flag_clear = low;
             break;
         case 3:
             low.bits.clear_fifo_error_interrupt3 = flags.fifo_error;
@@ -313,7 +312,7 @@ core::Status Manager::ClearStreamStatus(size_t number, Flags const& flags) {
             low.bits.clear_transfer_error_interrupt3 = flags.error;
             low.bits.clear_half_transfer_interrupt3 = flags.half_complete;
             low.bits.clear_transfer_complete_interrupt3 = flags.complete;
-            stm32::registers::direct_memory_access[controller].low_interrupt_flag_clear = low;
+            stm32::peripherals::direct_memory_access[controller].low_interrupt_flag_clear = low;
             break;
         case 4:
             high.bits.clear_fifo_error_interrupt4 = flags.fifo_error;
@@ -321,7 +320,7 @@ core::Status Manager::ClearStreamStatus(size_t number, Flags const& flags) {
             high.bits.clear_transfer_error_interrupt4 = flags.error;
             high.bits.clear_half_transfer_interrupt4 = flags.half_complete;
             high.bits.clear_transfer_complete_interrupt4 = flags.complete;
-            stm32::registers::direct_memory_access[controller].high_interrupt_flag_clear = high;
+            stm32::peripherals::direct_memory_access[controller].high_interrupt_flag_clear = high;
             break;
         case 5:
             high.bits.clear_fifo_error_interrupt5 = flags.fifo_error;
@@ -329,7 +328,7 @@ core::Status Manager::ClearStreamStatus(size_t number, Flags const& flags) {
             high.bits.clear_transfer_error_interrupt5 = flags.error;
             high.bits.clear_half_transfer_interrupt5 = flags.half_complete;
             high.bits.clear_transfer_complete_interrupt5 = flags.complete;
-            stm32::registers::direct_memory_access[controller].high_interrupt_flag_clear = high;
+            stm32::peripherals::direct_memory_access[controller].high_interrupt_flag_clear = high;
             break;
         case 6:
             high.bits.clear_fifo_error_interrupt6 = flags.fifo_error;
@@ -337,7 +336,7 @@ core::Status Manager::ClearStreamStatus(size_t number, Flags const& flags) {
             high.bits.clear_transfer_error_interrupt6 = flags.error;
             high.bits.clear_half_transfer_interrupt6 = flags.half_complete;
             high.bits.clear_transfer_complete_interrupt6 = flags.complete;
-            stm32::registers::direct_memory_access[controller].high_interrupt_flag_clear = high;
+            stm32::peripherals::direct_memory_access[controller].high_interrupt_flag_clear = high;
             break;
         case 7:
             high.bits.clear_fifo_error_interrupt7 = flags.fifo_error;
@@ -345,7 +344,7 @@ core::Status Manager::ClearStreamStatus(size_t number, Flags const& flags) {
             high.bits.clear_transfer_error_interrupt7 = flags.error;
             high.bits.clear_half_transfer_interrupt7 = flags.half_complete;
             high.bits.clear_transfer_complete_interrupt7 = flags.complete;
-            stm32::registers::direct_memory_access[controller].high_interrupt_flag_clear = high;
+            stm32::peripherals::direct_memory_access[controller].high_interrupt_flag_clear = high;
             break;
     }
     return core::Status{};
@@ -356,7 +355,7 @@ void Manager::HandleInterrupt(uint32_t controller, uint32_t stream) {
     dma::Manager::Flags flags;
     auto status = GetStreamStatus(number, flags);
     if (status) {
-        if constexpr (jarnax::debug::dma_isr) {
+        if constexpr (debug::dma_isr) {
             jarnax::print(
                 "DMA Interrupt: %" PRIu32 ", %" PRIu32 " status: c:%" PRIu32 " h:%" PRIu32 " e:%" PRIu32 " dme:%" PRIu32 " fe:%" PRIu32 "\n",
                 controller,
@@ -375,8 +374,7 @@ void Manager::HandleInterrupt(uint32_t controller, uint32_t stream) {
     }
 }
 
-
-stm32::registers::DirectMemoryAccess::Stream volatile* Manager::GetStreamFromNumber(size_t number) {
+stm32::peripherals::DirectMemoryAccess::Stream volatile* Manager::GetStreamFromNumber(size_t number) {
     if (number < NumStreams) {
         size_t controller{0u};
         size_t stream{0u};
@@ -387,29 +385,27 @@ stm32::registers::DirectMemoryAccess::Stream volatile* Manager::GetStreamFromNum
 }
 
 core::Status Manager::Copy(
-    std::uintptr_t destination,
-    std::uintptr_t source,
-    stm32::registers::DirectMemoryAccess::Stream::Configuration::DataSize data_size,
+    std::uintptr_t destination, std::uintptr_t source, stm32::peripherals::DirectMemoryAccess::Stream::Configuration::DataSize data_size,
     std::size_t count
 ) {
     if (count > stm32::dma::Resource::MaximumMemoryCopyUnits) {
         return core::Status{core::Result::InvalidValue, core::Cause::Parameter};
     }
     // acquire a stream
-    jarnax::dma::Resource* resource = Acquire(DedicatedMemoryStream, jarnax::_);
+    jarnax::dma::Resource* resource = Acquire(DedicatedMemoryStream, cortex::_);
     if (resource) {
-        using Direction = stm32::registers::DirectMemoryAccess::Stream::Configuration::DataTransferDirection;
+        using Direction = stm32::peripherals::DirectMemoryAccess::Stream::Configuration::DataTransferDirection;
         // ========================================
-        stm32::registers::DirectMemoryAccess::Stream volatile& stream = *GetStreamFromNumber(DedicatedMemoryStream);
+        stm32::peripherals::DirectMemoryAccess::Stream volatile& stream = *GetStreamFromNumber(DedicatedMemoryStream);
         // ========================================
-        stm32::registers::DirectMemoryAccess::Stream::FifoControl fifo_control = stream.fifo_control;            // read
-        stm32::registers::DirectMemoryAccess::Stream::Configuration configuration = stream.configuration;        // read
-        stm32::registers::DirectMemoryAccess::Stream::NumberOfDatum number_of_datum = stream.number_of_datum;    // read
-        configuration.bits.stream_enable = 0;                                                                    // disable
-        stream.configuration = configuration;                                                                    // write
+        stm32::peripherals::DirectMemoryAccess::Stream::FifoControl fifo_control = stream.fifo_control;            // read
+        stm32::peripherals::DirectMemoryAccess::Stream::Configuration configuration = stream.configuration;        // read
+        stm32::peripherals::DirectMemoryAccess::Stream::NumberOfDatum number_of_datum = stream.number_of_datum;    // read
+        configuration.bits.stream_enable = 0;                                                                      // disable
+        stream.configuration = configuration;                                                                      // write
         // ========================================
         // configure the stream
-        fifo_control.bits.fifo_threshold = stm32::registers::DirectMemoryAccess::Stream::FifoControl::FifoThreshold::Empty;
+        fifo_control.bits.fifo_threshold = stm32::peripherals::DirectMemoryAccess::Stream::FifoControl::FifoThreshold::Empty;
         fifo_control.bits.fifo_error_interrupt_enable = 0;
         // memory to memory can't use Direct Mode
         fifo_control.bits.direct_mode_disable = 1U;
@@ -430,8 +426,8 @@ core::Status Manager::Copy(
         configuration.bits.data_transfer_direction = Direction::MemoryToMemory;
         configuration.bits.memory_increment_mode = 1;    // increment after each element
         configuration.bits.memory_size = data_size;
-        configuration.bits.memory_burst = stm32::registers::DirectMemoryAccess::Stream::Configuration::Burst::Increment4;
-        configuration.bits.priority_level = stm32::registers::DirectMemoryAccess::Stream::Configuration::Priority::Low;
+        configuration.bits.memory_burst = stm32::peripherals::DirectMemoryAccess::Stream::Configuration::Burst::Increment4;
+        configuration.bits.priority_level = stm32::peripherals::DirectMemoryAccess::Stream::Configuration::Priority::Low;
         configuration.bits.peripheral_flow_control = 0;               // DMA is flow controller
         configuration.bits.direct_mode_error_interrupt_enable = 0;    // Polling mode
         configuration.bits.transfer_error_interrupt_enable = 0;       // Polling mode
@@ -441,10 +437,10 @@ core::Status Manager::Copy(
         stream.configuration = configuration;                         // write
         // ========================================
         // poll on completion (Use Stream 1 on Controller 1)
-        while (stm32::registers::direct_memory_access[1].low_interrupt_status.bits.transfer_complete_interrupt1 == 0) {
+        while (stm32::peripherals::direct_memory_access[1].low_interrupt_status.bits.transfer_complete_interrupt1 == 0) {
         }
         // Clear the completion flag
-        stm32::registers::direct_memory_access[1].low_interrupt_flag_clear.bits.clear_transfer_complete_interrupt1 = 1;
+        stm32::peripherals::direct_memory_access[1].low_interrupt_flag_clear.bits.clear_transfer_complete_interrupt1 = 1;
         // ========================================
         configuration = stream.configuration;    // read
         configuration.bits.stream_enable = 0;    // disable
@@ -462,7 +458,7 @@ core::Status Manager::Copy(std::uint8_t destination[], std::uint8_t const source
     return Copy(
         reinterpret_cast<std::uintptr_t>(destination),
         reinterpret_cast<std::uintptr_t>(source),
-        stm32::registers::DirectMemoryAccess::Stream::Configuration::DataSize::Bits8,
+        stm32::peripherals::DirectMemoryAccess::Stream::Configuration::DataSize::Bits8,
         count
     );
 }
@@ -471,7 +467,7 @@ core::Status Manager::Copy(std::uint16_t destination[], std::uint16_t const sour
     return Copy(
         reinterpret_cast<std::uintptr_t>(destination),
         reinterpret_cast<std::uintptr_t>(source),
-        stm32::registers::DirectMemoryAccess::Stream::Configuration::DataSize::Bits16,
+        stm32::peripherals::DirectMemoryAccess::Stream::Configuration::DataSize::Bits16,
         count
     );
 }
@@ -480,7 +476,7 @@ core::Status Manager::Copy(std::uint32_t destination[], std::uint32_t const sour
     return Copy(
         reinterpret_cast<std::uintptr_t>(destination),
         reinterpret_cast<std::uintptr_t>(source),
-        stm32::registers::DirectMemoryAccess::Stream::Configuration::DataSize::Bits32,
+        stm32::peripherals::DirectMemoryAccess::Stream::Configuration::DataSize::Bits32,
         count
     );
 }

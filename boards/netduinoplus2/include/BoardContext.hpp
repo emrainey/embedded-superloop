@@ -13,7 +13,6 @@
 #include "stm32/Indicator.hpp"
 #include "stm32/RandomNumberGenerator.hpp"
 #include "stm32/Timer.hpp"
-#include "stm32/i2c/Driver.hpp"
 #include "stm32/spi/Driver.hpp"
 #include "stm32/uart/Driver.hpp"
 #include "stm32/usart/Driver.hpp"
@@ -69,9 +68,6 @@ public:
 
     /// Returns the Copier
     jarnax::Copier& GetCopier();
-
-    /// Returns the I2C Driver
-    jarnax::i2c::Driver& GetI2cDriver();
 
     /// Returns the SPI Driver
     jarnax::spi::Driver& GetSpiDriver();
@@ -136,12 +132,6 @@ protected:
     stm32::gpio::Pin spi2_nss_;
     /// The DMA Manager
     stm32::dma::Manager dma_manager_;
-    /// The I2C Clock (SCL)
-    stm32::gpio::Pin i2c1_scl_;
-    /// The I2C Data (SDA)
-    stm32::gpio::Pin i2c1_sda_;
-    /// The I2C Driver
-    stm32::i2c::Driver i2c1_driver_;
     /// The SPI1 Driver
     stm32::spi::Driver spi1_driver_;
     /// The SPI2 Driver

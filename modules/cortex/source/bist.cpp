@@ -1,7 +1,7 @@
 #include "configure.hpp"
-#include "cortex/mcu.hpp"
-#include "cortex/linker.hpp"
 #include "cortex/globals.hpp"
+#include "cortex/linker.hpp"
+#include "cortex/mcu.hpp"
 
 namespace cortex {
 

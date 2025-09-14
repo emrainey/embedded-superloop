@@ -1,9 +1,7 @@
-#include "core/core.hpp"
 #include "core/Status.hpp"
-#include "cortex/vectors.hpp"
+#include "core/core.hpp"
 #include "cortex/tick.hpp"
-
-#include "board.hpp"    // Depends on the build
+#include "cortex/vectors.hpp"
 
 namespace stm32 {
 
@@ -31,7 +29,7 @@ std::uint32_t pll_clock_stabilization_counter{0u};
 /// @brief Counts how long it took for the PLL to become system clock
 std::uint32_t system_clock_switch_counter{0u};
 
-void clocks() {
+void clocks(void) {
     auto& cfg = stm32::default_clock_configuration;
     if ((cfg.pll_m < 2 or 63 < cfg.pll_m) or (cfg.pll_n < 50 or 432 < cfg.pll_n) or (cfg.pll_q < 2 or 15 < cfg.pll_q)) {
         // The PLL values is out of range
@@ -101,7 +99,7 @@ static std::uint32_t GetAPB2Divider(std::uint32_t value) {
 
 /// Initializes the Clock Tree with a given configuration (probably only works for STM32F407VE)
 void clocks(ClockConfiguration const& clkcfg) {
-    using namespace stm32::registers;
+    using namespace stm32::peripherals;
     using namespace core::units;
 
     if (reset_and_clock_control.configuration.bits.system_clock_switch_status ==
@@ -134,7 +132,7 @@ void clocks(ClockConfiguration const& clkcfg) {
         control.bits.high_speed_internal_enable = 0;
         clock_tree.pll_input = clkcfg.external_clock_frequency;    // take from configuration
     }
-    reset_and_clock_control.control = control;    // write
+    reset_and_clock_control.control = control;                     // write
 
     if (clkcfg.use_internal) {
         do {
@@ -147,7 +145,8 @@ void clocks(ClockConfiguration const& clkcfg) {
             high_speed_stabilization_counter++;
         } while (control.bits.high_speed_external_ready == 0);
     }
-    config.bits.system_clock_switch = stm32::registers::ResetAndClockControl::Configuration::SystemClockSwitch::PhaseLockLoop;    // switch to the PLL
+    config.bits.system_clock_switch =
+        stm32::peripherals::ResetAndClockControl::Configuration::SystemClockSwitch::PhaseLockLoop;    // switch to the PLL
     config.bits.ahb_divider = clkcfg.ahb_divider;
     config.bits.apb_low_speed_divider = clkcfg.apb1_low_speed_divider;
     config.bits.apb_high_speed_divider = clkcfg.apb2_high_speed_divider;
@@ -189,9 +188,9 @@ void clocks(ClockConfiguration const& clkcfg) {
     } while (control.bits.main_pll_ready == 0);
 
     // Choose the PLL as the system clock
-    config = reset_and_clock_control.configuration;    // read
+    config = reset_and_clock_control.configuration;        // read
     config.bits.system_clock_switch = ResetAndClockControl::Configuration::SystemClockSwitch::PhaseLockLoop;
-    reset_and_clock_control.configuration = config;    // write
+    reset_and_clock_control.configuration = config;        // write
     do {
         config = reset_and_clock_control.configuration;    // read
         system_clock_switch_counter++;
@@ -199,7 +198,7 @@ void clocks(ClockConfiguration const& clkcfg) {
 
     // Compute the Clock Tree values from what we just set
     clock_tree.low_speed_internal = low_speed_internal_oscillator_frequency;
-    clock_tree.low_speed_external = low_speed_external_oscillator_frequency;
+    clock_tree.low_speed_external = clkcfg.low_speed_external_oscillator_frequency;
     clock_tree.high_speed_internal = high_speed_internal_oscillator_frequency;
     clock_tree.high_speed_external = clkcfg.external_clock_frequency;
 
@@ -221,7 +220,7 @@ void clocks(ClockConfiguration const& clkcfg) {
     clock_tree.apb2_peripheral = clock_tree.hclk / GetAPB2Divider(clkcfg.apb2_high_speed_divider);
     clock_tree.rtc = clock_tree.high_speed_external / clkcfg.rtc_divider;
     clock_tree.apb1_timer_clk =
-        clock_tree.apb1_peripheral * (GetAPB1Divider(clkcfg.apb1_low_speed_divider) == 1 ? 1U : 2U);    // APB1 is doubled if the divider is not 1
+        clock_tree.apb1_peripheral * (GetAPB1Divider(clkcfg.apb1_low_speed_divider) == 1 ? 1U : 2U);     // APB1 is doubled if the divider is not 1
     clock_tree.apb2_timer_clk =
         clock_tree.apb2_peripheral * (GetAPB2Divider(clkcfg.apb2_high_speed_divider) == 1 ? 1U : 2U);    // APB2 is doubled if the divider is not 1
     // clock_tree.rng = clock_tree.sysclk;

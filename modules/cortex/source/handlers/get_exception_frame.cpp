@@ -1,9 +1,7 @@
-#include "configure.hpp"
-#include "jarnax/system.hpp"
-#include "cortex/thumb.hpp"
+#include "cortex/mcu.hpp"
 #include "memory.hpp"
 
-namespace jarnax {
+namespace cortex {
 
 /// The local copy of the Frame Data which is copied from the stack upon exception.
 LINKER_SECTION(".privileged_data") cortex::exceptions::ExtendedFrame exception_frame;
@@ -26,7 +24,7 @@ static_assert(is_address_aligned<std::uint32_t>(0x8U), "Must be true");    // NO
 /// The Extended Frame format is always used as a type, but the basic frame
 /// may be the only part filled in.
 inline void get_exception_frame(void) {
-    cortex::Control control = thumb::get_control();
+    cortex::registers::Control control = thumb::get_control();
     bool force_alignment = false;
 
     // Find out the size of the stack frame
@@ -35,8 +33,8 @@ inline void get_exception_frame(void) {
         size = sizeof(cortex::exceptions::ExtendedFrame);
         force_alignment = true;
     } else {
-        cortex::SystemControlBlock::ConfigurationControl ctrl;
-        ctrl = cortex::system_control_block.configuration_control;
+        peripherals::SystemControlBlock::ConfigurationControl ctrl;
+        ctrl = peripherals::system_control_block.configuration_control;
         size = sizeof(cortex::exceptions::BasicFrame);
         force_alignment = (ctrl.parts.stack_pointer_is_guaranteed_8_byte_aligned == 1U);
     }
@@ -62,4 +60,4 @@ inline void get_exception_frame(void) {
 }    // namespace handlers
 
 }    // namespace handlers
-}    // namespace jarnax
+}    // namespace cortex

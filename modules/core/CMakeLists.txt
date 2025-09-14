@@ -60,13 +60,11 @@ add_module(NAME core
     DEFINES
         DEFAULT_ALLOCATION_BLOCK_SIZE=32
         DEFAULT_ALLOCATION_BLOCK_COUNT=1024
-    MODULES
+    GENERIC_MODULES
         memory
     LIBRARIES
-        configuration-none
         $<IF:$<CXX_COMPILER_ID:GNU>,gcc m,> # GCC specific libraries to provide things like __aeabi_d2f
     NO_CONFIGURATIONS
-    NO_BOARDS
 )
 
 file(GLOB_RECURSE _GENERATED_CORE_TESTS ${CMAKE_CURRENT_SOURCE_DIR}/generated/tests/*.cpp)
@@ -94,7 +92,9 @@ host_unit_test(NAME test-core
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-variants.cpp
         ${_GENERATED_CORE_TESTS}
     LIBRARIES
-        strict core-none-all
+        strict
+    GENERIC_MODULES
+        core
     CATCH2
     NO_CONFIGURATIONS
     NO_BOARDS
@@ -104,7 +104,9 @@ host_unit_test(NAME test-events
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-events.cpp
     LIBRARIES
-        strict core-none-all
+        strict
+    GENERIC_MODULES
+        core
     CATCH2
     NO_CONFIGURATIONS
     NO_BOARDS
@@ -115,7 +117,9 @@ host_unit_test(NAME test-heap
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-heap.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-print.cpp
     LIBRARIES
-        strict core-none-all
+        strict
+    GENERIC_MODULES
+        core
     CATCH2
     FAKEIT
     NO_CONFIGURATIONS
@@ -126,7 +130,9 @@ host_unit_test(NAME test-fraction
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-fraction.cpp
     LIBRARIES
-        strict core-none-all
+        strict
+    GENERIC_MODULES
+        core
     GOOGLETEST
     NO_CONFIGURATIONS
     NO_BOARDS
@@ -144,7 +150,9 @@ host_unit_test(NAME test-generated-statechart
         ${CMAKE_BINARY_DIR}/generated/core/tests/gtest_ExampleStateChart.cpp
         ${CMAKE_BINARY_DIR}/generated/core/tests/ExampleStateChart.cpp
     LIBRARIES
-        strict core-none-all
+        strict
+    GENERIC_MODULES
+        core
     GOOGLETEST
     NO_CONFIGURATIONS
     NO_BOARDS

@@ -3,11 +3,11 @@
 
 #include <jarnax/Copier.hpp>
 #include <jarnax/dma/Manager.hpp>
-
-#include "jarnax/Peripheral.hpp"
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+#include "cortex/variant.hpp"
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+#include "cortex/Peripheral.hpp"
 #include "stm32/dma/Resource.hpp"
-
-#include "board.hpp"
 
 namespace stm32 {
 namespace dma {
@@ -60,17 +60,17 @@ public:
     /// @brief Returns the stream number for the given stream.
     /// @param stream The stream to get the number for
     /// @return The stream number, which is a combination of the controller and stream indices or NumStreams if the stream is invalid
-    static std::size_t GetStreamNumber(stm32::registers::DirectMemoryAccess::Stream volatile& stream);
+    static std::size_t GetStreamNumber(stm32::peripherals::DirectMemoryAccess::Stream volatile& stream);
 
     /// @brief The default constructor
-    Manager(stm32::registers::DirectMemoryAccess volatile (&dma)[stm32::registers::NumberOfDmaControllers]);
+    Manager(stm32::peripherals::DirectMemoryAccess volatile (&dma)[stm32::peripherals::NumberOfDmaControllers]);
 
     /// @brief The destructor
     ~Manager() = default;
 
     //===[jarnax::dma::Manager]=============================================================================
-    jarnax::dma::Resource* Assign(jarnax::Peripheral const& peripheral) override;
-    jarnax::dma::Resource* Acquire(size_t index, jarnax::Peripheral const& peripheral = jarnax::_) override;
+    jarnax::dma::Resource* Assign(Peripheral const& peripheral) override;
+    jarnax::dma::Resource* Acquire(size_t index, Peripheral const& peripheral = cortex::_) override;
     core::Status Release(jarnax::dma::Resource*& resource) override;
 
     //===[jarnax::Copier]===================================================================================
@@ -106,17 +106,17 @@ protected:
     /// @retval Result::NotAvailable if the DMA controller is not available
     /// @note This method is used internally by the Copier interface to perform the actual copy operation.
     core::Status Copy(
-        std::uintptr_t destination, std::uintptr_t source, stm32::registers::DirectMemoryAccess::Stream::Configuration::DataSize data_size,
+        std::uintptr_t destination, std::uintptr_t source, stm32::peripherals::DirectMemoryAccess::Stream::Configuration::DataSize data_size,
         std::size_t count
     );
 
     /// @brief Gets the stream from the number
     /// @param number The stream number to get the stream for
     /// @return A pointer to the stream, or nullptr if the number is invalid
-    stm32::registers::DirectMemoryAccess::Stream volatile* GetStreamFromNumber(size_t number);
+    stm32::peripherals::DirectMemoryAccess::Stream volatile* GetStreamFromNumber(size_t number);
 
     /// @brief The reference to the DMA controller registers
-    stm32::registers::DirectMemoryAccess volatile (&dma_)[stm32::registers::NumberOfDmaControllers];
+    stm32::peripherals::DirectMemoryAccess volatile (&dma_)[stm32::peripherals::NumberOfDmaControllers];
 
     /// @brief Tracks which streams are in use
     bool used_[NumStreams];
@@ -127,7 +127,7 @@ protected:
 
 /// @brief Per Table 43 in the reference manual.
 // clang-format off
-constexpr static jarnax::Peripheral dma_endpoints[stm32::registers::NumberOfDmaControllers][dma::Manager::NumStreamsPerController][dma::Manager::NumChannelsPerStream] = {
+constexpr static Peripheral dma_endpoints[stm32::peripherals::NumberOfDmaControllers][dma::Manager::NumStreamsPerController][dma::Manager::NumChannelsPerStream] = {
     {{// Stream 0
     SPI3_RX,
     I2C1_RX,
@@ -220,7 +220,11 @@ constexpr static jarnax::Peripheral dma_endpoints[stm32::registers::NumberOfDmaC
     },
     {// Stream1/9
     SAI1_A,
+#if defined(STM32_HAS_CAMERA) && (STM32_HAS_CAMERA == 1)
     DCMI,
+#else
+    _,
+#endif
     ADC3,
     _,
     SPI4_TX,
@@ -280,7 +284,11 @@ constexpr static jarnax::Peripheral dma_endpoints[stm32::registers::NumberOfDmaC
     },
     {/// Stream 7/15
     _,
+#if defined(STM32_HAS_CAMERA) && (STM32_HAS_CAMERA == 1)
     DCMI,
+#else
+    _,
+#endif
     HASH_IN,
     _,
     USART1_TX,

@@ -104,12 +104,12 @@ TEST_CASE("Units - Conversions") {
     using namespace core::units;
     SECTION("Time to Ticks") {
         core::units::Ticks t = core::units::ConvertToTicks(1.0_sec);
-        REQUIRE(t == core::units::Ticks{core::units::ticks_per_second});
+        REQUIRE(t == core::units::Ticks{cortex::ticks_per_second});
     }
 
     SECTION("Time to Ticks Half") {
         core::units::Ticks t = core::units::ConvertToTicks(0.5_sec);
-        REQUIRE(t == core::units::Ticks{core::units::ticks_per_second / 2});
+        REQUIRE(t == core::units::Ticks{cortex::ticks_per_second / 2});
     }
 
     SECTION("Ticks to Time") {

@@ -1,4 +1,4 @@
-#include "stm32/stm32f407ve.hpp"
+#include "stm32/stm32.hpp"
 
 namespace stm32 {
 /// The hidden Backup Ram Context

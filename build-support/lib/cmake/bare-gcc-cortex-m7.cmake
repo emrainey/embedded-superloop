@@ -13,14 +13,17 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 
 set(BUILD_CROSS_TARGET TRUE)
+set(CMAKE_BUILD_TYPE Debug)
 
 message(NOTICE "Enabling THUMB Mode")
 add_compile_options(-mthumb -mno-thumb-interwork)
 add_link_options(-mthumb -mthumb-interwork)
 
-message(NOTICE "cpu=Cortex-M4")
+message(NOTICE "cpu=Cortex-M7")
 add_compile_options(-mcpu=cortex-m7)
 add_link_options(-mcpu=cortex-m7)
+set(CORTEX_M "7")
+set(ARCHITECTURE "armv7e-m")
 
 message(NOTICE "Hard Float Single Precision")
 add_compile_options(-mfpu=fpv4-sp-d16 -mfloat-abi=hard -fsingle-precision-constant)
@@ -53,14 +56,14 @@ add_compile_options(
     -fno-ident
 )
 add_link_options(
-    -Wl,--build-id=none
-    -Wl,--enable-new-dtags
-    -Wl,--sort-section=name
-    -Wl,--no-undefined
-    -Wl,--as-needed
-    -Wl,--hash-style=gnu
-    #-Wl,-z,relro
-    -Wl,-z,now
+    LINKER:--build-id=none
+    LINKER:--enable-new-dtags
+    LINKER:--sort-section=name
+    LINKER:--no-undefined
+    # LINKER:--as-needed
+    LINKER:--hash-style=gnu
+    #LINKER:-z,relro
+    LINKER:-z,now
 )
 
 list(APPEND COMPILER_MATH_LIBS gcc m)

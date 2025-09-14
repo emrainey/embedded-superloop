@@ -1,4 +1,3 @@
-#include "cortex/mcu.hpp"
 #include "cortex/vectors.hpp"
 
 namespace cortex {

@@ -1,7 +1,6 @@
 #ifndef SELF_UNITTEST_HPP_
 #define SELF_UNITTEST_HPP_
 
-#include "jarnax.hpp"
 #include "jarnax/UnitTest.hpp"
 
 using jarnax::Executable;

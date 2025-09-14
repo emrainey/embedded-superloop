@@ -4,10 +4,13 @@
 #include <type_traits>
 #include "core/Span.hpp"
 #include "core/Status.hpp"
-#include "jarnax/Peripheral.hpp"
+#include "cortex/Peripheral.hpp"
 
 namespace jarnax {
 namespace dma {
+
+/// @brief The Peripheral type is used to specify the peripheral to which the DMA resource will be assigned.
+using Peripheral = cortex::Peripheral;
 
 /// @brief The Interface for a DMA Resource.
 class Resource {

@@ -22,6 +22,8 @@ add_link_options(-mthumb -mthumb-interwork)
 message(NOTICE "cpu=Cortex-M4")
 add_compile_options(-mcpu=cortex-m4)
 add_link_options(-mcpu=cortex-m4)
+set(CORTEX_M "4")
+set(ARCHITECTURE "armv7e-m")
 
 message(NOTICE "Hard Float Single Precision")
 add_compile_options(-mfpu=fpv4-sp-d16 -mfloat-abi=hard -fsingle-precision-constant)
@@ -42,9 +44,11 @@ add_compile_options(
     -fstack-usage
     -Wstack-usage=32768
     # -fno-inline
-    -ggdb3 # -g3
-    -O1
 )
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+add_compile_options(-O1 -g3 -ggdb3)
+endif()
 
 message(STATUS "Enable reproducible build flags")
 add_compile_options(
@@ -56,14 +60,14 @@ add_compile_options(
     -fno-ident
 )
 add_link_options(
-    -Wl,--build-id=none
-    -Wl,--enable-new-dtags
-    -Wl,--sort-section=name
-    -Wl,--no-undefined
-    -Wl,--as-needed
-    -Wl,--hash-style=gnu
-    #-Wl,-z,relro
-    -Wl,-z,now
+    LINKER:--build-id=none
+    LINKER:--enable-new-dtags
+    LINKER:--sort-section=name
+    LINKER:--no-undefined
+    # LINKER:--as-needed
+    LINKER:--hash-style=gnu
+    #LINKER:-z,relro
+    LINKER:-z,now
 )
 
 list(APPEND COMPILER_MATH_LIBS gcc m)

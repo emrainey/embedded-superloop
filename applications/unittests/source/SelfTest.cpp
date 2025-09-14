@@ -1,4 +1,5 @@
 #include "SelfTest.hpp"
+#include "configure.hpp"
 
 struct Dummy {
     uint32_t counter{0U};
@@ -27,8 +28,7 @@ static SelfTest::TestName tests[] = {
 };
 
 SelfTest::SelfTest()
-    : UnitTest{"SelfTest", tests} {
-}
+    : UnitTest{"SelfTest", tests} {}
 
 SelfTest::State SelfTest::Test(EnumType test_enum) {
     if (test_enum == SelfTests::kAutoFailed) {
@@ -40,13 +40,13 @@ SelfTest::State SelfTest::Test(EnumType test_enum) {
     } else if (test_enum == SelfTests::kCompareValueEqualFail) {
         CompareNotEqual(1028U, 11U);
     } else if (test_enum == SelfTests::kCompareFloatEqualPass) {
-        if (jarnax::enable_access_to_fpu) {
+        if (cortex::enable_access_to_fpu) {
             float volatile a = 5.75F;
             float volatile b = 6.75F - 1.0F;
             CompareFloatEqual(a, b);
         }
     } else if (test_enum == SelfTests::kCompareFloatEqualFail) {
-        if (jarnax::enable_access_to_fpu) {
+        if (cortex::enable_access_to_fpu) {
             float volatile a = 5.75F + (2.0F * std::numeric_limits<float>::epsilon());
             float volatile b = 6.75F - 1.0F;
             CompareFloatNotEqual(a, b);

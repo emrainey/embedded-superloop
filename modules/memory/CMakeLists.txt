@@ -10,6 +10,5 @@ add_module(NAME memory
         ${CMAKE_CURRENT_SOURCE_DIR}/include
     LIBRARIES
         strict
-    NO_BOARDS
     NO_CONFIGURATIONS
 )

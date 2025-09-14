@@ -13,7 +13,7 @@ SPITest::SPITest()
     , spi_driver_{jarnax::GetBoardContext().GetSpi2Driver()}
     , spi_transaction_{timer_}
     , spi_buffer_{stm32::spi2_dma_buffer_size, jarnax::GetBoardContext().GetDmaAllocator()}
-    , spi_countdown_{timer_, core::units::Iota{stm32::iota_per_millisecond * 1000}}    // 1000ms
+    , spi_countdown_{timer_, Iota{ConvertToIota(MilliSeconds{1000U}).value()}}    // 1000ms
     , state_machine_{*this, AppState::Identify} {
     assertion(not spi_buffer_.IsEmpty());
     app_statistics = &stats_;

@@ -2,8 +2,8 @@
 /// Defines the tick functions for the Cortex M System Tick
 
 #include "configure.hpp"
-#include "cortex/tick.hpp"
 #include "cortex/globals.hpp"
+#include "cortex/tick.hpp"
 
 namespace cortex {
 
@@ -12,7 +12,7 @@ Ticks GetTickCount() {
 }
 
 Hertz GetTickRate() {
-    return Hertz{core::units::ticks_per_second};
+    return Hertz{ticks_per_second};
 }
 
 bool IsTickEnabled() {

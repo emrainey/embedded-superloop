@@ -21,7 +21,7 @@ public:
         current_ = current_ + 1_ticks;
         return tmp;
     }
-    Hertz GetTicksPerSecond(void) const override { return Hertz{core::units::ticks_per_second}; }
+    Hertz GetTicksPerSecond(void) const override { return Hertz{cortex::ticks_per_second}; }
     Time GetTimeSinceBoot(void) const override { return core::units::ConvertToSeconds(GetTicksSinceBoot()); }
     Ticks GetTicks(void) const override { return GetTicksSinceBoot() + bias_; }
     Time GetTime(void) const override { return core::units::ConvertToSeconds(GetTicksSinceBoot() + bias_); }

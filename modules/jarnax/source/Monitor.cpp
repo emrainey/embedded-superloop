@@ -1,5 +1,5 @@
 #include "jarnax/Monitor.hpp"
-#include "board.hpp"
+#include "core/Conversions.hpp"
 
 namespace jarnax {
 

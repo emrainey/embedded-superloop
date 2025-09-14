@@ -1,18 +1,33 @@
-
 #include "jarnax.hpp"
-#include "jarnax/Context.hpp"
 #include "jarnax/Assertion.hpp"
-namespace jarnax {
+#include "jarnax/Context.hpp"
 
-[[noreturn]] void main(void) {
-    banner();
-    Context& context = GetContext();
+namespace jarnax {
+void ATTRIBUTE((weak)) banner(void) {
+    jarnax::print(
+        "                  _/                                                \r\n"
+        "         _/    _/_/    _/_/_/    _/      _/    _/_/    _/      _/   \r\n"
+        "        _/  _/    _/  _/    _/  _/_/    _/  _/  _/_/    _/  _/      \r\n"
+        "       _/  _/_/_/_/  _/_/_/    _/  _/  _/  _/    _/      _/         \r\n"
+        "_/    _/  _/    _/  _/    _/  _/    _/_/  _/_/  _/    _/  _/        \r\n"
+        " _/_/    _/    _/  _/    _/  _/      _/    _/_/    _/      _/       \r\n"
+        " -- %s\r\n",
+        jarnax::VersionString
+    );
+}
+}    // namespace jarnax
+
+namespace cortex {
+namespace system {
+[[noreturn]] void ATTRIBUTE((used)) main(void) {
+    jarnax::banner();
+    jarnax::Context& context = jarnax::GetContext();
     if (context.Initialize()) {
-        SuperLoop& superloop = context.GetSuperLoop();
+        jarnax::SuperLoop& superloop = context.GetSuperLoop();
         superloop.RunForever();
     }
     cortex::spinhalt();
     __builtin_unreachable();
 }
-
-}    // namespace jarnax
+}    // namespace system
+}    // namespace cortex

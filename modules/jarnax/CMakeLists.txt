@@ -12,26 +12,20 @@ target_include_directories(jarnax-interfaces INTERFACE
 
 add_module(NAME jarnax
     SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/on_entry.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/zero_bss.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/static_constructors.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/static_destructors.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/load_data.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/watermark_stack.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/simple_globals.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/class_globals.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/jump.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/startup/configure.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/reset.cpp
+        # These implement features required by the cortex module
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/configure.cpp
+        # these are the core jarnax features
         ${CMAKE_CURRENT_SOURCE_DIR}/source/print.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/yield.cpp
-        $<IF:$<BOOL:BUILD_CROSS_TARGET>,${CMAKE_CURRENT_SOURCE_DIR}/source/main.cpp,> # Only build in on target builds
+        # The main application and Jarnax features
+        $<IF:$<BOOL:${BUILD_CROSS_TARGET}>,${CMAKE_CURRENT_SOURCE_DIR}/source/main.cpp,> # Only build in on target builds
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Ticker.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SuperLoop.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CountDown.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/StopWatch.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Monitor.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Driver.cpp
+        # Driver infrastructure
         ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/i2c/Driver.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/spi/Driver.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/services/UsartConsole.cpp
@@ -44,14 +38,15 @@ add_module(NAME jarnax
         strict jarnax-interfaces
     GENERIC_MODULES
         memory core
-    MODULES
         segger
     LIBRARIES
-        $<IF:$<CXX_COMPILER_ID:GNU>,gcc m,> # GCC specific libraries to provide things like __aeabi_d2f
+        # $<IF:$<CXX_COMPILER_ID:GNU>,gcc m,> # GCC specific libraries to provide things like __aeabi_d2f
     CONFIGURATIONS
         ${LOCAL_CONFIGURATIONS}
-    BOARDS
-        ${LOCAL_BOARDS}
+    ARCH
+        cortex
+    CHIPS
+        ${LOCAL_CHIPS}
 )
 
 add_module(NAME jarnax-ssd1306-driver
@@ -66,10 +61,7 @@ add_module(NAME jarnax-ssd1306-driver
         strict jarnax-interfaces
     GENERIC_MODULES
         memory core
-    CONFIGURATIONS
-        ${LOCAL_CONFIGURATIONS}
-    BOARDS
-        ${LOCAL_BOARDS}
+    NO_CONFIGURATIONS
 )
 
 add_module(NAME jarnax-w25q16bv-driver
@@ -83,10 +75,7 @@ add_module(NAME jarnax-w25q16bv-driver
         strict jarnax-interfaces
     GENERIC_MODULES
         memory core
-    CONFIGURATIONS
-        ${LOCAL_CONFIGURATIONS}
-    BOARDS
-        ${LOCAL_BOARDS}
+    NO_CONFIGURATIONS
 )
 
 add_module(NAME jarnax-lps35hw-driver
@@ -100,10 +89,7 @@ add_module(NAME jarnax-lps35hw-driver
         strict jarnax-interfaces
     GENERIC_MODULES
         memory core
-    CONFIGURATIONS
-        ${LOCAL_CONFIGURATIONS}
-    BOARDS
-        ${LOCAL_BOARDS}
+    NO_CONFIGURATIONS
 )
 
 host_unit_test(NAME test-jarnax-catch

@@ -4,8 +4,6 @@ add_firmware(NAME test-spi
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SPITest.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
-    MODULES
-        jarnax
     CONFIGURATIONS
         basic
     BOARDS

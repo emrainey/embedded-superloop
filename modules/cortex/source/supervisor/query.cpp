@@ -3,7 +3,7 @@ namespace cortex {
 namespace supervisor {
 
 modes::Privileged query(void) {
-    cortex::Control control;
+    cortex::registers::Control control;
     control.whole = thumb::get_control();
     return control.parts.privilege;
 }

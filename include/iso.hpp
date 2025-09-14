@@ -12,7 +12,7 @@
 namespace iso {
 /// The prefixes for base 10 and base 2.
 namespace prefix {
-
+constexpr static std::uint32_t none = 1U;    ///< A value of 1
 /// A value of 10^3
 constexpr static std::uint32_t kilo = 1000U;
 /// A value of 10^6

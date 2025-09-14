@@ -4,8 +4,6 @@ add_firmware(NAME test-timers
         ${CMAKE_CURRENT_SOURCE_DIR}/source/TimerTest.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
-    MODULES
-        jarnax
     CONFIGURATIONS
         basic
     BOARDS

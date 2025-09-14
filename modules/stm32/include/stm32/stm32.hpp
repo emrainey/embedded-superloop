@@ -1,23 +1,26 @@
 #ifndef STM32_H_
 #define STM32_H_
 
-#include "cortex/vendor.hpp"
-#include "stm32/registers/Debug.hpp"
-#include "stm32/registers/DirectMemoryAccess.hpp"
-#include "stm32/registers/FlashControl.hpp"
-#include "stm32/registers/GeneralPurposeInputOutput.hpp"
-#include "stm32/registers/InterIntegratedCircuit.hpp"
-#include "stm32/registers/RandomNumberGenerator.hpp"
-#include "stm32/registers/ResetAndClockControl.hpp"
-#include "stm32/registers/SerialPeripheralInterface.hpp"
-#include "stm32/registers/Timer2.hpp"
-#include "stm32/registers/UniversalAsynchronousReceiverTransmitter.hpp"
-#include "stm32/registers/UniversalSynchronousAsynchronousReceiverTransmitter.hpp"
+#include "core/Units.hpp"
+#include "cortex/Peripheral.hpp"
+#include "cortex/variant.hpp"    // Pulls in Chip definition!
+///=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+#include "stm32/peripherals/Debug.hpp"
+#include "stm32/peripherals/DirectMemoryAccess.hpp"
+#include "stm32/peripherals/FlashControl.hpp"
+#include "stm32/peripherals/GeneralPurposeInputOutput.hpp"
+#include "stm32/peripherals/InterIntegratedCircuit.hpp"
+#include "stm32/peripherals/RandomNumberGenerator.hpp"
+#include "stm32/peripherals/ResetAndClockControl.hpp"
+#include "stm32/peripherals/SerialPeripheralInterface.hpp"
+#include "stm32/peripherals/Timer2.hpp"
+#include "stm32/peripherals/UniversalAsynchronousReceiverTransmitter.hpp"
+#include "stm32/peripherals/UniversalSynchronousAsynchronousReceiverTransmitter.hpp"
 
 /// The ST Micro 32 Namespace
 namespace stm32 {
 
-using Hertz = cortex::Hertz;
+using Hertz = core::units::Hertz;
 
 // The STM32 Clock Tree frequencies
 struct ClockTree {
@@ -57,16 +60,21 @@ Hertz& GetSystemClockFrequency();
 
 /// Used to initialize chip specific drivers which need to be brought up very early.
 namespace initialize {
-/// @brief The required Clock initialization
-/// @note Interface
-void clocks();
+
+/// @brief The required Clock initialization for all STM32 chips
+void clocks(void);
 
 /// @brief The required GPIO initialization
-void gpio(void);
+/// @note Implemented in the Board
+extern void gpio(void);
 
 /// Initializes the Drivers for the STM32 namespace
-void drivers(void);
+/// @note Implemented in the Board
+extern bool drivers(void);
 
+/// @brief Vendor specific setup of NVIC for drivers
+/// @note Implemented in the Board
+extern void nvic(void);
 }    // namespace initialize
 
 /// @brief The STM32 clock configuration.
@@ -76,6 +84,7 @@ struct ClockConfiguration {
     bool use_internal;
     bool use_bypass;
     Hertz external_clock_frequency;
+    Hertz low_speed_external_oscillator_frequency;
     //---
     std::uint32_t ahb_divider             : 4;
     std::uint32_t                         : 28;
@@ -108,18 +117,8 @@ namespace initialize {
 /// @param external_input_clock_frequency The clock frequency of the external clock (if present)
 /// @param clkcfg The configuration of the clock for the system
 void clocks(ClockConfiguration const& clkcfg);
-
-/// @brief Vendor specific setup of NVIC for drivers
-void nvic(void);
 }    // namespace initialize
 
-static constexpr bool has_been_set{true};
-
 }    // namespace stm32
-
-/// If you've included this header you want the stm32 namespace to be your vendor alias
-namespace vendor = stm32;
-
-static_assert(::vendor::has_been_set, "The STM32 Vendor has not been set");
 
 #endif    // STM32_H_

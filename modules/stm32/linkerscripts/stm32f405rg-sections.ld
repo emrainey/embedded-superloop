@@ -61,18 +61,18 @@
         _stm32_uart8 = . ;
     } > APB1
 
-    PROVIDE(_ZN5stm329registers6timer2E = _stm32_tim2);
-    PROVIDE(_ZN5stm329registers4spi2E = _stm32_spi2_i2s2);
-    PROVIDE(_ZN5stm329registers4spi3E = _stm32_spi3_i2s3);
-    PROVIDE(_ZN5stm329registers6usart2E = _stm32_usart2);
-    PROVIDE(_ZN5stm329registers6usart3E = _stm32_usart3);
-    PROVIDE(_ZN5stm329registers5uart4E = _stm32_uart4);
-    PROVIDE(_ZN5stm329registers5uart5E = _stm32_uart5);
-    PROVIDE(_ZN5stm329registers5uart7E = _stm32_uart7);
-    PROVIDE(_ZN5stm329registers5uart8E = _stm32_uart8);
-    PROVIDE(_ZN5stm329registers4i2c1E = _stm32_i2c1);
-    PROVIDE(_ZN5stm329registers4i2c2E = _stm32_i2c2);
-    PROVIDE(_ZN5stm329registers4i2c3E = _stm32_i2c3);
+    PROVIDE(_ZN5stm3211peripherals6timer2E = _stm32_tim2);
+    PROVIDE(_ZN5stm3211peripherals4spi2E = _stm32_spi2_i2s2);
+    PROVIDE(_ZN5stm3211peripherals4spi3E = _stm32_spi3_i2s3);
+    PROVIDE(_ZN5stm3211peripherals6usart2E = _stm32_usart2);
+    PROVIDE(_ZN5stm3211peripherals6usart3E = _stm32_usart3);
+    PROVIDE(_ZN5stm3211peripherals5uart4E = _stm32_uart4);
+    PROVIDE(_ZN5stm3211peripherals5uart5E = _stm32_uart5);
+    PROVIDE(_ZN5stm3211peripherals5uart7E = _stm32_uart7);
+    PROVIDE(_ZN5stm3211peripherals5uart8E = _stm32_uart8);
+    PROVIDE(_ZN5stm3211peripherals4i2c1E = _stm32_i2c1);
+    PROVIDE(_ZN5stm3211peripherals4i2c2E = _stm32_i2c2);
+    PROVIDE(_ZN5stm3211peripherals4i2c3E = _stm32_i2c3);
 
     /* Arm Private Bus 2 */
     .apb2 (NOLOAD) : {
@@ -112,13 +112,13 @@
         _stm32_lcd = . ;
     } > APB2
 
-    PROVIDE(_ZN5stm329registers6timer1E = _stm32_tim1);
-    PROVIDE(_ZN5stm329registers4spi1E = _stm32_spi1);
-    PROVIDE(_ZN5stm329registers4spi4E = _stm32_spi4);
-    PROVIDE(_ZN5stm329registers4spi5E = _stm32_spi5);
-    PROVIDE(_ZN5stm329registers4spi6E = _stm32_spi6);
-    PROVIDE(_ZN5stm329registers6usart1E = _stm32_usart1);
-    PROVIDE(_ZN5stm329registers6usart6E = _stm32_usart6);
+    PROVIDE(_ZN5stm3211peripherals6timer1E = _stm32_tim1);
+    PROVIDE(_ZN5stm3211peripherals4spi1E = _stm32_spi1);
+    PROVIDE(_ZN5stm3211peripherals4spi4E = _stm32_spi4);
+    PROVIDE(_ZN5stm3211peripherals4spi5E = _stm32_spi5);
+    PROVIDE(_ZN5stm3211peripherals4spi6E = _stm32_spi6);
+    PROVIDE(_ZN5stm3211peripherals6usart1E = _stm32_usart1);
+    PROVIDE(_ZN5stm3211peripherals6usart6E = _stm32_usart6);
 
     /* Arm High Performance Bus 1 */
     .ahb1 (NOLOAD) : {
@@ -145,16 +145,21 @@
     } > AHB1
 
     /* Provide as the base for an array of peripherals */
-    PROVIDE(_ZN5stm329registers28general_purpose_input_outputE = _stm32_gpio);
-    PROVIDE(_ZN5stm329registers23reset_and_clock_controlE = _stm32_reset_and_clock_control);
-    PROVIDE(_ZN5stm329registers13flash_controlE = _stm32_flash_control);
+    PROVIDE(_ZN5stm3211peripherals28general_purpose_input_outputE = _stm32_gpio);
+    PROVIDE(_ZN5stm3211peripherals23reset_and_clock_controlE = _stm32_reset_and_clock_control);
+    PROVIDE(_ZN5stm3211peripherals13flash_controlE = _stm32_flash_control);
     ASSERT((_stm32_bkpsram_end - _stm32_bkpsram_start) <= BKPRSRAM_SIZE, ".bkpsram has overrun!")
+    __cortex_backup_start = _stm32_bkpsram_start;
+    __cortex_backup_limit = _stm32_bkpsram_start + BKPRSRAM_SIZE;
+    __cortex_backup_used = _stm32_bkpsram_end - _stm32_bkpsram_start;
+    __cortex_backup_size = __cortex_backup_limit - __cortex_backup_start;
+    __cortex_backup_pow2  = LOG2CEIL(__cortex_backup_size);
     /* Provide as the base for an array of peripherals */
-    PROVIDE(_ZN5stm329registers20direct_memory_accessE = _stm32_dma1);
-    PROVIDE(_ZN5stm329registers21direct_memory_access1E = _stm32_dma1);
-    PROVIDE(_ZN5stm329registers21direct_memory_access2E = _stm32_dma2);
-    PROVIDE(_ZN5stm329registers8ethernetE = _stm32_ethernet);
-    PROVIDE(_ZN5stm329registers143dma2d_controlE = _stm32_dma2d);
+    PROVIDE(_ZN5stm3211peripherals20direct_memory_accessE = _stm32_dma1);
+    PROVIDE(_ZN5stm3211peripherals21direct_memory_access1E = _stm32_dma1);
+    PROVIDE(_ZN5stm3211peripherals21direct_memory_access2E = _stm32_dma2);
+    PROVIDE(_ZN5stm3211peripherals8ethernetE = _stm32_ethernet);
+    PROVIDE(_ZN5stm3211peripherals143dma2d_controlE = _stm32_dma2d);
 
     /* Arm High Performance Bus 2 */
     .ahb2 (NOLOAD) : {
@@ -168,7 +173,7 @@
         _stm32_rng = . ;
     } > AHB2
 
-    PROVIDE_HIDDEN(_ZN5stm329registers23random_number_generatorE = _stm32_rng);
+    PROVIDE_HIDDEN(_ZN5stm3211peripherals23random_number_generatorE = _stm32_rng);
 
     /* USB On-The-Go High Speed */
     .usb_otg_hs (NOLOAD) : {
@@ -212,7 +217,7 @@
         . = ORIGIN(PPB) + 0x0E010;
         _cortex_system_tick = . ;
         . = ORIGIN(PPB) + 0x0E100;
-        _cortex_nested_interrupt_vector_controller = . ;
+        _cortex_nested_vector_interrupt_controller = . ;
         . = ORIGIN(PPB) + 0x0ED00;
         _cortex_system_control_block = . ;
         . = ORIGIN(PPB) + 0x0ED90;
@@ -229,14 +234,14 @@
         _stm32_debug = . ;
     } > PPB
     /* Provide the C++ mangled names */
-    PROVIDE(_ZN6cortex27instruction_trace_macrocellE = _cortex_instruction_trace_macrocell);
-    PROVIDE(_ZN6cortex20data_watch_and_traceE = _cortex_debug_watch_and_trace);
-    PROVIDE(_ZN6cortex11system_tickE = _cortex_system_tick);
-    PROVIDE(_ZN6cortex34nested_interrupt_vector_controllerE = _cortex_nested_interrupt_vector_controller);
-    PROVIDE(_ZN6cortex20system_control_blockE = _cortex_system_control_block);
-    PROVIDE(_ZN6cortex22memory_protection_unitE = _cortex_memory_protection_unit);
-    PROVIDE(_ZN6cortex12debug_systemE = _cortex_debug_system);
-    PROVIDE(_ZN6cortex22software_triggered_interruptE = _cortex_software_triggered_interrupt);
-    PROVIDE(_ZN6cortex14floating_pointE = _cortex_floating_point);
-    PROVIDE(_ZN6cortex25trace_port_interface_unitE = _cortex_trace_port_inferface_unit);
-    PROVIDE(_ZN5stm329registers5debugE = _stm32_debug);
+    PROVIDE(_ZN6cortex11peripherals27instruction_trace_macrocellE = _cortex_instruction_trace_macrocell);
+    PROVIDE(_ZN6cortex11peripherals20data_watch_and_traceE = _cortex_debug_watch_and_trace);
+    PROVIDE(_ZN6cortex11peripherals11system_tickE = _cortex_system_tick);
+    PROVIDE(_ZN6cortex11peripherals34nested_vector_interrupt_controllerE = _cortex_nested_vector_interrupt_controller);
+    PROVIDE(_ZN6cortex11peripherals20system_control_blockE = _cortex_system_control_block);
+    PROVIDE(_ZN6cortex11peripherals22memory_protection_unitE = _cortex_memory_protection_unit);
+    PROVIDE(_ZN6cortex11peripherals12debug_systemE = _cortex_debug_system);
+    PROVIDE(_ZN6cortex11peripherals22software_triggered_interruptE = _cortex_software_triggered_interrupt);
+    PROVIDE(_ZN6cortex11peripherals14floating_pointE = _cortex_floating_point);
+    PROVIDE(_ZN6cortex11peripherals25trace_port_interface_unitE = _cortex_trace_port_inferface_unit);
+    PROVIDE(_ZN5stm3211peripherals5debugE = _stm32_debug);

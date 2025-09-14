@@ -1,5 +1,4 @@
 #include "cortex/mcu.hpp"
-#include "cortex/thumb.hpp"
 
 namespace cortex {
 namespace cache {
@@ -10,9 +9,9 @@ void enable(void) {
     // invalidate the instruction cache
     // @todo invalidate the Cortex M7 instruction cache
     // enable the instruction cache
-    auto ccr = system_control_block.configuration_control;
+    auto ccr = peripherals::system_control_block.configuration_control;
     ccr.parts.enable_instruction_cache = 1U;
-    system_control_block.configuration_control = ccr;
+    peripherals::system_control_block.configuration_control = ccr;
     thumb::data_synchronization_barrier();
     thumb::instruction_barrier();
 }
@@ -20,9 +19,9 @@ void enable(void) {
 void disable(void) {
     thumb::data_synchronization_barrier();
     thumb::instruction_barrier();
-    auto ccr = system_control_block.configuration_control;
+    auto ccr = peripherals::system_control_block.configuration_control;
     ccr.parts.enable_instruction_cache = 0U;
-    system_control_block.configuration_control = ccr;
+    peripherals::system_control_block.configuration_control = ccr;
     thumb::data_synchronization_barrier();
     thumb::instruction_barrier();
 }
@@ -39,9 +38,9 @@ void invalidate(void) {
 void disable(void) {
     thumb::data_synchronization_barrier();
     thumb::instruction_barrier();
-    auto ccr = system_control_block.configuration_control;
+    auto ccr = peripherals::system_control_block.configuration_control;
     ccr.parts.enable_data_cache = 0U;
-    system_control_block.configuration_control.whole = ccr.whole;
+    peripherals::system_control_block.configuration_control.whole = ccr.whole;
     thumb::data_synchronization_barrier();
     thumb::instruction_barrier();
 }
@@ -49,9 +48,9 @@ void disable(void) {
 void enable(void) {
     thumb::data_synchronization_barrier();
     thumb::instruction_barrier();
-    auto ccr = system_control_block.configuration_control;
+    auto ccr = peripherals::system_control_block.configuration_control;
     ccr.parts.enable_data_cache = 1U;
-    system_control_block.configuration_control = ccr;
+    peripherals::system_control_block.configuration_control = ccr;
     thumb::data_synchronization_barrier();
     thumb::instruction_barrier();
 }

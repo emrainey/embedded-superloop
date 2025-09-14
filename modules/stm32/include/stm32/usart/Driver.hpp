@@ -6,7 +6,7 @@
 #include <core/Statistician.hpp>
 #include <jarnax/usart/Driver.hpp>
 #include "stm32/dma/Manager.hpp"
-#include "stm32/registers/UniversalSynchronousAsynchronousReceiverTransmitter.hpp"
+#include "stm32/peripherals/UniversalSynchronousAsynchronousReceiverTransmitter.hpp"
 
 namespace stm32 {
 namespace usart {
@@ -36,9 +36,11 @@ public:
     /// @param dma_driver The DMA Driver to use
     /// @param rx_peripheral The RX peripheral for the DMA Driver
     /// @param tx_peripheral The TX peripheral for the DMA Driver
+    /// @param dma_allocator The Allocator to use for DMA memory
+    /// @param dma_allocation_size The size of the DMA allocation to use
     Driver(
-        registers::UniversalSynchronousAsynchronousReceiverTransmitter volatile& uart, dma::Manager& dma_driver, jarnax::Peripheral rx_peripheral,
-        jarnax::Peripheral tx_peripheral, core::Allocator& dma_allocator
+        peripherals::UniversalSynchronousAsynchronousReceiverTransmitter volatile& uart, dma::Manager& dma_driver, cortex::Peripheral rx_peripheral,
+        cortex::Peripheral tx_peripheral, core::Allocator& dma_allocator, std::size_t dma_allocation_size
     );
 
     virtual ~Driver() = default;
@@ -76,15 +78,15 @@ protected:
     uint32_t GetBaudRate(void) const;
 
     /// The USART peripheral
-    registers::UniversalSynchronousAsynchronousReceiverTransmitter volatile& usart_;
+    peripherals::UniversalSynchronousAsynchronousReceiverTransmitter volatile& usart_;
     /// The DMA Manager
     jarnax::dma::Manager& dma_manager_;
     /// The RX peripheral for the DMA Driver
-    jarnax::Peripheral rx_peripheral_;
+    cortex::Peripheral rx_peripheral_;
     /// @brief The RX DMA Stream
     jarnax::dma::Resource* rx_dma_resource_;
     /// The TX peripheral for the DMA Driver
-    jarnax::Peripheral tx_peripheral_;
+    cortex::Peripheral tx_peripheral_;
     /// @brief The TX DMA Stream
     jarnax::dma::Resource* tx_dma_resource_;
     /// @brief The Allocator for use with DMA memory

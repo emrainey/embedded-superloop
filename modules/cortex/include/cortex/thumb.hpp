@@ -8,7 +8,8 @@
 /// @see https://github.com/ARM-software/CMSIS_5/blob/develop/CMSIS/Core/Include
 /// @see https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html
 
-#include "cortex/core.hpp"
+#include "cortex/registers.hpp"    // for Control register
+#include "cortex/types.hpp"
 
 /// @brief The THUMB Inline Assembly Namespace
 namespace thumb {

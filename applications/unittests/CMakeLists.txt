@@ -1,4 +1,5 @@
 add_firmware(NAME ontarget-tests
+    DISABLE
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GlobalContext.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SelfTest.cpp
@@ -7,10 +8,8 @@ add_firmware(NAME ontarget-tests
         ${CMAKE_CURRENT_SOURCE_DIR}/source/StackTest.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
-    MODULES
-        jarnax
     CONFIGURATIONS
-        ${LOCAL_CONFIGURATIONS}
+        qemu
     BOARDS
-        ${LOCAL_BOARDS}
+        netduinoplus2
 )

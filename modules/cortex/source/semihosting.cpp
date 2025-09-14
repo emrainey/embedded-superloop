@@ -2,7 +2,7 @@
 #include <core/vsnprint.hpp>
 #include <cstdarg>
 #include <strings.hpp>    // my lib
-#include "cortex/core.hpp"
+#include "cortex/types.hpp"
 #include "polyfill.hpp"
 
 namespace cortex {

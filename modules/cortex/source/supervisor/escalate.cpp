@@ -3,7 +3,7 @@ namespace cortex {
 namespace supervisor {
 
 cortex::modes::Privileged escalate(void) {
-    cortex::Control control;
+    cortex::registers::Control control;
     control.whole = thumb::get_control();
     cortex::modes::Privileged old = control.parts.privilege;
     control.parts.privilege = cortex::modes::Privileged::High;

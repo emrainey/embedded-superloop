@@ -1,7 +1,7 @@
 /// @file
 /// Defines storage for all cortex global variables
 
-#include "configure.hpp"
+#include "core/Units.hpp"
 #include "cortex/bist.hpp"
 #include "cortex/tick.hpp"
 
@@ -18,6 +18,9 @@ std::uint32_t volatile ticks_since_boot{0u};
 
 // the defined storage location for the tick flag
 bool is_tick_enabled{false};
+
+// the defined storage location for the system state
+bool is_bist_successful{false};
 
 // the defined storage location for the built in self test data
 BuiltInSelfTest volatile built_in_self_test{};

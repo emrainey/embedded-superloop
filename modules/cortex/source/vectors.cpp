@@ -1,5 +1,5 @@
-#include "compiler.hpp"
 #include "cortex/vectors.hpp"
+#include "compiler.hpp"
 #include "cortex/linker.hpp"
 
 /// @file
@@ -33,6 +33,6 @@ VectorTableStatistics vector_table_statistics;
 
 // Used by the Linker to declare the entry point
 extern "C" NAKED void reset_entry(void) {
-    // since this function is also naked, you can call it directly
+    // since this function is also naked, it can be called here directly but not in any normal circumstance
     cortex::handlers::entry();
 }

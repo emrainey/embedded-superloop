@@ -26,6 +26,9 @@ extern Hertz clock_frequency;
 /// @brief The system clock frequency (used by the SYSTICK)
 extern Hertz system_clock_frequency;
 
+/// @brief The flag indicating if the system passed the built in self test
+extern bool is_bist_successful;
+
 }    // namespace cortex
 
 #endif    // CORTEX_GLOBALS_HPP_

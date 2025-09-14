@@ -1,4 +1,3 @@
-#include "board.hpp"
 #include "segger/rtt.hpp"
 #include "cortex/thumb.hpp"
 
@@ -7,8 +6,7 @@ namespace rtt {
 BufferInfo::BufferInfo(char const* n, size_t s, uint8_t d[])
     : name_{n}
     , data_{d}
-    , size_(s) {
-}
+    , size_(s) {}
 
 size_t BufferInfo::Write(size_t const size, char const string[]) {
     if (data_) {
@@ -88,8 +86,7 @@ char const* BufferInfo::GetName(void) const volatile {
 
 BufferInfo::Flags::Flags()
     : mode_{Mode::NoBlockTrim}
-    , check_{0u} {
-}
+    , check_{0u} {}
 
 /// Buffers for RTT[0] "Terminal"
 uint8_t upward_buffer[kUpwardBufferSize];

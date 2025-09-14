@@ -4,8 +4,6 @@ add_firmware(NAME test-ssd1306
         ${CMAKE_CURRENT_SOURCE_DIR}/source/DisplayTest.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
-    MODULES
-        jarnax
     CONFIGURATIONS
         basic
     BOARDS

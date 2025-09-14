@@ -5,6 +5,7 @@
 
 // Declare the memory object that the Linker provides
 namespace cortex {
+namespace peripherals {
 SystemControlBlock volatile system_control_block;
 FloatingPoint volatile floating_point;
 DebugSystem volatile debug_system;
@@ -17,10 +18,11 @@ SoftwareTriggeredInterrupt volatile software_triggered_interrupt;
 SystemTick volatile system_tick;
 NestedInterruptVectorController volatile nested_interrupt_vector_controller;
 InstructionTraceMacrocell volatile instruction_trace_macrocell;
+}    // namespace peripherals
 }    // namespace cortex
 
 namespace stm32 {
-namespace registers {
+namespace peripherals {
 GeneralPurposeInputOutput volatile general_purpose_input_output[NumberOfGeneralPurposeInputOutputInstances];
 ResetAndClockControl volatile reset_and_clock_control;
 RandomNumberGenerator volatile random_number_generator;
@@ -45,7 +47,7 @@ UniversalAsynchronousReceiverTransmitter volatile uart8;
 InterIntegratedCircuit volatile i2c1;
 InterIntegratedCircuit volatile i2c2;
 InterIntegratedCircuit volatile i2c3;
-}    // namespace registers
+}    // namespace peripherals
 }    // namespace stm32
 
 #endif    // UNITTEST

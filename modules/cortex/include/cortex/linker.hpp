@@ -4,7 +4,7 @@
 /// @file
 /// The exported symbols from the linker script and associated types
 
-#include <cstdint>
+#include <cortex/types.hpp>
 
 #if defined(UNITTEST)
 /// Linker Symbol for the UnitTest
@@ -104,28 +104,97 @@ LINKER_SYMBOL(__privileged_data_size);
 /// Linker Symbol of the Power of 2 Size of the Privileged Data Area
 LINKER_SYMBOL(__privileged_data_size_pow2);
 
-/// A function pointer to a constructor function
-using constructor = void (*)(void);
-
-/// A function pointer to a destructor function
-using destructor = void (*)(void);
-
 /// Link Symbol of Preinitialized Array Start
-LINKER_TYPED_SYMBOL(__preinit_array_start, constructor);
+LINKER_TYPED_SYMBOL(__preinit_array_start, cortex::constructor);
 
 /// Link Symbol of Preinitialized Array End
-LINKER_TYPED_SYMBOL(__preinit_array_end, constructor);
+LINKER_TYPED_SYMBOL(__preinit_array_end, cortex::constructor);
 
 /// Link Symbol of Initialized Array Start
-LINKER_TYPED_SYMBOL(__init_array_start, constructor);
+LINKER_TYPED_SYMBOL(__init_array_start, cortex::constructor);
 
 /// Link Symbol of Initialized Array End
-LINKER_TYPED_SYMBOL(__init_array_end, constructor);
+LINKER_TYPED_SYMBOL(__init_array_end, cortex::constructor);
 
 /// Link Symbol of Destructor Array Start
-LINKER_TYPED_SYMBOL(__fini_array_start, destructor);
+LINKER_TYPED_SYMBOL(__fini_array_start, cortex::destructor);
 
 /// Link Symbol of Destructor Array End
-LINKER_TYPED_SYMBOL(__fini_array_end, destructor);
+LINKER_TYPED_SYMBOL(__fini_array_end, cortex::destructor);
+
+/// Link Symbol of the Begining of Flash
+LINKER_SYMBOL(__cortex_flash_start);
+
+/// Link Symbol of the End of Flash (past the last valid byte)
+LINKER_SYMBOL(__cortex_flash_limit);
+
+/// Link Symbol of the Size of Flash
+LINKER_SYMBOL(__cortex_flash_size);
+
+/// Link Symbol of the Power of 2 Size of Flash
+LINKER_SYMBOL(__cortex_flash_pow2);
+
+/// Link Symbol of the Start of the Stack
+LINKER_SYMBOL(__cortex_stack_start);
+
+/// Link Symbol of the End of the Stack (past the last valid byte)
+LINKER_SYMBOL(__cortex_stack_limit);
+
+/// Link Symbol of the Size of the Stack
+LINKER_SYMBOL(__cortex_stack_size);
+
+/// Link Symbol of the Power of 2 Size of the Stack
+LINKER_SYMBOL(__cortex_stack_pow2);
+
+/// Link Symbol of the Start of SRAM
+LINKER_SYMBOL(__cortex_sram_start);
+
+/// Link Symbol of the End of SRAM (past the last valid byte)
+LINKER_SYMBOL(__cortex_sram_limit);
+
+/// Link Symbol of the Size of SRAM
+LINKER_SYMBOL(__cortex_sram_size);
+
+/// Link Symbol of the Power of 2 Size of SRAM
+LINKER_SYMBOL(__cortex_sram_pow2);
+
+/// Link Symbol of the Start of System Private Peripherals Bus
+LINKER_SYMBOL(__cortex_system_start);
+
+/// Link Symbol of the End of System Private Peripherals Bus (past the last valid byte)
+LINKER_SYMBOL(__cortex_system_limit);
+
+/// Link Symbol of the Size of System Private Peripherals Bus
+LINKER_SYMBOL(__cortex_system_size);
+
+/// Link Symbol of the Power of 2 Size of System Private Peripherals Bus
+LINKER_SYMBOL(__cortex_system_pow2);
+
+/// Link Symbol of the Start of Peripheral Bus
+LINKER_SYMBOL(__cortex_peripheral_start);
+
+/// Link Symbol of the End of Peripheral Bus (past the last valid byte)
+LINKER_SYMBOL(__cortex_peripheral_limit);
+
+/// Link Symbol of the Size of Peripheral Bus
+LINKER_SYMBOL(__cortex_peripheral_size);
+
+/// Link Symbol of the Power of 2 Size of Peripheral Bus
+LINKER_SYMBOL(__cortex_peripheral_pow2);
+
+/// Link Symbol of the Start of Backup SRAM
+LINKER_SYMBOL(__cortex_backup_start);
+
+/// Link Symbol of the End of Backup SRAM (past the last valid byte)
+LINKER_SYMBOL(__cortex_backup_limit);
+
+/// Link Symbol of the Used Size of Backup SRAM
+LINKER_SYMBOL(__cortex_backup_used);
+
+/// Link Symbol of the Size of Backup SRAM
+LINKER_SYMBOL(__cortex_backup_size);
+
+/// Link Symbol of the Power of 2 Size of Backup SRAM
+LINKER_SYMBOL(__cortex_backup_pow2);
 
 #endif    // CORTEX_LINKER_HPP_

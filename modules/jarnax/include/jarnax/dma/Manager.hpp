@@ -25,7 +25,7 @@ public:
     /// @return Result::Success if the resource was acquired, Result::Busy if the resource is already acquired.
     /// @note The identifier is platform specific and may not be the same across all platforms.
     /// @post After the Resource is no longer needed, it should be released back to the manager via Release()
-    virtual jarnax::dma::Resource* Acquire(size_t identifier, Peripheral const& peripheral = _) = 0;
+    virtual jarnax::dma::Resource* Acquire(size_t identifier, Peripheral const& peripheral = cortex::_) = 0;
 
     /// @brief Releases a resource back to the manager.
     /// @param[inout] resource The reference to the  resource pointer to release, which will be set to nullptr on success.

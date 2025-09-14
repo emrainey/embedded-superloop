@@ -4,8 +4,6 @@ add_firmware(NAME test-usart
         ${CMAKE_CURRENT_SOURCE_DIR}/source/UsartTest.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
-    MODULES
-        jarnax
     CONFIGURATIONS
         basic
     BOARDS

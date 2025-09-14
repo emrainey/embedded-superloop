@@ -8,7 +8,7 @@
 #include <cstdint>
 
 #include "core/Status.hpp"
-#include "jarnax/Peripheral.hpp"
+#include "cortex/Peripheral.hpp"
 
 namespace jarnax {
 

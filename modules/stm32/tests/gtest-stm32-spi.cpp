@@ -21,7 +21,7 @@ public:
     SPIDriverTest()
         : timer_{}
         , mock_dma_manager_{}
-        , spi_driver_{stm32::registers::spi1, mock_dma_manager_, SPI1_TX, SPI1_RX}
+        , spi_driver_{stm32::peripherals::spi1, mock_dma_manager_, SPI1_TX, SPI1_RX}
         , txn_{timer_}
         , buffer_{BufferSize, core::GetDefaultAllocator()} {
         // Constructor code, if needed
@@ -40,10 +40,10 @@ public:
         core::Status status = spi_driver_.Initialize(42_MHz, 6_MHz);
         ASSERT_STATUS_EQ(status, core::Result::Success, core::Cause::State);
         // assert some things about the SPI1 peripheral device
-        stm32::registers::SerialPeripheralInterface::Control1 control1;
-        stm32::registers::SerialPeripheralInterface::Control2 control2;
-        control1 = stm32::registers::spi1.control1;
-        control2 = stm32::registers::spi1.control2;
+        stm32::peripherals::SerialPeripheralInterface::Control1 control1;
+        stm32::peripherals::SerialPeripheralInterface::Control2 control2;
+        control1 = stm32::peripherals::spi1.control1;
+        control2 = stm32::peripherals::spi1.control2;
         ASSERT_EQ(0x314U, control1.whole);
         // ASSERT_EQ(1U, control1.bits.leader);
         // ASSERT_EQ(3U, control1.bits.baud_rate);
@@ -90,26 +90,26 @@ protected:
             for (size_t i = 0; i < count; ++i) {
                 size_t old_interrupts = spi_driver_.GetStatistics().interrupts;
                 // set the bits to indicate that there was a TXE and RXNE interrupt
-                stm32::registers::SerialPeripheralInterface::Status status;
-                stm32::registers::SerialPeripheralInterface::Data data;
-                status = stm32::registers::spi1.status;
-                status.bits.transmit_buffer_empty = 1;     // TXE
-                stm32::registers::spi1.status = status;    // write
-                stm32::spi1_isr();                         // call the ISR to handle the TXE
+                stm32::peripherals::SerialPeripheralInterface::Status status;
+                stm32::peripherals::SerialPeripheralInterface::Data data;
+                status = stm32::peripherals::spi1.status;
+                status.bits.transmit_buffer_empty = 1;       // TXE
+                stm32::peripherals::spi1.status = status;    // write
+                stm32::spi1_isr();                           // call the ISR to handle the TXE
                 ASSERT_EQ(old_interrupts + 1, spi_driver_.GetStatistics().interrupts);
                 ASSERT_EQ((i + 1), spi_driver_.GetStatistics().transmit_buffer_empty);
-                data = stm32::registers::spi1.data;    // read the data register
+                data = stm32::peripherals::spi1.data;    // read the data register
                 ASSERT_EQ(expected_tx[i], static_cast<uint8_t>(data.bits.data)) << "i=" << i;
                 data.whole = injected_rx[i];
-                stm32::registers::spi1.data = data;          // write the injected RX
+                stm32::peripherals::spi1.data = data;        // write the injected RX
                 status.bits.transmit_buffer_empty = 0;       // TXE is handled
                 status.bits.receive_buffer_not_empty = 1;    // RXNE
-                stm32::registers::spi1.status = status;      // write
+                stm32::peripherals::spi1.status = status;    // write
                 stm32::spi1_isr();                           // call the ISR to handle the RXNE
                 ASSERT_EQ(old_interrupts + 2, spi_driver_.GetStatistics().interrupts);
                 ASSERT_EQ((i + 1), spi_driver_.GetStatistics().receive_buffer_not_empty);
                 status.bits.receive_buffer_not_empty = 0;    // RXNE is handled
-                stm32::registers::spi1.status = status;      // write
+                stm32::peripherals::spi1.status = status;    // write
             }
         } else {
             // the TX DMA stream should have been triggered

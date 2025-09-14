@@ -1,17 +1,16 @@
-#include "iso.hpp"
 #include "stm32/gpio/Pin.hpp"
-#include "stm32/registers/GeneralPurposeInputOutput.hpp"
+#include "iso.hpp"
+#include "stm32/peripherals/GeneralPurposeInputOutput.hpp"
 
 namespace stm32 {
 namespace gpio {
 
-using namespace stm32::registers;
+using namespace stm32::peripherals;
 
 Pin::Pin(Port port, uint8_t index)
     : port_{port}
     , index_{static_cast<std::uint8_t>(index & IndexMask)}    // indexes can only be up to 15.
-{
-}
+{}
 
 Pin& Pin::SetMode(Mode mode) {
     auto pin_mode = general_purpose_input_output[to_underlying(port_)].mode;               // read
@@ -68,8 +67,8 @@ Resistor Pin::GetResistor() const {
 bool Pin::Value() const {
     Mode mode = GetMode();
     if (mode == Mode::Input) {
-        auto input = general_purpose_input_output[to_underlying(port_)].input_data;    // read
-        return ((input.whole >> index_) & 0b1) > 0;                                    // extract
+        auto input = general_purpose_input_output[to_underlying(port_)].input_data;      // read
+        return ((input.whole >> index_) & 0b1) > 0;                                      // extract
     } else if (mode == Mode::Output) {
         auto output = general_purpose_input_output[to_underlying(port_)].output_data;    // read
         return ((output.whole >> index_) & 0b1) > 0;                                     // extract
@@ -82,11 +81,11 @@ void Pin::Value(bool value) {
     if (mode == Mode::Output) {
         auto output = general_purpose_input_output[to_underlying(port_)].output_data;    // read
         if (value) {
-            output.whole |= static_cast<std::uint32_t>(1 << index_);    // modify
+            output.whole |= static_cast<std::uint32_t>(1 << index_);                     // modify
         } else {
-            output.whole &= ~static_cast<std::uint32_t>(1 << index_);    // modify
+            output.whole &= ~static_cast<std::uint32_t>(1 << index_);                    // modify
         }
-        general_purpose_input_output[to_underlying(port_)].output_data = output;    // write
+        general_purpose_input_output[to_underlying(port_)].output_data = output;         // write
     } else {
         // nothing happens
     }
@@ -95,12 +94,12 @@ void Pin::Value(bool value) {
 Pin& Pin::SetAlternative(uint8_t value) {
     Mode mode = GetMode();
     if (mode == Mode::AlternateFunction) {
-        value &= 0xFU;    // only 4 bits are allowed
+        value &= 0xFU;                                                                                // only 4 bits are allowed
         if (index_ < 8) {
-            auto alt_func_low = general_purpose_input_output[to_underlying(port_)].alt_func_low;    // read
-            alt_func_low.whole &= ~(0xFU << (index_ * 4U));                                         // modify
-            alt_func_low.whole |= static_cast<std::uint32_t>(value << (index_ * 4U));               // modify
-            general_purpose_input_output[to_underlying(port_)].alt_func_low = alt_func_low;         // write
+            auto alt_func_low = general_purpose_input_output[to_underlying(port_)].alt_func_low;      // read
+            alt_func_low.whole &= ~(0xFU << (index_ * 4U));                                           // modify
+            alt_func_low.whole |= static_cast<std::uint32_t>(value << (index_ * 4U));                 // modify
+            general_purpose_input_output[to_underlying(port_)].alt_func_low = alt_func_low;           // write
         } else {
             auto alt_func_high = general_purpose_input_output[to_underlying(port_)].alt_func_high;    // read
             alt_func_high.whole &= ~(0xFU << ((index_ - 8) * 4U));                                    // modify
@@ -115,8 +114,8 @@ uint8_t Pin::GetAlternative() const {
     Mode mode = GetMode();
     if (mode == Mode::AlternateFunction) {
         if (index_ < 8) {
-            auto alt_func_low = general_purpose_input_output[to_underlying(port_)].alt_func_low;    // read
-            return (alt_func_low.whole >> (index_ * 4U)) & 0xFU;                                    // extract
+            auto alt_func_low = general_purpose_input_output[to_underlying(port_)].alt_func_low;      // read
+            return (alt_func_low.whole >> (index_ * 4U)) & 0xFU;                                      // extract
         } else {
             auto alt_func_high = general_purpose_input_output[to_underlying(port_)].alt_func_high;    // read
             return (alt_func_high.whole >> ((index_ - 8) * 4U)) & 0xFU;                               // extract

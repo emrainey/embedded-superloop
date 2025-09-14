@@ -3,7 +3,7 @@ namespace cortex {
 namespace supervisor {
 
 void deescalate(void) {
-    cortex::Control control;
+    cortex::registers::Control control;
     control.whole = thumb::get_control();
     control.parts.privilege = cortex::modes::Privileged::Low;
     thumb::set_control(control.whole);

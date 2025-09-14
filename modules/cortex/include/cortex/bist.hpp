@@ -26,7 +26,7 @@ struct BuiltInSelfTest final {
 /// Built In Self Test. Implemented to self-test the system during @see main.
 /// @warning Called during boot, but can be called later as well.
 /// @return True if bist passes. False otherwise.
-bool bist(bool is_system_initialized, bool is_system_configured);
+bool bist(bool is_initialized, bool is_system_configured);
 
 /// A known pattern used to detect correct stacking of the svc call @{
 constexpr static std::uint32_t kBistArg0 = 0xFF'FF'FF'FFUL;

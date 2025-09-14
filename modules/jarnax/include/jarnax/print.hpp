@@ -9,6 +9,7 @@
 #include "compiler.hpp"
 #include "core/Printer.hpp"
 #include "core/Span.hpp"
+#include "debug.hpp"
 
 #ifndef PRIz
 /// The format specifier for size_t
@@ -18,6 +19,23 @@
 
 /// The namespace of the system level functions
 namespace jarnax {
+
+constexpr static bool use_rtt_for_printf = true;
+constexpr static bool use_swo_for_printf = false;
+constexpr static bool use_uart_for_printf = false;
+constexpr static bool use_logger_for_printf = false;
+constexpr static bool use_system_printf =
+#if defined(UNITTEST)
+    true;    ///< For UNITTEST
+#else
+    false;    ///< For normal operation
+#endif
+
+/// @brief Primitive Printing Facility.
+/// Supports %s, %d, %i, %u, %x, %b (binary), %f for float ONLY.
+/// @param format The format string.
+/// @param ... The variadic arguments.
+void print(const char* format, ...) ATTRIBUTE((format(printf, 1, 2)));
 
 /// @brief Prints the information of a status object
 /// @param source Some literal string to identify the source of the status

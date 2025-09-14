@@ -243,26 +243,26 @@ Each vendor will contain it's own version of the linker script under `modules/<v
         _stm32_tim2 = . ;
         . = ORIGIN(APB1) + 0x0400;
 ...
-    PROVIDE(_ZN5stm329registers6timer2E = _stm32_tim2);
+    PROVIDE(_ZN5stm3211peripherals6timer2E = _stm32_tim2);
 ```
 
 This is the gcc linkerscript so it follows gcc name mangling. Then in the C++ code we simply declare that the timer2 exists using `extern`.
 
 ```c++
 namespace stm32 {
-namespace registers {
+namespace peripherals {
 /// The external volatile tim2 which is a memory mapped register or peripheral.
 /// @note The address of the peripheral is set either by the linkerscript or by a unit test.
 extern Timer2 volatile timer2;
-}    // namespace registers
+}    // namespace peripherals
 }    // namespace stm32
 ```
 
-Thus only the memory map in the linker needs to know it's real address. If it needs to be known in code, we simply refer to it naturally as `&stm32::registers::timer2`. This works seemlessly in unit test and on-target, where we simply define a structure out in a global location for each peripheral.
+Thus only the memory map in the linker needs to know it's real address. If it needs to be known in code, we simply refer to it naturally as `&stm32::peripherals::timer2`. This works seemlessly in unit test and on-target, where we simply define a structure out in a global location for each peripheral.
 
 ```c++
 // in peripherals.cpp for the board, used by unit tests
-stm32::registers::Timer2 volatile timer2;
+stm32::peripherals::Timer2 volatile timer2;
 ```
 
 These should be moved to the chip specific vendor area for per-mcu builds.

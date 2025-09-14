@@ -1,9 +1,9 @@
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
+#include <jarnax/JumpTimer.hpp>
 #include <jarnax/MockTransactor.hpp>
 #include <jarnax/dma/MockManager.hpp>
-#include <jarnax/JumpTimer.hpp>
 
 namespace jarnax {
 
@@ -40,7 +40,7 @@ TEST(Mocks, Transactor) {
 TEST(Mocks, DMA) {
     jarnax::dma::MockManager mock_manager;
     jarnax::dma::MockResource mock_resource;
-    jarnax::Peripheral peripheral{jarnax::Peripheral::Type::DMA, 0, jarnax::Peripheral::Sub::TX};
+    cortex::Peripheral peripheral{jarnax::Peripheral::Type::DMA, 0, jarnax::Peripheral::Sub::TX};
 
     EXPECT_CALL(mock_manager, Assign(peripheral)).WillOnce(testing::Return(&mock_resource));
     EXPECT_CALL(mock_resource, Initialize(peripheral)).Times(1);

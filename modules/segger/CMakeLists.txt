@@ -3,12 +3,12 @@ add_module(NAME segger
         ${CMAKE_CURRENT_SOURCE_DIR}/source/segger/rtt.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/modules/cortex/include # HACK!
+        # This module doesn't care about configuration or the board,
+        # it just needs the path to the thumb header.
+    LIBRARIES
+        strict
     GENERIC_MODULES
-        core
-    MODULES
-        stm32
-    CONFIGURATIONS
-        ${LOCAL_CONFIGURATIONS}
-    BOARDS
-        ${LOCAL_BOARDS}
+        core memory
+    NO_CONFIGURATIONS
 )

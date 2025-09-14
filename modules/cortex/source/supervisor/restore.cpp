@@ -3,7 +3,7 @@ namespace cortex {
 namespace supervisor {
 
 void restore(cortex::modes::Privileged old) {
-    cortex::Control control;
+    cortex::registers::Control control;
     control.whole = thumb::get_control();
     control.parts.privilege = old;
     thumb::set_control(control.whole);

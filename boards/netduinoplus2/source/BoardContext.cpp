@@ -1,6 +1,8 @@
 #include "BoardContext.hpp"
-#include "segger/rtt.hpp"
+#include "configure.hpp"
+#include "cortex/mcu.hpp"
 #include "jarnax.hpp"
+#include "segger/rtt.hpp"
 #include "strings.hpp"
 
 namespace stm32 {
@@ -15,6 +17,7 @@ ClockConfiguration const default_clock_configuration = {
     /* .use_internal = */ false,
     /* .use_bypass = */ false,
     /* .external_clock_frequency */ high_speed_external_oscillator_frequency,
+    /* .low_speed_external_oscillator_frequency */ low_speed_external_oscillator_frequency,
     /* .ahb_divider = */ 0b0000,               // /1
     /* .apb1_low_speed_divider = */ 0b101,     // /4
     /* .apb2_high_speed_divider = */ 0b100,    // /2
@@ -32,7 +35,7 @@ ClockConfiguration const default_clock_configuration = {
 namespace jarnax {
 
 BoardContext::BoardContext()
-    : timer_{stm32::registers::timer2}
+    : timer_{stm32::peripherals::timer2}
     , random_number_generator_{}
     , wakeup_pin_{stm32::gpio::Port::A, 0}
     , mco1_pin_{stm32::gpio::Port::A, 8}
@@ -58,15 +61,12 @@ BoardContext::BoardContext()
     , spi2_miso_{stm32::gpio::Port::B, 14}
     , spi2_sclk_{stm32::gpio::Port::B, 13}
     , spi2_nss_{stm32::gpio::Port::B, 12}
-    , dma_manager_{stm32::registers::direct_memory_access}
-    , i2c1_scl_{stm32::gpio::Port::B, 8}
-    , i2c1_sda_{stm32::gpio::Port::B, 9}
-    , i2c1_driver_{stm32::registers::i2c1, dma_manager_, stm32::I2C1_RX, stm32::I2C1_TX}
-    , spi1_driver_{stm32::registers::spi1, dma_manager_, stm32::SPI1_RX, stm32::SPI1_TX}
-    , spi2_driver_{stm32::registers::spi2, dma_manager_, stm32::SPI2_RX, stm32::SPI2_TX}
+    , dma_manager_{stm32::peripherals::direct_memory_access}
+    , spi1_driver_{stm32::peripherals::spi1, dma_manager_, stm32::SPI1_RX, stm32::SPI1_TX}
+    , spi2_driver_{stm32::peripherals::spi2, dma_manager_, stm32::SPI2_RX, stm32::SPI2_TX}
     , usart1_tx_{stm32::gpio::Port::A, 9}
     , usart1_rx_{stm32::gpio::Port::A, 10}
-    , usart1_driver_{stm32::registers::usart1, dma_manager_, stm32::USART1_RX, stm32::USART1_TX, GetDmaAllocator()}
+    , usart1_driver_{stm32::peripherals::usart1, dma_manager_, stm32::USART1_RX, stm32::USART1_TX, GetDmaAllocator(), stm32::usart_dma_buffer_size}
     , usart_console_{usart1_driver_} {
     // construct the driver objects as part of the constructor above.
 }
@@ -102,14 +102,6 @@ core::Status BoardContext::Initialize(void) {
     status_indicator_.Inactive();
     performance_indicator_.Inactive();
     timing_indicator_.Inactive();
-    i2c1_scl_.SetMode(stm32::gpio::Mode::AlternateFunction)
-        .SetAlternative(4)    // Alt 4 is I2C1
-        .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
-        .SetOutputType(stm32::gpio::OutputType::PushPull);
-    i2c1_sda_.SetMode(stm32::gpio::Mode::AlternateFunction)
-        .SetAlternative(4)    // Alt 4 is I2C1
-        .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
-        .SetOutputType(stm32::gpio::OutputType::OpenDrain);
     spi1_mosi_.SetMode(stm32::gpio::Mode::AlternateFunction)
         .SetAlternative(5)    // Alt 5 is SPI1
         .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
@@ -126,7 +118,7 @@ core::Status BoardContext::Initialize(void) {
         .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
         .SetOutputType(stm32::gpio::OutputType::PushPull)
         .SetResistor(stm32::gpio::Resistor::None)
-        .Value(true);    // CS is active low
+        .Value(true);         // CS is active low
     spi2_miso_.SetMode(stm32::gpio::Mode::AlternateFunction)
         .SetAlternative(5)    // Alt 5 is SPI2
         .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
@@ -152,42 +144,41 @@ core::Status BoardContext::Initialize(void) {
         .SetOutputSpeed(stm32::gpio::Speed::High)
         .SetOutputType(stm32::gpio::OutputType::PushPull);
 
-    stm32::registers::ResetAndClockControl::AHB1PeripheralClockEnable ahb1_enable;
-    stm32::registers::ResetAndClockControl::AHB2PeripheralClockEnable ahb2_enable;
-    stm32::registers::ResetAndClockControl::APB1PeripheralClockEnable apb1_enable;
-    stm32::registers::ResetAndClockControl::APB2PeripheralClockEnable apb2_enable;
+    stm32::peripherals::ResetAndClockControl::AHB1PeripheralClockEnable ahb1_enable;
+    stm32::peripherals::ResetAndClockControl::AHB2PeripheralClockEnable ahb2_enable;
+    stm32::peripherals::ResetAndClockControl::APB1PeripheralClockEnable apb1_enable;
+    stm32::peripherals::ResetAndClockControl::APB2PeripheralClockEnable apb2_enable;
 
     // Enable the RNG in the AHB2 Periperhals
-    ahb2_enable = stm32::registers::reset_and_clock_control.ahb2_peripheral_clock_enable;    // read
+    ahb2_enable = stm32::peripherals::reset_and_clock_control.ahb2_peripheral_clock_enable;    // read
     ahb2_enable.bits.random_number_generator_enable = 1U;
-    stm32::registers::reset_and_clock_control.ahb2_peripheral_clock_enable = ahb2_enable;    // write
+    stm32::peripherals::reset_and_clock_control.ahb2_peripheral_clock_enable = ahb2_enable;    // write
 
     // Reset the RNG
-    stm32::registers::ResetAndClockControl::AHB2PeripheralReset reset;
-    reset = stm32::registers::reset_and_clock_control.ahb2_peripheral_reset;    // read
+    stm32::peripherals::ResetAndClockControl::AHB2PeripheralReset reset;
+    reset = stm32::peripherals::reset_and_clock_control.ahb2_peripheral_reset;    // read
     reset.bits.random_number_generator_reset = 1U;
-    stm32::registers::reset_and_clock_control.ahb2_peripheral_reset = reset;    // write
+    stm32::peripherals::reset_and_clock_control.ahb2_peripheral_reset = reset;    // write
     reset.bits.random_number_generator_reset = 0U;
-    stm32::registers::reset_and_clock_control.ahb2_peripheral_reset = reset;    // write
+    stm32::peripherals::reset_and_clock_control.ahb2_peripheral_reset = reset;    // write
 
     // enable the APB1 peripherals in the Reset and Clock Control register
-    apb1_enable = stm32::registers::reset_and_clock_control.apb1_peripheral_clock_enable;    // read
-    apb1_enable.bits.tim2en = 1U;                                                            // modify
-    apb1_enable.bits.i2c1en = 1U;                                                            // modify
-    apb1_enable.bits.spi2en = 1U;                                                            // modify
-    stm32::registers::reset_and_clock_control.apb1_peripheral_clock_enable = apb1_enable;    // write
+    apb1_enable = stm32::peripherals::reset_and_clock_control.apb1_peripheral_clock_enable;    // read
+    apb1_enable.bits.tim2en = 1U;                                                              // modify
+    apb1_enable.bits.spi2en = 1U;                                                              // modify
+    stm32::peripherals::reset_and_clock_control.apb1_peripheral_clock_enable = apb1_enable;    // write
 
     // enable the AHB1 peripherals in the Reset and Clock Control register
-    ahb1_enable = stm32::registers::reset_and_clock_control.ahb1_peripheral_clock_enable;    // read
-    ahb1_enable.bits.dma1en = 1;                                                             // modify
-    ahb1_enable.bits.dma2en = 1;                                                             // modify
-    stm32::registers::reset_and_clock_control.ahb1_peripheral_clock_enable = ahb1_enable;    // write
+    ahb1_enable = stm32::peripherals::reset_and_clock_control.ahb1_peripheral_clock_enable;    // read
+    ahb1_enable.bits.dma1en = 1;                                                               // modify
+    ahb1_enable.bits.dma2en = 1;                                                               // modify
+    stm32::peripherals::reset_and_clock_control.ahb1_peripheral_clock_enable = ahb1_enable;    // write
 
     // enable the ABP2 peripherals in the Reset and Clock Control register
-    apb2_enable = stm32::registers::reset_and_clock_control.apb2_peripheral_clock_enable;    // read
-    apb2_enable.bits.spi1en = 1;                                                             // modify
-    apb2_enable.bits.usart1en = 1;                                                           // modify
-    stm32::registers::reset_and_clock_control.apb2_peripheral_clock_enable = apb2_enable;    // write
+    apb2_enable = stm32::peripherals::reset_and_clock_control.apb2_peripheral_clock_enable;    // read
+    apb2_enable.bits.spi1en = 1;                                                               // modify
+    apb2_enable.bits.usart1en = 1;                                                             // modify
+    stm32::peripherals::reset_and_clock_control.apb2_peripheral_clock_enable = apb2_enable;    // write
 
     jarnax::print(
         "Feature Clock is %lu\r\n"
@@ -212,12 +203,6 @@ core::Status BoardContext::Initialize(void) {
         status = timer_.Initialize(stm32::GetClockTree().apb1_timer_clk, stm32::timer2_frequency);
         if (not status.IsSuccess()) {
             jarnax::print("TIMER2 failed to initialize\r\n");
-            break;
-        }
-        // I2C1
-        status = i2c1_driver_.Initialize(stm32::GetClockTree().apb1_peripheral, ::stm32::i2c1_bus_frequency);
-        if (not status.IsSuccess()) {
-            jarnax::print("I2C1 failed to initialize\r\n");
             break;
         }
 
@@ -258,42 +243,6 @@ core::Status BoardContext::Initialize(void) {
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // External Devices have to be done after the buses are initialized
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    // Initialize the NVIC for these drivers
-    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-    // 0 is the highest priority
-    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::Timer2), 1);
-    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::Timer2));
-
-    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream0));           // SPI1_RX
-    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream3));           // SPI1_TX
-    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream0), 2);    // SPI1_RX
-    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream3), 2);    // SPI1_TX
-
-    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream2));           // SPI2_RX
-    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream7));           // SPI2_TX
-    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream2), 2);    // SPI2_RX
-    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream7), 2);    // SPI2_TX
-
-    // enable the I2C1 event and error interrupts
-    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::InterIntegratedCircuit1_Event));
-    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::InterIntegratedCircuit1_Event), 3);
-    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::InterIntegratedCircuit1_Error));
-    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::InterIntegratedCircuit1_Error), 3);
-
-    // enable the SPI1 interrupt and the DMA interrupts for SPI1_RX and SPI1_TX
-    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::SerialPeripheralInterface1));
-    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::SerialPeripheralInterface1), 3);
-
-    // enable the SPI2 interrupt and the DMA interrupts for SPI2_RX and SPI2_TX
-    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::SerialPeripheralInterface2));
-    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::SerialPeripheralInterface2), 4);
-
-    // enable the USART1 interrupt
-    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter1));
-    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter1), 5);
 
     return status;
 }
@@ -338,10 +287,6 @@ jarnax::Copier& BoardContext::GetCopier() {
     return dma_manager_;
 }
 
-jarnax::i2c::Driver& BoardContext::GetI2cDriver() {
-    return i2c1_driver_;
-}
-
 jarnax::spi::Driver& BoardContext::GetSpiDriver() {
     return spi1_driver_;
 }
@@ -376,30 +321,91 @@ BoardContext& GetBoardContext() {
 namespace stm32 {
 namespace initialize {
 
-bool are_drivers_initialized{false};
+void gpio(void) {
+    using namespace stm32::peripherals;
+    // Enable GPIO Clocks (for the ones enabled per board)
+    ResetAndClockControl::AHB1PeripheralClockEnable ahb1_enable;
+    ResetAndClockControl::AHB1PeripheralReset ahb1_reset;
 
-void drivers(void) {
+    ahb1_enable = reset_and_clock_control.ahb1_peripheral_clock_enable;    // load
+    ahb1_enable.bits.gpioaen = 1U;
+    ahb1_enable.bits.gpioben = 1U;
+    ahb1_enable.bits.gpiocen = 1U;
+    ahb1_enable.bits.gpioden = 1U;
+    ahb1_enable.bits.gpioeen = 1U;
+    ahb1_enable.bits.gpiofen = 1U;
+    ahb1_enable.bits.gpiogen = 1U;
+    ahb1_enable.bits.gpiohen = 1U;
+    ahb1_enable.bits.gpioien = 1U;
+    reset_and_clock_control.ahb1_peripheral_clock_enable = ahb1_enable;    // store
+    // Reset GPIO Ports
+    ahb1_reset = reset_and_clock_control.ahb1_peripheral_reset;    // load
+    ahb1_reset.bits.gpioarst = 1U;
+    ahb1_reset.bits.gpiobrst = 1U;
+    ahb1_reset.bits.gpiocrst = 1U;
+    ahb1_reset.bits.gpiodrst = 1U;
+    ahb1_reset.bits.gpioerst = 1U;
+    ahb1_reset.bits.gpiofrst = 1U;
+    ahb1_reset.bits.gpiogrst = 1U;
+    ahb1_reset.bits.gpiohrst = 1U;
+    ahb1_reset.bits.gpioirst = 1U;
+    reset_and_clock_control.ahb1_peripheral_reset = ahb1_reset;    // store
+    // Release GPIO Ports
+    ahb1_reset.bits.gpioarst = 0U;
+    ahb1_reset.bits.gpiobrst = 0U;
+    ahb1_reset.bits.gpiocrst = 0U;
+    ahb1_reset.bits.gpiodrst = 0U;
+    ahb1_reset.bits.gpioerst = 0U;
+    ahb1_reset.bits.gpiofrst = 0U;
+    ahb1_reset.bits.gpiogrst = 0U;
+    ahb1_reset.bits.gpiohrst = 0U;
+    ahb1_reset.bits.gpioirst = 0U;
+    reset_and_clock_control.ahb1_peripheral_reset = ahb1_reset;    // store
+}
+
+bool drivers(void) {
     core::Status status;
     status = jarnax::GetBoardContext().Initialize();
-    if (status) {
-        are_drivers_initialized = true;
-    }
+    return status.IsSuccess();
+}
+
+void nvic(void) {
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // Initialize the NVIC for these drivers
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    // 0 is the highest priority
+    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::Timer2), 1);
+    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::Timer2));
+
+    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream0));           // SPI1_RX
+    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream3));           // SPI1_TX
+    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream0), 2);    // SPI1_RX
+    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream3), 2);    // SPI1_TX
+
+    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream2));           // SPI2_RX
+    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream7));           // SPI2_TX
+    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream2), 2);    // SPI2_RX
+    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream7), 2);    // SPI2_TX
+
+    // enable the I2C1 event and error interrupts
+    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::InterIntegratedCircuit1_Event));
+    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::InterIntegratedCircuit1_Event), 3);
+    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::InterIntegratedCircuit1_Error));
+    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::InterIntegratedCircuit1_Error), 3);
+
+    // enable the SPI1 interrupt and the DMA interrupts for SPI1_RX and SPI1_TX
+    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::SerialPeripheralInterface1));
+    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::SerialPeripheralInterface1), 3);
+
+    // enable the SPI2 interrupt and the DMA interrupts for SPI2_RX and SPI2_TX
+    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::SerialPeripheralInterface2));
+    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::SerialPeripheralInterface2), 4);
+
+    // enable the USART1 interrupt
+    cortex::nvic::Enable(to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter1));
+    cortex::nvic::Prioritize(to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter1), 5);
 }
 
 }    // namespace initialize
 }    // namespace stm32
-
-namespace jarnax {
-void banner(void) {
-    jarnax::print(
-        "                  _/                                                \r\n"
-        "         _/    _/_/    _/_/_/    _/      _/    _/_/    _/      _/   \r\n"
-        "        _/  _/    _/  _/    _/  _/_/    _/  _/  _/_/    _/  _/      \r\n"
-        "       _/  _/_/_/_/  _/_/_/    _/  _/  _/  _/    _/      _/         \r\n"
-        "_/    _/  _/    _/  _/    _/  _/    _/_/  _/_/  _/    _/  _/        \r\n"
-        " _/_/    _/    _/  _/    _/  _/      _/    _/_/    _/      _/       \r\n"
-        " -- %s\r\n",
-        jarnax::VersionString
-    );
-}
-}    // namespace jarnax

@@ -166,10 +166,10 @@
         ],
         "clang-format.fallbackStyle": "Google",
         "clang-format.style": "file",
-        "clang-format.executable": "/opt/homebrew/Cellar/llvm/20.1.8/bin/clang-format",
-        // "clang-tidy.path": "/opt/homebrew/Cellar/llvm/20.1.8/bin/clang-tidy",
+        "clang-format.executable": "/opt/homebrew/Cellar/llvm/21.1.1/bin/clang-format",
+        // "clang-tidy.path": "/opt/homebrew/Cellar/llvm/21.1.1/bin/clang-tidy",
         "editor.formatOnSave": true,
-        "clangd.path": "/opt/homebrew/Cellar/llvm/20.1.8/bin/clangd",
+        "clangd.path": "/opt/homebrew/Cellar/llvm/21.1.1/bin/clangd",
         "clangd.arguments": [
             "--log=verbose",
             "--pretty",
@@ -186,6 +186,7 @@
             "CMAKE_VERBOSE": "0"
         },
         "cmake.configureArgs": [
+            "-DCMAKE_BUILD_PARALLEL_LEVEL=1",
             "--graphviz=embedded-superloop.dot"
         ],
         "cmake.copyCompileCommands": "${workspaceFolder}/build/compile_commands.json",
@@ -193,6 +194,7 @@
         "cmake.format.allowOptionalArgumentIndentation": true,
         "python.analysis.typeCheckingMode": "strict",
         "testMate.cpp.test.parallelExecutionLimit": 2,
-        "testMate.cpp.test.parallelExecutionOfExecutableLimit": 2
+        "testMate.cpp.test.parallelExecutionOfExecutableLimit": 2,
+        "cmake.ignoreCMakeListsMissing": false
     }
 }

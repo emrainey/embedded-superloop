@@ -1,10 +1,11 @@
 #ifndef STM32_TIMER_HPP
 #define STM32_TIMER_HPP
 
+#include "core/Conversions.hpp"
 #include "core/Status.hpp"
 #include "core/Units.hpp"
 #include "jarnax/Timer.hpp"
-#include "stm32/registers/Timer2.hpp"
+#include "stm32/peripherals/Timer2.hpp"
 
 namespace stm32 {
 
@@ -16,7 +17,7 @@ class Timer final : public jarnax::Timer {
 public:
     /// @brief Parameterized constructor
     /// @param timer The volatile reference to a timer
-    Timer(stm32::registers::Timer2 volatile& timer);
+    Timer(stm32::peripherals::Timer2 volatile& timer);
 
     ~Timer() = default;
 
@@ -33,7 +34,8 @@ public:
     //+---[jarnax::Timer]--------------------------------------------+
 
 protected:
-    stm32::registers::Timer2 volatile& timer_;    ///< The reference to the volatile timer
+    stm32::peripherals::Timer2 volatile& timer_;    ///< The reference to the volatile timer
+    std::uint32_t reload_value_;                    ///< The value to reload the timer with
 };
 
 }    // namespace stm32

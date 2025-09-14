@@ -40,3 +40,35 @@ REGION_ALIAS("REGION_STACK",   CCM);
 REGION_ALIAS("REGION_SYSTEM",  PPB);
 REGION_ALIAS("REGION_HEAP",    SRAM);
 /* DMA CAN NOT BE LOCATED IN ITCM, DTCM or CCM! */
+
+__cortex_flash_start = ORIGIN(FLASH);
+__cortex_flash_limit = ORIGIN(FLASH) + LENGTH(FLASH);
+__cortex_flash_size = LENGTH(FLASH);
+__cortex_flash_pow2  = LOG2CEIL(__cortex_flash_size);
+
+__cortex_stack_start = ORIGIN(CCM);
+__cortex_stack_limit = ORIGIN(CCM) + LENGTH(CCM);
+__cortex_stack_size = LENGTH(CCM);
+__cortex_stack_pow2  = LOG2CEIL(__cortex_stack_size);
+
+__cortex_sram_start = ORIGIN(SRAM);
+__cortex_sram_limit = ORIGIN(SRAM) + LENGTH(SRAM);
+__cortex_sram_size = LENGTH(SRAM);
+__cortex_sram_pow2  = LOG2CEIL(__cortex_sram_size);
+
+/* APB1 is the lowest peripheral address */
+__cortex_peripheral_start = ORIGIN(APB1);
+__cortex_peripheral_limit = ORIGIN(APB1) + LENGTH(APB1)
+                         + LENGTH(APB2)
+                         + LENGTH(AHB1)
+                         + LENGTH(USB_OTG_HS)
+                         + LENGTH(USB_OTG_FS)
+                         + LENGTH(AHB2)
+                         + LENGTH(AHB3);
+__cortex_peripheral_size = __cortex_peripheral_limit - __cortex_peripheral_start;
+__cortex_peripheral_pow2  = LOG2CEIL(__cortex_peripheral_size);
+
+__cortex_system_start = ORIGIN(PPB);
+__cortex_system_limit = ORIGIN(PPB) + LENGTH(PPB);
+__cortex_system_size = LENGTH(PPB);
+__cortex_system_pow2  = LOG2CEIL(__cortex_system_size);

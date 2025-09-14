@@ -1,6 +1,7 @@
-#include "jarnax/system.hpp"
-#include "cortex/mcu.hpp"
+#include "cortex/supervisor.hpp"
 #include "cortex/thumb.hpp"
+#include "cortex/trigger.hpp"
+#include "jarnax/system.hpp"
 
 namespace jarnax {
 

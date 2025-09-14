@@ -1,7 +1,8 @@
-#ifndef ASSERTION_HPP_
-#define ASSERTION_HPP_
+#ifndef JARNAX_ASSERTION_HPP_
+#define JARNAX_ASSERTION_HPP_
 
-#include "jarnax/system.hpp"
+#include "cortex/halt.hpp"
+#include "jarnax/print.hpp"
 
 namespace jarnax {
 
@@ -39,4 +40,4 @@ protected:
 
 }    // namespace jarnax
 
-#endif    // ASSERTION_HPP_
+#endif    // JARNAX_ASSERTION_HPP_

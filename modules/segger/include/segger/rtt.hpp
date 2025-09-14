@@ -16,6 +16,12 @@
 /// @brief The namespace for the SEGGER RTT implementation.
 namespace rtt {
 
+using iso::operator""_KiB;
+/// The size of the buffer to send to the RTT Host
+constexpr static size_t kUpwardBufferSize{4_KiB};
+/// The size of the buffer to receive from the RTT Host
+constexpr static size_t kDownwardBufferSize{16u};
+
 /// @brief Contains the information about the Buffer (but not the buffer itself).
 class BufferInfo {
 public:
@@ -92,7 +98,7 @@ struct Index {
     Index(uint32_t i)
         : index{i & 0xF} {}
     uint32_t index : kIndexBits;
-    uint32_t : 32U - kIndexBits;
+    uint32_t       : 32U - kIndexBits;
 };
 
 /// The holder of the up and down buffers as well as the magic number sequence used to detect the structure.

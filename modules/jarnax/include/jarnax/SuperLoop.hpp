@@ -4,7 +4,6 @@
 /// @file
 /// Superloop Object
 
-#include "configure.hpp"
 #include "core/doublelink/Node.hpp"
 #include "jarnax/Loopable.hpp"
 #include "jarnax/Ticker.hpp"

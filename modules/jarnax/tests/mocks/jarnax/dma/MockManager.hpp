@@ -1,7 +1,7 @@
 #ifndef JARNAX_DMA_MOCK_MANAGER_HPP
 #define JARNAX_DMA_MOCK_MANAGER_HPP
 
-#include <jarnax/Peripheral.hpp>
+#include <cortex/Peripheral.hpp>
 #include <jarnax/dma/Manager.hpp>
 #include <jarnax/dma/Resource.hpp>
 

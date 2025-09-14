@@ -4,15 +4,20 @@
 #include "core/Units.hpp"
 #include "jarnax/i2c/Driver.hpp"
 #include "stm32/dma/Manager.hpp"
-#include "stm32/registers/InterIntegratedCircuit.hpp"
+#include "stm32/peripherals/InterIntegratedCircuit.hpp"
 
 namespace stm32 {
 namespace i2c {
 class Driver final : public jarnax::i2c::Driver, private jarnax::i2c::Transactor {
 public:
+    /// @brief Constructor
+    /// @param i2c The I2C peripheral to use
+    /// @param dma_manager The DMA Manager to use
+    /// @param rx_peripheral The RX peripheral for the DMA Driver
+    /// @param tx_peripheral The TX peripheral for the DMA Driver
     Driver(
-        stm32::registers::InterIntegratedCircuit volatile &i2c, jarnax::dma::Manager &dma_driver, jarnax::Peripheral rx_peripheral,
-        jarnax::Peripheral tx_peripheral
+        stm32::peripherals::InterIntegratedCircuit volatile &i2c, jarnax::dma::Manager &dma_manager, Peripheral rx_peripheral,
+        Peripheral tx_peripheral
     );
     ~Driver() = default;
 
@@ -61,15 +66,15 @@ protected:
     /// The statistics for the I2C peripheral
     Statistics statistics_;
     /// The register reference to the I2C peripheral
-    stm32::registers::InterIntegratedCircuit volatile &i2c_;
+    stm32::peripherals::InterIntegratedCircuit volatile &i2c_;
     /// @brief The DMA driver used for I2C transactions
     jarnax::dma::Manager &dma_manager_;
     /// @brief The peripheral used for receiving data
-    jarnax::Peripheral rx_peripheral_;
+    cortex::Peripheral rx_peripheral_;
     /// @brief The DMA stream used for receiving data
     jarnax::dma::Resource *rx_dma_resource_;
     /// @brief The peripheral used for transmitting data
-    jarnax::Peripheral tx_peripheral_;
+    cortex::Peripheral tx_peripheral_;
     /// @brief The DMA stream used for transmitting data
     jarnax::dma::Resource *tx_dma_resource_;
     /// @brief  The current transaction which may need to be altered by an interrupt
