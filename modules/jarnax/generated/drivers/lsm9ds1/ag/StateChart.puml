@@ -1,0 +1,68 @@
+
+@startuml
+[*] --> Identifying 
+Identifying : entry / 
+Identifying : cycle / ReadIdentity()
+Identifying : exit / 
+Identifying --> Configuring : triggered ReadDevice/ IsCorrectIdentity()\nraise Identified
+Identifying --> [*] : triggered ReadDevice/ [!IsCorrectIdentity()]\n 
+state Configuring {
+    Configuring : entry / 
+    Configuring : cycle / 
+    Configuring : exit / 
+    [*] --> SampleRate
+
+    SampleRate : entry / WriteSampleRate()
+    SampleRate : cycle / 
+    SampleRate : exit / 
+    SampleRate --> Error : always [not status_.IsBusy() and status_.IsFailure()]\n
+    SampleRate --> ScaleRange : triggered WroteDevice/ \n
+    SampleRate --> Error : triggered DeviceError/ \nraise ErrorOccurred
+
+    ScaleRange : entry / WriteScaleRange()
+    ScaleRange : cycle / 
+    ScaleRange : exit / 
+    ScaleRange --> Error : always [not status_.IsBusy() and status_.IsFailure()]\n
+    ScaleRange --> Enabled : triggered WroteDevice/ \n
+    ScaleRange --> Error : triggered DeviceError/ \nraise ErrorOccurred
+
+    Enabled : entry / WriteEnabled()
+    Enabled : cycle / 
+    Enabled : exit / 
+    Enabled --> Error : always [not status_.IsBusy() and status_.IsFailure()]\n
+    Enabled --> [*] : triggered WroteDevice/ \n
+    Enabled --> Error : triggered DeviceError/ \nraise ErrorOccurred
+} 
+Waiting : entry / timeout_.Reset()
+Waiting : cycle / 
+Waiting : exit / 
+Waiting --> Polling : always [timeout_.IsExpired()]\n 
+Polling : entry / ReadDataReady()
+Polling : cycle / 
+Polling : exit / 
+Polling --> Error : always [not status_.IsBusy() and status_.IsFailure()]\n
+Polling --> SamplingAcceleration : triggered ReadDevice/ [DataReady()]\n
+Polling --> Error : triggered DeviceError/ \nraise ErrorOccurred 
+SamplingAcceleration : entry / ReadAcceleration()
+SamplingAcceleration : cycle / 
+SamplingAcceleration : exit / 
+SamplingAcceleration --> Error : always [not status_.IsBusy() and status_.IsFailure()]\n
+SamplingAcceleration --> SamplingGyroscope : triggered ReadDevice/ [MeasurementComplete()]\nraise SampledAcceleration
+SamplingAcceleration --> Error : triggered DeviceError/ \nraise ErrorOccurred 
+SamplingGyroscope : entry / ReadGyroscope()
+SamplingGyroscope : cycle / 
+SamplingGyroscope : exit / 
+SamplingGyroscope --> Error : always [not status_.IsBusy() and status_.IsFailure()]\n
+SamplingGyroscope --> SamplingTemperature : triggered ReadDevice/ [MeasurementComplete()]\nraise SampledGyroscope
+SamplingGyroscope --> Error : triggered DeviceError/ \nraise ErrorOccurred 
+SamplingTemperature : entry / ReadTemperature()
+SamplingTemperature : cycle / 
+SamplingTemperature : exit / 
+SamplingTemperature --> Error : always [not status_.IsBusy() and status_.IsFailure()]\n
+SamplingTemperature --> Waiting : triggered ReadDevice/ [MeasurementComplete()]\nraise SampledTemperature
+SamplingTemperature --> Error : triggered DeviceError/ \nraise ErrorOccurred 
+Error : entry / 
+Error : cycle / raise ErrorOccurred
+Error : exit / 
+Error --> Configuring : triggered Reset/ \n
+@enduml

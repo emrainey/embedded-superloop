@@ -142,7 +142,7 @@ generate_statechart(
     YAML_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/tests
     YAML_FILE ExampleStateChart.yaml
     GENERATED_DIR ${CMAKE_BINARY_DIR}/generated/core/tests
-    TYPES CPP HPP DOT GTEST
+    TYPES CPP HPP DOT D2 PLANTUML GTEST
 )
 
 host_unit_test(NAME test-generated-statechart

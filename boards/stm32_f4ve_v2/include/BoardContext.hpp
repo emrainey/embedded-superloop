@@ -10,7 +10,9 @@
 #include "jarnax.hpp"
 #include "jarnax/console/UsartConsole.hpp"
 #include "jarnax/drivers/lps35hw/Driver.hpp"
+#include "jarnax/drivers/lsm9ds1/Driver.hpp"
 #include "jarnax/drivers/w25q16bv/Driver.hpp"
+#include "jarnax/gpio/Output.hpp"
 #include "stm32/Button.hpp"
 #include "stm32/Indicator.hpp"
 #include "stm32/RandomNumberGenerator.hpp"
@@ -99,6 +101,15 @@ public:
     /// Returns the LPS35HW Driver
     jarnax::lps35hw::Driver& GetLps35hwDriver();
 
+    /// Returns the Chip Select for the LSM9DS1 Accel/Gyro
+    jarnax::gpio::Output& GetLsm9ds1CsAg();
+
+    /// Returns the Chip Select for the LSM9DS1 Magnetometer
+    jarnax::gpio::Output& GetLsm9ds1CsM();
+
+    /// Returns the LSM9DS1 Driver
+    jarnax::lsm9ds1::Driver& GetLsm9ds1Driver();
+
 protected:
     stm32::Timer timer_;
     /// The Random Number Generator
@@ -172,6 +183,12 @@ protected:
     jarnax::console::UsartConsole usart_console_;
     /// The LPS35HW Driver
     jarnax::drivers::lps35hw::Driver lps35hw_driver_;
+    /// The LSM9DS1 Magnetometer Chip Select
+    stm32::gpio::Pin lsm9ds1_csm_;
+    /// The LSM9DS1 Accel/Gyro Chip Select
+    stm32::gpio::Pin lsm9ds1_csag_;
+    /// The LSM9DS1 Driver
+    jarnax::drivers::lsm9ds1::Driver lsm9ds1_driver_;
 };
 
 /// Gets the reference to the BoardContext

@@ -3,6 +3,7 @@
 #include "cortex/mcu.hpp"
 #include "jarnax.hpp"
 #include "lps35hw.hpp"
+#include "lsm9ds1.hpp"
 #include "segger/rtt.hpp"
 #include "strings.hpp"
 
@@ -76,7 +77,12 @@ BoardContext::BoardContext()
     , usart1_rx_{stm32::gpio::Port::A, 10}
     , usart1_driver_{stm32::peripherals::usart1, dma_manager_, stm32::USART1_RX, stm32::USART1_TX, GetDmaAllocator(), stm32::usart_dma_buffer_size}
     , usart_console_{usart1_driver_}
-    , lps35hw_driver_{timer_, core::units::ConvertToIota(::lps35hw::DefaultPollingInterval), spi2_driver_, GetDmaAllocator()} {
+    , lps35hw_driver_{timer_, core::units::ConvertToIota(::lps35hw::DefaultPollingInterval), spi2_driver_, GetDmaAllocator()}
+    , lsm9ds1_csm_{stm32::gpio::Port::D, 3}
+    , lsm9ds1_csag_{stm32::gpio::Port::D, 6}
+    , lsm9ds1_driver_{
+          timer_, core::units::ConvertToIota(::lsm9ds1::DefaultPollingInterval), spi2_driver_, GetDmaAllocator(), &lsm9ds1_csag_, &lsm9ds1_csm_
+      } {
     // construct the driver objects as part of the constructor above.
 }
 
@@ -292,6 +298,11 @@ core::Status BoardContext::Initialize(void) {
             break;
         }
 
+        status = lsm9ds1_driver_.Initialize();
+        if (not status.IsSuccess()) {
+            jarnax::print("LSM9DS1 failed to initialize\r\n");
+            break;
+        }
         // force out
         break;
     } while (true);
@@ -377,6 +388,21 @@ jarnax::console::Service& BoardContext::GetConsole() {
 
 jarnax::lps35hw::Driver& BoardContext::GetLps35hwDriver() {
     return lps35hw_driver_;
+}
+
+/// Returns the Chip Select for the LSM9DS1 Accel/Gyro
+jarnax::gpio::Output& BoardContext::GetLsm9ds1CsAg() {
+    return lsm9ds1_csag_;
+}
+
+/// Returns the Chip Select for the LSM9DS1 Magnetometer
+jarnax::gpio::Output& BoardContext::GetLsm9ds1CsM() {
+    return lsm9ds1_csm_;
+}
+
+/// Returns the LSM9DS1 Driver
+jarnax::lsm9ds1::Driver& BoardContext::GetLsm9ds1Driver() {
+    return lsm9ds1_driver_;
 }
 
 BoardContext& GetBoardContext() {

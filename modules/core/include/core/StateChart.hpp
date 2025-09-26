@@ -1,5 +1,5 @@
-#ifndef CORE_STATE_MACHINE_HPP
-#define CORE_STATE_MACHINE_HPP
+#ifndef CORE_STATE_CHART_HPP
+#define CORE_STATE_CHART_HPP
 
 /// @file
 /// The StateChart Template
@@ -12,6 +12,9 @@
 
 namespace core {
 
+constexpr static bool always{true};    ///< A constant true value that can be used in guards and actions
+constexpr static bool never{false};    ///< A constant false value that can be used in guards and actions
+
 /// @brief Implements a State Chart via a callback interface and a given State Enumeration.
 /// The order of callbacks is: Enter() -> OnEnter(), OnEntry(initial_state)
 /// Then during the RunOnce: OnGuard(current_state) -> OnCycle(current_state) or -> OnExit(last_state) -> next_state = OnTransition(last_state) ->
@@ -20,6 +23,12 @@ namespace core {
 template <typename EnumType>
 class StateChart {
 public:
+    StateChart() = delete;
+    StateChart(StateChart const&) = delete;
+    StateChart(StateChart&&) = delete;
+    StateChart& operator=(StateChart const&) = delete;
+    StateChart& operator=(StateChart&&) = delete;
+
     /// Indicates the ordinal of the transition (1's based, 0 means no transition)
     using Ordinal = unsigned int;
 
@@ -53,7 +62,8 @@ public:
         /// Called upon the transition out of a state into another
         /// @param from The state that is being exited. On Entering the state chart, State::Undefined will be given.
         /// @param ordinal The ordinal of the transition, zero is invalid.
-        /// @return The new state to go to. To halt the state chart, return StateType::Final. To indicate an unrecoverable fault, return StateType::Undefined.
+        /// @return The new state to go to. To halt the state chart, return StateType::Final. To indicate an unrecoverable fault, return
+        /// StateType::Undefined.
         /// @note The callback is allowed to make choices to get to whatever state it wants.
         virtual StateType OnTransition(StateType from, Ordinal ordinal) = 0;
 
@@ -155,4 +165,4 @@ protected:
 
 }    // namespace core
 
-#endif    // CORE_STATE_MACHINE_HPP
+#endif    // CORE_STATE_CHART_HPP

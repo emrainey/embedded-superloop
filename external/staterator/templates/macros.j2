@@ -1,0 +1,92 @@
+{%- macro cpp_action(interface, action) %}
+// cpp_action(interface, {{action}})
+{%- if action == 'None' %}
+// do nothing
+{%- else %}
+{%- if action.expression %}
+{{action.expression|replace_bools}};
+{%- endif %}
+{%- if action.output %}
+output_ = Outputs::{{action.output}};
+{%- endif %}
+{%- if action.call %}
+{%- set interface_call = '' | on_interface_call(interface, action.call) %}
+{{interface_call}};
+{%- endif %}
+{%- endif %}
+{%- endmacro %}
+
+{# Typically 3 levels of indents #}
+{%- macro cpp_trigger(trigger) %}
+// cpp_trigger({{trigger}})
+{%- if trigger == 'None' or trigger == 'true' or trigger == 'always' %}
+if constexpr (core::always) {
+{%- elif trigger == 'never' %}
+#Warning "Trigger is never true"
+if constexpr (never) { // typically this is used for debugging and testing
+{%- elif trigger.input %}
+if (input_.IsRaised() and input_.Peek() == Inputs::{{trigger.input}}) {
+{%- elif trigger.condition %}
+if ({{trigger.condition|replace_bools}}) {
+{%- else %}
+#error Unknown trigger {{trigger}}
+if constexpr (core::never) { // will never happen
+{%- endif %}
+{%- endmacro %}
+
+{# Typically 4 levels of indents #}
+{%- macro cpp_guard(interface, guard) %}
+// cpp_guard(interface, {{guard}})
+{%- if guard == 'None' or guard == 'true' or guard == 'always' %}
+if constexpr (core::always) {
+{%- elif guard == 'never' %}
+#Warning "Guard is never true"
+if constexpr (never) { // typically this is used for debugging and testing
+{%- elif guard.condition %}
+if ({{guard.condition|replace_bools}}) {
+{%- elif guard.call %}
+{%- set interface_call = '' | on_interface_call(interface, guard.call) %}
+if ({{interface_call}}) {
+{%- else %}
+#error Unknown guard {{guard}}
+if constexpr (core::never) {
+{%- endif %}
+{%- endmacro %}
+
+{%- macro uml_state(state) %}
+{%- set on_entry = 'entry / ' | dot_action('', state.on_entry) %}
+{{state.in}} : {{ on_entry }}
+{%- set on_cycle = 'cycle / ' | dot_action('', state.on_cycle) %}
+{{state.in}} : {{ on_cycle }}
+{%- set on_exit = 'exit / ' | dot_action('', state.on_exit) %}
+{{state.in}} : {{ on_exit }}
+{%- for transition in state.transitions %}
+{%- set label = '' | dot_action('', transition.trigger) + ' ' + '' | dot_action('', transition.guard) + '\\n' | dot_action('', transition.block) %}
+{{state.in}} --> {{ transition.target | final_filter }} : {{ label }}
+{%- endfor %}
+{%- endmacro %}
+
+{%- macro uml_recursive_states(state, width) %}
+state {{ state.in }} {
+{%- filter indent(width) %}
+{%- set on_entry = 'entry / ' | dot_action('', state.on_entry) %}
+{{ state.in }} : {{ on_entry }}
+{%- set on_cycle = 'cycle / ' | dot_action('', state.on_cycle) %}
+{{ state.in }} : {{ on_cycle }}
+{%- set on_exit = 'exit / ' | dot_action('', state.on_exit) %}
+{{ state.in }} : {{ on_exit }}
+[*] --> {{ state.entry }}
+{%- for substate in state.states %}
+{%- if substate.states %}
+{{ uml_recursive_states(substate, width + 4) }}
+{%- else %}
+{{ uml_state(substate) }}
+{%- endif %}
+{%- endfor %}
+{%- endfilter %}
+}
+{%- endmacro %}
+
+{%- macro cpp_substate(parent_state, state_name) %}
+
+{%- endmacro %}

@@ -44,6 +44,7 @@ add_compile_options(
     -fstack-usage
     -Wstack-usage=32768
     # -fno-inline
+    -fdiagnostics-all-candidates
 )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")

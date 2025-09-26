@@ -7,8 +7,8 @@ add_module(NAME native
     MODULES
         jarnax
     CONFIGURATIONS
-        ${LOCAL_CONFIGURATIONS}
+        qemu
     BOARDS
-        ${LOCAL_BOARDS}
+        netduinoplus2
 )
 endif()

@@ -1,0 +1,372 @@
+NameSpace: jarnax::drivers::lsm9ds1
+ClassName: StateChart
+
+includes:
+  - "lsm9ds1.hpp"
+  - "jarnax/drivers/lsm9ds1/Types.hpp"
+  - "core/units/MicroSeconds.hpp"
+
+states: # Will add Undefined and Final automatically
+  - name: Identifying
+    description: "Identifying the external device"
+  - name: Configuring
+    description: "Configures the external device"
+    states:
+      - name: SampleRate
+        description: "Configuring the Sample Rate"
+      - name: ScaleRange
+        description: "Configuring the Scale Range"
+      - name: Enabled
+        description: "Enabling the device"
+  - name: Waiting
+    description: "Waiting for the minimum time between samples to expire"
+  - name: Polling
+    description: "Polling Accelerator, Gyroscope and Temperature"
+  - name: SamplingAcceleration
+    description: "Capturing an acceleration measurement from the device"
+  - name: SamplingGyroscope
+    description: "Capturing a gyroscope measurement from the device"
+  - name: SamplingTemperature
+    description: "Capturing a temperature measurement from the device"
+  - name: Error
+    description: "An error has occurred"
+
+inputs: # can only be processed as Triggers, will add None value automatically
+  - name: Reset
+    description: "Resets the state machine from either the Idle or the Error State."
+  - name: WroteDevice
+    description: "Indicates that a write operation to the device has completed."
+  - name: ReadDevice
+    description: "Indicates that a read operation to the device has completed."
+  - name: DeviceError
+    description: "Indicates that an error has occurred during a device operation."
+
+outputs: # can be emitted on entry, cycle or exit, will add None value automatically
+  - name: Identified
+    description: "Indicates that the device has been successfully identified"
+  - name: Configured
+    description: "Indicates that the device has been successfully configured"
+  - name: SampledAcceleration
+    description: "Indicates that an acceleration measurement has been successfully read"
+  - name: SampledGyroscope
+    description: "Indicates that a gyroscope measurement has been successfully read"
+  - name: SampledTemperature
+    description: "Indicates that a temperature measurement has been successfully read"
+  - name: ErrorOccurred
+    description: "Indicates that an error has occurred"
+
+variables:
+  - name: status_
+    type: core::Status
+    count: 1
+    initializer: core::Result::NotInitialized, core::Cause::State
+
+countdowns: # time based events
+  - name: timeout_
+    duration_ms: 100U
+    description: "A Countdown that triggers after 100 milliseconds"
+
+interface: # The Interface that the StateChart uses to query the state of external elements.
+  - name: ReadIdentity
+    return_type: core::Status
+    description: "Read the identity of the device"
+    params: void
+    modifiers: ""
+  - name: IsCorrectIdentity
+    description: "Returns true is the device identity matches the expected value"
+    return_type: bool
+    params: void
+    modifiers: const
+  - name: ConfigurationComplete
+    return_type: bool
+    description: "Returns true if the device configuration is complete"
+    params: void
+    modifiers: const
+  - name: ReadDataReady
+    return_type: core::Status
+    description: "Reads the data ready status from the device"
+    params: void
+    modifiers: ""
+  - name: DataReady
+    return_type: bool
+    description: "Returns true if new data is ready to be read"
+    params: void
+    modifiers: const
+  - name: ReadAcceleration
+    return_type: core::Status
+    description: "Starts a reads of an acceleration measurement from the device"
+    params: void
+    modifiers: ""
+  - name: ReadGyroscope
+    return_type: core::Status
+    description: "Starts a reads of a gyroscope measurement from the device"
+    params: void
+    modifiers: ""
+  - name: ReadTemperature
+    return_type: core::Status
+    description: "Starts a reads of a temperature measurement from the device"
+    params: void
+    modifiers: ""
+  - name: MeasurementComplete
+    return_type: bool
+    description: "Returns true if the measurement read is complete"
+    params: void
+    modifiers: const
+
+chart:
+  enter: None
+  exit: None
+  entry: Identifying
+  states:
+    - in: Identifying
+      on_entry: None
+      on_cycle: # we put this here so that it doesn't trigger in the StateChart Enter
+        call:
+          name: ReadIdentity
+          parameters: void
+          assign: status_
+      on_exit: None
+      transitions:
+        - trigger:
+            input: ReadDevice
+          guard:
+            call:
+              name: IsCorrectIdentity
+              parameters: void
+          target: Configuring
+          block:
+            output: Identified
+        - trigger:
+            input: ReadDevice
+          guard:
+            call:
+              name: IsCorrectIdentity
+              parameters: void
+              expected: false
+          target: Final
+    - in: Configuring
+      on_entry: None
+      on_cycle: None
+      on_exit: None
+      transitions:
+        - trigger:
+            input: WroteDevice
+          guard:
+            call:
+              name: ConfigurationComplete
+              parameters: void
+              expected: true
+          target: Waiting
+          block:
+            output: Configured
+        - trigger:
+            input: DeviceError
+          guard: None
+          target: Error
+          block:
+            output: ErrorOccurred
+      entry: SampleRate
+      states:
+        - in: SampleRate
+          on_entry:
+            call:
+              name: WriteSampleRate
+              parameters: void
+              assign: status_
+          on_cycle: None
+          on_exit: None
+          transitions:
+            - trigger: always
+              guard:
+                condition: not status_.IsBusy() and status_.IsFailure()
+              target: Error
+            - trigger:
+                input: WroteDevice
+              guard: None
+              target: ScaleRange
+            - trigger:
+                input: DeviceError
+              guard: None
+              target: Error
+              block:
+                output: ErrorOccurred
+        - in: ScaleRange
+          on_entry:
+            call:
+              name: WriteScaleRange
+              parameters: void
+              assign: status_
+          on_cycle: None
+          on_exit: None
+          transitions:
+            - trigger: always
+              guard:
+                condition: not status_.IsBusy() and status_.IsFailure()
+              target: Error
+            - trigger:
+                input: WroteDevice
+              guard: None
+              target: Enabled
+            - trigger:
+                input: DeviceError
+              guard: None
+              target: Error
+              block:
+                output: ErrorOccurred
+        - in: Enabled
+          on_entry:
+            call:
+              name: WriteEnabled
+              parameters: void
+              assign: status_
+          on_cycle: None
+          on_exit: None
+          transitions:
+            - trigger: always
+              guard:
+                condition: not status_.IsBusy() and status_.IsFailure()
+              target: Error
+            - trigger:
+                input: WroteDevice
+              guard: None
+              target: Final
+            - trigger:
+                input: DeviceError
+              guard: None
+              target: Error
+              block:
+                output: ErrorOccurred
+    - in: Waiting
+      on_entry:
+        expression: timeout_.Reset()
+      on_cycle: None
+      on_exit:
+      transitions:
+        - trigger: always
+          guard:
+            condition: timeout_.IsExpired()
+          target: Polling
+    - in: Polling
+      on_entry:
+        call:
+          name: ReadDataReady
+          parameters: void
+          assign: status_
+      on_cycle: None
+      on_exit:
+      transitions:
+        - trigger: always
+          guard:
+            condition: not status_.IsBusy() and status_.IsFailure()
+          target: Error
+        - trigger:
+            input: ReadDevice
+          guard:
+            call:
+              name: DataReady
+              parameters: void
+              expected: true
+          target: SamplingAcceleration
+        - trigger:
+            input: DeviceError
+          guard: None
+          target: Error
+          block:
+            output: ErrorOccurred
+    - in: SamplingAcceleration
+      on_entry:
+        call:
+          name: ReadAcceleration
+          parameters: void
+          assign: status_
+      on_cycle: None
+      on_exit: None
+      transitions:
+        - trigger: always
+          guard:
+            condition: not status_.IsBusy() and status_.IsFailure()
+          target: Error
+        - trigger:
+            input: ReadDevice
+          guard:
+            call:
+              name: MeasurementComplete
+              parameters: void
+              expected: true
+          block:
+            output: SampledAcceleration
+          target: SamplingGyroscope
+        - trigger:
+            input: DeviceError
+          guard: None
+          target: Error
+          block:
+            output: ErrorOccurred
+    - in: SamplingGyroscope
+      on_entry:
+        call:
+          name: ReadGyroscope
+          parameters: void
+          assign: status_
+      on_cycle: None
+      on_exit: None
+      transitions:
+        - trigger: always
+          guard:
+            condition: not status_.IsBusy() and status_.IsFailure()
+          target: Error
+        - trigger:
+            input: ReadDevice
+          guard:
+            call:
+              name: MeasurementComplete
+              parameters: void
+              expected: true
+          target: SamplingTemperature
+          block:
+            output: SampledGyroscope
+        - trigger:
+            input: DeviceError
+          guard: None
+          target: Error
+          block:
+            output: ErrorOccurred
+    - in: SamplingTemperature
+      on_entry:
+        call:
+          name: ReadTemperature
+          parameters: void
+          assign: status_
+      on_cycle: None
+      on_exit: None
+      transitions:
+        - trigger: always
+          guard:
+            condition: not status_.IsBusy() and status_.IsFailure()
+          target: Error
+        - trigger:
+            input: ReadDevice
+          guard:
+            call:
+              name: MeasurementComplete
+              parameters: void
+              expected: true
+          target: Waiting
+          block:
+            output: SampledTemperature
+        - trigger:
+            input: DeviceError
+          guard: None
+          target: Error
+          block:
+            output: ErrorOccurred
+    - in: Error
+      on_entry: None
+      on_cycle:
+        output: ErrorOccurred
+      on_exit: None
+      transitions:
+        - trigger:
+            input: Reset
+          guard: None
+          target: Configuring

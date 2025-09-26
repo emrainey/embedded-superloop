@@ -1,0 +1,9 @@
+{%- from 'macros.j2' import uml_state, uml_recursive_states %}
+@startuml
+[*] --> {{ chart.entry }}
+{%- for state in chart.states %}
+{%- if state.states %} {{ uml_recursive_states(state, 4) }}
+{%- else %} {{ uml_state(state) }}
+{%- endif %}
+{%- endfor %}
+@enduml

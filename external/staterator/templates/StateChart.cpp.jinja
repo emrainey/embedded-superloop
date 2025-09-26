@@ -1,3 +1,4 @@
+{% from 'macros.j2' import cpp_action, cpp_guard, cpp_trigger %}
 #include "{{ ClassName }}.hpp"
 
 namespace {{ NameSpace }} {
@@ -14,6 +15,11 @@ namespace {{ NameSpace }} {
 {%- for countdown in countdowns %}
     , {{countdown.name}}{clock_, MicroSeconds{ {{countdown.duration_ms}} } } ///< {{countdown.description}}
 {%- endfor %}
+{%- for state in states %}
+{%- if state.states %}
+    , {{state.name|lower}}_{ *this, State::{{state.name}} } ///< The SubState instance for {{state.name}}
+{%- endif %}
+{%- endfor %}
     {}
 
 void {{ ClassName }}::Trigger(Inputs event) {
@@ -23,35 +29,22 @@ void {{ ClassName }}::Trigger(Inputs event) {
     if (output_.Peek() != Outputs::None) {
         callback_.OnOutput(std::move(output_));
     }
-    input_ = Inputs::None; // reset the input after processing
+    // input is cleared in OnGuard after all guards have been evaluated
 }
 
 core::Event<Outputs> const& {{ ClassName }}::GetOutput() const {
     return output_;
 }
 
-void {{ ClassName }}::OnEnter() {
-    {%- if chart.enter.expression %}
-    {{chart.enter.expression|replace_bools}};
-    {%- endif %}
+void {{ ClassName }}::OnEnter() { {%- filter indent(width=4) %}{{ cpp_action(interface, chart.enter) }} {%- endfilter %}
 }
 
 void {{ ClassName }}::OnEntry(State state) {
     switch (state) {
-        {%- for state in chart.states %}
-        case State::{{state.in}}:
-            {%- if state.on_entry == 'None' %}
-            // do nothing
-            {%- else %}
-            {%- if state.on_entry.expression %}
-            {{state.on_entry.expression|replace_bools}};
-            {%- endif %}
-            {%- if state.on_entry.output %}
-            output_ = Outputs::{{state.on_entry.output}};
-            {%- endif %}
-            {%- endif %}
+    {%- for state in chart.states %}
+        case State::{{state.in}}:{%- filter indent(width=12) %}{{ cpp_action(interface, state.on_entry) }} {%- endfilter %}
             break;
-        {%- endfor %}
+    {%- endfor %}
         default:
             // Undefined or Final is not allowed!
             break;
@@ -60,20 +53,10 @@ void {{ ClassName }}::OnEntry(State state) {
 
 void {{ ClassName }}::OnCycle(State state) {
     switch (state) {
-        {%- for state in chart.states %}
-        case State::{{state.in}}:
-            {%- if state.on_cycle == 'None' %}
-            // do nothing
-            {%- else %}
-            {%- if state.on_cycle.expression %}
-            {{state.on_cycle.expression}};
-            {%- endif %}
-            {%- if state.on_cycle.output %}
-            output_ = Outputs::{{state.on_cycle.output}};
-            {%- endif %}
-            {%- endif %}
+    {%- for state in chart.states %}
+        case State::{{state.in}}:{%- filter indent(width=12) %}{{ cpp_action(interface, state.on_cycle) }} {%- endfilter %}
             break;
-        {%- endfor %}
+    {%- endfor %}
         default:
             // Undefined or Final is not allowed!
             break;
@@ -82,20 +65,10 @@ void {{ ClassName }}::OnCycle(State state) {
 
 void {{ ClassName }}::OnExit(State state) {
     switch (state) {
-        {%- for state in chart.states %}
-        case State::{{state.in}}:
-            {%- if state.on_exit == 'None' %}
-            // do nothing
-            {%- else %}
-            {%- if state.on_exit.expression %}
-            {{state.on_exit.expression}};
-            {%- endif %}
-            {%- if state.on_exit.output %}
-            output_ = Outputs::{{state.on_exit.output}};
-            {%- endif %}
-            {%- endif %}
+    {%- for state in chart.states %}
+        case State::{{state.in}}:{%- filter indent(width=12) %}{{ cpp_action(interface, state.on_exit) }} {%- endfilter %}
             break;
-        {%- endfor %}
+    {%- endfor %}
         default:
             // Undefined or Final is not allowed!
             break;
@@ -103,50 +76,30 @@ void {{ ClassName }}::OnExit(State state) {
 }
 
 {{ ClassName }}::Ordinal {{ ClassName }}::OnGuard(State state) const {
-    {{ ClassName }}::Ordinal ordinal = 0;
+    {{ ClassName }}::Ordinal ordinal = 0; // zero means to stay in the current state
     switch (state) {
-        {%- for state in chart.states %}
+    {%- for state in chart.states %}
         case State::{{state.in}}:
-            {%- for transition in state.transitions %}
-            {%- if transition.trigger.input %}
-            if (input_.IsRaised() and input_.Peek() == Inputs::{{transition.trigger.input}}) {
-                input_.Clear();
-            {%- elif transition.trigger.condition %}
-            if ({{transition.trigger.condition}}) {
-            {%- elif transition.trigger == 'always' %}
-            // No trigger, immediate transition
-            if (true) {
-            {%- else %}
-            #error We do not know what {{transition.trigger}} means
-            if (false) { // should never happen
-            {%- endif %}
-            {%- if transition.guard.interface %}
-                if (callback_.{{transition.guard.interface}}()) {
-            {%- elif transition.guard.condition %}
-                if ({{transition.guard.condition}}) {
-            {%- elif transition.guard == 'true' or transition.guard == 'None' %}
-                // No guard, always true
-                if (true) {
-            {%- else %}
-                #error We do not know what {{transition.guard}} means
-                if (false) { // should never happen
-            {%- endif %}
+        {%- for transition in state.transitions %}{%- filter indent(width=12) %} {{ cpp_trigger(transition.trigger) }} {%- endfilter %} {%- filter indent(width=16) %}{{ cpp_guard(interface, transition.guard) }} {%- endfilter %}
                     ordinal = {{loop.index}};
                     break;
                 }
             }
-            {%- endfor %}
-            break;
         {%- endfor %}
+            break;
+    {%- endfor %}
         default:
             // Undefined or Final is not allowed!
             break;
     }
+    // we clear the input here after all guards have been evaluated
+    // it must be triggered again to be seen
+    input_.Clear();
     // zero indicates that no transition was taken
     return ordinal;
 }
 
-State {{ ClassName }}::OnTransition(State from, Ordinal ordinal) {
+State {{ ClassName }}::OnTransition(State from, {{ClassName}}::Ordinal ordinal) {
     if (ordinal == 0U) {
         // not allowed
         return State::Undefined;
@@ -154,16 +107,19 @@ State {{ ClassName }}::OnTransition(State from, Ordinal ordinal) {
     switch (from) {
         case State::Undefined: // ordinal is ignored here
             return State::{{chart.entry}};
-        {%- for state in chart.states %}
+    {%- for state in chart.states %}
         case State::{{state.in}}:
-            {%- for transition in state.transitions %}
+        {%- for transition in state.transitions %}
             if (ordinal == {{loop.index}}) {
-                // TODO add capability to run out of State logic like choices, etc.
+            {%- filter indent(width=16) %}
+            {%- if transition.block %} {{ cpp_action(interface, transition.block) }}
+            {%- endif %}
+            {%- endfilter %}
                 return State::{{transition.target}};
             }
-            {%- endfor %}
-            break;
         {%- endfor %}
+            break;
+    {%- endfor %}
         default:
             // Undefined or Final is not allowed!
             break;
@@ -172,10 +128,73 @@ State {{ ClassName }}::OnTransition(State from, Ordinal ordinal) {
     return from;
 }
 
-void {{ ClassName }}::OnExit() {
-    {%- if chart.exit.expression %}
-    {{chart.exit.expression}};
-    {%- endif %}
+void {{ ClassName }}::OnExit() { {%- filter indent(width=4) %}{{ cpp_action(interface, chart.exit) }} {%- endfilter %}
 }
+
+//=== SubStates ===//
+
+{%- for state in chart.states %}
+{%- if state.states %}
+{{state.in}}SubState::{{state.in}}SubState({{ClassName}}& parent, State parent_state)
+    : core::StateChart<State>{static_cast<core::StateChart<State>::Callback&>(*this)}
+    , parent_{parent}
+    , parent_state_{parent_state}
+    {}
+
+void {{state.in}}SubState::OnEnter() { {%- filter indent(width=4) %}{{ cpp_action(interface, state.on_entry) }} {%- endfilter %}
+}
+
+void {{state.in}}SubState::OnExit() { {%- filter indent(width=4) %}{{ cpp_action(interface, state.on_exit) }} {%- endfilter %}
+}
+
+void {{state.in}}SubState::OnEntry(State state) {
+    switch (state) {
+    {%- for substate in state.states %}
+        case State::{{substate.in}}:{%- filter indent(width=12) %}{{ cpp_action(interface, substate.on_entry) }} {%- endfilter %}
+            break;
+    {%- endfor %}
+        default:
+            // Undefined or Final is not allowed!
+            break;
+    }
+}
+
+void {{state.in}}SubState::OnCycle(State state) {
+    switch (state) {
+    {%- for substate in state.states %}
+        case State::{{substate.in}}:{%- filter indent(width=12) %}{{ cpp_action(interface, substate.on_cycle) }} {%- endfilter %}
+            break;
+    {%- endfor %}
+        default:
+            // Undefined or Final is not allowed!
+            break;
+    }
+}
+void {{state.in}}SubState::OnExit(State state) {
+    switch (state) {
+    {%- for substate in state.states %}
+        case State::{{substate.in}}:{%- filter indent(width=12) %}{{ cpp_action(interface, substate.on_exit) }} {%- endfilter %}
+            break;
+    {%- endfor %}
+        default:
+            // Undefined or Final is not allowed!
+            break;
+    }
+}
+
+{{ClassName}}::Ordinal {{state.in}}SubState::OnGuard(State state) const {
+    static_cast<void>(state); // suppress unused parameter warning
+    return 0;
+}
+
+State {{state.in}}SubState::OnTransition(State from, {{ClassName}}::Ordinal ordinal) {
+    static_cast<void>(from); // suppress unused parameter warning
+    static_cast<void>(ordinal); // suppress unused parameter warning
+    ordinal = 0; // not allowed
+    return from;
+}
+
+{%- endif %}
+{%- endfor %}
 
 } // namespace {{NameSpace}}

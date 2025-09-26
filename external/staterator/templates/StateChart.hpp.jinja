@@ -7,6 +7,11 @@
 #include <core/Status.hpp>
 #include <cstdint>
 #include <limits>
+#include <utility>
+
+{%- for include in includes %}
+#include "{{include}}"
+{%- endfor %}
 
 namespace {{NameSpace}} {
 
@@ -41,8 +46,34 @@ enum class Outputs : {{EventType}} {
 {%- endfor %}
 };
 
+{% for state in chart.states %}
+{%- if state.states %}
+class StateChart; // forward declaration
 /// The StateChart implementation for {{ClassName}}
-class {{ClassName}} : public core::StateChart<State>, protected core::StateChart<State>::Callback {
+/// @note This class will be instantiated for the States which have SubStates.
+class {{state.in}}SubState final : public core::StateChart<State>, protected core::StateChart<State>::Callback {
+public:
+    explicit {{state.in}}SubState({{ClassName}}& parent, State parent_state);
+    virtual ~{{state.in}}SubState() = default;
+protected:
+    //=== core::StateChart<State> interface ===//
+    void OnEnter() override;
+    void OnEntry(State state) override;
+    void OnCycle(State state) override;
+    void OnExit(State state) override;
+    Ordinal OnGuard(State state) const override;
+    State OnTransition(State from, Ordinal ordinal) override;
+    void OnExit() override;
+
+    //===VARIABLES===//
+    {{ClassName}}& parent_; ///< The reference to the callback object
+    State parent_state_; ///< The state in the parent StateChart that this SubState belongs to
+};
+{%- endif %}
+{%- endfor %}
+
+/// The StateChart implementation for {{ClassName}}
+class {{ClassName}} final : public core::StateChart<State>, protected core::StateChart<State>::Callback {
 public:
     /// Indicates the ordinal of the transition (1's based, 0 means no transition)
     using Ordinal = core::StateChart<State>::Ordinal;
@@ -101,6 +132,13 @@ protected:
 {%- for countdown in countdowns %}
     core::time::CountDown {{countdown.name}}; ///< {{countdown.description}}
 {%- endfor %}
+
+{%- for state in states %}
+{%- if state.states %}
+    {{state.name}}SubState {{state.name|lower}}_; ///< The SubState instance for {{state.name}}
+{%- endif %}
+{%- endfor %}
+
 };
 
 }  // namespace {{NameSpace}}

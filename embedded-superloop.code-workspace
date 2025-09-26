@@ -23,6 +23,10 @@
     },
     "settings": {
         "files.associations": {
+            "*.cpp.jinja": "jinja-cpp",
+            "*.hpp.jinja": "jinja-cpp",
+            "*.puml.jinja": "jinja-raw",
+            "*.dot.jinja": "jinja-raw",
             ".clang-format": "json",
             ".clang-tidy": "yaml",
             "__config": "cpp",

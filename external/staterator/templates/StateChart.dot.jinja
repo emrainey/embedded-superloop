@@ -1,22 +1,20 @@
 digraph {
-    rankdir=TB;
-    State_Undefined [shape=circle color=black style=filled label=""];
-    State_Final [shape=circle label="X"];
-    {%- for state in states %}
-    {%- for s in chart.states %}
-    {%- if state.name == s.in %}
-    {%- set label = 'on_entry / ' | on_action('\\n', s.on_entry) + 'on_cycle / ' | on_action('\\n', s.on_cycle) + 'on_exit / ' | on_action('\\n', s.on_exit) %}
-    State_{{state.name}} [shape=Mrecord label="{State::{{state.name}} | {{label}} }"];
-    {%- endif %}
-    {%- endfor %}
-    {%- endfor %}
-    {# === #}
-    State_Undefined -> State_{{chart.entry}} [label="{{'always / ' | on_action('\\n', chart.enter)}}"];
-    {# === #}
-    {%- for state in chart.states %}
-    {%- for transition in state.transitions %}
-    State_{{state.in}} -> State_{{transition.target}} [label="{{'' | on_action('', transition.trigger)}} / [{{ ''| on_action('', transition.guard) }}] "];
-    {%- endfor %}
-    {%- endfor %}
+rankdir=TB;
+State_Undefined [shape="circle" color="black" style="filled" label=""];
+State_Final [shape="circle" label="X"];
+{%- for state in chart.states %}
+{%- set label = 'on_entry / ' | dot_action('\\n', state.on_entry) + 'on_cycle / ' | dot_action('\\n', state.on_cycle) + 'on_exit /' | dot_action('\\n', state.on_exit) %}
+State_{{state.in}} [shape=Mrecord label="{State::{{state.in}} | {{label}} }"];
+{%- endfor %}
+{# === #}
+State_Undefined -> State_{{chart.entry}} [label="{{'always / ' | dot_action('\\n', chart.enter)}}"];
+{# === #}
+{%- for state in chart.states %}
+{%- for substate in state.states %}
+{%- for transition in substate.transitions %}
+{%- set label = '' | dot_action('', transition.trigger) + ' ' + '' | dot_action('', transition.guard) + '\n' + '' | dot_action('', transition.block) %}
+State_{{substate.in}} -> State_{{transition.target}} [label="{{label}}"];
+{%- endfor %}
+{%- endfor %}
+{%- endfor %}
 }
-

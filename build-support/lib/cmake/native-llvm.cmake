@@ -31,3 +31,7 @@ unset(COMPILER_MATH_LIBS)
 add_compile_options(
     -glldb
 )
+
+# For enumerating the Cortex Build, use these values
+set(CORTEX_M 4) # we'll emulate this for now
+set(ARCHITECTURE "${CMAKE_HOST_SYSTEM_PROCESSOR}")

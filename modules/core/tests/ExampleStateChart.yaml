@@ -85,10 +85,9 @@ chart:
       on_exit:
         output: Started
       transitions:
-        - trigger:
-            condition: after_one_second_.IsExpired()
+        - trigger: always
           guard:
-            condition: callback_.CanStart()
+            condition: after_one_second_.IsExpired() and callback_.CanStart()
           target: Idling
     - in: Idling
       on_entry:
@@ -121,7 +120,8 @@ chart:
           target: Closing
     - in: Closing
       on_entry:
-        interface: Close
+        call:
+          name: Close
       on_cycle: None
       on_exit:
         output: Closed

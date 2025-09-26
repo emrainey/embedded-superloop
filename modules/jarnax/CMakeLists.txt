@@ -92,6 +92,29 @@ add_module(NAME jarnax-lps35hw-driver
     NO_CONFIGURATIONS
 )
 
+generate_statechart(
+    YAML_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/lsm9ds1/ag/
+    YAML_FILE StateChart.yaml
+    GENERATED_DIR ${CMAKE_CURRENT_SOURCE_DIR}/generated/drivers/lsm9ds1/ag/
+    TYPES CPP HPP PLANTUML GTEST
+)
+
+add_module(NAME jarnax-lsm9ds1-driver
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/lsm9ds1/Driver.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/lsm9ds1/StateChart.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/generated/drivers/lsm9ds1/ag/StateChart.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/include # Internal includes
+    LIBRARIES
+        strict jarnax-interfaces
+    GENERIC_MODULES
+        memory core
+    NO_CONFIGURATIONS
+    NO_BOARDS
+)
+
 host_unit_test(NAME test-jarnax-catch
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-countdown.cpp

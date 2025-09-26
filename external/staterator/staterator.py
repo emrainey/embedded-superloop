@@ -13,6 +13,9 @@ from jinja2 import Environment, FileSystemLoader
 
 verbose: bool = False
 
+truthiness = ["true", "True", True, "on", "On", "ON", 1, "1"]
+falsiness = ["false", "False", False, "off", "Off", "OFF", 0, "0"]
+
 
 def enum_states(states: List[Dict[str, str]]) -> str:
     """
@@ -25,27 +28,27 @@ def enum_states(states: List[Dict[str, str]]) -> str:
           states:
             - name: B
               states:
-            - name: C
-        - name: B
+              - name: C
+        - name: D
           states:
-            - name: A
-            - name: B
+            - name: E
+            - name: F
     out:
         - name: A
           value: 0x01'00'00'00
-        - name: A_B
-          value: 0x01'01'00'00
-        - name: A_C
-          value: 0x01'02'00'00
         - name: B
+          value: 0x01'01'00'00
+        - name: C
+          value: 0x01'01'01'00
+        - name: D
           value: 0x02'00'00'00
-          description: "State B description"
-        - name: B_A
+          description: "State D description"
+        - name: E
           value: 0x02'01'00'00
-          description: "State B_A description"
-        - name: B_B
+          description: "State E description"
+        - name: F
           value: 0x02'02'00'00
-          description: "State B_B description"
+          description: "State F description"
     """
     state_pairs: List[Dict[str, str]] = (
         []
@@ -71,7 +74,7 @@ def enum_states(states: List[Dict[str, str]]) -> str:
                 # 2nd tier
                 state_pairs.append(
                     {
-                        "name": s0["name"] + "_" + s1["name"],
+                        "name": s1["name"],
                         "value": f"0x{ord0:02x}'{ord1:02x}'00'00",
                         "description": f"{s1['description']}",
                     }
@@ -85,7 +88,7 @@ def enum_states(states: List[Dict[str, str]]) -> str:
                         # 3rd tier
                         state_pairs.append(
                             {
-                                "name": f"{s0['name']}_{s1['name']}_{s2['name']}",
+                                "name": s2["name"],
                                 "value": f"0x{ord0:02x}'{ord1:02x}'{ord2:02x}'00",
                                 "description": f"{s2['description']}",
                             }
@@ -99,7 +102,7 @@ def enum_states(states: List[Dict[str, str]]) -> str:
                                 # 4th tier
                                 state_pairs.append(
                                     {
-                                        "name": f"{s0['name']}_{s1['name']}_{s2['name']}_{s3['name']}",
+                                        "name": s3["name"],
                                         "value": f"0x{ord0:02x}'{ord1:02x}'{ord2:02x}'{ord3:02x}",
                                         "description": f"{s3['description']}",
                                     }
@@ -126,8 +129,51 @@ def remove_void(param_string: str) -> str:
     return param_string.replace("void", "").strip()
 
 
-def on_action(string: str, nl: str, var: Any) -> str:
-    """Callback function for handling actions."""
+def on_interface_call(string: str, interface: dict, call: dict) -> str:
+    """Finds the call in the interface and constructs the call string with parameters and return type if any.
+    interface:
+      - name: Foo
+        return_type: void
+        parameters: int a, float b
+      - name: DoSomething
+        return_type: int
+        parameters: void
+
+    call:
+        name: DoSomething
+        parameters: void
+        assign: result
+    """
+    result: str = string
+    for method in interface:
+        if method["name"] == call["name"]:
+            call_params: str = ""
+            if "parameters" in method and method["parameters"] != "void":
+                if "parameters" in call and call["parameters"] != "void":
+                    call_params = call["parameters"]
+            if "return_type" in method and method["return_type"] != "void":
+                if "assign" in call and call["assign"] != "void":
+                    result += f"{call['assign']} = "
+                elif "expected" in call and call["expected"] is not None:
+                    expected: str = call["expected"]
+                    if expected in truthiness:
+                        expected = "true"
+                    elif expected in falsiness:
+                        expected = "false"
+                    result += f"{expected} == "
+            result += f"callback_.{method['name']}({call_params})"
+    return result
+
+
+def final_filter(target: str) -> str:
+    """If the target is Final, return [*], else return the target."""
+    if target == "Final":
+        return "[*]"
+    return target
+
+
+def dot_action(string: str, nl: str, var: Any) -> str:
+    """Callback function for creating strings for diagramming actions."""
     result: str = string
     if var is not None:
         # if var is a string which is "None"
@@ -141,15 +187,24 @@ def on_action(string: str, nl: str, var: Any) -> str:
         elif isinstance(var, dict):
             # if var is a dictionary
             if "input" in var:
-                result += f"triggered {var['input']}" + nl
+                result += f"triggered {var['input']}" + "/" + nl
+            if "condition" in var:
+                result += f"[{var['condition']}]" + nl
             if "output" in var:
                 result += f"raise {var['output']}" + nl
             if "expression" in var:
                 result += f"{var['expression']}" + nl
-            if "condition" in var:
-                result += f"{var['condition']}" + nl
-            if "interface" in var:
-                result += f"call {var['interface']}()" + nl
+            if "call" in var:
+                if "expected" in var["call"]:
+                    expected: str = var["call"]["expected"]
+                    if expected in truthiness:
+                        result += f"[{var['call']['name']}()]" + nl
+                    elif expected in falsiness:
+                        result += f"[!{var['call']['name']}()]" + nl
+                    else:
+                        result += f"[{expected} = {var['call']['name']}()]" + nl
+                else:
+                    result += f"{var['call']['name']}()" + nl
     return result
 
 
@@ -188,6 +243,164 @@ class YamlLoader:
         return self.loaded_files[filepath]
 
 
+def verify_action(
+    action: Any,  # None, str, or Dict[str, str]
+    interface: List[Dict[str, str]],
+    outputs_list: List[Dict[str, str]],
+) -> bool:
+    """An Action is either/or/and an output, expression or interface call."""
+    if action is None:
+        return True
+    if isinstance(action, str) and (action == "None" or action in truthiness):
+        return True
+    assert (
+        "output" in action or "expression" in action or "call" in action
+    ), "An Action must have either an output, expression or call"
+    if "call" in action:
+        verify_call(interface, action["call"], False)
+    if "output" in action:
+        outputs = [output["name"] for output in outputs_list]
+        assert (
+            action["output"] in outputs
+        ), "The output must be defined in the outputs list"
+    if "expression" in action:
+        assert isinstance(action["expression"], str), "The expression must be a string"
+    return True
+
+
+def verify_stimulus(
+    stimulus: Dict[str, str],
+    inputs_list: List[Dict[str, str]],
+    interface: List[Dict[str, str]],
+) -> bool:
+    """A stimulus is either an input, condition or a call which must resolve to a bool"""
+    assert (
+        "input" in stimulus or "condition" in stimulus or "call" in stimulus
+    ), "A Stimulus must have either an input, condition or call"
+    if "call" in stimulus:
+        verify_call(interface, stimulus["call"], True)
+    if "input" in stimulus:
+        inputs = [input_def["name"] for input_def in inputs_list]
+        assert (
+            stimulus["input"] in inputs
+        ), "The input must be defined in the inputs list"
+    if "condition" in stimulus:
+        assert isinstance(stimulus["condition"], str), "The condition must be a string"
+    return True
+
+
+def verify_call(interface: dict, call: dict, in_guard: bool) -> bool:
+    """Verifies that the call exists in the interface."""
+    for method in interface:
+        assert "name" in method, "A method must have a name"
+        assert "name" in call, "A method must have a name"
+        if method["name"] == call["name"]:
+            assert not (
+                "assign" in call and "expected" in call
+            ), "A call can not have both assign and expected"
+            if not in_guard:
+                return True
+            else:
+                # in a guard, the return type must be bool
+                if "return_type" in method and method["return_type"] == "bool":
+                    return True
+    return False
+
+
+def verify_state(
+    state: dict,
+    states_list: List[Dict[str, str]],
+    inputs_list: List[Dict[str, str]],
+    outputs_list: List[Dict[str, str]],
+    interface_list: List[Dict[str, str]],
+    level: int = 1,
+) -> bool:
+    """Verifies that the state exists in the list of states."""
+    assert level < 5, "States can only be nested up to 4 levels deep"
+    assert "in" in state, "A chart.state must have an 'in' key"
+    # may have on_entry, on_exit, on_cycle
+    if "on_entry" in state:
+        verify_action(state["on_entry"], interface_list, outputs_list)
+    if "on_exit" in state:
+        verify_action(state["on_exit"], interface_list, outputs_list)
+    if "on_cycle" in state:
+        verify_action(state["on_cycle"], interface_list, outputs_list)
+    assert len(states_list) > 0, "There must be at least one state defined"
+    state_names = [s["name"] for s in states_list]
+    assert (
+        state["in"] in state_names
+    ), f"State {state['in']} is not defined in the states names"
+    if "states" in state:
+        for substate in state["states"]:
+            # find the substat list in the states list
+            substates = list()
+            for state_def in states_list:
+                if state_def["name"] == state["in"]:
+                    assert (
+                        "states" in state_def
+                    ), f"State {state_def['name']} has no substates"
+                    substates = state_def["states"]
+
+            verify_state(
+                substate,
+                substates,
+                inputs_list,
+                outputs_list,
+                interface_list,
+                level + 1,
+            )
+    # found the state in the state list but there's more
+    assert "transitions" in state, "Missing transitions in state"
+    for transition in state["transitions"]:
+        assert (
+            "trigger" in transition and transition["trigger"] is not None
+        ), "Missing Trigger in Transition"
+        assert (
+            "guard" in transition and transition["guard"] is not None
+        ), "Missing Guard in Transition"
+        assert (
+            "target" in transition and transition["target"] is not None
+        ), "Missing Target in Transition"
+
+        if isinstance(transition["trigger"], dict):
+            assert "input" in transition["trigger"], "Missing Input in Trigger"
+            # assert that the input is in the inputs list
+            assert transition["trigger"]["input"] in [
+                input_def["name"] for input_def in inputs_list
+            ], f"Input {transition['trigger']['input']} is not defined in the inputs list"
+        elif isinstance(transition["trigger"], str):
+            assert (
+                transition["trigger"] == "always" or transition["trigger"] == "true"
+            ), "Trigger must be either 'always', 'true' or have an input"
+        else:
+            raise Exception(
+                "Trigger must be either a string (always or true) or a dictionary"
+            )
+
+        # a guard can be "true", None or a condition, or a call
+        if isinstance(transition["guard"], dict):
+            assert (
+                "condition" in transition["guard"] or "call" in transition["guard"]
+            ), "Missing Condition or Call in Guard"  # Guards can ONLY have conditions or Calls (with bool return type)
+            if "call" in transition["guard"]:
+                assert verify_call(
+                    interface_list, transition["guard"]["call"], True
+                ), f"Call {transition['guard']['call']['name']} in guard is not defined in the interface or does not return bool"
+        else:
+            assert (
+                transition["guard"] == "true" or transition["guard"] == "None"
+            ), "Guard must be either 'None', 'true' (same as None) or have a condition"
+
+        # it may also have a block which must have either an output, or expression or interface
+        if "block" in transition:
+            block: Dict = transition["block"]
+            assert (
+                "output" in block or "expression" in block or "call" in block
+            ), "Block must have either an output, expression or call"
+
+    return False
+
+
 def verify_keywords_statechart(data) -> None:
     """Verifies the statechart data."""
     required_keys = [
@@ -199,6 +412,7 @@ def verify_keywords_statechart(data) -> None:
         "inputs",
         "outputs",
         "chart",
+        # "includes", `# optional`
     ]
     for key in required_keys:
         assert key in data, f"Missing required key: {key}"
@@ -208,16 +422,30 @@ def verify_keywords_statechart(data) -> None:
         assert "name" in inputs, "Missing 'name' key in input"
     for outputs in data["outputs"]:
         assert "name" in outputs, "Missing 'name' key in output"
-    assert "entry" in data["chart"], "Missing 'entry' in chart"
-    assert "exit" in data["chart"], "Missing 'exit' in chart"
+    for method in data["interface"]:
+        assert "name" in method, "Missing 'name' key in method"
+        assert "description" in method, "Missing 'description' key in method"
+        assert "params" in method, "Missing 'params' key in method"
+        assert "modifiers" in method, "Missing 'modifiers' key in method"
+        assert "return_type" in method, "Missing 'return_type' key in method"
+    if "includes" in data:
+        for header in data["includes"]:
+            assert (
+                header.endswith(".hpp")
+                or header.endswith(".h")
+                or header.startswith("<")
+            ), f"Include {header} should be a .hpp, .h or system header"
+    assert (
+        "entry" in data["chart"]
+    ), "Missing 'entry' in chart, must have an entry state"
+    # [Optional]
+    # assert "enter" in data["chart"], "Missing 'enter' in chart"
+    # assert "exit" in data["chart"], "Missing 'exit' in chart"
     assert "states" in data["chart"], "Missing 'states' in chart"
     for state in data["chart"]["states"]:
-        assert "in" in state, "Missing 'name' key in state"
-        assert "transitions" in state, "Missing transitions in state"
-        for transition in state["transitions"]:
-            assert "trigger" in transition, "Missing Trigger in Transition"
-            assert "guard" in transition, "Missing Guard in Transition"
-            assert "target" in transition, "Missing Target in Transition"
+        verify_state(
+            state, data["states"], data["inputs"], data["outputs"], data["interface"]
+        )
 
 
 def main(args: List[str]) -> int:
@@ -275,10 +503,12 @@ def main(args: List[str]) -> int:
     env.filters["debug"] = lambda x: print(x) or x
     env.filters["list"] = list
     env.filters["conjoin"] = lambda ns: f"{ns}::"
-    env.filters["on_action"] = on_action
+    env.filters["dot_action"] = dot_action
+    env.filters["on_interface_call"] = on_interface_call
     env.filters["remove_void"] = remove_void
     env.filters["replace_bools"] = replace_bools
     env.filters["bitset"] = bitset
+    env.filters["final_filter"] = final_filter
 
     if input_file is not None:
         data = loader.load(input_file)

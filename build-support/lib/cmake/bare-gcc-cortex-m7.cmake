@@ -43,8 +43,13 @@ add_compile_options(
     -fomit-frame-pointer
     -fstack-usage
     -Wstack-usage=32768
-    -ggdb3 -O1
+    # -fno-inline
+    -fdiagnostics-all-candidates
 )
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+add_compile_options(-O1 -g3 -ggdb3)
+endif()
 
 message(STATUS "Enable reproducible build flags")
 add_compile_options(
