@@ -9,6 +9,7 @@ target_link_libraries(configuration-none INTERFACE strict)
 set_target_properties(configuration-none  PROPERTIES
     CONFIGURATION none # The configuration name
 )
+print_target_properties(TARGET configuration-none)
 
 if(LOCAL_CONFIGURATIONS)
     message(STATUS "LOCAL_CONFIGURATIONS=${LOCAL_CONFIGURATIONS}")
@@ -22,9 +23,13 @@ foreach(cfg IN LISTS LOCAL_CONFIGURATIONS)
     message("Adding configuration ${LOCAL_TARGET}")
     add_library(${LOCAL_TARGET} INTERFACE)
     target_compile_definitions(${LOCAL_TARGET} INTERFACE CONFIGURATION=${cfg})
-    target_include_directories(${LOCAL_TARGET} INTERFACE ${CMAKE_SOURCE_DIR}/configurations/${cfg})
+    target_include_directories(${LOCAL_TARGET} INTERFACE
+        ${CMAKE_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/configurations/${cfg}
+    )
     target_link_libraries(${LOCAL_TARGET} INTERFACE strict)
     set_target_properties(${LOCAL_TARGET} PROPERTIES
         CONFIGURATION ${cfg} # The configuration name
     )
+    print_target_properties(TARGET ${LOCAL_TARGET})
 endforeach()

@@ -5,6 +5,7 @@
 #include <jarnax/TestContext.hpp>
 #include <jarnax/dma/MockManager.hpp>
 #include <memory.hpp>
+#include <stm32/configure.hpp>
 #include <stm32/i2c/Driver.hpp>
 #include <stm32/vectors.hpp>
 #include "board.hpp"
@@ -44,7 +45,7 @@ public:
         ASSERT_EQ(0x0001U, control1.whole);
         stm32::peripherals::InterIntegratedCircuit::Control2 control2;
         control2 = stm32::peripherals::i2c1.control2;
-        if constexpr (use_dma_for_i2c) {
+        if constexpr (stm32::configure::use_i2c_as == stm32::configure::Mode::Dma) {
             ASSERT_EQ(1U, control2.bits.error_interrupt_enable);
             ASSERT_EQ(1U, control2.bits.event_interrupt_enable);
             ASSERT_EQ(1U, control2.bits.buffer_interrupt_enable);
@@ -84,7 +85,7 @@ protected:
     }
 
     void SimulateDataTransfer(core::Span<std::uint8_t> injected) {
-        if constexpr (not use_dma_for_i2c) {
+        if constexpr (stm32::configure::use_i2c_as != stm32::configure::Mode::Dma) {
             // simulate the address phase going well
             stm32::peripherals::InterIntegratedCircuit::Control1 control1;
             stm32::peripherals::InterIntegratedCircuit::Control2 control2;

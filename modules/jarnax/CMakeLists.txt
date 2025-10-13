@@ -115,7 +115,7 @@ add_module(NAME jarnax-lsm9ds1-driver
     NO_BOARDS
 )
 
-host_unit_test(NAME test-jarnax-catch
+host_unit_test(NAME jarnax-catch
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-countdown.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-yieldable.cpp
@@ -126,18 +126,20 @@ host_unit_test(NAME test-jarnax-catch
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/include
     LIBRARIES
-        strict core-none-all configuration-basic jarnax-interfaces
+        strict
+        jarnax-interfaces
+    GENERIC_MODULES
+        memory core
     MODULES
         jarnax
     CATCH2
     FAKEIT
     CONFIGURATIONS
         basic
-    BOARDS
-        stm32_f4ve_v2
+    NO_BOARDS
 )
 
-host_unit_test(NAME test-jarnax-googletest
+host_unit_test(NAME jarnax-googletest
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-mocks.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-coordinator.cpp
@@ -148,12 +150,13 @@ host_unit_test(NAME test-jarnax-googletest
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/include
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/mocks
     LIBRARIES
-        strict memory-none-all core-none-all jarnax-interfaces
+        strict jarnax-interfaces
+    GENERIC_MODULES
+        memory core
     MODULES
         jarnax
     GOOGLETEST
     CONFIGURATIONS
         basic
-    BOARDS
-        stm32_f4ve_v2
+    NO_BOARDS
 )

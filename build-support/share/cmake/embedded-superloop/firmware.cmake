@@ -43,61 +43,58 @@ function(add_firmware)
             # Get the board name
             set_board_name(TARGET_BOARD ${board} ${cfg})
             set_firmware_name(LOCAL_TARGET ${ARG_NAME} ${cfg} ${board})
-            message("Adding ${LOCAL_TARGET}")
+            message("Adding ${LOCAL_TARGET}.elf for ${cfg} ${board}")
             add_executable(${LOCAL_TARGET}.elf)
             target_sources(${LOCAL_TARGET}.elf PRIVATE ${ARG_SOURCES})
             # Link to the Configuration and the Board
             target_link_libraries(${LOCAL_TARGET}.elf PUBLIC ${TARGET_CONFIG})
-            message(STATUS "Linking ${LOCAL_TARGET} to ${TARGET_CONFIG}")
+            message(STATUS "Linking ${LOCAL_TARGET}.elf to ${TARGET_CONFIG}")
             # set(TARGET_LIBRARIES ${TARGET_BOARD})
             target_link_libraries(${LOCAL_TARGET}.elf PUBLIC ${TARGET_BOARD})
-            message(STATUS "Linking ${LOCAL_TARGET} to ${TARGET_BOARD}")
+            message(STATUS "Linking ${LOCAL_TARGET}.elf to ${TARGET_BOARD}")
 
             inherit_target_properties(CHILD ${LOCAL_TARGET}.elf PARENT ${TARGET_BOARD} PROPERTIES
                 FAMILY VENDOR CORTEX_M ARCHITECTURE VENDOR_LINKERSCRIPT VENDOR_LINKERSCRIPTS
                 CHIP DEVICE PACKAGE CONFIGURATION
                 ARCH_LINKERSCRIPTS BOARD_LINKERSCRIPTS
             )
-
-            if(ARG_LIBRARIES)
-                target_link_libraries(${LOCAL_TARGET}.elf PRIVATE ${ARG_LIBRARIES})
-                # list(APPEND TARGET_LIBRARIES ${ARG_LIBRARIES})
-            endif()
-
-            if(ARG_INCLUDES)
-                target_include_directories(${LOCAL_TARGET}.elf PRIVATE ${ARG_INCLUDES})
-            endif()
+            get_target_property(chip ${TARGET_BOARD} CHIP)
 
             if(ARG_DEFINES)
                 target_compile_definitions(${LOCAL_TARGET}.elf PRIVATE ${ARG_DEFINES})
             endif()
 
+            foreach(lib IN LISTS ARG_LIBRARIES)
+                target_link_libraries(${LOCAL_TARGET}.elf PRIVATE ${lib})
+                message(STATUS "Linking ${LOCAL_TARGET}.elf to ${lib}")
+            endforeach()
+
+            if(ARG_INCLUDES)
+                target_include_directories(${LOCAL_TARGET}.elf PRIVATE ${ARG_INCLUDES})
+            endif()
+
             foreach(module IN LISTS ARG_GENERIC_MODULES)
                 set_module_name(MODULE_TARGET ${module} none all)
                 target_link_libraries(${LOCAL_TARGET}.elf PRIVATE ${MODULE_TARGET})
-                # list(APPEND TARGET_LIBRARIES ${MODULE_TARGET})
-                message(STATUS "Linking ${LOCAL_TARGET} to ${MODULE_TARGET}")
+                message(STATUS "Linking ${LOCAL_TARGET}.elf to ${MODULE_TARGET}")
             endforeach()
 
             foreach(module IN LISTS ARG_CHIP_MODULES)
-                set_module_name(MODULE_TARGET ${module} none ${BOARD_CHIP})
+                set_module_name(MODULE_TARGET ${module} none ${chip})
                 target_link_libraries(${LOCAL_TARGET}.elf PRIVATE ${MODULE_TARGET})
-                # list(APPEND TARGET_LIBRARIES ${MODULE_TARGET})
-                message(STATUS "Linking ${LOCAL_TARGET} to ${MODULE_TARGET}")
+                message(STATUS "Linking ${LOCAL_TARGET}.elf to ${MODULE_TARGET}")
             endforeach()
 
             foreach(module IN LISTS ARG_SYSTEM_MODULES)
                 set_module_name(MODULE_TARGET ${module} ${cfg} all)
                 target_link_libraries(${LOCAL_TARGET}.elf PRIVATE ${MODULE_TARGET})
-                # list(APPEND TARGET_LIBRARIES ${MODULE_TARGET})
-                message(STATUS "Linking ${LOCAL_TARGET} to ${MODULE_TARGET}")
+                message(STATUS "Linking ${LOCAL_TARGET}.elf to ${MODULE_TARGET}")
             endforeach()
 
             foreach(module IN LISTS ARG_MODULES)
-                set_module_name(MODULE_TARGET ${module} ${cfg} ${BOARD_CHIP})
+                set_module_name(MODULE_TARGET ${module} ${cfg} ${chip})
                 target_link_libraries(${LOCAL_TARGET}.elf PRIVATE ${MODULE_TARGET})
-                # list(APPEND TARGET_LIBRARIES ${MODULE_TARGET})
-                message(STATUS "Linking ${LOCAL_TARGET} to ${MODULE_TARGET}")
+                message(STATUS "Linking ${LOCAL_TARGET}.elf to ${MODULE_TARGET}")
             endforeach()
 
             target_compile_options(${LOCAL_TARGET}.elf PRIVATE # -fverbose-asm -save-temps)
@@ -107,7 +104,6 @@ function(add_firmware)
             if(DEFINED COMPILER_MATH_LIBS AND NOT COMPILER_MATH_LIBS STREQUAL "")
                 message(STATUS "Linking with math libraries ${COMPILER_MATH_LIBS}")
                 target_link_libraries(${LOCAL_TARGET}.elf PUBLIC ${COMPILER_MATH_LIBS})
-                # list(APPEND TARGET_LIBRARIES ${COMPILER_MATH_LIBS})
             endif()
 
             # message(STATUS "Final link libraries for ${LOCAL_TARGET}: ${TARGET_LIBRARIES}")
@@ -215,7 +211,6 @@ function(add_firmware)
             endif()
 
             print_target_properties(TARGET ${LOCAL_TARGET}.elf)
-
         endforeach()
     endforeach()
 endfunction()

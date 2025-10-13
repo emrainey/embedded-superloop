@@ -11,7 +11,7 @@ struct MemoryProtectionUnitInitializer {
     peripherals::MemoryProtectionUnit::Region region;          ///< The region of the MPU
     peripherals::MemoryProtectionUnit::BaseAddress address;    ///< The base address of the region
     peripherals::MemoryProtectionUnit::Access access;          ///< The access for the region
-} mpui[DefaultRegionLimit];                                    ///< The list of MPU regions for this processor
+} mpui[variant::DefaultRegionLimit];                           ///< The list of MPU regions for this processor
 
 /// The number of Desired Regions from the initializer
 size_t DesiredRegions;
@@ -172,7 +172,7 @@ void class_globals() {
     DesiredRegions = idx;
 
     // there's a serious problem if the number of desired regions exceeds the limit
-    if (not use_only_default_mpu_configuration and DesiredRegions > DefaultRegionLimit) {
+    if (not use_only_default_mpu_configuration and DesiredRegions > variant::DefaultRegionLimit) {
         cortex::spinhalt();
     }
 }

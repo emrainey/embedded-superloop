@@ -63,14 +63,15 @@ add_module(NAME core
     GENERIC_MODULES
         memory
     LIBRARIES
-        $<IF:$<CXX_COMPILER_ID:GNU>,gcc m,> # GCC specific libraries to provide things like __aeabi_d2f
+        $<$<CXX_COMPILER_ID:GNU>:gcc>
+        $<$<CXX_COMPILER_ID:GNU>:m> # GCC specific libraries to provide things like __aeabi_d2f
     NO_CONFIGURATIONS
 )
 
 file(GLOB_RECURSE _GENERATED_CORE_TESTS ${CMAKE_CURRENT_SOURCE_DIR}/generated/tests/*.cpp)
 list(SORT _GENERATED_CORE_TESTS) # for reproducibility
 
-host_unit_test(NAME test-core
+host_unit_test(NAME core
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-array.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-avl.cpp
@@ -100,7 +101,7 @@ host_unit_test(NAME test-core
     NO_BOARDS
 )
 
-host_unit_test(NAME test-events
+host_unit_test(NAME events
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-events.cpp
     LIBRARIES
@@ -112,7 +113,7 @@ host_unit_test(NAME test-events
     NO_BOARDS
 )
 
-host_unit_test(NAME test-heap
+host_unit_test(NAME heap
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-heap.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-print.cpp
@@ -126,7 +127,7 @@ host_unit_test(NAME test-heap
     NO_BOARDS
 )
 
-host_unit_test(NAME test-fraction
+host_unit_test(NAME fraction
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-fraction.cpp
     LIBRARIES
@@ -145,7 +146,7 @@ generate_statechart(
     TYPES CPP HPP DOT D2 PLANTUML GTEST
 )
 
-host_unit_test(NAME test-generated-statechart
+host_unit_test(NAME generated-statechart
     SOURCES
         ${CMAKE_BINARY_DIR}/generated/core/tests/gtest_ExampleStateChart.cpp
         ${CMAKE_BINARY_DIR}/generated/core/tests/ExampleStateChart.cpp

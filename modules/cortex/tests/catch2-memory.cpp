@@ -5,7 +5,7 @@
 #include <iostream>
 
 TEST_CASE("Memory") {
-    std::cout << "Memory Regions: " << std::hex << cortex::sorted_memory_regions << std::endl;
+    std::cout << "Memory Regions: " << std::hex << cortex::variant::sorted_memory_regions << std::endl;
 
     SECTION("Address Checks") {
         // REQUIRE(cortex::IsValidAddress(cortex::));

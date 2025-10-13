@@ -28,7 +28,7 @@ function(add_chip)
     # Create the family name and make sure it exists
     set_family_name(TARGET_FAMILY ${ARG_FAMILY})
     if (NOT TARGET ${TARGET_FAMILY})
-        message(STATUS "Skipping ${ARG_CHIP} as ${TARGET_FAMILY} not found")
+        message(STATUS "Skipping chip ${ARG_CHIP} as ${TARGET_FAMILY} not found")
         return()
     endif()
     add_library(${LOCAL_TARGET} INTERFACE)
@@ -52,10 +52,17 @@ function(add_chip)
     )
 
     print_target_properties(TARGET ${LOCAL_TARGET})
+
+    if (NOT DEFINED CHIP_TARGETS)
+        set(CHIP_TARGETS ${LOCAL_TARGET} PARENT_SCOPE)
+    else()
+        list(APPEND CHIP_TARGETS ${LOCAL_TARGET})
+        set(CHIP_TARGETS ${CHIP_TARGETS} PARENT_SCOPE)
+    endif()
 endfunction()
 
-add_chip(CHIP all
-    FAMILY cortex
-    DEVICE cortex_m${CORTEX_M}
-    PACKAGE None
-)
+# add_chip(CHIP all
+#     FAMILY cortex
+#     DEVICE cortex_m${CORTEX_M}
+#     PACKAGE None
+# )

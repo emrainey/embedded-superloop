@@ -83,7 +83,7 @@ using Ordinal = core::StateChart<State>::Ordinal;
 class StateChart final : public core::StateChart<State>, protected core::StateChart<State>::Callback {
 public:
     StateChart(jarnax::Timer const& timer, core::units::Iota duration, lsm9ds1::Callback& callback);
-    virtual ~StateChart() = default;
+    ~StateChart() = default;
 
     void Process(Event event);
 

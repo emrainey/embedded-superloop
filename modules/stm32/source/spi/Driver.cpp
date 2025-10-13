@@ -1,5 +1,6 @@
 #include "cortex/halt.hpp"
 #include "cortex/thumb.hpp"
+#include "cortex/vectors.hpp"
 #include "jarnax/Assertion.hpp"
 #include "jarnax/print.hpp"
 #include "stm32/configure.hpp"
@@ -15,21 +16,21 @@ spi::Driver::Statistics* spi_statistics[3] = {nullptr, nullptr, nullptr};
 // Declare instances of the templates so that they have debugging symbols
 
 void spi1_isr(void) {
-    external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::SerialPeripheralInterface1)]++;
+    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::SerialPeripheralInterface1)]++;
     if (spi_instances[0]) {
         spi_instances[0]->HandleInterrupt();
     }
 }
 
 void spi2_isr(void) {
-    external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::SerialPeripheralInterface2)]++;
+    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::SerialPeripheralInterface2)]++;
     if (spi_instances[1]) {
         spi_instances[1]->HandleInterrupt();
     }
 }
 
 void spi3_isr(void) {
-    external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::SerialPeripheralInterface3)]++;
+    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::SerialPeripheralInterface3)]++;
     if (spi_instances[2]) {
         spi_instances[2]->HandleInterrupt();
     }

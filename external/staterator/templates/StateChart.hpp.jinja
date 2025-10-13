@@ -54,7 +54,8 @@ class StateChart; // forward declaration
 class {{state.in}}SubState final : public core::StateChart<State>, protected core::StateChart<State>::Callback {
 public:
     explicit {{state.in}}SubState({{ClassName}}& parent, State parent_state);
-    virtual ~{{state.in}}SubState() = default;
+    // final class can't have virtual functions
+    ~{{state.in}}SubState() = default;
 protected:
     //=== core::StateChart<State> interface ===//
     void OnEnter() override;
@@ -100,7 +101,8 @@ public:
     {{ClassName}}({{ClassName}} const&) = delete;
     {{ClassName}}& operator=({{ClassName}} const&) = delete;
     {{ClassName}}& operator=({{ClassName}}&&) = delete;
-    virtual ~{{ClassName}}() = default;
+    // final class can't have virtual functions
+    ~{{ClassName}}() = default;
 
     /// The interface to Raise events into the StateChart
     void Trigger(Inputs input);

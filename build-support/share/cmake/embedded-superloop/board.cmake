@@ -35,7 +35,8 @@ function(add_board)
         set_arch_name(TARGET_ARCH ${ARG_ARCH} ${cfg} ${ARG_CHIP})
         set_board_name(LOCAL_TARGET ${ARG_NAME} ${cfg})
         message("Adding ${LOCAL_TARGET}")
-        add_library(${LOCAL_TARGET} STATIC ${ARG_SOURCES})
+        add_library(${LOCAL_TARGET})
+        target_sources(${LOCAL_TARGET} PRIVATE ${ARG_SOURCES})
         target_link_libraries(${LOCAL_TARGET} PUBLIC ${TARGET_CONFIGURATION})
         message(STATUS "Linking ${LOCAL_TARGET} to ${TARGET_CONFIGURATION}")
         # we will get chip through this
@@ -102,6 +103,5 @@ function(add_board)
         endforeach()
 
         print_target_properties(TARGET ${LOCAL_TARGET})
-
     endforeach()
 endfunction()

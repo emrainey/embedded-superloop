@@ -1,8 +1,6 @@
 add_board(NAME stm32_f4ve_v2
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/source/BoardContext.cpp
-        $<IF:$<BOOL:${BUILD_CROSS_TARGET}>,,${CMAKE_CURRENT_SOURCE_DIR}/source/peripherals.cpp>
-        $<IF:$<BOOL:${BUILD_CROSS_TARGET}>,,${CMAKE_CURRENT_SOURCE_DIR}/source/symbols.cpp>
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
     LIBRARIES

@@ -77,7 +77,7 @@ namespace cortex {
 constexpr static Variants microcontroller_variant = Variants::M85;
 }    // namespace cortex
 #else
-#warning "CORTEX_M not defined or invalid value"
+#error "CORTEX_M not defined or invalid value"
 namespace cortex {
 /// The microcontroller variant was not detected at compile time!
 constexpr static Variants microcontroller_variant = Variants::Unknown;

@@ -1,7 +1,7 @@
 #include "configure.hpp"
+#include "cortex/globals.hpp"
 #include "cortex/handlers/enter.hpp"
 #include "cortex/thumb.hpp"
-#include "cortex/globals.hpp"
 #include "memory.hpp"
 
 namespace cortex {
@@ -39,7 +39,7 @@ void svc(cortex::exceptions::ExtendedFrame *frame, cortex::exceptions::Exception
                 cortex::built_in_self_test.trigger_supervisor_call.has_passed = false;
             }
             if (cortex::built_in_self_test.trigger_supervisor_call.has_passed) {
-                // trigger the PendSV
+                // trigger the PendingSupervisor
                 cortex::trigger_pending_supervisor();
             }
             // even if the values failed, it still made it through and should return

@@ -1,6 +1,9 @@
 #ifndef CORE_EVENT_HPP_
 #define CORE_EVENT_HPP_
 
+#include <cstdint>
+#include <utility>
+
 /// @file
 /// The Events Namespace and Event Interface
 
@@ -10,11 +13,17 @@ namespace core {
 template <typename StorageType>
 class Event {
 public:
-    Event() : raised_{false}, value_{StorageType()} {}
-    Event(StorageType v) : raised_{true}, value_{v} {}
+    Event()
+        : raised_{false}
+        , value_{StorageType()} {}
+    Event(StorageType v)
+        : raised_{true}
+        , value_{v} {}
 
     /// Move Constructor will clear the original event
-    Event(Event&& other) noexcept : raised_{other.raised_}, value_{std::move(other.value_)} {
+    Event(Event&& other) noexcept
+        : raised_{other.raised_}
+        , value_{std::move(other.value_)} {
         other.raised_ = false;
     }
 
@@ -77,14 +86,10 @@ public:
     }
 
     /// Check if the event is raised
-    bool IsRaised(void) const {
-        return raised_;
-    }
+    bool IsRaised(void) const { return raised_; }
 
     /// Peeks at the value of the event but does not clear the raised flag
-    StorageType const& Peek(void) const {
-        return value_;
-    }
+    StorageType const& Peek(void) const { return value_; }
 
     /// Returns a read only reference the value of the event and clears the raised flag
     StorageType const& Get(void) const {
@@ -93,15 +98,13 @@ public:
     }
 
     /// Clears the event without altering the value.
-    void Clear(void) {
-        raised_ = false;
-    }
+    void Clear(void) { raised_ = false; }
 
 private:
-    mutable bool raised_; ///< Indicates if the event has been raised
-    StorageType value_;             ///< The value of the Event.
+    mutable bool raised_;    ///< Indicates if the event has been raised
+    StorageType value_;      ///< The value of the Event.
 };
 
-} // namespace core
+}    // namespace core
 
-#endif // CORE_EVENT_HPP_
+#endif    // CORE_EVENT_HPP_

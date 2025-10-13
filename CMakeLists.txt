@@ -43,5 +43,9 @@ list(APPEND LOCAL_BOARDS stm32_f4ve_v2 netduinoplus2)
 add_subdirectory(external) # This is where we find Catch2, GoogleTest, etc.
 
 find_package(embedded-superloop REQUIRED)
+message(STATUS "embedded-superloop found: ${embedded-superloop_VERSION}")
+message(STATUS "==> family targets: ${FAMILY_TARGETS}")
+message(STATUS "==> chip targets: ${CHIP_TARGETS}")
+message(STATUS "==> architecture targets: ${ARCHITECTURE_TARGETS}")
 
 message(STATUS BUILD_CROSS_TARGET=${BUILD_CROSS_TARGET})

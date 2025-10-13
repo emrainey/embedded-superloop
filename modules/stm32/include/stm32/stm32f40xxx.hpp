@@ -27,25 +27,6 @@ constexpr Hertz top_clock_frequency = 168_MHz;
 /// The number of extended interrupt vectors supported on this processor
 constexpr std::uint32_t number_of_interrupt_channels = 82U;
 
-/// The layout of the vendor portion of the extended vector table
-struct ExternalInterrupts final {
-    /// The external interrupt handlers
-    cortex::exceptions::HandlerFunction handlers[number_of_interrupt_channels];
-};
-
-/// The read-only chip specific external interrupts table
-/// @note Install your interrupt handlers by overriding the weak symbols.
-extern ExternalInterrupts const external_interrupts;
-
-/// Counts the number of times each interrupt has been called
-/// @note This is used to track the number of times each vector table entry has been called
-struct ExternalInterruptStatistics final {
-    std::size_t count[number_of_interrupt_channels]{0U};    ///< Incremented by the interrupt handler per interrupt
-};
-
-/// @brief Each Driver interrupt increments their own count
-extern ExternalInterruptStatistics external_interrupt_statistics;
-
 /// @see cortex::m4::InterruptRequest for preceding numbers
 enum class InterruptRequest : cortex::InterruptRequestType {
     WindowWatchDog = 0U,

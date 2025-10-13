@@ -2,6 +2,7 @@
 #include <cmath>    // for std::floor
 #include <jarnax/print.hpp>
 #include <memory.hpp>
+#include "cortex/vectors.hpp"
 #include "stm32/configure.hpp"
 
 namespace stm32 {
@@ -9,28 +10,28 @@ uart::Driver* uart_instances[4] = {nullptr, nullptr, nullptr, nullptr};         
 uart::Statistics* uart_statistics[4] = {nullptr, nullptr, nullptr, nullptr};    // 4, 5, 7, 8
 
 void uart4_isr(void) {
-    external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter4)]++;
+    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter4)]++;
     if (uart_instances[0]) {
         uart_instances[0]->HandleInterrupt();
     }
 }
 
 void uart5_isr(void) {
-    external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter5)]++;
+    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter5)]++;
     if (uart_instances[1]) {
         uart_instances[1]->HandleInterrupt();
     }
 }
 
 void uart7_isr(void) {
-    // external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter7)]++;
+    // cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter7)]++;
     if (uart_instances[2]) {
         uart_instances[2]->HandleInterrupt();
     }
 }
 
 void uart8_isr(void) {
-    // external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter8)]++;
+    // cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter8)]++;
     if (uart_instances[3]) {
         uart_instances[3]->HandleInterrupt();
     }

@@ -2,7 +2,7 @@
 function(host_unit_test)
     set(options DISABLE CATCH2 FAKEIT GOOGLETEST NO_CONFIGURATIONS NO_BOARDS)
     set(singles NAME)
-    set(multiples SOURCES INCLUDES LIBRARIES MODULES EXCLUDES DEFINES TEST_ARGUMENTS CONFIGURATIONS BOARDS)
+    set(multiples SOURCES DEFINES INCLUDES LIBRARIES GENERIC_MODULES CHIP_MODULES SYSTEM_MODULES MODULES EXCLUDES TEST_ARGUMENTS CONFIGURATIONS BOARDS)
     cmake_parse_arguments(
         ARG
         "${options}"
@@ -14,6 +14,8 @@ function(host_unit_test)
         message(WARNING "Unit test ${ARG_NAME} is disabled")
         return()
     endif()
+
+    required(ARG_NAME ARG_SOURCES)
 
     if(NOT ARG_CONFIGURATIONS AND NOT ARG_NO_CONFIGURATIONS)
         message(FATAL_ERROR "No configurations specified for unit test ${ARG_NAME}")
@@ -34,41 +36,64 @@ function(host_unit_test)
     if(NOT BUILD_CROSS_TARGET)
         # message(STATUS "Adding host unit test ${ARG_NAME} ${ARG_CONFIGURATIONS} ${ARG_BOARDS}")
         foreach(cfg IN LISTS ARG_CONFIGURATIONS)
+            set_configuration_name(TARGET_CONFIG ${cfg})
             foreach(board IN LISTS ARG_BOARDS)
-                set_module_name(LOCAL_TARGET ${ARG_NAME} ${cfg} ${board})
-                message("Adding host unit test ${LOCAL_TARGET} for ${cfg} ${board}")
-                add_executable(${LOCAL_TARGET} ${ARG_SOURCES})
+                # Get the board name
+                set_board_name(TARGET_BOARD ${board} ${cfg})
+                set_unit_test_name(LOCAL_TARGET ${ARG_NAME} ${cfg} ${board})
+                message("Adding ${LOCAL_TARGET} for ${cfg} ${board}")
+                add_executable(${LOCAL_TARGET})
+                target_sources(${LOCAL_TARGET} PRIVATE ${ARG_SOURCES})
+                # Link to the Configuration and the Board
+                target_link_libraries(${LOCAL_TARGET} PUBLIC ${TARGET_CONFIG})
+                message(STATUS "Linking ${LOCAL_TARGET} to ${TARGET_CONFIG}")
+                target_link_libraries(${LOCAL_TARGET} PUBLIC ${TARGET_BOARD})
+                message(STATUS "Linking ${LOCAL_TARGET} to ${TARGET_BOARD}")
+                if (TARGET ${TARGET_BOARD})
+                    inherit_target_properties(CHILD ${LOCAL_TARGET} PARENT ${TARGET_BOARD} PROPERTIES
+                            FAMILY VENDOR CORTEX_M ARCHITECTURE
+                            CHIP DEVICE PACKAGE CONFIGURATION
+                    )
+                    get_target_property(chip ${TARGET_BOARD} CHIP)
+                else()
+                    set(chip all)
+                endif()
+
+                if(ARG_DEFINES)
+                    target_compile_definitions(${LOCAL_TARGET} PRIVATE ${ARG_DEFINES})
+                endif()
+
+                foreach(lib IN LISTS ARG_LIBRARIES)
+                    target_link_libraries(${LOCAL_TARGET} PUBLIC ${lib})
+                    message(STATUS "Linking ${LOCAL_TARGET} to ${lib}")
+                endforeach()
 
                 if(ARG_INCLUDES)
                     target_include_directories(${LOCAL_TARGET} PRIVATE ${ARG_INCLUDES})
                 endif()
 
-                if(ARG_LIBRARIES)
-                    target_link_libraries(${LOCAL_TARGET} PUBLIC ${ARG_LIBRARIES})
-                endif()
-
                 foreach(module IN LISTS ARG_GENERIC_MODULES)
                     set_module_name(MODULE_TARGET ${module} none all)
-                    message(STATUS "Depends on ${MODULE_TARGET}")
-                    target_link_libraries(${LOCAL_TARGET} PUBLIC ${MODULE_TARGET})
+                    target_link_libraries(${LOCAL_TARGET} PRIVATE ${MODULE_TARGET})
+                    message(STATUS "Linking ${LOCAL_TARGET} to ${MODULE_TARGET}")
                 endforeach()
 
                 foreach(module IN LISTS ARG_CHIP_MODULES)
-                    set_module_name(MODULE_TARGET ${module} none ${board})
-                    message(STATUS "Depends on ${MODULE_TARGET}")
-                    target_link_libraries(${LOCAL_TARGET} PUBLIC ${MODULE_TARGET})
+                    set_module_name(MODULE_TARGET ${module} none ${chip})
+                    target_link_libraries(${LOCAL_TARGET} PRIVATE ${MODULE_TARGET})
+                    message(STATUS "Linking ${LOCAL_TARGET} to ${MODULE_TARGET}")
                 endforeach()
 
                 foreach(module IN LISTS ARG_SYSTEM_MODULES)
                     set_module_name(MODULE_TARGET ${module} ${cfg} all)
-                    message(STATUS "Depends on ${MODULE_TARGET}")
-                    target_link_libraries(${LOCAL_TARGET} PUBLIC ${MODULE_TARGET})
+                    target_link_libraries(${LOCAL_TARGET} PRIVATE ${MODULE_TARGET})
+                    message(STATUS "Linking ${LOCAL_TARGET} to ${MODULE_TARGET}")
                 endforeach()
 
                 foreach(module IN LISTS ARG_MODULES)
-                    set_module_name(MODULE_TARGET ${module} ${cfg} ${board})
-                    message(STATUS "Depends on ${MODULE_TARGET}")
-                    target_link_libraries(${LOCAL_TARGET} PUBLIC ${MODULE_TARGET})
+                    set_module_name(MODULE_TARGET ${module} ${cfg} ${chip})
+                    target_link_libraries(${LOCAL_TARGET} PRIVATE ${MODULE_TARGET})
+                    message(STATUS "Linking ${LOCAL_TARGET} to ${MODULE_TARGET}")
                 endforeach()
 
                 if(ARG_CATCH2)
@@ -85,8 +110,6 @@ function(host_unit_test)
                     target_compile_definitions(${LOCAL_TARGET} PRIVATE GOOGLETEST)
                     target_link_libraries(${LOCAL_TARGET} PUBLIC GTest::gtest GTest::gmock GTest::gtest_main)
                 endif()
-
-                target_compile_definitions(${LOCAL_TARGET} PRIVATE UNITTEST ${ARG_DEFINES})
 
                 print_target_properties(TARGET ${LOCAL_TARGET})
 

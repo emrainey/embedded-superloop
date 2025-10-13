@@ -1,20 +1,17 @@
-set(STM32_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/vectors.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/clocks.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/gpio/Pin.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/Conversions.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/Indicator.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/Button.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/RandomNumberGenerator.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/dma/Manager.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/dma/Resource.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/Timer2.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/backup.cpp
-)
-
 add_module(NAME stm32
     SOURCES
-        ${STM32_SOURCES}
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/vectors.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/clocks.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/gpio/Pin.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/Conversions.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/Indicator.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/Button.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/RandomNumberGenerator.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/dma/Manager.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/dma/Resource.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/Timer2.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/backup.cpp
+        $<IF:$<BOOL:${BUILD_UNIT_TESTS}>,${CMAKE_CURRENT_SOURCE_DIR}/source/symbols.cpp,>
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         # Add the tests/mocks/ folder if the build is for unit testing
@@ -99,11 +96,13 @@ add_module(NAME stm32-usart-driver
         ${LOCAL_CONFIGURATIONS}
 )
 
-host_unit_test(NAME test-stm32-i2c
+host_unit_test(NAME stm32-i2c
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-stm32-i2c.cpp
     LIBRARIES
-        strict core-none-all
+        strict
+    GENERIC_MODULES
+        core
     MODULES
         jarnax stm32 stm32-i2c-driver
     GOOGLETEST
@@ -113,11 +112,13 @@ host_unit_test(NAME test-stm32-i2c
         stm32_f4ve_v2
 )
 
-host_unit_test(NAME test-stm32-spi
+host_unit_test(NAME stm32-spi
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-stm32-spi.cpp
     LIBRARIES
-        strict core-none-all
+        strict
+    GENERIC_MODULES
+        core
     MODULES
         jarnax stm32 stm32-spi-driver
     GOOGLETEST

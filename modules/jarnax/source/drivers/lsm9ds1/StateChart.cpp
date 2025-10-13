@@ -79,7 +79,7 @@ Ordinal StateChart::OnGuard(State state) const {
         }
     }
     // for any state which needs to check to see if it was able to schedule a transaction, we need to check the status code
-    if (state != State::Idling or state != State::Error) {
+    if (state != State::Idling and state != State::Error) {
         good_schedule = (entry_status_.IsSuccess());
     }
     if (good_schedule) {

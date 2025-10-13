@@ -115,6 +115,11 @@ function(set_firmware_name VAR NAME CFG BOARD)
     set(${VAR} firmware-${NAME}-${CFG}-${BOARD} PARENT_SCOPE)
 endfunction()
 
+function(set_unit_test_name VAR NAME CFG BOARD)
+    # it's prefixed by test to allow easy grepping by VSCode plugins, etc
+    set(${VAR} test-${NAME}-${CFG}-${BOARD} PARENT_SCOPE)
+endfunction()
+
 # Checks to make sure a variable is defined
 macro(required)
     foreach (var ${ARGN})
@@ -185,62 +190,62 @@ function(print_target_properties)
 
     message(STATUS "TARGET ${ARG_TARGET} has these properties")
 
-    get_target_property(LOCAL_INTERFACES ${LOCAL_TARGET} INTERFACE_LINK_LIBRARIES)
-    message(STATUS "  <==> ${LOCAL_TARGET} interfaces: ${LOCAL_INTERFACES}")
+    get_target_property(LOCAL_INTERFACES ${ARG_TARGET} INTERFACE_LINK_LIBRARIES)
+    message(STATUS "  <==> ${ARG_TARGET} interfaces: ${LOCAL_INTERFACES}")
 
-    get_target_property(LOCAL_LIBS ${LOCAL_TARGET} LINK_LIBRARIES)
-    message(STATUS "  <=> ${LOCAL_TARGET} libraries: ${LOCAL_LIBS}")
+    get_target_property(LOCAL_LIBS ${ARG_TARGET} LINK_LIBRARIES)
+    message(STATUS "  <=> ${ARG_TARGET} libraries: ${LOCAL_LIBS}")
 
-    get_target_property(LOCAL_INTERFACE_DEFINES ${LOCAL_TARGET} LINK_INTERFACE_LIBRARIES)
-    message(STATUS "  <==> ${LOCAL_TARGET} link interface defines: ${LOCAL_INTERFACE_DEFINES}")
+    get_target_property(LOCAL_INTERFACE_DEFINES ${ARG_TARGET} LINK_INTERFACE_LIBRARIES)
+    message(STATUS "  <==> ${ARG_TARGET} link interface defines: ${LOCAL_INTERFACE_DEFINES}")
 
-    get_target_property(LOCAL_INTERFACE_INCLUDES ${LOCAL_TARGET} INTERFACE_INCLUDE_DIRECTORIES)
-    message(STATUS "  ### ${LOCAL_TARGET} includes: ${LOCAL_INTERFACE_INCLUDES}")
+    get_target_property(LOCAL_INTERFACE_INCLUDES ${ARG_TARGET} INTERFACE_INCLUDE_DIRECTORIES)
+    message(STATUS "  ### ${ARG_TARGET} includes: ${LOCAL_INTERFACE_INCLUDES}")
 
-    get_target_property(LOCAL_INCLUDES ${LOCAL_TARGET} INCLUDE_DIRECTORIES)
-    message(STATUS "  ## ${LOCAL_TARGET} includes: ${LOCAL_INCLUDES}")
+    get_target_property(LOCAL_INCLUDES ${ARG_TARGET} INCLUDE_DIRECTORIES)
+    message(STATUS "  ## ${ARG_TARGET} includes: ${LOCAL_INCLUDES}")
 
-    get_target_property(LOCAL_INTERFACE_COMPILE_DEFINITIONS ${LOCAL_TARGET} INTERFACE_COMPILE_DEFINITIONS)
-    message(STATUS "  !!! ${LOCAL_TARGET} interface compile definitions: ${LOCAL_INTERFACE_COMPILE_DEFINITIONS}")
+    get_target_property(LOCAL_INTERFACE_COMPILE_DEFINITIONS ${ARG_TARGET} INTERFACE_COMPILE_DEFINITIONS)
+    message(STATUS "  !!! ${ARG_TARGET} interface compile definitions: ${LOCAL_INTERFACE_COMPILE_DEFINITIONS}")
 
-    get_target_property(LOCAL_COMPILE_DEFINITIONS ${LOCAL_TARGET} COMPILE_DEFINITIONS)
-    message(STATUS "  !! ${LOCAL_TARGET} compile definitions: ${LOCAL_COMPILE_DEFINITIONS}")
+    get_target_property(LOCAL_COMPILE_DEFINITIONS ${ARG_TARGET} COMPILE_DEFINITIONS)
+    message(STATUS "  !! ${ARG_TARGET} compile definitions: ${LOCAL_COMPILE_DEFINITIONS}")
 
-    get_target_property(LOCAL_CONFIGURATION ${LOCAL_TARGET} CONFIGURATION)
-    message(STATUS "  $$$ ${LOCAL_TARGET} configuration: ${LOCAL_CONFIGURATION}")
+    get_target_property(LOCAL_CONFIGURATION ${ARG_TARGET} CONFIGURATION)
+    message(STATUS "  $$$ ${ARG_TARGET} configuration: ${LOCAL_CONFIGURATION}")
 
-    get_target_property(LOCAL_FAMILY ${LOCAL_TARGET} FAMILY)
-    message(STATUS "  >> ${LOCAL_TARGET} family: ${LOCAL_FAMILY}")
+    get_target_property(LOCAL_FAMILY ${ARG_TARGET} FAMILY)
+    message(STATUS "  >> ${ARG_TARGET} family: ${LOCAL_FAMILY}")
 
-    get_target_property(LOCAL_VENDOR ${LOCAL_TARGET} VENDOR)
-    message(STATUS "  >> ${LOCAL_TARGET} vendor: ${LOCAL_VENDOR}")
+    get_target_property(LOCAL_VENDOR ${ARG_TARGET} VENDOR)
+    message(STATUS "  >> ${ARG_TARGET} vendor: ${LOCAL_VENDOR}")
 
-    get_target_property(LOCAL_CORTEX_M ${LOCAL_TARGET} CORTEX_M)
-    message(STATUS "  >> ${LOCAL_TARGET} cortex_m: ${LOCAL_CORTEX_M}")
+    get_target_property(LOCAL_CORTEX_M ${ARG_TARGET} CORTEX_M)
+    message(STATUS "  >> ${ARG_TARGET} cortex_m: ${LOCAL_CORTEX_M}")
 
-    get_target_property(LOCAL_ARCHITECTURE ${LOCAL_TARGET} ARCHITECTURE)
-    message(STATUS "  >> ${LOCAL_TARGET} architecture: ${LOCAL_ARCHITECTURE}")
+    get_target_property(LOCAL_ARCHITECTURE ${ARG_TARGET} ARCHITECTURE)
+    message(STATUS "  >> ${ARG_TARGET} architecture: ${LOCAL_ARCHITECTURE}")
 
-    get_target_property(LOCAL_CHIP ${LOCAL_TARGET} CHIP)
-    message(STATUS "  >> ${LOCAL_TARGET} chip: ${LOCAL_CHIP}")
+    get_target_property(LOCAL_CHIP ${ARG_TARGET} CHIP)
+    message(STATUS "  >> ${ARG_TARGET} chip: ${LOCAL_CHIP}")
 
-    get_target_property(LOCAL_DEVICE ${LOCAL_TARGET} DEVICE)
-    message(STATUS "  >> ${LOCAL_TARGET} device: ${LOCAL_DEVICE}")
+    get_target_property(LOCAL_DEVICE ${ARG_TARGET} DEVICE)
+    message(STATUS "  >> ${ARG_TARGET} device: ${LOCAL_DEVICE}")
 
-    get_target_property(LOCAL_PACKAGE ${LOCAL_TARGET} PACKAGE)
-    message(STATUS "  >> ${LOCAL_TARGET} package: ${LOCAL_PACKAGE}")
+    get_target_property(LOCAL_PACKAGE ${ARG_TARGET} PACKAGE)
+    message(STATUS "  >> ${ARG_TARGET} package: ${LOCAL_PACKAGE}")
 
-    get_target_property(LOCAL_VENDOR_LINKERSCRIPT ${LOCAL_TARGET} VENDOR_LINKERSCRIPT)
-    message(STATUS "  == ${LOCAL_TARGET} vendor linkerscript: ${LOCAL_VENDOR_LINKERSCRIPT}")
+    get_target_property(LOCAL_VENDOR_LINKERSCRIPT ${ARG_TARGET} VENDOR_LINKERSCRIPT)
+    message(STATUS "  == ${ARG_TARGET} vendor linkerscript: ${LOCAL_VENDOR_LINKERSCRIPT}")
 
-    get_target_property(LOCAL_VENDOR_LINKERSCRIPTS ${LOCAL_TARGET} VENDOR_LINKERSCRIPTS)
-    message(STATUS "  == ${LOCAL_TARGET} vendor linkerscripts: ${LOCAL_VENDOR_LINKERSCRIPTS}")
+    get_target_property(LOCAL_VENDOR_LINKERSCRIPTS ${ARG_TARGET} VENDOR_LINKERSCRIPTS)
+    message(STATUS "  == ${ARG_TARGET} vendor linkerscripts: ${LOCAL_VENDOR_LINKERSCRIPTS}")
 
-    get_target_property(LOCAL_BOARD_LINKERSCRIPTS ${LOCAL_TARGET} BOARD_LINKERSCRIPTS)
-    message(STATUS "  == ${LOCAL_TARGET} board linkerscripts: ${LOCAL_BOARD_LINKERSCRIPTS}")
+    get_target_property(LOCAL_BOARD_LINKERSCRIPTS ${ARG_TARGET} BOARD_LINKERSCRIPTS)
+    message(STATUS "  == ${ARG_TARGET} board linkerscripts: ${LOCAL_BOARD_LINKERSCRIPTS}")
 
-    get_target_property(LOCAL_ARCH_LINKERSCRIPTS ${LOCAL_TARGET} ARCH_LINKERSCRIPTS)
-    message(STATUS "  == ${LOCAL_TARGET} arch linkerscripts: ${LOCAL_ARCH_LINKERSCRIPTS}")
+    get_target_property(LOCAL_ARCH_LINKERSCRIPTS ${ARG_TARGET} ARCH_LINKERSCRIPTS)
+    message(STATUS "  == ${ARG_TARGET} arch linkerscripts: ${LOCAL_ARCH_LINKERSCRIPTS}")
 
 endfunction()
 

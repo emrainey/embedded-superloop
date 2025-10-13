@@ -37,7 +37,7 @@ enum class InterruptRequest : std::int32_t {
     UsageFault = -10,
     SupervisorCall = -5,
     DebugMonitor = -4,
-    PendSV = -2,
+    PendingSupervisor = -2,
     SysTick = -1,
 };
 
@@ -62,7 +62,7 @@ enum class InterruptServiceRoutine : std::uint32_t {
     SupervisorCall = 11U,
     // 12 is Reserved for Debug
     // 13 is Reserved
-    PendSV = 14U,
+    PendingSupervisor = 14U,
     SystemTick = 15U,
     // 16-255 is External Interrupts
     BaseExternal = 16U,

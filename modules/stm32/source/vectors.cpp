@@ -1,5 +1,6 @@
 #include "stm32/vectors.hpp"    // declares the interrupt service routines
 #include "core/core.hpp"
+#include "cortex/vectors.hpp"
 #include "polyfill.hpp"
 
 /// The dummy ISR used by the linker to fill in unused vectors.
@@ -13,7 +14,7 @@ namespace stm32 {
 /// Storage location for the extended vector table.
 /// If you need a compile time interrupt setup, do so here.
 LINKER_SECTION(".extended_vectors")
-ExternalInterrupts const external_interrupts = {{
+cortex::ExtendedVectors const extended_vectors USED = {{
     dummy_isr,           // 0
     dummy_isr,        dummy_isr, dummy_isr, dummy_isr, dummy_isr, dummy_isr, dummy_isr, dummy_isr,
     dummy_isr,           // 9
@@ -68,9 +69,9 @@ ExternalInterrupts const external_interrupts = {{
     dummy_isr,           // 80
     dummy_isr,
 }};
-static_assert(sizeof(external_interrupts) == (stm32::number_of_interrupt_channels * sizeof(void *)), "Must be this value exactly");
+// static_assert(sizeof(extended_vectors.handlers) == (stm32::number_of_interrupt_channels * sizeof(void *)), "Must be this value exactly");
 
 // local storage for the external interrupt statistics
-ExternalInterruptStatistics external_interrupt_statistics;
+cortex::ExtendedVectorStatistics extended_vector_statistics;
 
 }    // namespace stm32

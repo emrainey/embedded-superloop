@@ -46,7 +46,7 @@ if(NOT BUILD_CROSS_TARGET) # Only fetch these dependencies if we are not cross-c
         gtest
         DOWNLOAD_EXTRACT_TIMESTAMP ON
         GIT_REPOSITORY https://github.com/google/googletest/
-        GIT_TAG v1.15.2
+        GIT_TAG v1.17.0
     )
     FetchContent_MakeAvailable(gtest) # This will define the gtest and gmock targets
     print_variables_with_prefix("gtest_")

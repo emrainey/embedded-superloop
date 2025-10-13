@@ -24,11 +24,6 @@ function(add_family)
 
     required(ARG_FAMILY ARG_VENDOR ARG_CORTEX_M ARG_ARCHITECTURE)
 
-    if (NOT CORTEX_M STREQUAL ARG_CORTEX_M)
-        message(STATUS "Skipping chip ${ARG_CHIP} because it is for Cortex-M${ARG_CORTEX_M} but toolchain is for Cortex-M${CORTEX_M}")
-        return()
-    endif()
-
     set_family_name(LOCAL_TARGET ${ARG_FAMILY})
     message("Adding ${LOCAL_TARGET}")
     add_library(${LOCAL_TARGET} INTERFACE)
@@ -45,13 +40,23 @@ function(add_family)
         VENDOR_LINKERSCRIPTS ${CMAKE_SOURCE_DIR}/modules/${ARG_VENDOR}/linkerscripts
         VENDOR_LINKERSCRIPT ${CMAKE_SOURCE_DIR}/modules/${ARG_VENDOR}/linkerscripts/gcc.ld
      )
-
     print_target_properties(TARGET ${LOCAL_TARGET})
-
+    if (NOT DEFINED FAMILY_TARGETS)
+        set(FAMILY_TARGETS ${LOCAL_TARGET} PARENT_SCOPE)
+    else()
+        list(APPEND FAMILY_TARGETS ${LOCAL_TARGET})
+        set(FAMILY_TARGETS ${FAMILY_TARGETS} PARENT_SCOPE)
+    endif()
 endfunction()
 
-add_family(FAMILY cortex
-    VENDOR cortex
-    CORTEX_M ${CORTEX_M}
-    ARCHITECTURE ${ARCHITECTURE}
-)
+# add_family(FAMILY cortex-m4
+#     VENDOR cortex
+#     CORTEX_M 4
+#     ARCHITECTURE armv7e-m
+# )
+
+# add_family(FAMILY cortex-m7
+#     VENDOR cortex
+#     CORTEX_M 7
+#     ARCHITECTURE armv7e-m
+# )

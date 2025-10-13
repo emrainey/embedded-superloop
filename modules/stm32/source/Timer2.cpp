@@ -1,5 +1,5 @@
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-#include "cortex/nvic.hpp"
+#include "cortex/vectors.hpp"
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 #include "jarnax/print.hpp"
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -21,7 +21,7 @@ namespace stm32 {
 std::uint32_t volatile timer2_high_order_bits{0U};
 
 /// Called by Hardware when the TIMER2 counter overflows
-__attribute__((used)) void timer2_isr(void) {
+USED void timer2_isr(void) {
     // read a copy of the high order bits
     std::uint32_t count = timer2_high_order_bits;
 
@@ -33,7 +33,7 @@ __attribute__((used)) void timer2_isr(void) {
     // store the update
     timer2_high_order_bits = count + 1U;
 
-    external_interrupt_statistics.count[to_underlying(stm32::InterruptRequest::Timer2)]++;
+    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::Timer2)]++;
 }
 
 Timer::Timer(stm32::peripherals::Timer2 volatile& timer)

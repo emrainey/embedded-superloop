@@ -5,6 +5,7 @@
 #include <jarnax/TestContext.hpp>
 #include <jarnax/dma/MockManager.hpp>
 #include <memory.hpp>
+#include <stm32/configure.hpp>
 #include <stm32/spi/Driver.hpp>
 #include <stm32/vectors.hpp>
 #include "board.hpp"
@@ -86,7 +87,7 @@ protected:
     }
 
     void SimulateDataTransfer(size_t count, uint8_t expected_tx[], uint8_t injected_rx[]) {
-        if constexpr (not use_dma_for_spi) {
+        if constexpr (stm32::configure::use_spi_as != stm32::configure::Mode::Dma) {
             for (size_t i = 0; i < count; ++i) {
                 size_t old_interrupts = spi_driver_.GetStatistics().interrupts;
                 // set the bits to indicate that there was a TXE and RXNE interrupt

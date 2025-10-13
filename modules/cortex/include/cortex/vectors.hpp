@@ -11,6 +11,16 @@ namespace cortex {
 /// Declares the table which handles processor exceptions.
 extern exceptions::VectorTable const vector_table;
 
+/// The layout of the vendor portion of the extended vector table
+struct ExtendedVectors final {
+    /// The external interrupt handlers (full possible size)
+    cortex::exceptions::HandlerFunction handlers[variant::max_extended_vectors];
+};
+
+/// The read-only chip specific external interrupts table
+/// @note Install your interrupt handlers by overriding the weak symbols.
+extern ExtendedVectors const extended_vectors;
+
 /// @brief Track the number of times each vector table entry has been called.
 struct VectorTableStatistics {
     size_t entry{0U};                     ///< Incremented by the entry handler
@@ -20,7 +30,7 @@ struct VectorTableStatistics {
     size_t bus_fault{0U};                 ///< Incremented by the bus fault handler
     size_t usage_fault{0U};               ///< Incremented by the usage fault handler
     size_t sv_call{0U};                   ///< Incremented by the SVC handler
-    size_t pending_sv{0U};                ///< Incremented by the PendSV handler
+    size_t pending_supervisor{0U};        ///< Incremented by the PendingSupervisor handler
     size_t tick{0U};                      ///< Incremented by the tick handler
     size_t dummy{0U};                     ///< Incremented by the dummy handler
 };
@@ -28,6 +38,15 @@ struct VectorTableStatistics {
 /// The vector table statistics
 /// @note This is used to track the number of times each vector table entry has been called
 extern VectorTableStatistics vector_table_statistics;
+
+/// Counts the number of times each interrupt has been called
+/// @note This is used to track the number of times each vector table entry has been called
+struct ExtendedVectorStatistics final {
+    std::size_t count[variant::max_extended_vectors]{0U};    ///< Incremented by the interrupt handler per interrupt
+};
+
+/// @brief Each Driver interrupt increments their own count
+extern ExtendedVectorStatistics extended_vector_statistics;
 
 /// Handlers for the System Vector Table
 namespace handlers {
@@ -70,7 +89,7 @@ namespace supervisor {
 /// @warning The function is `naked` on targets where the stack is not valid during this exception
 NAKED void call(void);
 
-/// Handler for PendSV
+/// Handler for PendingSupervisor
 /// @warning The function is `naked` on targets where the stack is not valid during this exception
 NAKED void pending(void);
 }    // namespace supervisor

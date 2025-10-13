@@ -167,6 +167,12 @@ constexpr core::Array<core::Interval, dimof(unsorted_memory_regions_array)> unso
 constexpr core::Array<core::Interval, dimof(unsorted_memory_regions_array)> sorted_memory_regions = core::Sort(unsorted_memory_regions);
 static_assert(core::IsSortedAndNonOverlapping(sorted_memory_regions), "Must be sorted and non-overlapping");
 
+/// The maximum number of external interrupts supported by the M4 Architecture
+constexpr static size_t max_extended_vectors{240U};
+
+/// @brief The default number of MPU regions allowed on a Cortex Microcontroller processor
+constexpr static size_t DefaultRegionLimit{16U};
+
 }    // namespace m7
 
 /// Use the M7 as the variant in the Core register definition.
@@ -174,9 +180,6 @@ namespace variant = m7;
 
 /// Each bit maps to an (AFSR) bit somewhere in the documentation.
 using AuxiliaryFaultStatus = cortex::m7::AuxiliaryBusFaultStatus;
-
-/// @brief The default number of MPU regions allowed on a Cortex Microcontroller processor
-constexpr static size_t DefaultRegionLimit{16U};
 
 /// The pointer to the Auxiliary Control Register
 extern variant::AuxiliaryControl volatile auxiliary_control;

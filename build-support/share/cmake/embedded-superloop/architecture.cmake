@@ -3,6 +3,18 @@ message(">>> Defining architecture functions")
 # An architecture is a set of hardware features that are common to a set of microcontrollers.
 # An architecture is influenced by the system configuration but not by the board configuration.
 # The architecture is an interface library.
+# @param NAME The name of the architecture
+# @param SOURCES The source files that implement the architecture
+# @param SYSTEM The system module that implements the system features of the architecture
+# @param CHIPS The chips that implement the architecture
+# @param INCLUDES The include directories for the architecture
+# @param DEFINES The preprocessor definitions for the architecture
+# @param LIBRARIES The libraries to link to the architecture
+# @param CONFIGURATIONS The configurations that the architecture supports
+# @param GENERIC_MODULES The generic modules that the architecture depends on
+# @param SYSTEM_MODULES The system modules that the architecture depends on
+# @param CHIP_MODULES The chip modules that the architecture depends on
+# @param MODULES The modules that the architecture depends on
 function(add_architecture)
     set(options DISABLE)
     set(singles NAME SYSTEM)
@@ -25,7 +37,8 @@ function(add_architecture)
         foreach(chip IN LISTS ARG_CHIPS)
             set_chip_name(TARGET_CHIP ${chip})
             set_arch_name(LOCAL_TARGET ${ARG_NAME} ${cfg} ${chip})
-            add_library(${LOCAL_TARGET} STATIC ${ARG_SOURCES})
+            add_library(${LOCAL_TARGET})
+            target_sources(${LOCAL_TARGET} PRIVATE ${ARG_SOURCES})
             message("Adding architecture ${LOCAL_TARGET}")
             target_compile_definitions(${LOCAL_TARGET} PUBLIC ${ARG_DEFINES} ARCHITECTURE=${ARG_NAME})
             set_target_properties(${LOCAL_TARGET} PROPERTIES
@@ -50,47 +63,53 @@ function(add_architecture)
                CONFIGURATION
             )
 
-            if (ARG_SYSTEM)
+            if(ARG_SYSTEM)
                 set_module_name(SYSTEM_TARGET ${ARG_SYSTEM} ${cfg} ${chip})
                 target_link_libraries(${LOCAL_TARGET} PUBLIC ${SYSTEM_TARGET})
                 message(STATUS "Linking ${LOCAL_TARGET} to system ${SYSTEM_TARGET}")
             endif()
 
-            if(DEFINED ARG_INCLUDES)
-                target_include_directories(${LOCAL_TARGET} PUBLIC ${ARG_INCLUDES})
-            endif()
+            foreach(lib IN LISTS ARG_LIBRARIES)
+                target_link_libraries(${LOCAL_TARGET} PUBLIC ${lib})
+                message(STATUS "Linking ${LOCAL_TARGET} to ${lib}")
+            endforeach()
 
-            if(DEFINED ARG_LIBRARIES)
-                target_link_libraries(${LOCAL_TARGET} PUBLIC ${ARG_LIBRARIES})
+            if(ARG_INCLUDES)
+                target_include_directories(${LOCAL_TARGET} PUBLIC ${ARG_INCLUDES})
             endif()
 
             foreach(module IN LISTS ARG_GENERIC_MODULES)
                 set_module_name(MODULE_TARGET ${module} none all)
                 target_link_libraries(${LOCAL_TARGET} PUBLIC ${MODULE_TARGET})
+                message(STATUS "Linking ${LOCAL_TARGET} to ${MODULE_TARGET}")
             endforeach()
 
             foreach(module IN LISTS ARG_SYSTEM_MODULES)
                 set_module_name(MODULE_TARGET ${module} ${cfg} all)
                 target_link_libraries(${LOCAL_TARGET} PUBLIC ${MODULE_TARGET})
+                message(STATUS "Linking ${LOCAL_TARGET} to ${MODULE_TARGET}")
             endforeach()
 
             foreach(module IN LISTS ARG_CHIP_MODULES)
                 set_module_name(MODULE_TARGET ${module} none ${chip})
                 target_link_libraries(${LOCAL_TARGET} PUBLIC ${MODULE_TARGET})
+                message(STATUS "Linking ${LOCAL_TARGET} to ${MODULE_TARGET}")
             endforeach()
 
             foreach(module IN LISTS ARG_MODULES)
                 set_module_name(MODULE_TARGET ${module} ${cfg} ${chip})
                 target_link_libraries(${LOCAL_TARGET} PUBLIC ${MODULE_TARGET})
+                message(STATUS "Linking ${LOCAL_TARGET} to ${MODULE_TARGET}")
             endforeach()
 
-            # print_target_properties(TARGET ${LOCAL_TARGET})
+            print_target_properties(TARGET ${LOCAL_TARGET})
+
+            if (NOT DEFINED ARCHITECTURE_TARGETS)
+                set(ARCHITECTURE_TARGETS ${LOCAL_TARGET} PARENT_SCOPE)
+            else()
+                list(APPEND ARCHITECTURE_TARGETS ${LOCAL_TARGET})
+                set(ARCHITECTURE_TARGETS ${ARCHITECTURE_TARGETS} PARENT_SCOPE)
+            endif()
         endforeach()
     endforeach()
 endfunction()
-
-# add_architecture(NAME cortex
-#     CHIPS all
-#     CONFIGURATIONS
-#         none ${LOCAL_CONFIGURATIONS}
-# )

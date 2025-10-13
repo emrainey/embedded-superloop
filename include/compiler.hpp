@@ -12,7 +12,7 @@
 #define ATTRIBUTE(x)
 #define LINKER_SECTION(x)
 #define NAKED
-#define USED
+#define USED __attribute__((used))
 #define ALWAYS_INLINE
 #define ISR
 #elif defined(__GNUC__) or defined(__clang__)

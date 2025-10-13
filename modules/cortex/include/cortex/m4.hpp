@@ -198,13 +198,16 @@ static_assert(core::IsSortedAndNonOverlapping(sorted_memory_regions), "Must be s
 /// Each bit maps to an (AFSR) bit somewhere in the documentation.
 using AuxiliaryFaultStatus = std::uint32_t;
 
+/// The maximum number of external interrupts supported by the M4 Architecture
+constexpr static size_t max_extended_vectors{240U};
+
+/// @brief The default number of MPU regions allowed on a Cortex Microcontroller processor
+constexpr static size_t DefaultRegionLimit{8U};
+
 }    // namespace m4
 
 /// Use the M4 as the variant in the Core register definition.
 namespace variant = m4;
-
-/// @brief The default number of MPU regions allowed on a Cortex Microcontroller processor
-constexpr static size_t DefaultRegionLimit{8U};
 
 /// The pointer to the Auxiliary Control Register
 extern variant::AuxiliaryControl volatile auxiliary_control;
