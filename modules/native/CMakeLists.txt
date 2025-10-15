@@ -9,8 +9,8 @@ add_module(NAME native
     ARCH
         cortex
     CHIPS
-        ${LOCAL_CHIPS}
+        ${TARGET_CHIPS}
     CONFIGURATIONS
-        ${LOCAL_CONFIGURATIONS}
+        ${TARGET_CONFIGURATIONS}
 )
 endif()

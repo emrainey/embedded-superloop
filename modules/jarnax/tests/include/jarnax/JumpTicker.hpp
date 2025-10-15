@@ -1,6 +1,7 @@
 #ifndef JUMP_TICKER_HPP
 #define JUMP_TICKER_HPP
 
+#include "configure.hpp"
 #include "jarnax/Ticker.hpp"
 
 namespace jarnax {

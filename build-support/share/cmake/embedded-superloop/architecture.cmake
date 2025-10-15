@@ -104,12 +104,7 @@ function(add_architecture)
 
             print_target_properties(TARGET ${LOCAL_TARGET})
 
-            if (NOT DEFINED ARCHITECTURE_TARGETS)
-                set(ARCHITECTURE_TARGETS ${LOCAL_TARGET} PARENT_SCOPE)
-            else()
-                list(APPEND ARCHITECTURE_TARGETS ${LOCAL_TARGET})
-                set(ARCHITECTURE_TARGETS ${ARCHITECTURE_TARGETS} PARENT_SCOPE)
-            endif()
+            append_global(TARGET_ARCHITECTURES ${ARG_NAME})
         endforeach()
     endforeach()
 endfunction()

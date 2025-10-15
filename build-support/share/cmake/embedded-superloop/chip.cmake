@@ -13,7 +13,7 @@ define_property(TARGET PROPERTY PACKAGE INHERITED BRIEF_DOCS "The package type o
 # @param DEFINES any preprocessor defines to set for this chip
 function(add_chip)
     set(options "")
-    set(singles CHIP DEVICE PACKAGE FAMILY)
+    set(singles NAME DEVICE PACKAGE FAMILY)
     set(multiples DEFINES)
     cmake_parse_arguments(
         ARG
@@ -21,20 +21,20 @@ function(add_chip)
         "${singles}"
         "${multiples}"
         ${ARGN})
-    required(ARG_CHIP ARG_DEVICE ARG_PACKAGE ARG_FAMILY)
+    required(ARG_NAME ARG_DEVICE ARG_PACKAGE ARG_FAMILY)
 
     # Create a target INTERFACE for the chip which pulls in the vendor defines and paths
-    set_chip_name(LOCAL_TARGET ${ARG_CHIP})
+    set_chip_name(LOCAL_TARGET ${ARG_NAME})
     # Create the family name and make sure it exists
     set_family_name(TARGET_FAMILY ${ARG_FAMILY})
     if (NOT TARGET ${TARGET_FAMILY})
-        message(STATUS "Skipping chip ${ARG_CHIP} as ${TARGET_FAMILY} not found")
+        message(STATUS "Skipping chip ${ARG_NAME} as ${TARGET_FAMILY} not found")
         return()
     endif()
     add_library(${LOCAL_TARGET} INTERFACE)
     message("Adding ${LOCAL_TARGET} for ${ARG_DEVICE} within ${TARGET_FAMILY}")
-    if (NOT ARG_CHIP STREQUAL "all")
-        target_compile_definitions(${LOCAL_TARGET} INTERFACE ${ARG_DEFINES} CHIP=${ARG_CHIP} ${ARG_DEVICE}=1 ${ARG_DEVICE}${ARG_PACKAGE}=1)
+    if (NOT ARG_NAME STREQUAL "all")
+        target_compile_definitions(${LOCAL_TARGET} INTERFACE ${ARG_DEFINES} CHIP=${ARG_NAME} ${ARG_DEVICE}=1 ${ARG_DEVICE}${ARG_PACKAGE}=1)
         target_link_libraries(${LOCAL_TARGET} INTERFACE ${TARGET_FAMILY})
         message(STATUS "Linking ${LOCAL_TARGET} to ${TARGET_FAMILY}")
     endif()
@@ -42,7 +42,7 @@ function(add_chip)
         # TRANSITIVE_COMPILE_PROPERTIES "CHIP;DEVICE;PACKAGE"
         # TRANSITIVE_LINK_PROPERTIES "CHIP;DEVICE;PACKAGE"
         # COMPATIBLE_INTERFACE_STRING "CHIP;DEVICE;PACKAGE"
-        CHIP ${ARG_CHIP} # The name of the chip (for targets)
+        CHIP ${ARG_NAME} # The name of the chip (for targets)
         DEVICE ${ARG_DEVICE} # The exact device name of the chip for tools like JLink, OpenOCD
         PACKAGE ${ARG_PACKAGE} # The package type of the chip for tools like CubeMX
     )
@@ -52,17 +52,5 @@ function(add_chip)
     )
 
     print_target_properties(TARGET ${LOCAL_TARGET})
-
-    if (NOT DEFINED CHIP_TARGETS)
-        set(CHIP_TARGETS ${LOCAL_TARGET} PARENT_SCOPE)
-    else()
-        list(APPEND CHIP_TARGETS ${LOCAL_TARGET})
-        set(CHIP_TARGETS ${CHIP_TARGETS} PARENT_SCOPE)
-    endif()
+    append_global(TARGET_CHIPS ${ARG_NAME})
 endfunction()
-
-# add_chip(CHIP all
-#     FAMILY cortex
-#     DEVICE cortex_m${CORTEX_M}
-#     PACKAGE None
-# )

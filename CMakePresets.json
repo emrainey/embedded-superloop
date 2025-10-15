@@ -15,7 +15,7 @@
             "installDir": "${sourceDir}/install/${presetName}",
             "generator": "Ninja",
             "cacheVariables": {
-                "BUILD_PRINT_PROPERTIES": "ON",
+                "BUILD_PRINT_PROPERTIES": "OFF",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_PREFIX_PATH": "${sourceDir}/build-support/",
                 "CMAKE_BUILD_TYPE": "Debug"

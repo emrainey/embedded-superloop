@@ -1,9 +1,4 @@
 message(">>> Defining board functions")
-if(LOCAL_BOARDS)
-    message(STATUS "LOCAL_BOARDS=${LOCAL_BOARDS}")
-else()
-    message(FATAL_ERROR "LOCAL_BOARDS not defined")
-endif()
 
 # A board defines the hardware configuration which the system will run on. It can be influenced by the system configuration.
 # A board depends on a vendor which must be set.
@@ -57,9 +52,10 @@ function(add_board)
             target_include_directories(${LOCAL_TARGET} PUBLIC ${ARG_INCLUDES})
         endif()
 
-        if(ARG_LIBRARIES)
-            target_link_libraries(${LOCAL_TARGET} PUBLIC ${ARG_LIBRARIES})
-        endif()
+        foreach (lib IN LISTS ARG_LIBRARIES)
+            target_link_libraries(${LOCAL_TARGET} PUBLIC ${lib})
+            message(STATUS "Linking ${LOCAL_TARGET} to ${lib}")
+        endforeach()
 
         if(ARG_DEFINES)
             target_compile_definitions(${LOCAL_TARGET} PUBLIC ${ARG_DEFINES})
@@ -103,5 +99,21 @@ function(add_board)
         endforeach()
 
         print_target_properties(TARGET ${LOCAL_TARGET})
+        append_global(TARGET_BOARDS ${ARG_NAME})
     endforeach()
 endfunction()
+
+if (NOT BUILD_CROSS_TARGET)
+# Many tests don't want to link against an actual board, so we provide an INTERFACE library that doesn't do anything.
+add_library(board-all-none INTERFACE)
+set_target_properties(board-all-none PROPERTIES
+    FAMILY None
+    VENDOR None
+    CORTEX_M None
+    ARCHITECTURE None
+    CHIP None
+    DEVICE None
+    PACKAGE None
+    CONFIGURATION none
+)
+endif()

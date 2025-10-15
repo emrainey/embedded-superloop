@@ -1,9 +1,4 @@
 message(">>> Defining firmware functions")
-if(LOCAL_APPLICATIONS)
-    message(STATUS "LOCAL_APPLICATIONS=${LOCAL_APPLICATIONS}")
-else()
-    message(FATAL_ERROR "LOCAL_APPLICATIONS not defined")
-endif()
 
 #
 # Creates a firmware target
@@ -206,11 +201,13 @@ function(add_firmware)
                     PUBLIC
                         register= # Remove the keyword for compatibility reasons
                         UNITTEST)
-                set_module_name(TARGET_BOARD native ${cfg} ${board})
+                # Native is not really a board, but we need to link against it to get the right settings
+                set_module_name(TARGET_BOARD native ${cfg} ${chip})
                 target_link_libraries(${LOCAL_TARGET}.elf PUBLIC ${TARGET_BOARD})
             endif()
 
             print_target_properties(TARGET ${LOCAL_TARGET}.elf)
+            append_global(TARGET_FIRMWARES ${LOCAL_TARGET})
         endforeach()
     endforeach()
 endfunction()

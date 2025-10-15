@@ -1,9 +1,4 @@
-
-if(LOCAL_MODULES)
-    message(STATUS "LOCAL_MODULES=${LOCAL_MODULES}")
-else()
-    message(FATAL_ERROR "LOCAL_MODULES not defined")
-endif()
+message(">>> Defining module functions")
 
 # A module is a component that could be influenced by the system configuration and the board configuration
 # A module with no configurations and no board is a generic module that can be used in anywhere and has the -none-all postfix.
@@ -142,6 +137,7 @@ function(add_module)
             endforeach()
 
             print_target_properties(TARGET ${LOCAL_TARGET})
+            append_global(TARGET_MODULES ${ARG_NAME})
         endforeach()
     endforeach()
 endfunction()

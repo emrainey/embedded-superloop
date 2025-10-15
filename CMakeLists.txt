@@ -31,21 +31,71 @@ add_custom_target(scrub
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}
     COMMENT "Cleaning up build directories")
 
+find_package(embedded-superloop REQUIRED)
+
+############
+
+add_configuration(NAME basic)
+add_configuration(NAME qemu)
+
+add_family(FAMILY stm32f40x
+    VENDOR stm32
+    DESCRIPTION "ST STM32F4xx family"
+    MODULES stm32
+    CORTEX_M 4
+    ARCHITECTURE armv7e-m
+)
+
+add_chip(NAME stm32f407ve
+    FAMILY stm32f40x
+    DEVICE STM32F407VE
+    PACKAGE LQFP100
+)
+
+add_chip(NAME stm32f405rg
+    FAMILY stm32f40x
+    DEVICE STM32F405RG
+    PACKAGE LQFP64
+)
+
+# After we define all the chips, families and configurations,
+# we can export the properties so that every module doesn't have to
+# list every combination of everything.
+
+export_properties(
+    CONFIGURATIONS TARGET_CONFIGURATIONS
+    FAMILIES TARGET_FAMILIES
+    CHIPS TARGET_CHIPS
+)
+
 # The following definitions control which subdirectories are included in the build, they don't define targets
 # The subdirectories are added in the order they are listed here
-list(APPEND LOCAL_MODULES memory core) # These don't depend on anything
-list(APPEND LOCAL_MODULES cortex stm32 segger jarnax native) # These depend on config and board
-list(APPEND LOCAL_APPLICATIONS simple test-timers test-i2c test-ssd1306 test-usart test-spi test-lps35hw test-debug unittests)
-list(APPEND LOCAL_CONFIGURATIONS basic qemu)
-list(APPEND LOCAL_CHIPS stm32f407ve stm32f405rg)
+# TODO scan and include automatically!
+list(APPEND LOCAL_MODULES memory core segger cortex stm32 jarnax native) # These depend on config and board, but also has test dependencies on boards which don't exist yet.
 list(APPEND LOCAL_BOARDS stm32_f4ve_v2 netduinoplus2)
+list(APPEND LOCAL_APPLICATIONS simple test-timers test-i2c test-ssd1306 test-usart test-spi test-lps35hw test-debug unittests)
+list(APPEND LOCAL_UNITTESTS core cortex stm32 jarnax) # these have unit tests
+# Pulls in each module!
+foreach(module IN LISTS LOCAL_MODULES)
+    add_subdirectory(${EMBEDDED_SUPERLOOP_PROJECT_ROOT}/modules/${module})
+endforeach()
 
-add_subdirectory(external) # This is where we find Catch2, GoogleTest, etc.
+# Pulls in each board!
+foreach(board IN LISTS LOCAL_BOARDS)
+    add_subdirectory(${EMBEDDED_SUPERLOOP_PROJECT_ROOT}/boards/${board})
+endforeach()
 
-find_package(embedded-superloop REQUIRED)
-message(STATUS "embedded-superloop found: ${embedded-superloop_VERSION}")
-message(STATUS "==> family targets: ${FAMILY_TARGETS}")
-message(STATUS "==> chip targets: ${CHIP_TARGETS}")
-message(STATUS "==> architecture targets: ${ARCHITECTURE_TARGETS}")
+# Pulls in each application!
+foreach(app IN LISTS LOCAL_APPLICATIONS)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/applications/${app})
+endforeach()
 
-message(STATUS BUILD_CROSS_TARGET=${BUILD_CROSS_TARGET})
+# Pulls in the Unit Tests
+foreach(test IN LISTS LOCAL_UNITTESTS)
+    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/applications/${test}/tests)
+        add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/applications/${test}/tests)
+    endif()
+endforeach()
+
+# This should be added *after* all the modules, boards and applications
+add_doxygen_target()

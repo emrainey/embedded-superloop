@@ -182,7 +182,7 @@ There are two layers of configuration. System and Board Level. Some modules depe
 
 ##### System Configuration
 
-This configuration sets high level feature switches and constants which do not directly depend on the hardware on which is runs (generally). Typically this will be something like enabling some high level feature, like the `tick` period, the flag to enabler fpu at boot, or some debug settings. In the build the list of all system configurations is referred to as `LOCAL_CONFIGURATIONS`.
+This configuration sets high level feature switches and constants which do not directly depend on the hardware on which is runs (generally). Typically this will be something like enabling some high level feature, like the `tick` period, the flag to enabler fpu at boot, or some debug settings. In the build the list of all system configurations is referred to as `TARGET_CONFIGURATIONS`.
 
 ##### Board Level Configuration
 

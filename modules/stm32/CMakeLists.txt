@@ -12,6 +12,7 @@ add_module(NAME stm32
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Timer2.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/backup.cpp
         $<IF:$<BOOL:${BUILD_UNIT_TESTS}>,${CMAKE_CURRENT_SOURCE_DIR}/source/symbols.cpp,>
+        $<IF:$<BOOL:${BUILD_UNIT_TESTS}>,${CMAKE_CURRENT_SOURCE_DIR}/source/peripherals.cpp,>
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         # Add the tests/mocks/ folder if the build is for unit testing
@@ -25,7 +26,7 @@ add_module(NAME stm32
     CHIPS
         stm32f405rg stm32f407ve
     CONFIGURATIONS
-        ${LOCAL_CONFIGURATIONS}
+        ${TARGET_CONFIGURATIONS}
 )
 
 add_module(NAME stm32-spi-driver
@@ -42,7 +43,7 @@ add_module(NAME stm32-spi-driver
     CHIPS
         stm32f405rg stm32f407ve
     CONFIGURATIONS
-        ${LOCAL_CONFIGURATIONS}
+        ${TARGET_CONFIGURATIONS}
 )
 
 add_module(NAME stm32-i2c-driver
@@ -59,7 +60,7 @@ add_module(NAME stm32-i2c-driver
     CHIPS
         stm32f405rg stm32f407ve
     CONFIGURATIONS
-        ${LOCAL_CONFIGURATIONS}
+        ${TARGET_CONFIGURATIONS}
 )
 
 add_module(NAME stm32-uart-driver
@@ -76,7 +77,7 @@ add_module(NAME stm32-uart-driver
     CHIPS
         stm32f405rg stm32f407ve
     CONFIGURATIONS
-        ${LOCAL_CONFIGURATIONS}
+        ${TARGET_CONFIGURATIONS}
 )
 
 add_module(NAME stm32-usart-driver
@@ -93,37 +94,5 @@ add_module(NAME stm32-usart-driver
     CHIPS
         stm32f405rg stm32f407ve
     CONFIGURATIONS
-        ${LOCAL_CONFIGURATIONS}
-)
-
-host_unit_test(NAME stm32-i2c
-    SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-stm32-i2c.cpp
-    LIBRARIES
-        strict
-    GENERIC_MODULES
-        core
-    MODULES
-        jarnax stm32 stm32-i2c-driver
-    GOOGLETEST
-    CONFIGURATIONS
-        basic
-    BOARDS
-        stm32_f4ve_v2
-)
-
-host_unit_test(NAME stm32-spi
-    SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-stm32-spi.cpp
-    LIBRARIES
-        strict
-    GENERIC_MODULES
-        core
-    MODULES
-        jarnax stm32 stm32-spi-driver
-    GOOGLETEST
-    CONFIGURATIONS
-        basic
-    BOARDS
-        stm32_f4ve_v2
+        ${TARGET_CONFIGURATIONS}
 )

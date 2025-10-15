@@ -18,6 +18,8 @@ if(BUILD_UNIT_TESTS)
     enable_testing()
 endif()
 
+add_subdirectory(external) # This is where we find Catch2, GoogleTest, etc.
+
 set(BANNER
     "\n"
     "░        ░░  ░░░░  ░░       ░░░        ░░       ░░░       ░░░        ░░       ░░          \n"
@@ -120,6 +122,16 @@ function(set_unit_test_name VAR NAME CFG BOARD)
     set(${VAR} test-${NAME}-${CFG}-${BOARD} PARENT_SCOPE)
 endfunction()
 
+function(append_global LIST_NAME VALUE)
+    get_property(_value GLOBAL PROPERTY ${LIST_NAME})
+    if (NOT _value)
+        set_property(GLOBAL PROPERTY ${LIST_NAME} "${VALUE}")
+    else()
+        list(APPEND _value "${VALUE}")
+        set_property(GLOBAL PROPERTY ${LIST_NAME} "${_value}")
+    endif()
+endfunction()
+
 # Checks to make sure a variable is defined
 macro(required)
     foreach (var ${ARGN})
@@ -143,6 +155,14 @@ function(inherit_target_properties)
         ${ARGN})
 
     required(ARG_PARENT ARG_CHILD)
+
+    if (NOT TARGET ${ARG_PARENT})
+        message(FATAL_ERROR "No target ${ARG_PARENT} found to inherit properties from")
+    endif()
+    if (NOT TARGET ${ARG_CHILD})
+        message(FATAL_ERROR "No target ${ARG_CHILD} found to inherit properties to")
+    endif()
+
     if(ARG_PROPERTIES)
          message(DEBUG "Inheriting properties ${ARG_PROPERTIES} from ${ARG_CHILD} to ${ARG_PARENT}")
      else()
@@ -268,52 +288,64 @@ if(NOT TARGET coverage AND BUILD_COVERAGE)
     add_dependencies(coverage test)
 endif()
 
-# Pulls in each module!
-foreach(module IN LISTS LOCAL_MODULES)
-    add_subdirectory(${EMBEDDED_SUPERLOOP_PROJECT_ROOT}/modules/${module})
-endforeach()
+function(add_doxygen_target)
+    # Documentation
+    find_package(Doxygen)
 
-# Pulls in each board!
-foreach(board IN LISTS LOCAL_BOARDS)
-    add_subdirectory(${EMBEDDED_SUPERLOOP_PROJECT_ROOT}/boards/${board})
-endforeach()
+    if(Doxygen_FOUND)
+        set(DOXYGEN_GENERATE_HTML YES)
+        set(DOXYGEN_GENERATE_MAN NO)
+        set(DOXYGEN_PROJECT_BRIEF "A simple C++ only Microcontroller System")
+        set(DOXYGEN_USE_MDFILE_AS_MAINPAGE README.md)
+        set(DOXYGEN_GENERATE_TREEVIEW YES)
+        set(DOXYGEN_DISABLE_SEARCH NO)
+        set(DOXYGEN_FULL_SIDEBAR NO)
+        set(DOXYGEN_HTML_EXTRA_STYLESHEET documentation/doxygen-awesome-css/doxygen-awesome.css)
+        set(DOXYGEN_HTML_COLORSTYLE LIGHT)
+        set(DOXYGEN_PREDEFINED "__attribute__(x)=")
+        set(DOXYGEN_IMAGE_PATH "documentation/images")
 
-# Pulls in each application!
-foreach(app IN LISTS LOCAL_APPLICATIONS)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/applications/${app})
-endforeach()
+        file(GLOB SUBDIRS LIST_DIRECTORIES true RELATIVE ${CMAKE_SOURCE_DIR} "modules/*")
+        foreach(_mod IN LISTS SUBDIRS)
+            file(GLOB_RECURSE _MOD_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/modules/${_mod}/include/**/*.hpp)
+            list(APPEND DOXYGEN_INCLUDES ${_MOD_INCLUDES})
+            file(GLOB_RECURSE _MOD_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/modules/${_mod}/source/*.cpp)
+            list(APPEND DOXYGEN_SOURCES ${_MOD_SOURCES})
+        endforeach()
 
-# Documentation
-find_package(Doxygen)
+        # message(STATUS "DOXYGEN_INCLUDES=${DOXYGEN_INCLUDES}")
+        # message(STATUS "DOXYGEN_SOURCES=${DOXYGEN_SOURCES}")
+        doxygen_add_docs(docs
+            # FILES
+            README.md
+            ${DOXYGEN_INCLUDES}
+            ${DOXYGEN_SOURCES}
+            USE_STAMP_FILE
+            COMMENT "Doxygen Generation")
+    endif()
+endfunction()
 
-if(Doxygen_FOUND)
-    set(DOXYGEN_GENERATE_HTML YES)
-    set(DOXYGEN_GENERATE_MAN NO)
-    set(DOXYGEN_PROJECT_BRIEF "A simple C++ only Microcontroller System")
-    set(DOXYGEN_USE_MDFILE_AS_MAINPAGE README.md)
-    set(DOXYGEN_GENERATE_TREEVIEW YES)
-    set(DOXYGEN_DISABLE_SEARCH NO)
-    set(DOXYGEN_FULL_SIDEBAR NO)
-    set(DOXYGEN_HTML_EXTRA_STYLESHEET documentation/doxygen-awesome-css/doxygen-awesome.css)
-    set(DOXYGEN_HTML_COLORSTYLE LIGHT)
-    set(DOXYGEN_PREDEFINED "__attribute__(x)=")
-    set(DOXYGEN_IMAGE_PATH "documentation/images")
+# This should be called AFTER all the configuration, family and chips are defined
+function(export_properties)
+    set(options "")
+    set(singles FAMILIES CHIPS CONFIGURATIONS)
+    set(multiples "")
+    cmake_parse_arguments(
+        ARG
+        "${options}"
+        "${singles}"
+        "${multiples}"
+        ${ARGN})
 
-    foreach(_mod IN LISTS LOCAL_MODULES)
-        file(GLOB_RECURSE _MOD_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/modules/${_mod}/include/**/*.hpp)
-        list(APPEND DOXYGEN_INCLUDES ${_MOD_INCLUDES})
-        file(GLOB_RECURSE _MOD_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/modules/${_mod}/source/*.cpp)
-        list(APPEND DOXYGEN_SOURCES ${_MOD_SOURCES})
-    endforeach()
+    get_property(${ARG_CONFIGURATIONS} GLOBAL PROPERTY TARGET_CONFIGURATIONS)
+    set(${ARG_CONFIGURATIONS} ${${ARG_CONFIGURATIONS}} PARENT_SCOPE)
+    message(STATUS "==> configuration targets: ${ARG_CONFIGURATIONS}=${${ARG_CONFIGURATIONS}}")
 
-    # message(STATUS "DOXYGEN_INCLUDES=${DOXYGEN_INCLUDES}")
-    # message(STATUS "DOXYGEN_SOURCES=${DOXYGEN_SOURCES}")
-    doxygen_add_docs(docs
+    get_property(${ARG_FAMILIES} GLOBAL PROPERTY TARGET_FAMILIES)
+    set(${ARG_FAMILIES} ${${ARG_FAMILIES}} PARENT_SCOPE)
+    message(STATUS "==> family targets: ${ARG_FAMILIES}=${${ARG_FAMILIES}}")
 
-        # FILES
-        README.md
-        ${DOXYGEN_INCLUDES}
-        ${DOXYGEN_SOURCES}
-        USE_STAMP_FILE
-        COMMENT "Doxygen Generation")
-endif()
+    get_property(${ARG_CHIPS} GLOBAL PROPERTY TARGET_CHIPS)
+    set(${ARG_CHIPS} ${${ARG_CHIPS}} PARENT_SCOPE)
+    message(STATUS "==> chip targets: ${ARG_CHIPS}=${${ARG_CHIPS}}")
+endfunction()

@@ -1,4 +1,6 @@
+#include <cortex/mcu.hpp>
 #include <stm32/stm32.hpp>
+#include "cortex/peripherals/NestedVectorInterruptController.hpp"
 
 // THIS IS FOR HOST TESTING ONLY. This declares memory which would be normally memory mapped to the peripherals via the linkerscript.
 #if defined(UNITTEST)
@@ -13,13 +15,15 @@ MemoryProtectionUnit volatile memory_protection_unit;
 DataWatchAndTrace volatile data_watch_and_trace;
 TracePortInterfaceUnit volatile trace_port_interface_unit;
 InterruptControllerType volatile interrupt_controller_type;
-AuxiliaryControl volatile auxiliary_control;
+variant::AuxiliaryControl volatile auxiliary_control;
 SoftwareTriggeredInterrupt volatile software_triggered_interrupt;
 SystemTick volatile system_tick;
-NestedInterruptVectorController volatile nested_interrupt_vector_controller;
+NestedVectorInterruptController volatile nested_vector_interrupt_controller;
 InstructionTraceMacrocell volatile instruction_trace_macrocell;
 }    // namespace peripherals
 }    // namespace cortex
+
+/// We over-define the peripherals here so that unit tests can link properly.
 
 namespace stm32 {
 namespace peripherals {

@@ -2,34 +2,39 @@ message(">>> Defining configuration features")
 
 define_property(TARGET PROPERTY CONFIGURATION INHERITED BRIEF_DOCS "The configuration name")
 
-# Add an empty library to handle no configuration
-add_library(configuration-none INTERFACE)
-target_include_directories(configuration-none INTERFACE ${CMAKE_SOURCE_DIR}/include)
-target_link_libraries(configuration-none INTERFACE strict)
-set_target_properties(configuration-none  PROPERTIES
-    CONFIGURATION none # The configuration name
-)
-print_target_properties(TARGET configuration-none)
+function(add_configuration)
+    set(options "")
+    set(singles NAME)
+    set(multiples "")
+    cmake_parse_arguments(
+        ARG
+        "${options}"
+        "${singles}"
+        "${multiples}"
+        ${ARGN})
 
-if(LOCAL_CONFIGURATIONS)
-    message(STATUS "LOCAL_CONFIGURATIONS=${LOCAL_CONFIGURATIONS}")
-else()
-    message(FATAL_ERROR "LOCAL_CONFIGURATIONS not defined, there must be at least one configuration")
-endif()
+    required(ARG_NAME)
 
-# Create an interface library per configuration
-foreach(cfg IN LISTS LOCAL_CONFIGURATIONS)
-    set_configuration_name(LOCAL_TARGET ${cfg})
+    set_configuration_name(LOCAL_TARGET ${ARG_NAME})
     message("Adding configuration ${LOCAL_TARGET}")
     add_library(${LOCAL_TARGET} INTERFACE)
-    target_compile_definitions(${LOCAL_TARGET} INTERFACE CONFIGURATION=${cfg})
+    target_link_libraries(${LOCAL_TARGET} INTERFACE strict)
     target_include_directories(${LOCAL_TARGET} INTERFACE
         ${CMAKE_SOURCE_DIR}/include
-        ${CMAKE_SOURCE_DIR}/configurations/${cfg}
     )
-    target_link_libraries(${LOCAL_TARGET} INTERFACE strict)
     set_target_properties(${LOCAL_TARGET} PROPERTIES
-        CONFIGURATION ${cfg} # The configuration name
+        CONFIGURATION ${ARG_NAME} # The configuration name
     )
+    if (EXISTS ${CMAKE_SOURCE_DIR}/configurations/${ARG_NAME})
+        target_compile_definitions(${LOCAL_TARGET} INTERFACE CONFIGURATION=${ARG_NAME})
+        target_include_directories(${LOCAL_TARGET} INTERFACE
+            ${CMAKE_SOURCE_DIR}/configurations/${ARG_NAME}
+        )
+        append_global(TARGET_CONFIGURATIONS ${ARG_NAME}) # None should not be added to this
+    endif()
     print_target_properties(TARGET ${LOCAL_TARGET})
-endforeach()
+endfunction()
+
+# the None configuration is a special INTERFACE target which is used
+# so that modules can be built without a configuration.
+add_configuration(NAME none)

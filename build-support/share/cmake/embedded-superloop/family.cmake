@@ -41,12 +41,7 @@ function(add_family)
         VENDOR_LINKERSCRIPT ${CMAKE_SOURCE_DIR}/modules/${ARG_VENDOR}/linkerscripts/gcc.ld
      )
     print_target_properties(TARGET ${LOCAL_TARGET})
-    if (NOT DEFINED FAMILY_TARGETS)
-        set(FAMILY_TARGETS ${LOCAL_TARGET} PARENT_SCOPE)
-    else()
-        list(APPEND FAMILY_TARGETS ${LOCAL_TARGET})
-        set(FAMILY_TARGETS ${FAMILY_TARGETS} PARENT_SCOPE)
-    endif()
+    append_global(TARGET_FAMILIES ${LOCAL_TARGET})
 endfunction()
 
 # add_family(FAMILY cortex-m4

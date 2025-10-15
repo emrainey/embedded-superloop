@@ -18,7 +18,7 @@ add_module(NAME jarnax
         ${CMAKE_CURRENT_SOURCE_DIR}/source/print.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/yield.cpp
         # The main application and Jarnax features
-        $<IF:$<BOOL:${BUILD_CROSS_TARGET}>,${CMAKE_CURRENT_SOURCE_DIR}/source/main.cpp,> # Only build in on target builds
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/main.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Ticker.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SuperLoop.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CountDown.cpp
@@ -37,16 +37,15 @@ add_module(NAME jarnax
     LIBRARIES
         strict jarnax-interfaces
     GENERIC_MODULES
-        memory core
-        segger
+        memory core segger
     LIBRARIES
         # $<IF:$<CXX_COMPILER_ID:GNU>,gcc m,> # GCC specific libraries to provide things like __aeabi_d2f
     CONFIGURATIONS
-        ${LOCAL_CONFIGURATIONS}
+        ${TARGET_CONFIGURATIONS}
     ARCH
         cortex
     CHIPS
-        ${LOCAL_CHIPS}
+        ${TARGET_CHIPS}
 )
 
 add_module(NAME jarnax-ssd1306-driver
@@ -112,51 +111,5 @@ add_module(NAME jarnax-lsm9ds1-driver
     GENERIC_MODULES
         memory core
     NO_CONFIGURATIONS
-    NO_BOARDS
-)
-
-host_unit_test(NAME jarnax-catch
-    SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-countdown.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-yieldable.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-superloop.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-stopwatch.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-transactable.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-ssd1306.cpp
-    INCLUDES
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/include
-    LIBRARIES
-        strict
-        jarnax-interfaces
-    GENERIC_MODULES
-        memory core
-    MODULES
-        jarnax
-    CATCH2
-    FAKEIT
-    CONFIGURATIONS
-        basic
-    NO_BOARDS
-)
-
-host_unit_test(NAME jarnax-googletest
-    SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-mocks.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-coordinator.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-w25q16bv-statemachine.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-lps35hw-statemachine.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/gtest-lsm9ds1-statemachine.cpp
-    INCLUDES
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/mocks
-    LIBRARIES
-        strict jarnax-interfaces
-    GENERIC_MODULES
-        memory core
-    MODULES
-        jarnax
-    GOOGLETEST
-    CONFIGURATIONS
-        basic
     NO_BOARDS
 )

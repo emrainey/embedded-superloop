@@ -1,3 +1,4 @@
+message(">>> Defining host unit test function")
 
 function(host_unit_test)
     set(options DISABLE CATCH2 FAKEIT GOOGLETEST NO_CONFIGURATIONS NO_BOARDS)
@@ -56,6 +57,7 @@ function(host_unit_test)
                     )
                     get_target_property(chip ${TARGET_BOARD} CHIP)
                 else()
+                    message(WARNING "Board target ${TARGET_BOARD} not found, skipping inheritence of properties")
                     set(chip all)
                 endif()
 
@@ -112,6 +114,7 @@ function(host_unit_test)
                 endif()
 
                 print_target_properties(TARGET ${LOCAL_TARGET})
+                append_global(TARGET_UNIT_TESTS ${ARG_NAME})
 
                 if(NOT DEFINED UNIT_TEST_TARGETS)
                     set(UNIT_TEST_TARGETS "")
