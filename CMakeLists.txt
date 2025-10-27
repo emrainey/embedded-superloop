@@ -38,24 +38,40 @@ find_package(embedded-superloop REQUIRED)
 add_configuration(NAME basic)
 add_configuration(NAME qemu)
 
-add_family(FAMILY stm32f40x
+add_family(FAMILY stm32f40xxx
     VENDOR stm32
     DESCRIPTION "ST STM32F4xx family"
     MODULES stm32
     CORTEX_M 4
     ARCHITECTURE armv7e-m
+    PRECISION SINGLE
 )
 
 add_chip(NAME stm32f407ve
-    FAMILY stm32f40x
+    FAMILY stm32f40xxx
     DEVICE STM32F407VE
     PACKAGE LQFP100
 )
 
 add_chip(NAME stm32f405rg
-    FAMILY stm32f40x
+    FAMILY stm32f40xxx
     DEVICE STM32F405RG
     PACKAGE LQFP64
+)
+
+add_family(FAMILY stm32h7xxxx
+    VENDOR stm32
+    DESCRIPTION "ST STM32H7xx family"
+    MODULES stm32
+    CORTEX_M 7
+    ARCHITECTURE armv7e-m
+    PRECISION DOUBLE
+)
+
+add_chip(NAME stm32h753zi
+    FAMILY stm32h7xxxx
+    DEVICE STM32H753ZI
+    PACKAGE LQFP144
 )
 
 # After we define all the chips, families and configurations,

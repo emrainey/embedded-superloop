@@ -38,6 +38,10 @@ function(add_firmware)
             # Get the board name
             set_board_name(TARGET_BOARD ${board} ${cfg})
             set_firmware_name(LOCAL_TARGET ${ARG_NAME} ${cfg} ${board})
+            if (NOT TARGET ${TARGET_BOARD})
+                message("XXX Skipping ${LOCAL_TARGET}")
+                return()
+            endif()
             message("Adding ${LOCAL_TARGET}.elf for ${cfg} ${board}")
             add_executable(${LOCAL_TARGET}.elf)
             target_sources(${LOCAL_TARGET}.elf PRIVATE ${ARG_SOURCES})
@@ -133,12 +137,15 @@ function(add_firmware)
                 )
 
                 # Get the all the .ld files in the linkerscripts directories in order to form dependencies on them
-                file(GLOB_RECURSE LINKERSCRIPTS ${ARCH_LINKERSCRIPTS}/*.ld ${BOARD_LINKERSCRIPTS}/*.ld ${VENDOR_LINKERSCRIPTS}/*.ld)
+                file(GLOB_RECURSE LINKERSCRIPTS ${ARCH_LINKERSCRIPTS}/cortex-m${CORTEX_M}*.ld ${BOARD_LINKERSCRIPTS}/*.ld ${VENDOR_LINKERSCRIPTS}/${BOARD_DEVICE}*.ld)
+                foreach(LINKERSCRIPT ${LINKERSCRIPTS})
+                    message(STATUS "  Linker script dependency: ${LINKERSCRIPT}")
+                    # Set the INTERFACE_LINK_DEPENDS property
+                    set_target_properties(${LOCAL_TARGET}.elf PROPERTIES
+                        INTERFACE_LINK_DEPENDS ${LINKERSCRIPT}
+                    )
+                endforeach()
 
-                # Set the INTERFACE_LINK_DEPENDS property
-                set_target_properties(${LOCAL_TARGET}.elf PROPERTIES
-                    INTERFACE_LINK_DEPENDS $<BUILD_INTERFACE:${LINKERSCRIPTS}>
-                )
 
                 # add_dependencies(${ARG_NAME}.elf ${ARG_NAME}-ld-script)
                 set(ARG_ELF ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.elf)

@@ -25,9 +25,9 @@ add_link_options(-mcpu=cortex-m7)
 set(CORTEX_M "7")
 set(ARCHITECTURE "armv7e-m")
 
-message(NOTICE "Hard Float Single Precision")
-add_compile_options(-mfpu=fpv4-sp-d16 -mfloat-abi=hard -fsingle-precision-constant)
-add_link_options(-mfpu=fpv4-sp-d16 -mfloat-abi=hard -fsingle-precision-constant)
+message(NOTICE "Hard Float Double Precision")
+add_compile_options(-mfpu=fpv5-d16 -mfloat-abi=hard)
+add_link_options(-mfpu=fpv5-d16 -mfloat-abi=hard)
 
 message(NOTICE "No Exceptions and No RTTI")
 add_compile_options(-fno-exceptions -fno-rtti)

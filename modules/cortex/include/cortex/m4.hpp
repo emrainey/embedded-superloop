@@ -30,12 +30,11 @@ constexpr static bool has_sram{true};
 /// @brief The CPU ID Feature set (CPUID)
 /// This definition is located *inside* the System Control Block (SCB) and as such this header cannot include that!
 struct CentralProcessingUnitIdentification final {
-    std::uint32_t PFR[2];          /*!< Offset: 0x040 (R/ )  Processor Feature Register                            */
-    std::uint32_t DFR;             /*!< Offset: 0x048 (R/ )  Debug Feature Register                                */
-    std::uint32_t ADR;             /*!< Offset: 0x04C (R/ )  Auxiliary Feature Register                            */
-    std::uint32_t MMFR[4];         /*!< Offset: 0x050 (R/ )  Memory Model Feature Register                         */
-    std::uint32_t ISAR[5];         /*!< Offset: 0x060 (R/ )  Instruction Set Attributes Register                   */
-    std::uint32_t _reserved[5];    ///< Reserved Fields
+    std::uint32_t PFR[2];  /*!< Offset: 0x040 (R/ )  Processor Feature Register                            */
+    std::uint32_t DFR;     /*!< Offset: 0x048 (R/ )  Debug Feature Register                                */
+    std::uint32_t ADR;     /*!< Offset: 0x04C (R/ )  Auxiliary Feature Register                            */
+    std::uint32_t MMFR[4]; /*!< Offset: 0x050 (R/ )  Memory Model Feature Register                         */
+    std::uint32_t ISAR[5]; /*!< Offset: 0x060 (R/ )  Instruction Set Attributes Register                   */
 };
 
 /// The Auxiliary Control Register (ACTLR) is outside the System Control Block (SCB)

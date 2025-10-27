@@ -2,6 +2,7 @@
 #include "core/core.hpp"
 #include "cortex/tick.hpp"
 #include "cortex/vectors.hpp"
+#include "stm32/Initialize.hpp"
 
 namespace stm32 {
 

@@ -4,6 +4,7 @@
 /// @file
 /// The Cortex Microcontroller System Control Block peripheral
 
+#include "cortex/exceptions.hpp"
 #include "cortex/types.hpp"
 #include "cortex/variant.hpp"    // Pulls in the Vendor AuxiliaryFaultStatus definition
 
@@ -440,12 +441,21 @@ struct SystemControlBlock final {
     BusFaultAddress bus_fault_address;
     variant::AuxiliaryFaultStatus auxiliary_fault_status;    ///< This is implementation defined (i.e. by the Variant)
     variant::CentralProcessingUnitIdentification cpu_id;     ///< Implementation defined
+    std::uint32_t : 32;                                      // Reserved
+#if defined(CORTEX_M) and (CORTEX_M == 4)
+    std::uint32_t : 32;                                      // Reserved
+    std::uint32_t : 32;                                      // Reserved
+    std::uint32_t : 32;                                      // Reserved
+    std::uint32_t : 32;                                      // Reserved
+#elif defined(CORTEX_M) and (CORTEX_M == 7)
+    variant::CacheInformation cache_information;
+#endif
     CoProcessorAccessControl coprocessor_access_control;
-    std::uint32_t : 32;
+    std::uint32_t : 32;    // Reserved
     //===================================================
 };
 #if defined(__arm__)
-static_assert(sizeof(variant::CentralProcessingUnitIdentification) == 0x48, "Must be this exact size");
+static_assert(sizeof(variant::CentralProcessingUnitIdentification) == 13U * sizeof(std::uint32_t), "Must be this exact size");
 
 // Ensure the structure is in standard layout format
 static_assert(std::is_standard_layout<SystemControlBlock>::value, "Must be standard layout");

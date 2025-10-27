@@ -10,7 +10,6 @@ add_module(NAME stm32
         ${CMAKE_CURRENT_SOURCE_DIR}/source/dma/Manager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/dma/Resource.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Timer2.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/backup.cpp
         $<IF:$<BOOL:${BUILD_UNIT_TESTS}>,${CMAKE_CURRENT_SOURCE_DIR}/source/symbols.cpp,>
         $<IF:$<BOOL:${BUILD_UNIT_TESTS}>,${CMAKE_CURRENT_SOURCE_DIR}/source/peripherals.cpp,>
     INCLUDES

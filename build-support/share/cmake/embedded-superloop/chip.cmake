@@ -28,7 +28,7 @@ function(add_chip)
     # Create the family name and make sure it exists
     set_family_name(TARGET_FAMILY ${ARG_FAMILY})
     if (NOT TARGET ${TARGET_FAMILY})
-        message(STATUS "Skipping chip ${ARG_NAME} as ${TARGET_FAMILY} not found")
+        message("XXX Skipping chip ${ARG_NAME} as ${TARGET_FAMILY} not found")
         return()
     endif()
     add_library(${LOCAL_TARGET} INTERFACE)

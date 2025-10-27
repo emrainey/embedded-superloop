@@ -18,17 +18,22 @@ function(add_board)
         "${singles}"
         "${multiples}"
         ${ARGN})
+    required(ARG_NAME ARG_ARCH ARG_CHIP ARG_CONFIGURATIONS)
+
     if(ARG_DISABLE)
         message(WARNING "Board ${ARG_NAME} is disabled")
         return()
     endif()
 
-    required(ARG_NAME ARG_ARCH ARG_CHIP ARG_CONFIGURATIONS)
-
     foreach(cfg IN LISTS ARG_CONFIGURATIONS)
         set_configuration_name(TARGET_CONFIGURATION ${cfg})
         set_arch_name(TARGET_ARCH ${ARG_ARCH} ${cfg} ${ARG_CHIP})
         set_board_name(LOCAL_TARGET ${ARG_NAME} ${cfg})
+        set_chip_name(TARGET_CHIP ${ARG_CHIP})
+        if (NOT TARGET ${TARGET_CHIP})
+            message("XXX Skipping ${LOCAL_TARGET}")
+            return()
+        endif()
         message("Adding ${LOCAL_TARGET}")
         add_library(${LOCAL_TARGET})
         target_sources(${LOCAL_TARGET} PRIVATE ${ARG_SOURCES})

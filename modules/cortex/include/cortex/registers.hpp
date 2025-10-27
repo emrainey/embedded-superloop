@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <cstdint>
 #include "cortex/exceptions.hpp"
+#include "cortex/types.hpp"
 
 namespace cortex {
 

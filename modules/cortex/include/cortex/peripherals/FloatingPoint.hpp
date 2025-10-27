@@ -6,6 +6,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "cortex/types.hpp"
 
 namespace cortex {
 namespace peripherals {

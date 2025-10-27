@@ -74,16 +74,36 @@ constexpr static std::size_t baudrate{50'000U};
 namespace address {
 /// The Code for the System runs in Flash
 constexpr static uintptr_t flash = vendor::address::flash;
+#if defined(CORTEX_HAS_CCM) and (CORTEX_HAS_CCM == 1)
 /// The location where stack is stored
 constexpr static uintptr_t stack = vendor::address::ccm;
+#endif
+#if defined(CORTEX_HAS_ITCM) and (CORTEX_HAS_ITCM == 1)
+/// The ITCM area
+constexpr static uintptr_t itcm = vendor::address::itcm;
+#endif
+#if defined(CORTEX_HAS_DTCM) and (CORTEX_HAS_DTCM == 1)
+/// The DTCM area
+constexpr static uintptr_t stack = vendor::address::dtcm;
+#endif
 /// The Backup RAM area
 constexpr static uintptr_t backup = vendor::address::backup_sram;
 }    // namespace address
 namespace sizes {
 /// The size of the code area
 constexpr static std::uint32_t flash = vendor::sizes::flash;
+#if defined(CORTEX_HAS_CCM) and (CORTEX_HAS_CCM == 1)
 /// The size of the stack area
 constexpr static std::uint32_t stack = vendor::sizes::ccm;
+#endif
+#if defined(CORTEX_HAS_ITCM) and (CORTEX_HAS_ITCM == 1)
+/// The size of the ITCM area
+constexpr static std::uint32_t itcm = vendor::sizes::itcm;
+#endif
+#if defined(CORTEX_HAS_DTCM) and (CORTEX_HAS_DTCM == 1)
+/// The size of the DTCM area
+constexpr static std::uint32_t stack = vendor::sizes::dtcm;
+#endif
 /// The size of the backup area if present
 constexpr static std::uint32_t backup = vendor::sizes::backup_sram;
 namespace power2 {

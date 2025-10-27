@@ -5,6 +5,8 @@
 /// The Cortex M7 Variant Header
 
 #include <cstdint>
+#include <iso.hpp>
+#include "core/Intervals.hpp"
 
 #define CORTEX_HAS_FLASH 1
 #define CORTEX_HAS_ITCM 1
@@ -28,12 +30,19 @@ constexpr static bool has_sram{true};
 /// @brief The CPU ID Feature set (CPUID)
 /// This definition is located *inside* the System Control Block (SCB) and as such this header cannot include that!
 struct CentralProcessingUnitIdentification final {
-    std::uint32_t PFR[2];          /*!< Offset: 0x040 (R/ )  Processor Feature Register                            */
-    std::uint32_t DFR;             /*!< Offset: 0x048 (R/ )  Debug Feature Register                                */
-    std::uint32_t ADR;             /*!< Offset: 0x04C (R/ )  Auxiliary Feature Register                            */
-    std::uint32_t MMFR[4];         /*!< Offset: 0x050 (R/ )  Memory Model Feature Register                         */
-    std::uint32_t ISAR[5];         /*!< Offset: 0x060 (R/ )  Instruction Set Attributes Register                   */
-    std::uint32_t _reserved[5];    ///< Reserved Fields
+    std::uint32_t PFR[2];  /*!< Offset: 0x040 (R/ )  Processor Feature Register                            */
+    std::uint32_t DFR;     /*!< Offset: 0x048 (R/ )  Debug Feature Register                                */
+    std::uint32_t ADR;     /*!< Offset: 0x04C (R/ )  Auxiliary Feature Register                            */
+    std::uint32_t MMFR[4]; /*!< Offset: 0x050 (R/ )  Memory Model Feature Register                         */
+    std::uint32_t ISAR[5]; /*!< Offset: 0x060 (R/ )  Instruction Set Attributes Register                   */
+};
+
+/// @brief The Cache information registers
+struct CacheInformation final {
+    std::uint32_t CLIDR;     ///< Offset: 0x078 (R/ )  Cache Level ID Register
+    std::uint32_t CTR;       ///< Offset: 0x07C (R/ )  Cache Type Register
+    std::uint32_t CCSIDR;    ///< Offset: 0x080 (R/ )  Cache Size ID Register
+    std::uint32_t CSSELR;    ///< Offset: 0x084 (R/W)  Cache Size Selection Register
 };
 
 /// The Auxiliary Control Register (ACTLR) is outside the System Control Block (SCB)
@@ -90,11 +99,56 @@ constexpr static uintptr_t peripheral = 0x40000000;
 /// Base RAM0 Address
 constexpr static uintptr_t ram0 = 0x60000000;
 
+/// Base RAM1 Address
+constexpr static uintptr_t ram1 = 0x80000000;
+
 /// Base Device0 Address
 constexpr static uintptr_t device_shared = 0xA0000000;
 
+/// Base Device1 Address
+constexpr static uintptr_t device_unshared = 0xC0000000;
+
 /// Base System Address
 constexpr static uintptr_t system = 0xE0000000;
+
+/// Instruction Trace Macrocell (ITM) Address
+constexpr static uintptr_t itm = 0xE0000000;
+
+/// Debug Watch and Trace (DWT) Address
+constexpr static uintptr_t dwt = 0xE0001000;
+
+/// Flash Patch and Breakpoint (FPB) Address
+constexpr static uintptr_t fpb = 0xE0002000;
+
+/// The Interrupt Control Type (ICTR) Address
+constexpr static uintptr_t ictr = 0xE000E004;
+
+/// The Auxiliary Control (ACTLR) Address
+constexpr static uintptr_t actlr = 0xE000E008;
+
+/// The System Tick (Sys_TICK) Address
+constexpr static uintptr_t systick = 0xE000E010;
+
+/// The Nested Interrupt Controller
+constexpr static uintptr_t nvic = 0xE000E100;
+
+/// System Control Block (SCB) Address
+constexpr static uintptr_t scb = 0xE000ED00;
+
+/// Memory Protected Unit (MPU) Address
+constexpr static uintptr_t mpu = 0xE000ED90;
+
+/// Debug System Registers (DSR) Address
+constexpr static uintptr_t dsr = 0xE000EDF0;
+
+/// Software Triggered Interrupt Register
+constexpr static uintptr_t stir = 0xE000EF00;
+
+/// Floating Point Extension Registers
+constexpr static uintptr_t fp = 0xE000EF34;
+
+/// Trace Protocol Interface Unit (TPIU) Address
+constexpr static uintptr_t tpiu = 0xE0040000;
 
 /// Vendor Region (Vendor_SYS) Address
 constexpr static uintptr_t vendor = 0xE0100000;
@@ -131,19 +185,19 @@ constexpr static std::uint32_t vendor = (256U * iso::prefix::mebi) - private_per
 namespace power2 {
 
 /// The Power of 2 of the code section
-constexpr static std::uint32_t code = polyfill::log2(cortex::sizes::code);
+constexpr static std::uint32_t code = polyfill::log2(sizes::code);
 
 /// The Power of 2 of the SRAM section
-constexpr static std::uint32_t sram = polyfill::log2(cortex::sizes::sram);
+constexpr static std::uint32_t sram = polyfill::log2(sizes::sram);
 
 /// The Power of 2 of the Peripheral space
-constexpr static std::uint32_t peripheral = polyfill::log2(cortex::sizes::peripheral);
+constexpr static std::uint32_t peripheral = polyfill::log2(sizes::peripheral);
 
 /// The Power of 2 of the System section
-constexpr static std::uint32_t system = polyfill::log2(cortex::sizes::system);
+constexpr static std::uint32_t system = polyfill::log2(sizes::system);
 
 /// The Power of 2 of the Private Peripherals section
-constexpr static std::uint32_t private_peripheral = polyfill::log2(cortex::sizes::private_peripheral);
+constexpr static std::uint32_t private_peripheral = polyfill::log2(sizes::private_peripheral);
 }    // namespace power2
 
 }    // namespace sizes
@@ -152,13 +206,13 @@ constexpr static std::uint32_t private_peripheral = polyfill::log2(cortex::sizes
 /// @note The order of the regions is important for the MPU
 /// @todo Construct this table in the linkerscript, not in C++ as we really do not need to know these addresses.
 constexpr core::Interval unsorted_memory_regions_array[] = {
-    {cortex::address::code, cortex::address::code + cortex::sizes::code - 1U},
-    {cortex::address::sram, cortex::address::sram + cortex::sizes::sram - 1U},
-    {cortex::address::peripheral, cortex::address::peripheral + cortex::sizes::peripheral - 1U},
-    {cortex::address::ram0, cortex::address::ram0 + cortex::sizes::ram0 - 1U},
-    {cortex::address::ram1, cortex::address::ram1 + cortex::sizes::ram1 - 1U},
-    {cortex::address::system, cortex::address::system + cortex::sizes::system - 1U},
-    {cortex::address::vendor, cortex::address::vendor + cortex::sizes::vendor - 1U},
+    {address::code, address::code + sizes::code - 1U},
+    {address::sram, address::sram + sizes::sram - 1U},
+    {address::peripheral, address::peripheral + sizes::peripheral - 1U},
+    {address::ram0, address::ram0 + sizes::ram0 - 1U},
+    {address::ram1, address::ram1 + sizes::ram1 - 1U},
+    {address::system, address::system + sizes::system - 1U},
+    {address::vendor, address::vendor + sizes::vendor - 1U},
 };
 
 /// @brief The unsorted memory regions
@@ -167,7 +221,10 @@ constexpr core::Array<core::Interval, dimof(unsorted_memory_regions_array)> unso
 constexpr core::Array<core::Interval, dimof(unsorted_memory_regions_array)> sorted_memory_regions = core::Sort(unsorted_memory_regions);
 static_assert(core::IsSortedAndNonOverlapping(sorted_memory_regions), "Must be sorted and non-overlapping");
 
-/// The maximum number of external interrupts supported by the M4 Architecture
+/// Each bit maps to an (AFSR) bit somewhere in the documentation.
+using AuxiliaryFaultStatus = cortex::m7::AuxiliaryBusFaultStatus;
+
+/// The maximum number of external interrupts supported by the M7 Architecture
 constexpr static size_t max_extended_vectors{240U};
 
 /// @brief The default number of MPU regions allowed on a Cortex Microcontroller processor
@@ -177,9 +234,6 @@ constexpr static size_t DefaultRegionLimit{16U};
 
 /// Use the M7 as the variant in the Core register definition.
 namespace variant = m7;
-
-/// Each bit maps to an (AFSR) bit somewhere in the documentation.
-using AuxiliaryFaultStatus = cortex::m7::AuxiliaryBusFaultStatus;
 
 /// The pointer to the Auxiliary Control Register
 extern variant::AuxiliaryControl volatile auxiliary_control;

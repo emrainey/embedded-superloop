@@ -84,6 +84,14 @@
             "toolchainFile": "${sourceDir}/build-support/lib/cmake/bare-gcc-cortex-m4.cmake"
         },
         {
+            "name": "cortex-m7",
+            "hidden": true,
+            "displayName": "cortex-m7",
+            "inherits": "on-target",
+            "description": "Configuration for Cortex M7",
+            "toolchainFile": "${sourceDir}/build-support/lib/cmake/bare-gcc-cortex-m7.cmake"
+        },
+        {
             "name": "native-gcc",
             "hidden": true,
             "inherits": "on-host",
