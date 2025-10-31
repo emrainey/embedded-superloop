@@ -4,17 +4,10 @@
 #include "core/Units.hpp"
 
 #include <iostream>
+#include <type_traits>
 
-namespace core {
-namespace units {
-/// @brief The number of Ticks in a second for this board
-constexpr static std::uint32_t ticks_per_second{128U};
-/// @brief Defines the system tick period value used to represent the passage of time in floats
-constexpr static float tick_period{1.0F / static_cast<float>(ticks_per_second)};
-}    // namespace units
-}    // namespace core
-
-// This depends on the board specific stated conversions above
+// This depends on the fake configration in this test
+#include "configure.hpp"
 #include "core/Conversions.hpp"
 
 constexpr double epsilon{0.0625};    // 1/16th of a unit, used for floating point comparisons
@@ -24,7 +17,7 @@ TEST_CASE("Units - Equations") {
     core::units::Amperes i{2.0f};
     core::units::Ohms r{4.0f};
 
-    static_assert(core::units::Ohms::Type == float, "Storage type should be float");
+    static_assert(std::is_same<core::units::Ohms::StorageType, float>::value, "Storage type should be float");
 
     SECTION("Ohm's Law") {
         auto v2 = i * r;

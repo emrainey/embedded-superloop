@@ -89,9 +89,12 @@ host_unit_test(NAME core
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-statemachine.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-status.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-tokenizer.cpp
-        # ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-units.cpp # requires information from the Configuration and Architecture
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-units.cpp # requires information from the Configuration and Architecture
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/catch2-variants.cpp
         ${_GENERATED_CORE_TESTS}
+        ${CMAKE_SOURCE_DIR}/modules/cortex/source/conversions.cpp # needed for some unit tests
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
     LIBRARIES
         strict
     GENERIC_MODULES
