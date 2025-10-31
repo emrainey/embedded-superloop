@@ -4,6 +4,7 @@
 #include "core/Units.hpp"
 
 #include <iostream>
+#include <type_traits>
 
 // AUTO GENERATED, DO NOT MODIFY!
 constexpr static double epsilon{0.0625};    // 1/16th of a unit, used for floating point comparisons
@@ -12,6 +13,8 @@ TEST_CASE("Units - SquareMeters") {
     using namespace core::units;
     SquareMeters v1{1.0f};
     SquareMeters v2{2.0f};
+
+    static_assert(std::is_same<core::units::SquareMeters::StorageType, float>::value, "Storage type should be float");
 
     SECTION("Unit Value") {
         REQUIRE_THAT(static_cast<double>(v1.value()), Catch::Matchers::WithinAbs(1.0, epsilon));

@@ -100,7 +100,7 @@
         },
         {
             "name": "native-clang",
-            "hidden": true,
+            "hidden": false,
             "inherits": "on-host",
             "displayName": "Native Clang Toolchain",
             "description": "Uses the default clang in your path",

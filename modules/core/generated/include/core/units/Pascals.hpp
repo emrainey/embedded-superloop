@@ -18,77 +18,96 @@
 
 namespace core {
 namespace units {
+/// @brief Class representing the Pascals unit of measurement
+/// This class provides type safety and unit-specific operations for Pascals
+/// stored as float with a power of 1.
 class Pascals : public Unit<float, 1> {
 public:
-    using StorageType = float;
+    /// @brief The underlying storage type for the unit
+    using StorageType = typename Unit<float, 1>::Type;
+
+    /// @brief Default constructor initializing the unit
     constexpr Pascals()
         : Unit<float, 1>{} {
     }
+
+    /// @brief Constructor initializing the unit with a specific value
     constexpr explicit Pascals(float v)
         : Unit<float, 1>{v} {
     }
-    // constexpr Pascals(Pascals& other)
-    //     : Unit<float, 1>{other.value()} {
-    // }
+
+    /// @brief Copy constructor from const reference
     constexpr Pascals(Pascals const& other)
         : Unit<float, 1>{other.value()} {
     }
-    // constexpr Pascals(Pascals volatile & other)
-    //     : Unit<float, 1>{other.value()} {
-    // }
-    // constexpr Pascals(Pascals const volatile & other)
-    //     : Unit<float, 1>{other.value()} {
-    // }
+
+    /// @brief Copy constructor from non-const reference
     constexpr Pascals& operator=(Pascals& other) {
         value_ = other.value();
        return *this;
     }
+
+    /// @brief Copy constructor from const reference
     constexpr Pascals& operator=(Pascals const& other) {
         value_ = other.value();
         return *this;
     }
+
+    /// @brief Copy constructor from volatile reference
     inline Pascals& operator=(Pascals volatile& other) {
         value_ = other.value();
         return *this;
     }
-    // constexpr Pascals& operator=(Pascals const volatile& other) {
-    //     value_ = other.value();
-    //     return *this;
-    // }
-    inline Pascals volatile& operator=(Pascals& other) volatile {
+
+    /// @brief Copy constructor from non-const reference to a volatile object
+    /// @warning This is an unusual use case and should be used with caution as the object reference is not returned!
+    inline void operator=(Pascals& other) volatile {
+        value_ = other.value();
+    }
+
+    /// @brief Copy constructor from const reference to a volatile object
+    inline Pascals volatile& operator=(Pascals const& other) volatile {
         value_ = other.value();
         return *this;
     }
-    // constexpr Pascals volatile& operator=(Pascals const& other) volatile {
-    //     value_ = other.value();
-    //     return *this;
-    // }
-    // constexpr Pascals volatile& operator=(Pascals volatile& other) volatile {
-    //     value_ = other.value();
-    //     return *this;
-    // }
-    // constexpr Pascals volatile& operator=(Pascals const volatile& other) volatile {
-    //     value_ = other.value();
-    //     return *this;
-    // }
+
+    /// @brief Copy constructor from volatile reference to a volatile object
+    inline Pascals volatile& operator=(Pascals volatile& other) volatile {
+        value_ = other.value();
+        return *this;
+    }
+
+    /// @brief Addition operator for Pascals
     friend constexpr inline Pascals operator+(Pascals const& lhs, Pascals const& rhs) {
         return Pascals{lhs.value() + rhs.value()};
     }
+
+    /// @brief Subtraction operator for Pascals
     friend constexpr inline Pascals operator-(Pascals const& lhs, Pascals const& rhs) {
         return Pascals{lhs.value() - rhs.value()};
     }
+
+    /// @brief Multiplication operator for Pascals with scalar
     friend constexpr inline Pascals operator*(Pascals const& lhs, float rhs) {
         return Pascals{lhs.value() * rhs};
     }
+
+    /// @brief Division operator for Pascals with scalar
     friend constexpr inline Pascals operator/(Pascals const& lhs, float rhs) {
         return Pascals{lhs.value() / rhs};
     }
+
+    /// @brief Multiplication operator for scalar with Pascals
     friend constexpr inline Pascals operator*(float lhs, Pascals const& rhs) {
         return Pascals{lhs * rhs.value()};
     }
+
+    /// @brief Negation operator for Pascals
     friend constexpr inline Pascals operator-(Pascals const& other) {
         return Pascals{other.value() * static_cast<float>(-1)};
     }
+
+    /// @brief Equality operator for Pascals
     friend constexpr inline bool operator==(Pascals const& lhs, Pascals const& rhs) {
         if constexpr (std::is_floating_point_v<float>) {
             return std::fabs(lhs.value() - rhs.value()) < std::numeric_limits<float>::epsilon();
@@ -103,6 +122,8 @@ public:
             #endif
         }
     }
+
+    /// @brief Inequality operator for Pascals
     friend constexpr inline bool operator!=(Pascals const& lhs, Pascals const& rhs) {
         if constexpr (std::is_floating_point_v<float>) {
             return std::fabs(lhs.value() - rhs.value()) >= std::numeric_limits<float>::epsilon();
@@ -117,22 +138,31 @@ public:
             #endif
         }
     }
+
+    /// @brief Less than operator for Pascals
     friend constexpr inline bool operator<(Pascals const& lhs, Pascals const& rhs) {
         return lhs.value() < rhs.value();
     }
+
+    /// @brief Less than or equal operator for Pascals
     friend constexpr inline bool operator<=(Pascals const& lhs, Pascals const& rhs) {
         return lhs.value() <= rhs.value();
     }
+
+    /// @brief Greater than operator for Pascals
     friend constexpr inline bool operator>(Pascals const& lhs, Pascals const& rhs) {
         return lhs.value() > rhs.value();
     }
+
+    /// @brief Greater than or equal operator for Pascals
     friend constexpr inline bool operator>=(Pascals const& lhs, Pascals const& rhs) {
         return lhs.value() >= rhs.value();
     }
 };
 
 #if defined(UNITTEST)
-constexpr std::ostream& operator<<(std::ostream& os, Pascals const& v) {
+/// @brief Stream output operator for Pascals
+inline std::ostream& operator<<(std::ostream& os, Pascals const& v) {
         os << "Pascals" << " " << v.value();
         return os;
     }

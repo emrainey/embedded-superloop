@@ -51,8 +51,10 @@ TEST_CASE("Stack - Push and Pop Multiple") {
 TEST_CASE("Stack - Emplace and Dismiss") {
     struct Data {
         int value{0};
-        Data() : value{0} {}
-        Data(int value) : value(value) {}
+        Data()
+            : value{0} {}
+        Data(int v)
+            : value{v} {}
     };
 
     constexpr std::size_t Capacity = 3;

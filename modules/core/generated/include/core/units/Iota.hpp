@@ -18,77 +18,96 @@
 
 namespace core {
 namespace units {
+/// @brief Class representing the Iota unit of measurement
+/// This class provides type safety and unit-specific operations for Iota
+/// stored as uint64_t with a power of 1.
 class Iota : public Unit<uint64_t, 1> {
 public:
-    using StorageType = uint64_t;
+    /// @brief The underlying storage type for the unit
+    using StorageType = typename Unit<uint64_t, 1>::Type;
+
+    /// @brief Default constructor initializing the unit
     constexpr Iota()
         : Unit<uint64_t, 1>{} {
     }
+
+    /// @brief Constructor initializing the unit with a specific value
     constexpr explicit Iota(uint64_t v)
         : Unit<uint64_t, 1>{v} {
     }
-    // constexpr Iota(Iota& other)
-    //     : Unit<uint64_t, 1>{other.value()} {
-    // }
+
+    /// @brief Copy constructor from const reference
     constexpr Iota(Iota const& other)
         : Unit<uint64_t, 1>{other.value()} {
     }
-    // constexpr Iota(Iota volatile & other)
-    //     : Unit<uint64_t, 1>{other.value()} {
-    // }
-    // constexpr Iota(Iota const volatile & other)
-    //     : Unit<uint64_t, 1>{other.value()} {
-    // }
+
+    /// @brief Copy constructor from non-const reference
     constexpr Iota& operator=(Iota& other) {
         value_ = other.value();
        return *this;
     }
+
+    /// @brief Copy constructor from const reference
     constexpr Iota& operator=(Iota const& other) {
         value_ = other.value();
         return *this;
     }
+
+    /// @brief Copy constructor from volatile reference
     inline Iota& operator=(Iota volatile& other) {
         value_ = other.value();
         return *this;
     }
-    // constexpr Iota& operator=(Iota const volatile& other) {
-    //     value_ = other.value();
-    //     return *this;
-    // }
-    inline Iota volatile& operator=(Iota& other) volatile {
+
+    /// @brief Copy constructor from non-const reference to a volatile object
+    /// @warning This is an unusual use case and should be used with caution as the object reference is not returned!
+    inline void operator=(Iota& other) volatile {
+        value_ = other.value();
+    }
+
+    /// @brief Copy constructor from const reference to a volatile object
+    inline Iota volatile& operator=(Iota const& other) volatile {
         value_ = other.value();
         return *this;
     }
-    // constexpr Iota volatile& operator=(Iota const& other) volatile {
-    //     value_ = other.value();
-    //     return *this;
-    // }
-    // constexpr Iota volatile& operator=(Iota volatile& other) volatile {
-    //     value_ = other.value();
-    //     return *this;
-    // }
-    // constexpr Iota volatile& operator=(Iota const volatile& other) volatile {
-    //     value_ = other.value();
-    //     return *this;
-    // }
+
+    /// @brief Copy constructor from volatile reference to a volatile object
+    inline Iota volatile& operator=(Iota volatile& other) volatile {
+        value_ = other.value();
+        return *this;
+    }
+
+    /// @brief Addition operator for Iota
     friend constexpr inline Iota operator+(Iota const& lhs, Iota const& rhs) {
         return Iota{lhs.value() + rhs.value()};
     }
+
+    /// @brief Subtraction operator for Iota
     friend constexpr inline Iota operator-(Iota const& lhs, Iota const& rhs) {
         return Iota{lhs.value() - rhs.value()};
     }
+
+    /// @brief Multiplication operator for Iota with scalar
     friend constexpr inline Iota operator*(Iota const& lhs, uint64_t rhs) {
         return Iota{lhs.value() * rhs};
     }
+
+    /// @brief Division operator for Iota with scalar
     friend constexpr inline Iota operator/(Iota const& lhs, uint64_t rhs) {
         return Iota{lhs.value() / rhs};
     }
+
+    /// @brief Multiplication operator for scalar with Iota
     friend constexpr inline Iota operator*(uint64_t lhs, Iota const& rhs) {
         return Iota{lhs * rhs.value()};
     }
+
+    /// @brief Negation operator for Iota
     friend constexpr inline Iota operator-(Iota const& other) {
         return Iota{other.value() * static_cast<uint64_t>(-1)};
     }
+
+    /// @brief Equality operator for Iota
     friend constexpr inline bool operator==(Iota const& lhs, Iota const& rhs) {
         if constexpr (std::is_floating_point_v<uint64_t>) {
             return std::fabs(lhs.value() - rhs.value()) < std::numeric_limits<uint64_t>::epsilon();
@@ -103,6 +122,8 @@ public:
             #endif
         }
     }
+
+    /// @brief Inequality operator for Iota
     friend constexpr inline bool operator!=(Iota const& lhs, Iota const& rhs) {
         if constexpr (std::is_floating_point_v<uint64_t>) {
             return std::fabs(lhs.value() - rhs.value()) >= std::numeric_limits<uint64_t>::epsilon();
@@ -117,22 +138,31 @@ public:
             #endif
         }
     }
+
+    /// @brief Less than operator for Iota
     friend constexpr inline bool operator<(Iota const& lhs, Iota const& rhs) {
         return lhs.value() < rhs.value();
     }
+
+    /// @brief Less than or equal operator for Iota
     friend constexpr inline bool operator<=(Iota const& lhs, Iota const& rhs) {
         return lhs.value() <= rhs.value();
     }
+
+    /// @brief Greater than operator for Iota
     friend constexpr inline bool operator>(Iota const& lhs, Iota const& rhs) {
         return lhs.value() > rhs.value();
     }
+
+    /// @brief Greater than or equal operator for Iota
     friend constexpr inline bool operator>=(Iota const& lhs, Iota const& rhs) {
         return lhs.value() >= rhs.value();
     }
 };
 
 #if defined(UNITTEST)
-constexpr std::ostream& operator<<(std::ostream& os, Iota const& v) {
+/// @brief Stream output operator for Iota
+inline std::ostream& operator<<(std::ostream& os, Iota const& v) {
         os << "Iota" << " " << v.value();
         return os;
     }

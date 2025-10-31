@@ -129,6 +129,12 @@ def remove_void(param_string: str) -> str:
     return param_string.replace("void", "").strip()
 
 
+def inject_commas(param_string: str) -> str:
+    """Injects commas between parameters in the parameter string."""
+    params = [p.strip() for p in param_string.split(",") if p.strip()]
+    return ", ".join(params) + ", " if params else ""
+
+
 def on_interface_call(string: str, interface: dict, call: dict) -> str:
     """Finds the call in the interface and constructs the call string with parameters and return type if any.
     interface:
@@ -509,6 +515,7 @@ def main(args: List[str]) -> int:
     env.filters["replace_bools"] = replace_bools
     env.filters["bitset"] = bitset
     env.filters["final_filter"] = final_filter
+    env.filters["inject_commas"] = inject_commas
 
     if input_file is not None:
         data = loader.load(input_file)

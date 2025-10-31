@@ -25,6 +25,7 @@ else()
     message(STATUS "Not using GNU C++ Link Group with RESCAN")
     set(CMAKE_CXX_LINK_GROUP_USING_RESCAN FALSE)
 endif()
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
 # set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 add_custom_target(scrub

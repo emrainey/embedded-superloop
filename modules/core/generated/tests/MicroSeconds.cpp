@@ -3,6 +3,7 @@
 #include "core/Units.hpp"
 
 #include <iostream>
+#include <type_traits>
 
 // AUTO GENERATED, DO NOT MODIFY!
 
@@ -10,6 +11,8 @@ TEST_CASE("Units - MicroSeconds") {
     using namespace core::units;
     MicroSeconds v1{1U};
     MicroSeconds v2{2U};
+
+    static_assert(std::is_same<core::units::MicroSeconds::StorageType, uint64_t>::value, "Storage type should be uint64_t");
 
     SECTION("Unit Value") {
         REQUIRE(v1.value() == 1U);

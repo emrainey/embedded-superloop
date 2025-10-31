@@ -24,6 +24,8 @@ TEST_CASE("Units - Equations") {
     core::units::Amperes i{2.0f};
     core::units::Ohms r{4.0f};
 
+    static_assert(core::units::Ohms::Type == float, "Storage type should be float");
+
     SECTION("Ohm's Law") {
         auto v2 = i * r;
         REQUIRE_THAT(static_cast<double>(v2.value()), Catch::Matchers::WithinAbs(8.0, epsilon));

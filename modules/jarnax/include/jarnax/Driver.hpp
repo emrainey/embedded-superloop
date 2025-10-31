@@ -15,7 +15,7 @@ namespace jarnax {
 /// All drivers must be Loopable and will have a default Initialize method
 class Driver : public Loopable, public UnAllocatable, public UnCopyMoveable {
 public:
-    /// The default constructor
+    /// The default constructor, needed to initialize Loopable
     Driver();
 
     /// @brief All drivers must implement the Initialize method and may overload it to take parameters with assumed defaults in the base method.

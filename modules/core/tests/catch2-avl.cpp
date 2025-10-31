@@ -3,8 +3,8 @@
 #include "core/avl/Node.hpp"
 
 struct Dummy {
-    Dummy(int value)
-        : value{value} {}
+    Dummy(int v)
+        : value{v} {}
     // Has to have all the comparison operators
     bool operator<(const Dummy& rhs) const { return value < rhs.value; }
     bool operator<=(const Dummy& rhs) const { return value <= rhs.value; }
@@ -77,7 +77,7 @@ TEST_CASE("AVL Nodes") {
         REQUIRE(nodes[3].Find(1) == nullptr);    // can't find it now as it's not under d
         REQUIRE(nodes[3].Find(2) == nullptr);    // can't find it now as it's not under d
         CHECK(nodes[3].IsLeaf());
-        CHECK(not nodes[3].IsRoot());    // No longer root
+        CHECK(not nodes[3].IsRoot());            // No longer root
         CHECK(nodes[3].Height() == 1);
         CHECK(nodes[3].BalanceFactor() == 0);
         CHECK(nodes[3].Parent() == &nodes[2]);    // 3 is not the root
@@ -98,7 +98,7 @@ TEST_CASE("AVL Nodes") {
         // should have rebalanced with 2 as the root
         CHECK(not root->IsRoot());    // 1 is no longer the root
         CHECK(root->FindRoot() == &nodes[2]);
-        root = root->FindRoot();    // update
+        root = root->FindRoot();      // update
         REQUIRE(root->Insert(&nodes[4]));
         REQUIRE(root->Find(4) == &nodes[4]);
         CHECK(root->Height() == 3);
@@ -162,7 +162,7 @@ TEST_CASE("AVL Nodes") {
         nodes[1].Remove();               // Middle Remove (Left Side)
         CHECK(nodes[1].IsSingular());    // a is removed
         root = root->FindRoot();
-        CHECK(root == &nodes[2]);    // 2 is still the root
+        CHECK(root == &nodes[2]);        // 2 is still the root
         CHECK(root->VerifySide(Side::Left, &nodes[0]));
         CHECK(root->VerifySide(Side::Right, &nodes[3]));
         CHECK(root->Height() == 2);

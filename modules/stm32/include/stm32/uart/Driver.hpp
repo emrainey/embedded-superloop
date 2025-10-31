@@ -43,7 +43,7 @@ public:
         cortex::Peripheral tx_peripheral, core::Allocator& dma_allocator, std::size_t dma_allocation_size
     );
 
-    virtual ~Driver() = default;
+    ~Driver() = default;
 
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     // Jarnax::Driver Interface

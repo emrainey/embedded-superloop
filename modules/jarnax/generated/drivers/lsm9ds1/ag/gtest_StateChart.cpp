@@ -12,7 +12,7 @@ namespace core {
 
 class MockClock : public time::MonotonicClock {
 public:
-    MOCK_METHOD(time::MicroSeconds, Now, (), (const override));
+    MOCK_METHOD(time::MicroSeconds, Now, (), (const, override));
 };
 
 } // namespace core
@@ -23,14 +23,14 @@ namespace jarnax::drivers::lsm9ds1 {
 class MockCallback : public StateChart::Callback {
 public:
     MOCK_METHOD(core::Status, ReadIdentity, (), ( override));
-    MOCK_METHOD(bool, IsCorrectIdentity, (), (const override));
-    MOCK_METHOD(bool, ConfigurationComplete, (), (const override));
+    MOCK_METHOD(bool, IsCorrectIdentity, (), (const,  override));
+    MOCK_METHOD(bool, ConfigurationComplete, (), (const,  override));
     MOCK_METHOD(core::Status, ReadDataReady, (), ( override));
-    MOCK_METHOD(bool, DataReady, (), (const override));
+    MOCK_METHOD(bool, DataReady, (), (const,  override));
     MOCK_METHOD(core::Status, ReadAcceleration, (), ( override));
     MOCK_METHOD(core::Status, ReadGyroscope, (), ( override));
     MOCK_METHOD(core::Status, ReadTemperature, (), ( override));
-    MOCK_METHOD(bool, MeasurementComplete, (), (const override));
+    MOCK_METHOD(bool, MeasurementComplete, (), (const,  override));
     MOCK_METHOD(void, OnOutput, (core::Event<Outputs> output), (override));
     virtual ~MockCallback() = default;
 };

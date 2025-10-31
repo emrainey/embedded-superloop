@@ -20,6 +20,10 @@ void operator delete(void *, unsigned int) noexcept {
     // do nothing
 }
 
+void operator delete(void *, long unsigned int) noexcept {
+    // do nothing
+}
+
 namespace core {
 
 /// @todo add core library implementations

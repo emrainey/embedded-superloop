@@ -12,7 +12,7 @@ namespace core {
 
 class MockClock : public time::MonotonicClock {
 public:
-    MOCK_METHOD(time::MicroSeconds, Now, (), (const override));
+    MOCK_METHOD(time::MicroSeconds, Now, (), (const, override));
 };
 
 } // namespace core
@@ -23,7 +23,7 @@ namespace {{NameSpace}} {
 class MockCallback : public {{ClassName}}::Callback {
 public:
 {%- for method in interface %}
-    MOCK_METHOD({{method.return_type}}, {{method.name}}, ({{method.params | remove_void}}), ({{method.modifiers}} override));
+    MOCK_METHOD({{method.return_type}}, {{method.name}}, ({{method.params | remove_void}}), ({{method.modifiers | inject_commas}} override));
 {%- endfor %}
     MOCK_METHOD(void, OnOutput, (core::Event<Outputs> output), (override));
     virtual ~MockCallback() = default;

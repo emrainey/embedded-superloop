@@ -4,6 +4,7 @@
 /// @file
 /// Supervisor Mode Functions
 
+#include "cortex/bist.hpp"
 #include "cortex/thumb.hpp"
 #include "cortex/types.hpp"
 #include "iso.hpp"
@@ -35,8 +36,8 @@ struct Marshal {
         DisableInterrupts = 3U,    //!< Disable Interrupts
         EnableInterrupts = 4U,     //!< Enable Interrupts
         Reset = 5U,                //!< Resets the Core (does not return)
-        Tick = 6U,                 //!< Returns the system tick
-        Yield = 7U,                //!< Yield to the next task
+        Tick = 6U,                 //!< Returns the system tick (REMOVE)
+        Yield = 7U,                //!< Yield to the next task (TODO)
 
         // INSERT NEW VALUES ABOVE HERE
         BuiltInSelfTest = 0x7FU,    ///!< Built In Self Test (highest immediate value that can be used)

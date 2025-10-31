@@ -20,13 +20,13 @@ struct Statistics {
 };
 
 /// The LSM9DS1 driver interface
-class Driver : public jarnax::lsm9ds1::Driver, public core::Statistician<Statistics>, protected Callback {
+class Driver final : public jarnax::lsm9ds1::Driver, public core::Statistician<Statistics>, protected Callback {
 public:
     Driver(
         jarnax::Timer const& timer, core::units::Iota duration, jarnax::spi::Driver& driver, core::Allocator& allocator, jarnax::gpio::Output* cs_ag,
         jarnax::gpio::Output* cs_mag
     );
-    virtual ~Driver() = default;
+    ~Driver() = default;
 
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // jarnax::lsm9ds1::Driver implementation

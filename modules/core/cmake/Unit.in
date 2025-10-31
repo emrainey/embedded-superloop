@@ -18,77 +18,96 @@
 
 namespace core {
 namespace units {
+/// @brief Class representing the @UNIT_NAME@ unit of measurement
+/// This class provides type safety and unit-specific operations for @UNIT_NAME@
+/// stored as @UNIT_STORAGE@ with a power of @UNIT_POWER@.
 class @UNIT_NAME@ : public Unit<@UNIT_STORAGE@, @UNIT_POWER@> {
 public:
-    using StorageType = @UNIT_STORAGE@;
+    /// @brief The underlying storage type for the unit
+    using StorageType = typename Unit<@UNIT_STORAGE@, @UNIT_POWER@>::Type;
+
+    /// @brief Default constructor initializing the unit
     constexpr @UNIT_NAME@()
         : Unit<@UNIT_STORAGE@, @UNIT_POWER@>{} {
     }
+
+    /// @brief Constructor initializing the unit with a specific value
     constexpr explicit @UNIT_NAME@(@UNIT_STORAGE@ v)
         : Unit<@UNIT_STORAGE@, @UNIT_POWER@>{v} {
     }
-    // constexpr @UNIT_NAME@(@UNIT_NAME@& other)
-    //     : Unit<@UNIT_STORAGE@, @UNIT_POWER@>{other.value()} {
-    // }
+
+    /// @brief Copy constructor from const reference
     constexpr @UNIT_NAME@(@UNIT_NAME@ const& other)
         : Unit<@UNIT_STORAGE@, @UNIT_POWER@>{other.value()} {
     }
-    // constexpr @UNIT_NAME@(@UNIT_NAME@ volatile & other)
-    //     : Unit<@UNIT_STORAGE@, @UNIT_POWER@>{other.value()} {
-    // }
-    // constexpr @UNIT_NAME@(@UNIT_NAME@ const volatile & other)
-    //     : Unit<@UNIT_STORAGE@, @UNIT_POWER@>{other.value()} {
-    // }
+
+    /// @brief Copy constructor from non-const reference
     constexpr @UNIT_NAME@& operator=(@UNIT_NAME@& other) {
         value_ = other.value();
        return *this;
     }
+
+    /// @brief Copy constructor from const reference
     constexpr @UNIT_NAME@& operator=(@UNIT_NAME@ const& other) {
         value_ = other.value();
         return *this;
     }
+
+    /// @brief Copy constructor from volatile reference
     inline @UNIT_NAME@& operator=(@UNIT_NAME@ volatile& other) {
         value_ = other.value();
         return *this;
     }
-    // constexpr @UNIT_NAME@& operator=(@UNIT_NAME@ const volatile& other) {
-    //     value_ = other.value();
-    //     return *this;
-    // }
-    inline @UNIT_NAME@ volatile& operator=(@UNIT_NAME@& other) volatile {
+
+    /// @brief Copy constructor from non-const reference to a volatile object
+    /// @warning This is an unusual use case and should be used with caution as the object reference is not returned!
+    inline void operator=(@UNIT_NAME@& other) volatile {
+        value_ = other.value();
+    }
+
+    /// @brief Copy constructor from const reference to a volatile object
+    inline @UNIT_NAME@ volatile& operator=(@UNIT_NAME@ const& other) volatile {
         value_ = other.value();
         return *this;
     }
-    // constexpr @UNIT_NAME@ volatile& operator=(@UNIT_NAME@ const& other) volatile {
-    //     value_ = other.value();
-    //     return *this;
-    // }
-    // constexpr @UNIT_NAME@ volatile& operator=(@UNIT_NAME@ volatile& other) volatile {
-    //     value_ = other.value();
-    //     return *this;
-    // }
-    // constexpr @UNIT_NAME@ volatile& operator=(@UNIT_NAME@ const volatile& other) volatile {
-    //     value_ = other.value();
-    //     return *this;
-    // }
+
+    /// @brief Copy constructor from volatile reference to a volatile object
+    inline @UNIT_NAME@ volatile& operator=(@UNIT_NAME@ volatile& other) volatile {
+        value_ = other.value();
+        return *this;
+    }
+
+    /// @brief Addition operator for @UNIT_NAME@
     friend constexpr inline @UNIT_NAME@ operator+(@UNIT_NAME@ const& lhs, @UNIT_NAME@ const& rhs) {
         return @UNIT_NAME@{lhs.value() + rhs.value()};
     }
+
+    /// @brief Subtraction operator for @UNIT_NAME@
     friend constexpr inline @UNIT_NAME@ operator-(@UNIT_NAME@ const& lhs, @UNIT_NAME@ const& rhs) {
         return @UNIT_NAME@{lhs.value() - rhs.value()};
     }
+
+    /// @brief Multiplication operator for @UNIT_NAME@ with scalar
     friend constexpr inline @UNIT_NAME@ operator*(@UNIT_NAME@ const& lhs, @UNIT_STORAGE@ rhs) {
         return @UNIT_NAME@{lhs.value() * rhs};
     }
+
+    /// @brief Division operator for @UNIT_NAME@ with scalar
     friend constexpr inline @UNIT_NAME@ operator/(@UNIT_NAME@ const& lhs, @UNIT_STORAGE@ rhs) {
         return @UNIT_NAME@{lhs.value() / rhs};
     }
+
+    /// @brief Multiplication operator for scalar with @UNIT_NAME@
     friend constexpr inline @UNIT_NAME@ operator*(@UNIT_STORAGE@ lhs, @UNIT_NAME@ const& rhs) {
         return @UNIT_NAME@{lhs * rhs.value()};
     }
+
+    /// @brief Negation operator for @UNIT_NAME@
     friend constexpr inline @UNIT_NAME@ operator-(@UNIT_NAME@ const& other) {
         return @UNIT_NAME@{other.value() * static_cast<@UNIT_STORAGE@>(-1)};
     }
+
+    /// @brief Equality operator for @UNIT_NAME@
     friend constexpr inline bool operator==(@UNIT_NAME@ const& lhs, @UNIT_NAME@ const& rhs) {
         if constexpr (std::is_floating_point_v<@UNIT_STORAGE@>) {
             return std::fabs(lhs.value() - rhs.value()) < std::numeric_limits<@UNIT_STORAGE@>::epsilon();
@@ -103,6 +122,8 @@ public:
             #endif
         }
     }
+
+    /// @brief Inequality operator for @UNIT_NAME@
     friend constexpr inline bool operator!=(@UNIT_NAME@ const& lhs, @UNIT_NAME@ const& rhs) {
         if constexpr (std::is_floating_point_v<@UNIT_STORAGE@>) {
             return std::fabs(lhs.value() - rhs.value()) >= std::numeric_limits<@UNIT_STORAGE@>::epsilon();
@@ -117,22 +138,31 @@ public:
             #endif
         }
     }
+
+    /// @brief Less than operator for @UNIT_NAME@
     friend constexpr inline bool operator<(@UNIT_NAME@ const& lhs, @UNIT_NAME@ const& rhs) {
         return lhs.value() < rhs.value();
     }
+
+    /// @brief Less than or equal operator for @UNIT_NAME@
     friend constexpr inline bool operator<=(@UNIT_NAME@ const& lhs, @UNIT_NAME@ const& rhs) {
         return lhs.value() <= rhs.value();
     }
+
+    /// @brief Greater than operator for @UNIT_NAME@
     friend constexpr inline bool operator>(@UNIT_NAME@ const& lhs, @UNIT_NAME@ const& rhs) {
         return lhs.value() > rhs.value();
     }
+
+    /// @brief Greater than or equal operator for @UNIT_NAME@
     friend constexpr inline bool operator>=(@UNIT_NAME@ const& lhs, @UNIT_NAME@ const& rhs) {
         return lhs.value() >= rhs.value();
     }
 };
 
 #if defined(UNITTEST)
-constexpr std::ostream& operator<<(std::ostream& os, @UNIT_NAME@ const& v) {
+/// @brief Stream output operator for @UNIT_NAME@
+inline std::ostream& operator<<(std::ostream& os, @UNIT_NAME@ const& v) {
         os << "@UNIT_NAME@" << " " << v.value();
         return os;
     }

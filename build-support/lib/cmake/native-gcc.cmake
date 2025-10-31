@@ -9,7 +9,8 @@ message(NOTICE "No Exceptions and No RTTI")
 add_compile_options(-fno-exceptions -fno-rtti)
 
 message(NOTICE "Turn off poor features")
-add_compile_options(-Wno-deprecated-register)
+# add_compile_options(-Wno-deprecated-register)
+add_compile_options(-Wno-free-nonheap-object)
 
 message(NOTICE "Enable Unit Test Features")
 add_compile_definitions(UNITTEST=1)

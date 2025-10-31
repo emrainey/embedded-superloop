@@ -12,7 +12,7 @@ namespace jarnax {
 namespace drivers {
 namespace lps35hw {
 
-class Driver : public jarnax::lps35hw::Driver, protected Callback {
+class Driver final : public jarnax::lps35hw::Driver, protected Callback {
 public:
     /// @brief Constructor for the LPS35HW Driver
     /// @param timer The Timer to use for the state machine.
@@ -20,7 +20,8 @@ public:
     /// @param spi The SPI Driver to use for communication with the chip.
     /// @param allocator The Allocator to use for the buffer.
     Driver(jarnax::Timer const& timer, core::units::Iota duration, jarnax::spi::Driver& spi, core::Allocator& allocator);
-
+    ~Driver() = default;
+    
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // jarnax::lps35hw::Driver
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

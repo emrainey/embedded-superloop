@@ -35,7 +35,7 @@ if(NOT BUILD_CROSS_TARGET) # Only fetch these dependencies if we are not cross-c
     FetchContent_Declare(
         Catch2
         GIT_REPOSITORY https://github.com/catchorg/Catch2/
-        GIT_TAG v3.7.1
+        GIT_TAG v3.11.0
     )
     FetchContent_MakeAvailable(Catch2) # This will define the Catch2::Catch2 target
     print_variables_with_prefix("Catch2_")

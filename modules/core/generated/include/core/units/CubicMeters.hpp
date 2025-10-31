@@ -18,77 +18,96 @@
 
 namespace core {
 namespace units {
+/// @brief Class representing the CubicMeters unit of measurement
+/// This class provides type safety and unit-specific operations for CubicMeters
+/// stored as float with a power of 3.
 class CubicMeters : public Unit<float, 3> {
 public:
-    using StorageType = float;
+    /// @brief The underlying storage type for the unit
+    using StorageType = typename Unit<float, 3>::Type;
+
+    /// @brief Default constructor initializing the unit
     constexpr CubicMeters()
         : Unit<float, 3>{} {
     }
+
+    /// @brief Constructor initializing the unit with a specific value
     constexpr explicit CubicMeters(float v)
         : Unit<float, 3>{v} {
     }
-    // constexpr CubicMeters(CubicMeters& other)
-    //     : Unit<float, 3>{other.value()} {
-    // }
+
+    /// @brief Copy constructor from const reference
     constexpr CubicMeters(CubicMeters const& other)
         : Unit<float, 3>{other.value()} {
     }
-    // constexpr CubicMeters(CubicMeters volatile & other)
-    //     : Unit<float, 3>{other.value()} {
-    // }
-    // constexpr CubicMeters(CubicMeters const volatile & other)
-    //     : Unit<float, 3>{other.value()} {
-    // }
+
+    /// @brief Copy constructor from non-const reference
     constexpr CubicMeters& operator=(CubicMeters& other) {
         value_ = other.value();
        return *this;
     }
+
+    /// @brief Copy constructor from const reference
     constexpr CubicMeters& operator=(CubicMeters const& other) {
         value_ = other.value();
         return *this;
     }
+
+    /// @brief Copy constructor from volatile reference
     inline CubicMeters& operator=(CubicMeters volatile& other) {
         value_ = other.value();
         return *this;
     }
-    // constexpr CubicMeters& operator=(CubicMeters const volatile& other) {
-    //     value_ = other.value();
-    //     return *this;
-    // }
-    inline CubicMeters volatile& operator=(CubicMeters& other) volatile {
+
+    /// @brief Copy constructor from non-const reference to a volatile object
+    /// @warning This is an unusual use case and should be used with caution as the object reference is not returned!
+    inline void operator=(CubicMeters& other) volatile {
+        value_ = other.value();
+    }
+
+    /// @brief Copy constructor from const reference to a volatile object
+    inline CubicMeters volatile& operator=(CubicMeters const& other) volatile {
         value_ = other.value();
         return *this;
     }
-    // constexpr CubicMeters volatile& operator=(CubicMeters const& other) volatile {
-    //     value_ = other.value();
-    //     return *this;
-    // }
-    // constexpr CubicMeters volatile& operator=(CubicMeters volatile& other) volatile {
-    //     value_ = other.value();
-    //     return *this;
-    // }
-    // constexpr CubicMeters volatile& operator=(CubicMeters const volatile& other) volatile {
-    //     value_ = other.value();
-    //     return *this;
-    // }
+
+    /// @brief Copy constructor from volatile reference to a volatile object
+    inline CubicMeters volatile& operator=(CubicMeters volatile& other) volatile {
+        value_ = other.value();
+        return *this;
+    }
+
+    /// @brief Addition operator for CubicMeters
     friend constexpr inline CubicMeters operator+(CubicMeters const& lhs, CubicMeters const& rhs) {
         return CubicMeters{lhs.value() + rhs.value()};
     }
+
+    /// @brief Subtraction operator for CubicMeters
     friend constexpr inline CubicMeters operator-(CubicMeters const& lhs, CubicMeters const& rhs) {
         return CubicMeters{lhs.value() - rhs.value()};
     }
+
+    /// @brief Multiplication operator for CubicMeters with scalar
     friend constexpr inline CubicMeters operator*(CubicMeters const& lhs, float rhs) {
         return CubicMeters{lhs.value() * rhs};
     }
+
+    /// @brief Division operator for CubicMeters with scalar
     friend constexpr inline CubicMeters operator/(CubicMeters const& lhs, float rhs) {
         return CubicMeters{lhs.value() / rhs};
     }
+
+    /// @brief Multiplication operator for scalar with CubicMeters
     friend constexpr inline CubicMeters operator*(float lhs, CubicMeters const& rhs) {
         return CubicMeters{lhs * rhs.value()};
     }
+
+    /// @brief Negation operator for CubicMeters
     friend constexpr inline CubicMeters operator-(CubicMeters const& other) {
         return CubicMeters{other.value() * static_cast<float>(-1)};
     }
+
+    /// @brief Equality operator for CubicMeters
     friend constexpr inline bool operator==(CubicMeters const& lhs, CubicMeters const& rhs) {
         if constexpr (std::is_floating_point_v<float>) {
             return std::fabs(lhs.value() - rhs.value()) < std::numeric_limits<float>::epsilon();
@@ -103,6 +122,8 @@ public:
             #endif
         }
     }
+
+    /// @brief Inequality operator for CubicMeters
     friend constexpr inline bool operator!=(CubicMeters const& lhs, CubicMeters const& rhs) {
         if constexpr (std::is_floating_point_v<float>) {
             return std::fabs(lhs.value() - rhs.value()) >= std::numeric_limits<float>::epsilon();
@@ -117,22 +138,31 @@ public:
             #endif
         }
     }
+
+    /// @brief Less than operator for CubicMeters
     friend constexpr inline bool operator<(CubicMeters const& lhs, CubicMeters const& rhs) {
         return lhs.value() < rhs.value();
     }
+
+    /// @brief Less than or equal operator for CubicMeters
     friend constexpr inline bool operator<=(CubicMeters const& lhs, CubicMeters const& rhs) {
         return lhs.value() <= rhs.value();
     }
+
+    /// @brief Greater than operator for CubicMeters
     friend constexpr inline bool operator>(CubicMeters const& lhs, CubicMeters const& rhs) {
         return lhs.value() > rhs.value();
     }
+
+    /// @brief Greater than or equal operator for CubicMeters
     friend constexpr inline bool operator>=(CubicMeters const& lhs, CubicMeters const& rhs) {
         return lhs.value() >= rhs.value();
     }
 };
 
 #if defined(UNITTEST)
-constexpr std::ostream& operator<<(std::ostream& os, CubicMeters const& v) {
+/// @brief Stream output operator for CubicMeters
+inline std::ostream& operator<<(std::ostream& os, CubicMeters const& v) {
         os << "CubicMeters" << " " << v.value();
         return os;
     }
