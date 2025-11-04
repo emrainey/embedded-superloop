@@ -65,14 +65,19 @@ static_assert(alignof(std::uintptr_t) == 4U, "Must be this alignment");
 union word final {
     std::uintptr_t as_address;    ///< extract value as an address
     void* as_pointer;             ///< extract value as a pointer
-    std::uint32_t as_u32;         ///< extract value as a single u32
+    std::uint32_t as_u32[1];      ///< extract value as a single u32
     std::uint16_t as_u16[2];      ///< extract value as a pair of u16
     std::uint8_t as_u08[4];       ///< extract value as a quad of u08
-    std::int32_t as_s32;          ///< extract value as a single s32
+    std::int32_t as_s32[1];       ///< extract value as a single s32
     std::int16_t as_s16[2];       ///< extract value as a pair of s16
     std::int8_t as_s08[4];        ///< extract value as a quad of s08
     char as_chr[4];               ///< extract value as a quad of chars
     SinglePrecision as_f32;       ///< extract value as a single precision
+
+    template <typename Type>
+    [[gnu::always_inline]] inline Type as() const {
+        return reinterpret_cast<Type>(as_address);
+    }
 };
 #if defined(__arm__)
 static_assert(alignof(word) == 4U, "Must be exactly this alignment");

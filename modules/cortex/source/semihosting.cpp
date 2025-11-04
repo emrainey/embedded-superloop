@@ -185,7 +185,7 @@ void HeapInfo(BlockInfo*& info) {
 
 void Report(Exception exception) {
     cortex::word r1;
-    r1.as_s32 = to_underlying(exception);
+    r1.as_s32[0] = to_underlying(exception);
     return static_cast<void>(thumb::semihosting(to_underlying(Operation::ReportException), r1.as_pointer));
 }
 

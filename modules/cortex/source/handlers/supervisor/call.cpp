@@ -20,10 +20,10 @@ void svc(cortex::exceptions::ExtendedFrame *frame, cortex::exceptions::Exception
     // this is taken from an ARM example which uses the previous frame PC to load the instruction and pluck out the immediate value!
     marshal.call = static_cast<Marshal::Calls>(reinterpret_cast<uint8_t *>(frame->basic.program_counter)[-2]);
     if (marshal.call == Marshal::Calls::BuiltInSelfTest) {
-        marshal.type.bist.arg0 = frame->basic.r0.as_u32;
-        marshal.type.bist.arg1 = frame->basic.r1.as_u32;
-        marshal.type.bist.arg2 = frame->basic.r2.as_u32;
-        marshal.type.bist.arg3 = frame->basic.r3.as_u32;
+        marshal.type.bist.arg0 = frame->basic.r0.as_u32[0];
+        marshal.type.bist.arg1 = frame->basic.r1.as_u32[0];
+        marshal.type.bist.arg2 = frame->basic.r2.as_u32[0];
+        marshal.type.bist.arg3 = frame->basic.r3.as_u32[0];
         if (cortex::built_in_self_test.trigger_supervisor_call.is_testing) {
             cortex::built_in_self_test.trigger_supervisor_call.has_passed = true;
             if (marshal.type.bist.arg0 != kBistArg0) {
@@ -65,7 +65,7 @@ void svc(cortex::exceptions::ExtendedFrame *frame, cortex::exceptions::Exception
     // drop back to lower privilege
     cortex::supervisor::restore(old);
     // save a return value for the SVC
-    frame->basic.r0.as_u32 = to_underlying(status);
+    frame->basic.r0.as_u32[0] = to_underlying(status);
 }
 
 void call(void) {
