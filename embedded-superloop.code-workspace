@@ -195,8 +195,9 @@
         ],
         "cmake.copyCompileCommands": "${workspaceFolder}/build/compile_commands.json",
         "cmake.deleteBuildDirOnCleanConfigure": true,
-        "cmake.format.allowOptionalArgumentIndentation": true,
         "python.analysis.typeCheckingMode": "strict",
+        "python.defaultInterpreterPath": "${cmake.buildDirectory}/venv/bin/python3",
+        "python.analysis.autoFormatStrings": true,
         "testMate.cpp.test.parallelExecutionLimit": 2,
         "testMate.cpp.test.parallelExecutionOfExecutableLimit": 2,
         "cmake.ignoreCMakeListsMissing": false

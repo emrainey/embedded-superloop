@@ -104,13 +104,13 @@ endforeach()
 
 # Pulls in each application!
 foreach(app IN LISTS LOCAL_APPLICATIONS)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/applications/${app})
+    add_subdirectory(${EMBEDDED_SUPERLOOP_PROJECT_ROOT}/applications/${app})
 endforeach()
 
 # Pulls in the Unit Tests
 foreach(test IN LISTS LOCAL_UNITTESTS)
-    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/applications/${test}/tests)
-        add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/applications/${test}/tests)
+    if (EXISTS ${EMBEDDED_SUPERLOOP_PROJECT_ROOT}/modules/${test}/tests/CMakeLists.txt)
+        add_subdirectory(${EMBEDDED_SUPERLOOP_PROJECT_ROOT}/modules/${test}/tests)
     endif()
 endforeach()
 

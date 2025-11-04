@@ -12,11 +12,11 @@ using namespace core::units;
 
 class MockDriver : public drivers::w25q16bv::Listener, public drivers::w25q16bv::Executor {
 public:
-    MOCK_METHOD(void, OnEvent, (drivers::w25q16bv::Event event, core::Status status), ());
-    MOCK_METHOD(core::Status, Command, (drivers::w25q16bv::Instruction instruction), ());
-    MOCK_METHOD(bool, IsCommandComplete, (), (const));
-    MOCK_METHOD(core::Status, GetStatusAndData, (), ());
-    MOCK_METHOD(bool, IsPresent, (), (const));
+    MOCK_METHOD(void, OnEvent, (drivers::w25q16bv::Event event, core::Status status), (override));
+    MOCK_METHOD(core::Status, Command, (drivers::w25q16bv::Instruction instruction), (override));
+    MOCK_METHOD(bool, IsCommandComplete, (), (const, override));
+    MOCK_METHOD(core::Status, GetStatusAndData, (), (override));
+    MOCK_METHOD(bool, IsPresent, (), (const, override));
     virtual ~MockDriver() = default;
 };
 

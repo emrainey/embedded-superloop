@@ -2,6 +2,7 @@
 #define JUMP_TICKER_HPP
 
 #include "configure.hpp"
+#include "core/Conversions.hpp"
 #include "jarnax/Ticker.hpp"
 
 namespace jarnax {
