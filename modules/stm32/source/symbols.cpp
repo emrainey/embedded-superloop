@@ -1,4 +1,5 @@
 #include "configure.hpp"
+#include "cortex/linker.hpp"
 #include "cortex/m4.hpp"
 #include "cortex/mcu.hpp"
 #include "cortex/vectors.hpp"
@@ -93,5 +94,23 @@ uint32_t *__cortex_system_limit =
     reinterpret_cast<std::uint32_t *>(cortex::variant::address::system + cortex::variant::sizes::system);    // 64KB of system
 uint32_t *__cortex_system_size = reinterpret_cast<std::uint32_t *>(ptrdiff_t(__cortex_system_limit - __cortex_system_start));
 uint32_t *__cortex_system_pow2 = reinterpret_cast<std::uint32_t *>(16);                                      // 64KB of system is
+
+ZeroEntry zero_table[] = {
+#if defined(CORTEX_HAS_CCM) and (CORTEX_HAS_CCM == 1)
+    {reinterpret_cast<std::uintptr_t>(__ccm_beg), reinterpret_cast<std::uintptr_t>(__ccm_end)},
+#endif
+#if defined(CORTEX_HAS_ITCM) and (CORTEX_HAS_ITCM == 1)
+    {reinterpret_cast<std::uintptr_t>(__itcm_beg), reinterpret_cast<std::uintptr_t>(__itcm_end)},
+#endif
+#if defined(CORTEX_HAS_DTCM) and (CORTEX_HAS_DTCM == 1)
+    {reinterpret_cast<std::uintptr_t>(__dtcm_beg), reinterpret_cast<std::uintptr_t>(__dtcm_end)},
+#endif
+#if defined(CORTEX_HAS_SRAM) and (CORTEX_HAS_SRAM == 1)
+    {reinterpret_cast<std::uintptr_t>(__sram_beg), reinterpret_cast<std::uintptr_t>(__sram_end)},
+#endif
+};
+
+ZeroEntry *__zero_table_start = &zero_table[0];
+ZeroEntry *__zero_table_limit = &zero_table[dimof(zero_table)];
 
 #endif

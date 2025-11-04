@@ -197,4 +197,16 @@ LINKER_SYMBOL(__cortex_backup_size);
 /// Link Symbol of the Power of 2 Size of Backup SRAM
 LINKER_SYMBOL(__cortex_backup_pow2);
 
+/// Used to initialize memory to zero at boot without having to declare each type of memory separately
+struct ZeroEntry {
+    std::uintptr_t start;
+    std::uintptr_t limit;
+};
+
+/// Linker Symbols for the Zero Initialization Table, Start
+LINKER_TYPED_SYMBOL(__zero_table_start, ZeroEntry);
+
+/// Linker Symbols for the Zero Initialization Table, Limit
+LINKER_TYPED_SYMBOL(__zero_table_limit, ZeroEntry);
+
 #endif    // CORTEX_LINKER_HPP_

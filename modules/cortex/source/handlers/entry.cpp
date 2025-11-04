@@ -1,3 +1,8 @@
+/// @file
+/// The Entry Point Handler for the Cortex Microcontroller
+
+#include <cstdint>
+
 #include "configure.hpp"
 #include "cortex/initialize.hpp"
 #include "cortex/linker.hpp"
@@ -34,19 +39,36 @@ namespace handlers {
     // reinstall the vector table to the read-only version in FLASH
     peripherals::system_control_block.vector_table = &cortex::vector_table;
 
+    if constexpr (use_zero_table) {
+        //===============================================================
+        // THIS CAN NOT USE STACK! VERIFY ANY CHANGES IN THE DISASSEMBLY!
+        //===============================================================
+        // zero out the zero entries
+        for (ZeroEntry const *entry = __zero_table_start; entry < __zero_table_limit; ++entry) {
+            std::uint64_t const *const limit = reinterpret_cast<std::uint64_t const *>(entry->limit);
+            std::uint64_t *current = reinterpret_cast<std::uint64_t *>(entry->start);
+
+            while (current < limit) {
+                // two write for buses which perfer 64 bit writes
+                (*current) = 0;
+                current++;
+            }
+        }
+    }
+
     // IF the device had ITCM, or DTCM enable here.
-    if constexpr (zero_itcm_at_boot and variant::configuration::has_itcm) {
+    if constexpr (not use_zero_table and zero_itcm_at_boot and variant::configuration::has_itcm) {
         // TODO enable ITCM here if the processor has it (M7)
-        uint32_t volatile const *end = reinterpret_cast<uint32_t volatile const *>(__itcm_end);
-        uint32_t volatile *beg = reinterpret_cast<uint32_t volatile *>(__itcm_beg);
+        std::uint32_t volatile const *end = reinterpret_cast<std::uint32_t volatile const *>(__itcm_end);
+        std::uint32_t volatile *beg = reinterpret_cast<std::uint32_t volatile *>(__itcm_beg);
         while (beg < end) {
             *beg++ = 0;
         }
     }
-    if constexpr (zero_dtcm_at_boot and variant::configuration::has_dtcm) {
+    if constexpr (not use_zero_table and zero_dtcm_at_boot and variant::configuration::has_dtcm) {
         // TODO enable DTCM here if the processor has it (M7)
-        uint32_t volatile const *end = reinterpret_cast<uint32_t volatile const *>(__dtcm_end);
-        uint32_t volatile *beg = reinterpret_cast<uint32_t volatile *>(__dtcm_beg);
+        std::uint32_t volatile const *end = reinterpret_cast<std::uint32_t volatile const *>(__dtcm_end);
+        std::uint32_t volatile *beg = reinterpret_cast<std::uint32_t volatile *>(__dtcm_beg);
         while (beg < end) {
             *beg++ = 0;
         }
@@ -56,10 +78,10 @@ namespace handlers {
 
     // of course we could just zero initialize it all w/o ECC
     // IF the device has CCM clear it here
-    if constexpr (zero_ccm_at_boot and variant::configuration::has_ccm) {
+    if constexpr (not use_zero_table and zero_ccm_at_boot and variant::configuration::has_ccm) {
         cortex::peripherals::system_control_block.configuration_control.parts.enable_data_cache = 1U;
-        uint32_t volatile const *end = reinterpret_cast<uint32_t volatile const *>(__ccm_end);
-        uint32_t volatile *beg = reinterpret_cast<uint32_t volatile *>(__ccm_beg);
+        std::uint32_t volatile const *end = reinterpret_cast<std::uint32_t volatile const *>(__ccm_end);
+        std::uint32_t volatile *beg = reinterpret_cast<std::uint32_t volatile *>(__ccm_beg);
         while (beg < end) {
             *beg++ = 0;
         }
@@ -73,15 +95,11 @@ namespace handlers {
             }
         }
     }
-    if constexpr (zero_sram_at_boot and variant::configuration::has_sram) {
+    if constexpr (not use_zero_table and zero_sram_at_boot and variant::configuration::has_sram) {
         uint32_t volatile const *end = reinterpret_cast<uint32_t volatile const *>(__sram_end);
         uint32_t volatile *beg = reinterpret_cast<uint32_t volatile *>(__sram_beg);
         while (beg < end) {
-            *beg = 0;
-            if (*beg != 0) {
-                cortex::spinhalt();
-            }
-            beg++;
+            *beg++ = 0;
         }
         if constexpr (verify_sram_at_boot) {
             beg = reinterpret_cast<uint32_t volatile *>(__sram_beg);

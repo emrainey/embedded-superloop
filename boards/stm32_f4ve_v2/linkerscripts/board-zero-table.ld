@@ -1,0 +1,1 @@
+INCLUDE stm32f40xxx-zero-table.ld

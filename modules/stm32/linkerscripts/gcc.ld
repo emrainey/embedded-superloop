@@ -25,6 +25,8 @@ SECTIONS {
         *(.text.*)
     } >REGION_TEXT
 
+    INCLUDE board-zero-table.ld
+
     /* meant to run before shared object dependencies... (we don't have those) */
     .preinit_array ALIGN(4) : {
         PROVIDE_HIDDEN(__preinit_array_start = .);

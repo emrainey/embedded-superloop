@@ -17,6 +17,9 @@ namespace cortex {
 /// When false, the boost up self tests will not run
 constexpr static bool perform_boot_self_test{false};
 
+/// Uses the linker script zeroing to clear all the memory at boot time
+constexpr static bool use_zero_table{true};
+
 /// Zeroes CCM at boot (if present)
 constexpr static bool zero_ccm_at_boot{true};
 
