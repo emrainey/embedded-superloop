@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <iso.hpp>
 #include "core/Intervals.hpp"
+#include "cortex/peripherals/CacheInformation.hpp"
 
 #define CORTEX_HAS_FLASH 1
 #define CORTEX_HAS_ITCM 1
@@ -37,24 +38,65 @@ struct CentralProcessingUnitIdentification final {
     std::uint32_t ISAR[5]; /*!< Offset: 0x060 (R/ )  Instruction Set Attributes Register                   */
 };
 
-/// @brief The Cache information registers
-struct CacheInformation final {
-    std::uint32_t CLIDR;     ///< Offset: 0x078 (R/ )  Cache Level ID Register
-    std::uint32_t CTR;       ///< Offset: 0x07C (R/ )  Cache Type Register
-    std::uint32_t CCSIDR;    ///< Offset: 0x080 (R/ )  Cache Size ID Register
-    std::uint32_t CSSELR;    ///< Offset: 0x084 (R/W)  Cache Size Selection Register
+// Pull the M7 definition into the variant definition.
+using CacheInformation = peripherals::CacheInformation;
+
+/// The Data and Instruction Cache Control Register (DCIMVAC, DCCMVAC, DCCSW, DCCISW, ICIALLU, ICIMVAU, DCIMVAC, DCISW)
+struct DataAndInstructionCacheControl final {
+    struct SetWay {
+        std::uint32_t  : 5;     // bits 0:4
+        uint32_t way   : 9;     // bits 5:13
+        uint32_t       : 16;    // bits 14:29
+        uint32_t level : 2;     // bits 30:31
+    };
+
+    std::uint32_t invalidate_whole_instruction_cache;             ///< I-Cache Invalidate All to PoU by writing any value (ICIALLU)
+    std::uint32_t : 32;                                           ///< Reserved field
+    std::uintptr_t invalidate_instruction_cache_by_address;       ///< I-Cache Invalidate by Address (ICIMVAU)
+    std::uintptr_t invalidate_data_cache_by_address;              ///< D-Cache Invalidate by Address to Point of Coherency (DCIMVAC)
+    std::uintptr_t invalidate_data_cache_by_setway;               ///< D-Cache Invalidate by Set-way (DCISW)
+    std::uintptr_t clean_data_cache_to_unity_by_address;          ///< D-Cache Invalidute Clean by Address (DCCMVAU)
+    std::uintptr_t clean_data_cache_to_coherency_by_address;      ///< D-Cache Clean by MVA to PoC (DCCMVAC)
+    std::uintptr_t clean_data_cache_by_setway;                    ///< D-Cache Clean by Set-way (DCCSW)
+    std::uintptr_t clean_and_invalidate_data_cache_by_address;    ///< D-Cache Clean and Invalidate by Address (DCCIMVAC)
+    std::uintptr_t clean_and_invalidate_data_cache_by_setway;     ///< D-Cache Clean and Invalidate by Set-way (DCCISW)
+    std::uint32_t : 32;                                           ///< Reserved field (BPIALL)
+    std::uint32_t : 32;                                           ///< Reserved field
 };
+#if defined(__arm__)
+static_assert(sizeof(DataAndInstructionCacheControl) == 0x30UL, "Must be this exact size");
+#endif
+
+extern DataAndInstructionCacheControl volatile data_and_instruction_cache_control;
 
 /// The Auxiliary Control Register (ACTLR) is outside the System Control Block (SCB)
+/// @warning Only use these if you know EXACTLY what you are doing!
 struct AuxiliaryControl final {
     struct Fields final {
-        std::uint32_t disable_interruption_multicycle_instructions : 1U;
-        std::uint32_t disable_write_buffer_default_memory_map      : 1U;
-        std::uint32_t disable_folding_instruction                  : 1U;
-        std::uint32_t                                              : 5U;
-        std::uint32_t disable_floating_pointer_out_of_order        : 1U;
-        std::uint32_t disable_lazy_stacking_float_context          : 1U;
-        std::uint32_t                                              : 21U;
+        std::uint32_t                                               : 2U;    // Reserved
+        std::uint32_t                                               : 1U;    // DISFOLD (0==Normal)
+        std::uint32_t                                               : 7U;    // Reserved
+        std::uint32_t disable_floating_point_exception_outputs      : 1U;
+        std::uint32_t disable_dynamic_read_allocate_mode_wbwa       : 1U;
+        std::uint32_t disable_itm_and_dwt_atb_flush                 : 1U;
+        std::uint32_t disable_btac_read                             : 1U;
+        std::uint32_t disable_btac_alloc                            : 1U;
+        std::uint32_t disable_critical_axi_read_under_read          : 1U;
+        // 16
+        std::uint32_t disable_dual_issue_direct_braches             : 1U;
+        std::uint32_t disable_dual_issue_indirect_branches          : 1U;
+        std::uint32_t disable_dual_issue_loads_to_PC                : 1U;
+        std::uint32_t disable_dual_issue_integer_MAC_and_MUL        : 1U;
+        std::uint32_t disable_dual_issue_VFP                        : 1U;
+        std::uint32_t disable_instruction_issue_direct_branch       : 1U;
+        std::uint32_t disable_instruction_issue_indirect_branch     : 1U;
+        std::uint32_t disable_instruction_issue_loads_PC            : 1U;
+        std::uint32_t disable_instruction_issue_integer_MAC_and_MUL : 1U;
+        std::uint32_t disable_instruction_issue_VFP                 : 1U;
+        std::uint32_t disable_dynamic_allocation_of_ADD_SUB         : 1U;
+        std::uint32_t disable_critical_axi_read_under_write         : 1U;
+        std::uint32_t                                               : 1U;    // DISFPUISSOPT (0=Normal)
+        std::uint32_t                                               : 3U;
     };
     union {
         Fields bits;
