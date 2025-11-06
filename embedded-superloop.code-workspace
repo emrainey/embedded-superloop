@@ -187,7 +187,8 @@
         "cmake.allowCommentsInPresetsFile": true,
         "cmake.allowUnsupportedPresetsVersions": true,
         "cmake.buildEnvironment": {
-            "CMAKE_VERBOSE": "0"
+            "CMAKE_VERBOSE": "0",
+            "CMAKE_MAKEFILE_VERBOSE": "OFF"
         },
         "cmake.configureArgs": [
             "-DCMAKE_BUILD_PARALLEL_LEVEL=1",
@@ -198,6 +199,7 @@
         "python.analysis.typeCheckingMode": "strict",
         "python.defaultInterpreterPath": "${cmake.buildDirectory}/venv/bin/python3",
         "python.analysis.autoFormatStrings": true,
+        "testMate.cpp.test.executables": "${workspaceFolder}/build/**/test-*",
         "testMate.cpp.test.parallelExecutionLimit": 2,
         "testMate.cpp.test.parallelExecutionOfExecutableLimit": 2,
         "cmake.ignoreCMakeListsMissing": false

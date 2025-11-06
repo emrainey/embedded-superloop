@@ -74,51 +74,6 @@ constexpr static bool enable{false};
 constexpr static std::size_t baudrate{50'000U};
 }    // namespace swo
 
-namespace address {
-/// The Code for the System runs in Flash
-constexpr static uintptr_t flash = vendor::address::flash;
-#if defined(CORTEX_HAS_CCM) and (CORTEX_HAS_CCM == 1)
-/// The location where stack is stored
-constexpr static uintptr_t stack = vendor::address::ccm;
-#endif
-#if defined(CORTEX_HAS_ITCM) and (CORTEX_HAS_ITCM == 1)
-/// The ITCM area
-constexpr static uintptr_t itcm = vendor::address::itcm;
-#endif
-#if defined(CORTEX_HAS_DTCM) and (CORTEX_HAS_DTCM == 1)
-/// The DTCM area
-constexpr static uintptr_t stack = vendor::address::dtcm;
-#endif
-/// The Backup RAM area
-constexpr static uintptr_t backup = vendor::address::backup_sram;
-}    // namespace address
-namespace sizes {
-/// The size of the code area
-constexpr static std::uint32_t flash = vendor::sizes::flash;
-#if defined(CORTEX_HAS_CCM) and (CORTEX_HAS_CCM == 1)
-/// The size of the stack area
-constexpr static std::uint32_t stack = vendor::sizes::ccm;
-#endif
-#if defined(CORTEX_HAS_ITCM) and (CORTEX_HAS_ITCM == 1)
-/// The size of the ITCM area
-constexpr static std::uint32_t itcm = vendor::sizes::itcm;
-#endif
-#if defined(CORTEX_HAS_DTCM) and (CORTEX_HAS_DTCM == 1)
-/// The size of the DTCM area
-constexpr static std::uint32_t stack = vendor::sizes::dtcm;
-#endif
-/// The size of the backup area if present
-constexpr static std::uint32_t backup = vendor::sizes::backup_sram;
-namespace power2 {
-/// The power of 2 of the size of the code area
-constexpr static std::uint8_t flash = vendor::sizes::power2::flash;
-/// The power of 2 of the size of the stack area
-constexpr static std::uint8_t stack = polyfill::log2(cortex::sizes::stack);
-/// The power of 2 of the size of the backup area if present
-constexpr static std::uint8_t backup = vendor::sizes::power2::backup_sram;
-}    // namespace power2
-}    // namespace sizes
-
 /// When false, this will enable thread mode (or User Mode) with a separate stack, before calling the user application.
 /// Some system level calls my then use the other stack and as such it needs to be sized appropriately.
 /// When true, all code will run on in privileged mode on one stack.

@@ -108,7 +108,7 @@ struct Interval {
     /// @param interval The interval to print
     /// @return Output Stream
     friend std::ostream& operator<<(std::ostream& os, Interval const& interval) {
-        os << "Interval: [" << interval.start << ", " << interval.limit << "]";
+        os << "Interval: [" << std::hex << interval.start << ", " << std::hex << interval.limit << "]";
         return os;
     }
 #endif
@@ -119,27 +119,16 @@ struct Interval {
 /// @param intervals The pre-sorted array of intervals to search.
 /// @param address The address to search for.
 /// @return The index of the interval that contains the address, or std::numeric_limits<std::size_t>::max() if not found.
-template <std::size_t N>
-constexpr std::size_t FindIndex(core::Array<Interval, N> const& intervals, std::uintptr_t address) {
-    std::size_t beg = 0;
-    std::size_t end = N;    // exclusive index
-    std::size_t mid;
-    do {
-        mid = ((end - beg) / 2) + beg;
-#if defined(UNITTEST)
-        std::cout << "beg: " << beg << " end: " << end << " mid: " << mid << std::endl;
-#endif
-        if (intervals[mid].contains(address)) {
-            return mid;
-        } else if (address < intervals[mid].start) {
-            // move to the left
-            end = mid;
-        } else if (address > intervals[mid].limit) {
-            // move to the right (but don't include mid)
-            beg = mid + 1;
-        }
-    } while (beg < end);
-    return std::numeric_limits<std::size_t>::max();
+std::size_t FindIndex(Interval const intervals[], size_t count, std::uintptr_t address);
+
+/// Finds the index of the interval that contains the given address.
+/// @tparam N The number of elemens in the intervals array.
+/// @param intervals The pre-sorted array of intervals to search.
+/// @param address The address to search for.
+/// @return The index of the interval that contains the address, or std::numeric_limits<std::size_t>::max() if not found.
+template <size_t N>
+std::size_t FindIndex(core::Array<Interval, N> const& intervals, std::uintptr_t address) {
+    return FindIndex(intervals.data(), intervals.count(), address);
 }
 
 /// @brief Checks if the given address is within any of the intervals.
@@ -148,37 +137,31 @@ constexpr std::size_t FindIndex(core::Array<Interval, N> const& intervals, std::
 /// @param address The address to search for.
 /// @return True if the address is within any of the intervals, false otherwise.
 template <std::size_t N>
-constexpr bool Contains(core::Array<Interval, N> const& intervals, std::uintptr_t address) {
+bool Contains(core::Array<Interval, N> const& intervals, std::uintptr_t address) {
     return FindIndex(intervals, address) != std::numeric_limits<std::size_t>::max();
 }
 
-/// Determines if a set of Intervals are sorted and non-overlapping.
-/// @tparam N The number of elements in the intervals array.
-/// @param intervals The array of intervals to check.
-/// @return True if the intervals are sorted and non-overlapping, false otherwise.
-template <std::size_t N>
-constexpr bool IsSortedAndNonOverlapping(core::Array<Interval, N>& intervals) {
-    for (std::size_t i = 1; i < N; ++i) {
-        if (intervals[i - 1].limit >= intervals[i].start) {
-            return false;
-        }
-    }
-    return true;
-}
+/// @brief Checks if the given address is within any of the intervals.
+/// @param intervals The pre-sorted array of intervals to search.
+/// @param count The number of intervals in the array
+/// @param address The address to search for.
+/// @return True if the address is within any of the intervals, false otherwise.
+bool Contains(Interval const intervals[], size_t count, std::uintptr_t address);
 
 /// Determines if a set of Intervals are sorted and non-overlapping.
 /// @tparam N The number of elements in the intervals array.
 /// @param intervals The array of intervals to check.
 /// @return True if the intervals are sorted and non-overlapping, false otherwise.
 template <std::size_t N>
-constexpr bool IsSortedAndNonOverlapping(core::Array<Interval, N> const& intervals) {
-    for (std::size_t i = 1; i < intervals.count(); ++i) {
-        if (intervals[i - 1].limit >= intervals[i].start) {
-            return false;
-        }
-    }
-    return true;
+bool IsSortedAndNonOverlapping(core::Array<Interval, N> const& intervals) {
+    return IsSortedAndNonOverlapping(intervals.data(), intervals.count());
 }
+
+/// Determines if a set of Intervals are sorted and non-overlapping.
+/// @param intervals The array of intervals to check.
+/// @param count The number of intervals in the array.
+/// @return True if the intervals are sorted and non-overlapping, false otherwise.
+bool IsSortedAndNonOverlapping(Interval const intervals[], size_t count);
 
 /// Performs a SwapSort on the given subset of the array of intervals.
 /// @tparam N The number of elements in the intervals array.

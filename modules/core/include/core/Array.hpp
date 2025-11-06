@@ -68,6 +68,12 @@ public:
         }
     }
 
+    /// Returns the pointer to the data
+    constexpr Pointer data(void) { return &data_[0]; }
+
+    /// Returns the pointer to the data
+    constexpr PointerConst data(void) const { return &data_[0]; }
+
     /// Return the number of elements in the array
     constexpr CountType count(void) const { return CAPACITY; }
 

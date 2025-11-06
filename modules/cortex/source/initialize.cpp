@@ -188,7 +188,7 @@ void fpu(void) {
 }
 
 void mpu(void) {
-    if /* constexpr */ (cortex::use_only_default_mpu_configuration) {
+    if constexpr (cortex::use_only_default_mpu_configuration) {
         /// don't change anything and return
         return;
     }
