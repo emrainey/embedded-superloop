@@ -17,6 +17,7 @@ add_module(NAME jarnax
         # these are the core jarnax features
         ${CMAKE_CURRENT_SOURCE_DIR}/source/print.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/yield.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/L1DataCache.cpp
         # The main application and Jarnax features
         ${CMAKE_CURRENT_SOURCE_DIR}/source/main.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Ticker.cpp
