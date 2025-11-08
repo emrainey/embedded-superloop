@@ -102,9 +102,10 @@ TEST_CASE("Units - Conversions") {
     }
 
     SECTION("Ticks to Time") {
+        double tick_period{1.0 / static_cast<double>(cortex::ticks_per_second)};
         core::units::Seconds s0 = core::units::ConvertToSeconds(42_ticks);
         REQUIRE_THAT(static_cast<double>(s0.value()), Catch::Matchers::WithinAbs(0.328125, epsilon));
-        REQUIRE_THAT(static_cast<double>(s0.value()), Catch::Matchers::WithinAbs(42.0 * static_cast<double>(core::units::tick_period), epsilon));
+        REQUIRE_THAT(static_cast<double>(s0.value()), Catch::Matchers::WithinAbs(42.0 * tick_period), epsilon));
     }
 }
 

@@ -63,21 +63,18 @@ constexpr static bool initialize_system_clocks{true};
 /// @brief The number of Ticks in a second
 constexpr static std::uint32_t ticks_per_second{128U};
 
-/// @brief Defines the system tick period value used to represent the passage of time in floats
-constexpr static float tick_period{1.0F / cortex::ticks_per_second};
-
 /// Control SWO features
 namespace swo {
 /// The flag to control enabling the SWO and TPIU/ITM
 constexpr static bool enable{true};
 /// The desired SWO baudrate
-constexpr static std::size_t baudrate{2'240'000U};    // should be /75
+constexpr static std::size_t baudrate{2'240'000U};
 }    // namespace swo
 
 /// When false, this will enable thread mode (or User Mode) with a separate stack, before calling the user application.
 /// Some system level calls my then use the other stack and as such it needs to be sized appropriately.
 /// When true, all code will run on in privileged mode on one stack.
-constexpr static bool run_in_privileged_mode_only{false};
+constexpr static bool run_in_privileged_mode_only{true};
 
 }    // namespace cortex
 

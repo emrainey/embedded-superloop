@@ -36,6 +36,7 @@ find_package(embedded-superloop REQUIRED)
 
 ############
 
+add_configuration(NAME full)
 add_configuration(NAME basic)
 add_configuration(NAME qemu)
 

@@ -15,7 +15,7 @@
 namespace cortex {
 
 /// When false, the boost up self tests will not run
-constexpr static bool perform_boot_self_test{false};
+constexpr static bool perform_boot_self_test{true};
 
 /// Uses the linker script zeroing to clear all the memory at boot time
 constexpr static bool use_zero_table{true};
@@ -42,7 +42,7 @@ constexpr static bool verify_sram_at_boot{true};
 constexpr static bool enable_access_to_fpu{true};
 
 /// Configures the use of the default mpu configuration only (no additions from system)
-constexpr static bool use_only_default_mpu_configuration{true};
+constexpr static bool use_only_default_mpu_configuration{false};
 
 /// Indicates if the system should run the preinitialization array
 constexpr static bool has_preinitialization{true};
@@ -58,17 +58,17 @@ constexpr static bool use_stack_watermark{true};
 constexpr static std::uint32_t stack_watermark = 0x55AAAA55;
 
 /// Instructs the configuration to initialize the system clocks if they exist
-constexpr static bool initialize_system_clocks{false};
+constexpr static bool initialize_system_clocks{true};
 
 /// @brief The number of Ticks in a second
-constexpr static std::uint32_t ticks_per_second{100U};
+constexpr static std::uint32_t ticks_per_second{128U};
 
 /// Control SWO features
 namespace swo {
 /// The flag to control enabling the SWO and TPIU/ITM
-constexpr static bool enable{false};
+constexpr static bool enable{true};
 /// The desired SWO baudrate
-constexpr static std::size_t baudrate{50'000U};
+constexpr static std::size_t baudrate{5'000'000U};
 }    // namespace swo
 
 /// When false, this will enable thread mode (or User Mode) with a separate stack, before calling the user application.
