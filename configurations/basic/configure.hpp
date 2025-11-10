@@ -10,7 +10,7 @@
 #include "core/Units.hpp"
 
 // The configuration only depends on the variant of the Cortex Microcontroller being used
-#include "cortex/variant.hpp"
+#include "cortex/partnumber.hpp"
 
 namespace cortex {
 
@@ -75,6 +75,29 @@ constexpr static std::size_t baudrate{2'240'000U};
 /// Some system level calls my then use the other stack and as such it needs to be sized appropriately.
 /// When true, all code will run on in privileged mode on one stack.
 constexpr static bool run_in_privileged_mode_only{true};
+
+/// Enables the data and caches (if present)
+constexpr static bool enable_data_cache{true};
+
+/// Enables the instruction cache (if present)
+constexpr static bool enable_instruction_cache{true};
+
+/// Allow Low Privilege Access to Trigger Software Interrupts
+constexpr static bool allow_unprivileged_software_trigger{false};
+
+/// Allow returning to thread mode after an exception while exceptions are still pending.
+constexpr static bool allow_thread_mode_exception_return{false};
+
+/// Enable trapping of unaligned accesses into a Usage Fault.
+/// @note Halfword and Word Acceases using LDM, STM, LDRD, and STRD will always fault when this is enabled.
+constexpr static bool trap_unaligned_access{true};
+
+/// Enable trapping of divide by zero operations into a Usage Fault.
+/// @note This only applies to hardware divide instructions (SDIV and UDIV).When disabled, a value of zero is returned.
+constexpr static bool trap_divide_by_zero{true};
+
+/// Ignore Precise Data Access Faults in Negative Priority Levels. Only should be used to debug the system.
+constexpr static bool ignore_precise_data_access_faults_in_negative_priority{false};
 
 }    // namespace cortex
 

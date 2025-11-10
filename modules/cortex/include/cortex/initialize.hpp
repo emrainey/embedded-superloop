@@ -35,6 +35,9 @@ void faults(void);
 /// Initializes the System Tick
 void tick(Hertz ticks_per_second, Hertz reference_clock_frequency);
 
+/// Configures the System Control Block Configuration Register
+void configuration();
+
 /// Calls all the static object constructors
 void static_constructors(void);
 

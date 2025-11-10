@@ -23,8 +23,6 @@ void on_startup(void) {
     }
     // do the core elements of the MPU.
     cortex::initialize::mpu();
-    // now we can enable the cache(s)
-    cortex::cache::data::enable();
     // now configure the system (external function)
     cortex::system::configure();
     // run the bist and collect a result *before* we drop privilege

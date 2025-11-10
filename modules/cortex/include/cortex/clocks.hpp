@@ -10,19 +10,23 @@ namespace cortex {
 
 /// Gets the Clock Frequency of the Cortex Processor
 /// @pre cortex::initialize::clocks
+/// @warning This should only be called by Privileged code
 Hertz GetClockFrequency(void);
 
 /// Sets the Clock Frequency of the Cortex Processor
 /// @warning This should only be called once during boot. This value should be derived from the _already_ configured clock tree from
 /// the vendor!
 /// @param frequency The frequency to set the cortex clock variables to.
+/// @warning This should only be called by Privileged code during boot.
 void SetClockFrequency(Hertz frequency);
 
 /// @brief Returns the frequency of the system tick feeder clock.
+/// @warning This should only be called by Privileged code
 Hertz GetSystemClockFrequency(void);
 
 /// @brief Set during boot to the system clock frequency.
 /// @param frequency The frequency that the system tick is run from.
+/// @warning This should only be called by Privileged code during boot
 void SetSystemClockFrequency(Hertz frequency);
 
 }    // namespace cortex

@@ -4,6 +4,7 @@
 #include <cortex/Peripheral.hpp>
 #include <jarnax/JumpTimer.hpp>
 #include <jarnax/MockCache.hpp>
+#include <jarnax/MockProcessor.hpp>
 #include <jarnax/MockTransactor.hpp>
 #include <jarnax/dma/MockManager.hpp>
 
@@ -64,4 +65,13 @@ TEST(Mocks, Cache) {
     mock_data_cache.Invalidate(0x20000000, 64);
     mock_instruction_cache.Enable();
     mock_instruction_cache.Invalidate();
+}
+
+TEST(Mocks, Processor) {
+    jarnax::MockProcessor mock_processor;
+
+    EXPECT_CALL(mock_processor, GetCoreFrequency()).WillOnce(testing::Return(cortex::Hertz(123'456'789U)));
+
+    auto freq = mock_processor.GetCoreFrequency();
+    EXPECT_EQ(123'456'789U, freq.value());
 }

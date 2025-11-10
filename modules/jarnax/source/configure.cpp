@@ -44,6 +44,8 @@ void ATTRIBUTE((used)) configure(void) {
     jarnax::print("Initializing Tick @ %lu/sec from %lu\r\n", cortex::GetTickRate().value(), cortex::GetSystemClockFrequency().value());
     cortex::initialize::tick(cortex::GetTickRate(), cortex::GetSystemClockFrequency());
     cortex::initialize::swo(cortex::swo::baudrate, cortex::GetClockFrequency());
+    // configure the system control block configuration register
+    cortex::initialize::configuration();
     // vendor::initialize::watchdog();
     vendor::initialize::gpio();
     // calls the vendor and board specific driver setup

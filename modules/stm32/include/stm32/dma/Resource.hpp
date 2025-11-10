@@ -1,7 +1,7 @@
 #ifndef STM32_DMA_RESOURCE_HPP
 #define STM32_DMA_RESOURCE_HPP
 
-#include "cortex/variant.hpp"    // Pulls in Chip definition!
+#include "cortex/partnumber.hpp"    // Pulls in Chip definition!
 #include "jarnax/dma/Resource.hpp"
 #include "stm32/peripherals/DirectMemoryAccess.hpp"
 

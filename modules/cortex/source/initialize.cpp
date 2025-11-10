@@ -311,6 +311,21 @@ void tick(Hertz ticks_per_second, Hertz reference_clock_frequency) {
     // this won't start interrupting until after the NVIC is initialized
 }
 
+void configuration() {
+    // read the configuration control
+    auto config = peripherals::system_control_block.configuration_control;
+    // set the bits
+    config.parts.allow_thread_mode_exception_return = cortex::allow_thread_mode_exception_return ? 1U : 0U;
+    config.parts.allow_unprivileged_access_to_software_trigger = cortex::allow_unprivileged_software_trigger ? 1U : 0U;
+    config.parts.trap_unaligned_access = cortex::trap_unaligned_access ? 1U : 0U;
+    config.parts.trap_divide_by_zero = cortex::trap_divide_by_zero ? 1U : 0U;
+    config.parts.ignore_precise_data_access_faults_in_negative_priority = cortex::ignore_precise_data_access_faults_in_negative_priority ? 1U : 0U;
+    config.parts.enable_data_cache = cortex::enable_data_cache ? 1U : 0U;
+    config.parts.enable_instruction_cache = cortex::enable_instruction_cache ? 1U : 0U;
+    // write back
+    peripherals::system_control_block.configuration_control = config;
+}
+
 }    // namespace initialize
 
 }    // namespace cortex

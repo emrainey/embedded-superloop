@@ -28,7 +28,7 @@ TEST_CASE("Sameness") {
     // }
 }
 
-TEST_CASE("Variants - Basics") {
+TEST_CASE("PartNumber - Basics") {
     SECTION("Default Constructor") {
         core::Variant<Foo, Bar, Baz> test{Foo{}};
         REQUIRE(test.count() == 3U);

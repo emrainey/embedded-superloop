@@ -110,7 +110,7 @@ struct Stacked {
 /// @tparam IMM The immediate value
 template <std::int8_t IMM>
 ALWAYS_INLINE inline std::uint32_t supervisor(Stacked* stacked) {
-    static_assert(IMM >= 0, "Must be a value between 0 and 127");
+    static_assert(IMM >= 0 and IMM <= 127, "Must be a value between 0 and 127");
     std::uint32_t ret = 0;
     data_synchronization_barrier();
 #if defined(__arm__)

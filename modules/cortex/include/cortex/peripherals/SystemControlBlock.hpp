@@ -5,8 +5,8 @@
 /// The Cortex Microcontroller System Control Block peripheral
 
 #include "cortex/exceptions.hpp"
+#include "cortex/partnumber.hpp"    // Pulls in the Vendor AuxiliaryFaultStatus definition
 #include "cortex/types.hpp"
-#include "cortex/variant.hpp"    // Pulls in the Vendor AuxiliaryFaultStatus definition
 
 namespace cortex {
 
@@ -162,7 +162,7 @@ struct SystemControlBlock final {
             std::uint32_t                                                        : 6U;    ///< Reserved field
             std::uint32_t enable_data_cache                                      : 1U;
             std::uint32_t enable_instruction_cache                               : 1U;
-            std::uint32_t enable_branch_prediction                               : 1U;
+            std::uint32_t enable_branch_prediction                               : 1U;     ///< Always reads as 1 on Cortex-M*
             std::uint32_t                                                        : 13U;    ///< Reserved field
         };
         /// @brief The union of the bit field and the whole register

@@ -1,7 +1,6 @@
 add_architecture(NAME cortex
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/source/vectors.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/reset.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/globals.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/cache.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/trigger.cpp
@@ -13,6 +12,7 @@ add_architecture(NAME cortex
         ${CMAKE_CURRENT_SOURCE_DIR}/source/spinhalt.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/bist.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/ticks.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/processor.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/conversions.cpp # defines core::units::ConvertToXXXXXX which needs arch specific information
         ${CMAKE_CURRENT_SOURCE_DIR}/source/clocks.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/semihosting.cpp
@@ -38,7 +38,6 @@ add_architecture(NAME cortex
         ${CMAKE_CURRENT_SOURCE_DIR}/source/supervisor/deescalate.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/supervisor/escalate.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/supervisor/query.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/supervisor/reset.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/supervisor/restore.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include

@@ -29,7 +29,7 @@
 #include "cortex/trigger.hpp"
 // =============================================================
 // Builders will pass in the CORTEX_M variant value to select the correct variant
-#include "cortex/variant.hpp"
+#include "cortex/partnumber.hpp"
 // =============================================================
 // System Private Bus Peripherals
 #include "cortex/peripherals/DebugSystem.hpp"

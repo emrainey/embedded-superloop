@@ -100,11 +100,14 @@ struct Marshal {
                 GetTicks = 0x2UL,                       ///< Get the current tick count (arg1 has pointer to store ticks)
                 GetCoreClockFrequency = 0x3UL,          ///< Get the current core clock frequency (arg1 has pointer to store frequency)
                 GetSystemTickClockFrequency = 0x4UL,    ///< Get the current system tick clock frequency (arg1 has pointer to store frequency)
+                GetPartNumber = 0x5UL,                  ///< Get the processor part number (from Hardware, arg1)
+                GetRevision = 0x6UL,                    ///< Get the processor revision (from Hardware, arg1)
+                GetMode = 0x7UL,                        ///< Get the processor mode (High or Low Privilege, arg1)
                 SoftwareReset = 0x00DEAD00UL,           ///< Software Reset (does not return)
             } operation;                                ///< The operation to perform
-            std::uint32_t arg1;                         ///< Additional argument
-            std::uint32_t arg2;                         ///< Additional argument
-            std::uint32_t arg3;                         ///< Additional argument
+            cortex::word arg1;                          ///< Additional argument
+            cortex::word arg2;                          ///< Additional argument
+            cortex::word arg3;                          ///< Additional argument
         };
 
         // MEMORY ====================
@@ -137,6 +140,7 @@ void bist();
 }    // namespace supervisor
 
 /// A shortcut method to know if the current mode is privileged
+/// @warning This should only be called from Handler Mode, not Thread Mode.
 inline bool is_privileged(void) {
     return supervisor::query() == modes::Privileged::High;
 }

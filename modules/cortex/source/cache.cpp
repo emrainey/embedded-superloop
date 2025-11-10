@@ -96,9 +96,9 @@ void flush(std::uintptr_t address, std::size_t size) {
 void disable(void) {
     thumb::data_synchronization_barrier();
     thumb::instruction_barrier();
-    auto ccr = peripherals::system_control_block.configuration_control;
-    ccr.parts.enable_data_cache = 0U;
-    peripherals::system_control_block.configuration_control.whole = ccr.whole;
+    auto ccr = peripherals::system_control_block.configuration_control;    // read
+    ccr.parts.enable_data_cache = 0U;                                      // modify
+    peripherals::system_control_block.configuration_control = ccr;         // write back
     thumb::data_synchronization_barrier();
     thumb::instruction_barrier();
 }

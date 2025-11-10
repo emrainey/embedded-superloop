@@ -39,6 +39,15 @@ namespace handlers {
     // reinstall the vector table to the read-only version in FLASH
     peripherals::system_control_block.vector_table = &cortex::vector_table;
 
+    // Enable ITCM if present
+    if constexpr (variant::configuration::has_itcm) {
+        // TODO add code to enable ITCM here
+    }
+    // Enable DTCM if present
+    if constexpr (variant::configuration::has_dtcm) {
+        // TODO add code to enable DTCM here
+    }
+
     if constexpr (use_zero_table) {
         //===============================================================
         // THIS CAN NOT USE STACK! VERIFY ANY CHANGES IN THE DISASSEMBLY!
@@ -117,17 +126,13 @@ namespace handlers {
 }
 
 [[noreturn]] void entry_after_stack(void) {
-    // read the configuration control
-    auto configuration_control = cortex::peripherals::system_control_block.configuration_control;
-    // disable the data cache
-    configuration_control.parts.enable_data_cache = 0U;
-    // write back the value
-    cortex::peripherals::system_control_block.configuration_control = configuration_control;
+    cortex::cache::data::disable();
     // =============================================
     if constexpr (cortex::use_stack_watermark) {
         // Copy a value over the stacks to allow us to later measure usage
         cortex::initialize::watermark_stack();
     }
+    // =============================================
     // Now the stack has been initialized and watermarked
     cortex::initialize::zero_bss();
     // Now there's uninitialized global variables

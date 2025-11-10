@@ -19,6 +19,10 @@ struct BuiltInSelfTest final {
     Element trigger_bus_fault{};                  //!< Tests triggering the bus fault
     Element trigger_usage_fault{};                //!< Tests triggering the usage fault
     Element trigger_supervisor_call{};            //!< Test triggering the supervisor call
+    Element trigger_supervisor_call_arg0{};       //!< Test triggering the supervisor call with argument 0
+    Element trigger_supervisor_call_arg1{};       //!< Test triggering the supervisor call with argument 1
+    Element trigger_supervisor_call_arg2{};       //!< Test triggering the supervisor call with argument 2
+    Element trigger_supervisor_call_arg3{};       //!< Test triggering the supervisor call with argument 3
     Element trigger_pending_supervisor{};         //!< Test triggering the pending supervisor
     Element trigger_system_tick{};                //!< Test triggering the system tick
 };

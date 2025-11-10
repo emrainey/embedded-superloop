@@ -14,6 +14,8 @@ namespace cortex {
 /// The Cortex Microcontroller Registers
 namespace registers {
 
+/// @TODO move Control here too.
+
 /// The Program Status Registers
 struct ProgramStatus final {
     /// The Application Status Register (APSR)

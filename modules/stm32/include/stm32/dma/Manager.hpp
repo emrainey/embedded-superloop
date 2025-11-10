@@ -4,7 +4,7 @@
 #include <jarnax/Copier.hpp>
 #include <jarnax/dma/Manager.hpp>
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-#include "cortex/variant.hpp"
+#include "cortex/partnumber.hpp"
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 #include "cortex/Peripheral.hpp"
 #include "stm32/dma/Resource.hpp"
