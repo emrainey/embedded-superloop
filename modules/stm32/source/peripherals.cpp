@@ -20,6 +20,8 @@ SoftwareTriggeredInterrupt volatile software_triggered_interrupt;
 #if defined(CORTEX_M) and (CORTEX_M == 7)
 variant::CacheInformation volatile cache_information;
 variant::DataAndInstructionCacheControl volatile data_and_instruction_cache_control;
+TightlyCoupledMemory volatile itcm_control;
+TightlyCoupledMemory volatile dtcm_control;
 #endif
 SystemTick volatile system_tick;
 NestedVectorInterruptController volatile nested_vector_interrupt_controller;

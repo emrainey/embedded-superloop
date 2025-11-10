@@ -253,6 +253,10 @@
         _cortex_floating_point = . ;
         . = ORIGIN(PPB) + 0x0EF50;
         _cortex_data_and_instruction_cache_control = . ;
+        . = ORIGIN(PPB) + 0x0EF90;
+        _cortex_itcm_control = . ;
+        . = ORIGIN(PPB) + 0x0EF94;
+        _cortex_dtcm_control = . ;
         . = ORIGIN(PPB) + 0x40000;
         _cortex_trace_port_inferface_unit = . ;
         . = ORIGIN(PPB) + 0x42000;
@@ -269,5 +273,7 @@
     PROVIDE(_ZN6cortex11peripherals22software_triggered_interruptE = _cortex_software_triggered_interrupt);
     PROVIDE(_ZN6cortex11peripherals14floating_pointE = _cortex_floating_point);
     PROVIDE(_ZN6cortex11peripherals34data_and_instruction_cache_controlE = _cortex_data_and_instruction_cache_control);
+    PROVIDE(_ZN6cortex11peripherals12itcm_controlE = _cortex_itcm_control);
+    PROVIDE(_ZN6cortex11peripherals12dtcm_controlE = _cortex_dtcm_control);
     PROVIDE(_ZN6cortex11peripherals25trace_port_interface_unitE = _cortex_trace_port_inferface_unit);
     PROVIDE(_ZN5stm3211peripherals5debugE = _stm32_debug);

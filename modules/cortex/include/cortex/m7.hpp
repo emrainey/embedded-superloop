@@ -8,6 +8,7 @@
 #include <iso.hpp>
 #include "core/Intervals.hpp"
 #include "cortex/peripherals/CacheInformation.hpp"
+#include "cortex/peripherals/TightlyCoupledMemory.hpp"
 
 #define CORTEX_HAS_FLASH 1
 #define CORTEX_HAS_ITCM 1

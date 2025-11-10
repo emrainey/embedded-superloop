@@ -39,14 +39,19 @@ namespace handlers {
     // reinstall the vector table to the read-only version in FLASH
     peripherals::system_control_block.vector_table = &cortex::vector_table;
 
+#if defined(CORTEX_HAS_ITCM) and (CORTEX_HAS_ITCM == 1)
     // Enable ITCM if present
     if constexpr (variant::configuration::has_itcm) {
-        // TODO add code to enable ITCM here
+        cortex::peripherals::itcm_control.bits.enable = 1U;
     }
+#endif
+
+#if defined(CORTEX_HAS_DTCM) and (CORTEX_HAS_DTCM == 1)
     // Enable DTCM if present
     if constexpr (variant::configuration::has_dtcm) {
-        // TODO add code to enable DTCM here
+        cortex::peripherals::dtcm_control.bits.enable = 1U;
     }
+#endif
 
     if constexpr (use_zero_table) {
         //===============================================================

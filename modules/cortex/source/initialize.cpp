@@ -324,6 +324,25 @@ void configuration() {
     config.parts.enable_instruction_cache = cortex::enable_instruction_cache ? 1U : 0U;
     // write back
     peripherals::system_control_block.configuration_control = config;
+    // Configure the TCMs if present
+#if defined(CORTEX_HAS_ITCM) and (CORTEX_HAS_ITCM == 1)
+    if constexpr (variant::configuration::has_itcm) {
+        auto tcm = cortex::peripherals::itcm_control;
+        tcm.bits.enable = 1U;
+        tcm.bits.read_modify_write = 1U;
+        tcm.bits.retry = 1U;
+        cortex::peripherals::itcm_control = tcm;
+    }
+#endif
+#if defined(CORTEX_HAS_DTCM) and (CORTEX_HAS_DTCM == 1)
+    if constexpr (variant::configuration::has_dtcm) {
+        auto tcm = cortex::peripherals::dtcm_control;
+        tcm.bits.enable = 1U;
+        tcm.bits.read_modify_write = 1U;
+        tcm.bits.retry = 1U;
+        cortex::peripherals::dtcm_control = tcm;
+    }
+#endif
 }
 
 }    // namespace initialize
