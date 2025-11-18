@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import os
 import subprocess
 import sys
 import typing
@@ -10,14 +11,14 @@ from pathlib import Path
 def get_workflow_presets() -> List[Dict[str, Any]]:
     """Get all build presets from CMakePresets.json"""
     presets: Dict[str, Any] = dict()
-    try:
-        with open("CMakePresets.json", "r") as f:
-            presets.update(json.load(f))
+    assert os.path.exists(
+        "CMakePresets.json"
+    ), "CMakePresets.json not found in current directory"
+    with open("CMakePresets.json", "r") as f:
+        presets.update(json.load(f))
+    if os.path.exists("CMakeUserPresets.json"):
         with open("CMakeUserPresets.json", "r") as f:
             presets.update(json.load(f))
-    except FileNotFoundError:
-        print("Error: CMakePresets.json not found in current directory")
-        sys.exit(1)
 
     # Get all build preset names
     workflow_Presets: List[Dict[str, Any]] = list()

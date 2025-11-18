@@ -1,5 +1,5 @@
 {
-    "version": 8,
+    "version": 9,
     "cmakeMinimumRequired": {
         "major": 3,
         "minor": 30,
@@ -19,6 +19,11 @@
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_PREFIX_PATH": "${sourceDir}/build-support/",
                 "CMAKE_BUILD_TYPE": "Debug"
+            },
+            "environment": {
+                "HOMEBREW_ROOT": "/opt/homebrew",
+                "HOMEBREW_PATH": "$env{HOMEBREW_ROOT}/bin:$env{HOMEBREW_ROOT}/sbin",
+                "PATH": "$env{HOMEBREW_PATH}:$penv{PATH}"
             }
         },
         {
@@ -33,6 +38,10 @@
                 "BUILD_DOCUMENTATION": "ON",
                 "BUILD_COVERAGE": "OFF",
                 "BUILD_CROSS_TARGET": "ON"
+            },
+            "environment": {
+                "MAC_TOOLCHAIN_PATH": "/Applications/ArmGNUToolchain/arm-none-eabi/bin/",
+                "PATH": "$env{MAC_TOOLCHAIN_PATH}:$penv{PATH}"
             }
         },
         {
@@ -63,29 +72,16 @@
             }
         },
         {
-            "name": "Homebrew",
-            "hidden": true,
-            "condition": {
-                "type": "equals",
-                "lhs": "${hostSystemName}",
-                "rhs": "Darwin"
-            },
-            "environment": {
-                "HOMEBREW_ROOT": "/opt/homebrew",
-                "HOMEBREW_PATH": "$env{HOMEBREW_ROOT}/bin:$env{HOMEBREW_ROOT}/sbin"
-            }
-        },
-        {
-            "name": "cortex-m4",
-            "hidden": true,
+            "name": "cortex-m4-gcc-arm-none-eabi",
+            "hidden": false,
             "displayName": "cortex-m4",
             "inherits": "on-target",
             "description": "Configuration for Cortex M4",
             "toolchainFile": "${sourceDir}/build-support/lib/cmake/bare-gcc-cortex-m4.cmake"
         },
         {
-            "name": "cortex-m7",
-            "hidden": true,
+            "name": "cortex-m7-gcc-arm-none-eabi",
+            "hidden": false,
             "displayName": "cortex-m7",
             "inherits": "on-target",
             "description": "Configuration for Cortex M7",
@@ -93,7 +89,7 @@
         },
         {
             "name": "native-gcc",
-            "hidden": true,
+            "hidden": false,
             "inherits": "on-host",
             "displayName": "Native GCC Toolchain",
             "toolchainFile": "${sourceDir}/build-support/lib/cmake/native-gcc.cmake"
@@ -104,14 +100,24 @@
             "inherits": "on-host",
             "displayName": "Native Clang Toolchain",
             "description": "Uses the default clang in your path",
-            "toolchainFile": "${sourceDir}/build-support/lib/cmake/native-clang.cmake"
+            "toolchainFile": "${sourceDir}/build-support/lib/cmake/native-clang.cmake",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CMAKE_ASM_COMPILER": "clang++"
+            }
         },
         {
             "name": "native-llvm",
-            "hidden": true,
+            "hidden": false,
             "inherits": "on-host",
             "displayName": "Native LLVM Toolchain",
-            "toolchainFile": "${sourceDir}/build-support/lib/cmake/native-llvm.cmake"
+            "toolchainFile": "${sourceDir}/build-support/lib/cmake/native-llvm.cmake",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CMAKE_ASM_COMPILER": "clang++"
+            }
         }
     ],
     "buildPresets": [
@@ -126,12 +132,29 @@
             "verbose": false
         },
         {
+            "name": "build-cortex-m4-gcc-arm-none-eabi",
+            "inherits": "build-common",
+            "targets": [
+                "all",
+                "docs"
+            ],
+            "configurePreset": "cortex-m4-gcc-arm-none-eabi"
+        },
+        {
+            "name": "build-cortex-m7-gcc-arm-none-eabi",
+            "inherits": "build-common",
+            "targets": [
+                "all",
+                "docs"
+            ],
+            "configurePreset": "cortex-m7-gcc-arm-none-eabi"
+        },
+        {
             "name": "build-native-gcc",
             "inherits": "build-common",
             "targets": [
                 "all",
-                "docs",
-                "coverage"
+                "docs"
             ],
             "configurePreset": "native-gcc"
         },
@@ -140,8 +163,7 @@
             "inherits": "build-common",
             "targets": [
                 "all",
-                "docs",
-                "coverage"
+                "docs"
             ],
             "configurePreset": "native-clang"
         },
@@ -150,8 +172,7 @@
             "inherits": "build-common",
             "targets": [
                 "all",
-                "docs",
-                "coverage"
+                "docs"
             ],
             "configurePreset": "native-llvm"
         }
@@ -200,7 +221,50 @@
     },
     "workflowPresets": [
         {
-            "name": "unit-tests-clang",
+            "name": "on-target-cortex-m4-gcc-arm-none-eabi",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "cortex-m4-gcc-arm-none-eabi"
+                },
+                {
+                    "type": "build",
+                    "name": "build-cortex-m4-gcc-arm-none-eabi"
+                }
+            ]
+        },
+        {
+            "name": "on-target-cortex-m7-gcc-arm-none-eabi",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "cortex-m7-gcc-arm-none-eabi"
+                },
+                {
+                    "type": "build",
+                    "name": "build-cortex-m7-gcc-arm-none-eabi"
+                }
+            ]
+        },
+        {
+            "name": "on-host-native-gcc",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "native-gcc"
+                },
+                {
+                    "type": "build",
+                    "name": "build-native-gcc"
+                },
+                {
+                    "type": "test",
+                    "name": "run-tests-built-with-native-gcc"
+                }
+            ]
+        },
+        {
+            "name": "on-host-native-clang",
             "steps": [
                 {
                     "type": "configure",
@@ -213,6 +277,23 @@
                 {
                     "type": "test",
                     "name": "run-tests-built-with-native-clang"
+                }
+            ]
+        },
+        {
+            "name": "on-host-native-llvm",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "native-llvm"
+                },
+                {
+                    "type": "build",
+                    "name": "build-native-llvm"
+                },
+                {
+                    "type": "test",
+                    "name": "run-tests-built-with-native-llvm"
                 }
             ]
         }
