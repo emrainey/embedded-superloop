@@ -6,6 +6,7 @@ host_unit_test(NAME jarnax-catch
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-stopwatch.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-transactable.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-ssd1306.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/catch2-monitor.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
     LIBRARIES
