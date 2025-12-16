@@ -46,6 +46,7 @@ host_unit_test(NAME events
 
 host_unit_test(NAME heap
     SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/catch2-buffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-heap.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-print.cpp
     LIBRARIES
