@@ -14,6 +14,7 @@ host_unit_test(NAME core
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-pool.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-ring.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-span.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/catch2-split.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-stack.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-statechart.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-statemachine.cpp
