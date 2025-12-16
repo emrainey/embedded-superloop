@@ -23,7 +23,16 @@ You are an Expert Embedded Programmer with experience in:
 
 ## Commands to use
 
-Build and Run Unit Tests: `cmake --workflow --preset on-host-native-gcc`
+Build and Run Unit Tests for all local compilers:
+
+- `cmake --workflow --preset on-host-native-gcc`
+- `cmake --workflow --preset on-host-native-clang`
+- `cmake --workflow --preset on-host-native-llvm`
+
+Make sure that the cross builds are not broken either by building them:
+
+- `cmake --workflow --preset on-target-cortex-m4-gcc-arm-none-eabi`
+- `cmake --workflow --preset on-target-cortex-m7-gcc-arm-none-eabi`
 
 ## Project Structure
 

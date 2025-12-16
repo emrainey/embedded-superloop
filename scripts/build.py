@@ -62,7 +62,7 @@ def main(argv: List[str]) -> int:
         action="store",
         help="User preset file to use (default: %(default)s)",
         default="CMakeUserPresets.json",
-    )e
+    )
     args = parser.parse_args(argv)
 
     presets = get_workflow_presets(
