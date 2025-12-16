@@ -100,24 +100,14 @@
             "inherits": "on-host",
             "displayName": "Native Clang Toolchain",
             "description": "Uses the default clang in your path",
-            "toolchainFile": "${sourceDir}/build-support/lib/cmake/native-clang.cmake",
-            "cacheVariables": {
-                "CMAKE_C_COMPILER": "clang",
-                "CMAKE_CXX_COMPILER": "clang++",
-                "CMAKE_ASM_COMPILER": "clang++"
-            }
+            "toolchainFile": "${sourceDir}/build-support/lib/cmake/native-clang.cmake"
         },
         {
             "name": "native-llvm",
             "hidden": false,
             "inherits": "on-host",
             "displayName": "Native LLVM Toolchain",
-            "toolchainFile": "${sourceDir}/build-support/lib/cmake/native-llvm.cmake",
-            "cacheVariables": {
-                "CMAKE_C_COMPILER": "clang",
-                "CMAKE_CXX_COMPILER": "clang++",
-                "CMAKE_ASM_COMPILER": "clang++"
-            }
+            "toolchainFile": "${sourceDir}/build-support/lib/cmake/native-llvm.cmake"
         }
     ],
     "buildPresets": [

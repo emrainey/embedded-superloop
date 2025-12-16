@@ -1,8 +1,14 @@
 set(CMAKE_SYSTEM_NAME ${CMAKE_HOST_SYSTEM_NAME})
 set(CMAKE_SYSTEM_PROCESSOR ${CMAKE_HOST_SYSTEM_PROCESSOR})
 
-find_program(CMAKE_C_COMPILER NAME clang REQUIRED)
-find_program(CMAKE_CXX_COMPILER NAME clang++ REQUIRED)
+find_program(CMAKE_C_COMPILER REQUIRED
+    NAMES clang
+    PATHS /usr/bin/
+)
+find_program(CMAKE_CXX_COMPILER REQUIRED
+    NAMES clang++
+    PATHS /usr/bin/
+)
 
 message(NOTICE "No Exceptions and No RTTI")
 add_compile_options(-fno-exceptions -fno-rtti)
@@ -19,3 +25,6 @@ link_libraries(--coverage)
 
 # no default math lib is needed?
 unset(COMPILER_MATH_LIBS)
+
+# Add debug flags
+add_compile_options(-glldb)

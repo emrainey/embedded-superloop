@@ -1,23 +1,24 @@
 #!/usr/bin/env python3
-import json
 import os
-import subprocess
 import sys
-import typing
+import json
+import argparse
+import subprocess
 from typing import List, Dict, Any
 from pathlib import Path
 
 
-def get_workflow_presets() -> List[Dict[str, Any]]:
-    """Get all build presets from CMakePresets.json"""
+def get_workflow_presets(
+    preset_file: str = "CMakePresets.json",
+    user_preset_file: str = "CMakeUserPresets.json",
+) -> List[Dict[str, Any]]:
+    """Get all build presets from Presets files"""
     presets: Dict[str, Any] = dict()
-    assert os.path.exists(
-        "CMakePresets.json"
-    ), "CMakePresets.json not found in current directory"
-    with open("CMakePresets.json", "r") as f:
+    assert os.path.exists(preset_file), f"{preset_file} not found in current directory"
+    with open(preset_file, "r") as f:
         presets.update(json.load(f))
-    if os.path.exists("CMakeUserPresets.json"):
-        with open("CMakeUserPresets.json", "r") as f:
+    if os.path.exists(user_preset_file):
+        with open(user_preset_file, "r") as f:
             presets.update(json.load(f))
 
     # Get all build preset names
@@ -46,11 +47,33 @@ def workflow_preset(preset_name: str) -> bool:
         return False
 
 
-def main(args: List[str]) -> int:
-    presets = get_workflow_presets()
+def main(argv: List[str]) -> int:
+    parser = argparse.ArgumentParser(description="Build all CMake workflow presets")
+    parser.add_argument(
+        "--preset-file",
+        type=str,
+        action="store",
+        help="Preset file to use (default: %(default)s)",
+        default="CMakePresets.json",
+    )
+    parser.add_argument(
+        "--user-preset-file",
+        type=str,
+        action="store",
+        help="User preset file to use (default: %(default)s)",
+        default="CMakeUserPresets.json",
+    )e
+    args = parser.parse_args(argv)
+
+    presets = get_workflow_presets(
+        preset_file=args.preset_file,
+        user_preset_file=args.user_preset_file,
+    )
 
     if not presets:
-        print("No workflow presets found in CMakePresets.json or CMakeUserPresets.json")
+        print(
+            f"No workflow presets found in {args.preset_file} or {args.user_preset_file}"
+        )
         sys.exit(1)
 
     print(f"Found {len(presets)} workflow presets: {', '.join(presets)}")
