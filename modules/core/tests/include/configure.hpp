@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 /// @file
 /// A fake configuration header
 

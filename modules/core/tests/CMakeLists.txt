@@ -6,6 +6,7 @@ host_unit_test(NAME core
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-array.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-avl.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-container.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/catch2-conversions.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-countdown.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-doublelink.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-enums.cpp
@@ -22,6 +23,7 @@ host_unit_test(NAME core
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-tokenizer.cpp
         # ${CMAKE_CURRENT_SOURCE_DIR}/catch2-units.cpp # requires information from the Configuration and Architecture
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-variants.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/conversions.cpp
         ${_GENERATED_CORE_TESTS}
     LIBRARIES
         strict
