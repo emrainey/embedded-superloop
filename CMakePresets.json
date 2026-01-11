@@ -1,5 +1,5 @@
 {
-    "version": 9,
+    "version": 10,
     "cmakeMinimumRequired": {
         "major": 3,
         "minor": 30,
@@ -7,6 +7,16 @@
     },
     "include": [],
     "configurePresets": [
+        {
+            "name": "graph_preset",
+            "hidden": true,
+            "displayName": "Generate Dependency Graph",
+            "graphviz": "embedded-superloop.dot",
+            "cacheVariables": {
+                "GRAPHVIZ_EXTERNAL_LIBS": false,
+                "GRAPHVIZ_CUSTOM_TARGETS": true
+            }
+        },
         {
             "name": "common",
             "hidden": true,
@@ -27,9 +37,29 @@
             }
         },
         {
+            "name": "distcc",
+            "hidden": true,
+            "displayName": "Distributed Building Configuration",
+            "description": "Configuration for distributed building using distcc",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER_LAUNCHER": "distcc",
+                "CMAKE_CXX_COMPILER_LAUNCHER": "distcc"
+            },
+            "environment": {
+                "DISTCC_VERBOSE": "0",
+                "DISTCC_FALLBACK": "1",
+                "DISTCC_SKIP_LOCAL_RETRY": "0",
+                "DISTCC_DIR": "/tmp/distcc"
+            }
+        },
+        {
             "name": "on-target",
             "hidden": true,
-            "inherits": "common",
+            "inherits": [
+                "common",
+                "graph_preset",
+                "distcc"
+            ],
             "displayName": "On Target Build",
             "description": "Builds the project on the target device, using the toolchain file",
             "cacheVariables": {
@@ -38,15 +68,14 @@
                 "BUILD_DOCUMENTATION": "ON",
                 "BUILD_COVERAGE": "OFF",
                 "BUILD_CROSS_TARGET": "ON"
-            },
-            "environment": {
-                "MAC_TOOLCHAIN_PATH": "/Applications/ArmGNUToolchain/arm-none-eabi/bin/",
-                "PATH": "$env{MAC_TOOLCHAIN_PATH}:$penv{PATH}"
             }
         },
         {
             "name": "on-host",
-            "inherits": "common",
+            "inherits": [
+                "common",
+                "graph_preset"
+            ],
             "displayName": "Host Build",
             "description": "Builds the project on the host machine, using the toolchain file",
             "cacheVariables": {

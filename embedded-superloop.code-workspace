@@ -39,12 +39,8 @@
         "cmake.allowUnsupportedPresetsVersions": true,
         "cmake.buildEnvironment": {
             "CMAKE_MAKEFILE_VERBOSE": "OFF",
-            "CMAKE_VERBOSE": "0"
+            "CMAKE_VERBOSE": "0",
         },
-        "cmake.configureArgs": [
-            "--graphviz=embedded-superloop.dot",
-            "-DCMAKE_BUILD_PARALLEL_LEVEL=1"
-        ],
         // "cmake.copyCompileCommands": "${workspaceFolder}/build/compile_commands.json",
         "cmake.deleteBuildDirOnCleanConfigure": true,
         "cmake.ignoreCMakeListsMissing": false,
@@ -201,6 +197,9 @@
         "python.defaultInterpreterPath": "${command:cmake.buildDirectory}/venv/bin/python3",
         "testMate.cpp.test.executables": "${command:cmake.buildDirectory}/**/test-*",
         "testMate.cpp.test.parallelExecutionLimit": 2,
-        "testMate.cpp.test.parallelExecutionOfExecutableLimit": 2
+        "testMate.cpp.test.parallelExecutionOfExecutableLimit": 2,
+        "cSpell.words": [
+            "distcc"
+        ]
     }
 }

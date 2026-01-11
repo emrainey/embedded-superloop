@@ -1,6 +1,8 @@
 set(CMAKE_SYSTEM_NAME Generic) # No explicit OS, used by bare-metal systems
 set(CMAKE_SYSTEM_PROCESSOR arm)
 
+message(STATUS "PATH=$ENV{PATH}")
+
 find_program(CMAKE_C_COMPILER NAMES arm-none-eabi-gcc REQUIRED)
 find_program(CMAKE_CXX_COMPILER NAMES arm-none-eabi-g++ REQUIRED)
 find_program(CMAKE_ASM_COMPILER NAMES arm-none-eabi-g++ REQUIRED)
@@ -44,7 +46,7 @@ add_compile_options(
     -fstack-usage
     -Wstack-usage=32768
     # -fno-inline
-    -fdiagnostics-all-candidates
+    # -fdiagnostics-all-candidates
 )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")

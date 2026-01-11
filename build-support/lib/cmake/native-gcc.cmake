@@ -1,6 +1,8 @@
 set(CMAKE_SYSTEM_NAME ${CMAKE_HOST_SYSTEM_NAME})
 set(CMAKE_SYSTEM_PROCESSOR ${CMAKE_HOST_SYSTEM_PROCESSOR})
 
+message(STATUS "PATH=$ENV{PATH}")
+
 # Set the C and CXX compilers in the command line
 # find_program(CMAKE_C_COMPILER NAME gcc REQUIRED)
 # find_program(CMAKE_CXX_COMPILER NAME g++ REQUIRED)
