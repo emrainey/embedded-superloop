@@ -1,9 +1,12 @@
 #include <catch2/catch_test_macros.hpp>
 #include "core/BitMapHeap.hpp"
 
+/// @brief A small heap with 32 blocks of 32 bytes each
+using SmallHeap = core::BitMapHeap<32U, 32U, alignof(std::max_align_t)>;
+
 TEST_CASE("BitMapHeap - Simple") {
     alignas(8) uint8_t storage[1024];
-    core::BitMapHeap<32U, 32U> heap(storage, sizeof(storage), nullptr);
+    SmallHeap heap(storage, sizeof(storage), nullptr);
     SECTION("Stats") {
         REQUIRE(heap.GetStatistics().size_bytes == 1024U);
         REQUIRE(heap.GetStatistics().used_blocks == 0U);
@@ -66,7 +69,7 @@ TEST_CASE("BitMapHeap - Simple") {
 
 TEST_CASE("Buffers Casting Down") {
     alignas(8) uint8_t storage[1024];
-    core::BitMapHeap<32U, 32U> heap(storage, sizeof(storage), nullptr);
+    SmallHeap heap(storage, sizeof(storage), nullptr);
     core::Buffer<uint32_t> buffer1{32U, heap};
     core::Span<uint32_t> span1 = buffer1.as_span();
     SECTION("Check Equal") {
@@ -89,7 +92,7 @@ TEST_CASE("Buffers Casting Down") {
 
 // TEST_CASE("Buffers Casting Up") {
 //     alignas(8) uint8_t storage[1024];
-//     core::BitMapHeap<32U, 32U> heap(storage, sizeof(storage), nullptr);
+//     SmallHeap heap(storage, sizeof(storage), nullptr);
 //     core::Buffer<uint8_t> buffer1{32U, heap};
 //     core::Span<uint8_t> span1 = buffer1.span();
 //     SECTION("Check Equal") {

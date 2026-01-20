@@ -326,7 +326,7 @@ TEST_CASE("Conversions - Edge cases") {
     SECTION("Very small non-zero iota values") {
         Iota iotas{1U};    // Single iota
         MicroSeconds us = ConvertToMicroSeconds(iotas);
-        REQUIRE(us.value() >= 0U);
+        REQUIRE(us.value() == core::units::timer2_iotas_per_microsecond);
     }
 
     SECTION("Truncation in millisecond conversion") {
@@ -341,5 +341,6 @@ TEST_CASE("Conversions - Edge cases") {
         Seconds sec{0.000001f};    // 1 microsecond
         Iota iotas = ConvertToIota(sec);
         REQUIRE(iotas.value() >= 1U);
+        REQUIRE(iotas.value() <= 2U);
     }
 }

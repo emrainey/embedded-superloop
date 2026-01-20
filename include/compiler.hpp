@@ -153,10 +153,10 @@ public:
     // static void operator delete(void* ptr, ... /* args */);
     // static void operator delete[](void* ptr, ... /* args */);
 
-    inline static void operator delete(UnAllocatable*, std::destroying_delete_t) {}    // without a definition, objects can't be destructed
-    static void operator delete(UnAllocatable* ptr, std::destroying_delete_t, std::align_val_t al) = delete;
-    static void operator delete(UnAllocatable* ptr, std::destroying_delete_t, std::size_t sz) = delete;
-    static void operator delete(UnAllocatable* ptr, std::destroying_delete_t, std::size_t sz, std::align_val_t al) = delete;
+    // inline static void operator delete(UnAllocatable*, std::destroying_delete_t) {}    // without a definition, objects can't be destructed
+    // static void operator delete(UnAllocatable* ptr, std::destroying_delete_t, std::align_val_t al) = delete;
+    // static void operator delete(UnAllocatable* ptr, std::destroying_delete_t, std::size_t sz) = delete;
+    // static void operator delete(UnAllocatable* ptr, std::destroying_delete_t, std::size_t sz, std::align_val_t al) = delete;
 };
 
 #endif    // COMPILER_HPP_

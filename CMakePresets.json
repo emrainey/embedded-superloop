@@ -11,7 +11,7 @@
             "name": "graph_preset",
             "hidden": true,
             "displayName": "Generate Dependency Graph",
-            "graphviz": "embedded-superloop.dot",
+            "graphviz": "${sourceDir}/build/${presetName}/embedded-superloop.dot",
             "cacheVariables": {
                 "GRAPHVIZ_EXTERNAL_LIBS": false,
                 "GRAPHVIZ_CUSTOM_TARGETS": true

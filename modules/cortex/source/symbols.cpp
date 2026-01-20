@@ -1,7 +1,6 @@
 #include "configure.hpp"
 #include "core/Intervals.hpp"
 #include "cortex/linker.hpp"
-#include "cortex/m4.hpp"
 #include "cortex/mcu.hpp"
 #include "cortex/vectors.hpp"
 #include "iso.hpp"

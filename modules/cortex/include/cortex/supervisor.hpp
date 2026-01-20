@@ -51,16 +51,19 @@ struct Marshal {
         // NO VALUES BEYOND HERE
     };
 
+    Marshal() : call(Calls::Unknown), type() {}
+
     /// The call type
     Calls call;
     /// @brief  The union of argument types. All must be at most the size of the thumb::Stacked
     union Arguments {
+        Arguments() : bist{} {}
         /// Used with @see Calls::BuiltInSelfTest
         struct BuiltInSelfTest {
-            std::uint32_t arg0;    ///< First Arg
-            std::uint32_t arg1;    ///< Second Arg
-            std::uint32_t arg2;    ///< Third Arg
-            std::uint32_t arg3;    ///< Fourth Arg
+            std::uint32_t arg0{0};    ///< First Arg
+            std::uint32_t arg1{0};    ///< Second Arg
+            std::uint32_t arg2{0};    ///< Third Arg
+            std::uint32_t arg3{0};    ///< Fourth Arg
         };
         /// Used with @see Calls::DataCache
         struct DataCache {

@@ -39,6 +39,9 @@ add_architecture(NAME cortex
         ${CMAKE_CURRENT_SOURCE_DIR}/source/supervisor/escalate.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/supervisor/query.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/supervisor/restore.cpp
+        # Unit Testing
+        $<IF:$<BOOL:${BUILD_UNIT_TESTS}>,${CMAKE_CURRENT_SOURCE_DIR}/source/symbols.cpp,>
+        $<IF:$<BOOL:${BUILD_UNIT_TESTS}>,${CMAKE_CURRENT_SOURCE_DIR}/source/peripherals.cpp,>
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
     CHIPS

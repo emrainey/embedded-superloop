@@ -32,6 +32,8 @@ ALWAYS_INLINE inline void enter(cortex::exceptions::ExtendedHandler extended_han
     exc_return.return_from_exception();    // [[noreturn]]
 #elif defined(__arm__)
     // volatile == do not optimize the assembly
+    // Store handler address in a register first
+    register void* handler_addr asm("r2") = reinterpret_cast<void*>(extended_handler);
     asm volatile(
         "tst lr, #4 \r\n"
         "ite eq \r\n"
@@ -40,12 +42,11 @@ ALWAYS_INLINE inline void enter(cortex::exceptions::ExtendedHandler extended_han
         "push {r4-r11, lr} \r\n"
         // setup r0, r1
         "mov r1, lr \r\n"
-        "bl %[handler] \r\n"
+        "blx %[handler] \r\n"
         "pop {r4-r11, pc} \r\n"
-        :                                    // outputs
-        : [handler] "i"(extended_handler)    // inputs
-        : "r0", "r1", "cc", "memory"         // clobbers
-        // :    // clobbers
+        :                                // outputs
+        : [handler] "r"(handler_addr)    // inputs
+        : "r0", "r1", "cc", "memory"     // clobbers
     );
 #endif
 }

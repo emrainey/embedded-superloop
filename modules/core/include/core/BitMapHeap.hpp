@@ -105,7 +105,12 @@ public:
             }
         }
         if (bytes == 0 or alignment == 0 or alignment > MaxAlignment) {
-            GetPrinter()("WARNING: [%p] Allocation request of %zu bytes with alignment %zu\r\n", reinterpret_cast<void*>(this), bytes, alignment);
+            GetPrinter()(
+                "WARNING: [%p] Allocation request of %zu bytes with alignment %zu (could be default initialization)\r\n",
+                reinterpret_cast<void*>(this),
+                bytes,
+                alignment
+            );
             stats_.zero_allocs++;
             return nullptr;
         }
@@ -132,7 +137,14 @@ public:
             std::size_t offset = startBlock * BlockSize;
             std::size_t alignedOffset = (offset + alignment - 1) & ~(alignment - 1);
             pointer = static_cast<char*>(buffer_) + alignedOffset;
-            GetPrinter()("%p: Allocated %zu bytes at %p (offset=%zu)\r\n", reinterpret_cast<void*>(this), bytes, pointer, offset);
+            GetPrinter()(
+                "%p: Allocated %zu bytes at %p (offset=%zu, alignedOffset=%zu)\r\n",
+                reinterpret_cast<void*>(this),
+                bytes,
+                pointer,
+                offset,
+                alignedOffset
+            );
         }
         return pointer;
     }

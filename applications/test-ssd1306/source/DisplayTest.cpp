@@ -1,7 +1,7 @@
-#include "memory.h"
 #include "DisplayTest.hpp"
 #include "board.hpp"
 #include "jarnax/Assertion.hpp"
+#include "memory.h"
 
 using namespace core::units;
 
@@ -12,8 +12,7 @@ DisplayTest::DisplayTest(jarnax::drivers::ssd1306::Driver& driver)
     , change_duration_{2'000'000_usec}
     , change_duration_iota_{core::units::ConvertToIota(change_duration_)}
     , countdown_{timer_, change_duration_iota_}
-    , state_machine_{*this, AppState::Waiting} {
-}
+    , state_machine_{*this, AppState::Waiting} {}
 
 bool DisplayTest::Execute() {
     if (state_machine_.IsFinal()) {
@@ -33,7 +32,7 @@ void DisplayTest::OnEntry(AppState state) {
     auto& screen = display_driver_.GetScreen();
 
     if (state == AppState::Waiting) {
-        jarnax::print("Booting Display.");
+        jarnax::print("Booting Display.\r\n");
     } else if (state == AppState::DisplayPowerOn) {
         screen.clear();           // Clear the image buffer
         screen.checkerboard();    // Fill the screen with a checkerboard pattern
@@ -76,7 +75,7 @@ AppState DisplayTest::OnCycle(AppState state) {
     if (state == AppState::Waiting) {
         if (status == core::Result::NotReady) {
             // Display is not ready, wait
-            jarnax::print(".");
+            // jarnax::print(".");
         } else if (status == core::Result::Success) {
             // Display is ready, proceed
             state = AppState::DisplayPowerOn;
