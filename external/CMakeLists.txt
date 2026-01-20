@@ -48,6 +48,10 @@ if(NOT BUILD_CROSS_TARGET) # Only fetch these dependencies if we are not cross-c
         GIT_REPOSITORY https://github.com/google/googletest/
         GIT_TAG v1.17.0
     )
+    # On macOS, force googletest to use libc++ instead of libstdc++
+    if(APPLE AND NOT BUILD_CROSS_TARGET)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++" CACHE STRING "" FORCE)
+    endif()
     FetchContent_MakeAvailable(gtest) # This will define the gtest and gmock targets
     print_variables_with_prefix("gtest_")
     print_targets_with_prefix("gtest_" ${gtest_SOURCE_DIR})

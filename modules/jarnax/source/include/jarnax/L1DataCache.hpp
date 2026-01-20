@@ -25,7 +25,7 @@ public:
     void Clean(std::uintptr_t address, size_t bytes) override;
     void Flush() override;
     void Flush(std::uintptr_t address, size_t bytes) override;
-    virtual ~L1DataCache() = default;
+    ~L1DataCache() = default;
 };
 
 }    // namespace jarnax

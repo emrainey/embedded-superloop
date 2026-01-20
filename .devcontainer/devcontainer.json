@@ -1,0 +1,29 @@
+{
+    "name": "Embedded Superloop Dev Container",
+    "image": "bare-metal-dev-debian:latest",
+    "workspaceFolder": "/ws",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/ws,type=bind,consistency=delegated",
+    "mounts": [
+        "source=root-vscode-server,target=/root/.vscode-server/extensions,type=volume"
+    ],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cmake-tools",
+                "fredericbonnet.cmake-test-adapter",
+                "matepek.vscode-catch2-test-adapter",
+                "samuelcolvin.jinjahtml",
+                "cheshirekow.cmake-format",
+                "bbenoist.doxygen",
+                "oderwat.indent-rainbow",
+                "shd101wyy.markdown-preview-enhanced",
+                "davidanson.vscode-markdownlint",
+                "gruntfuggly.todo-tree",
+                "xaver.clang-format",
+                "llvm-vs-code-extensions.vscode-clangd",
+                "ms-vscode.hexeditor",
+                "vadimcn.vscode-lldb"
+            ]
+        }
+    }
+}
