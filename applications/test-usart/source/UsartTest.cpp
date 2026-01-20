@@ -1,7 +1,7 @@
-#include "memory.h"
 #include "UsartTest.hpp"
 #include "board.hpp"
 #include "jarnax/Assertion.hpp"
+#include "memory.h"
 
 using namespace core::units;
 using Level = jarnax::console::Service::Level;
@@ -19,7 +19,7 @@ char const* const speech[] = {
 
 UsartTest::UsartTest()
     : ticker_{jarnax::GetTicker()}
-    , timer_{jarnax::GetTimer()}
+    , timer_{jarnax::GetBoardContext().GetTimer()}
     , usart_driver_{jarnax::GetBoardContext().GetCameraUsart()}
     , rng_{jarnax::GetBoardContext().GetRandomNumberGenerator()}
     , console_{jarnax::GetBoardContext().GetConsole()}
@@ -28,8 +28,7 @@ UsartTest::UsartTest()
     , countdown_{timer_, countdown_time_iotas_}
     , state_machine_{*this, AppState::Idle}
     , speech_index_{0U}
-    , delivered_{false} {
-}
+    , delivered_{false} {}
 
 bool UsartTest::Execute() {
     if (state_machine_.IsFinal()) {

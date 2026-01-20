@@ -23,9 +23,6 @@ protected:
     ~Timer() = default;
 };
 
-/// Returns the higher precision timer for the system.
-extern Timer& GetTimer(void);
-
 }    // namespace jarnax
 
 #endif    // JARNAX_TIMER_HPP

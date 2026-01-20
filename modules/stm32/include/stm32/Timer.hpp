@@ -27,6 +27,10 @@ public:
     /// @return core::Status
     core::Status Initialize(core::units::Hertz internal_frequency, core::units::Hertz desired_timer_frequency);
 
+    /// @brief Check if the timer has been initialized
+    /// @return true if initialized, false otherwise
+    bool IsInitialized() const { return initialized_; }
+
     //+---[jarnax::Timer]--------------------------------------------+
     core::units::Iota GetIotas(void) const override;
     core::units::MicroSeconds GetMicroseconds(void) const override;
@@ -36,6 +40,7 @@ public:
 protected:
     stm32::peripherals::Timer2 volatile& timer_;    ///< The reference to the volatile timer
     std::uint32_t reload_value_;                    ///< The value to reload the timer with
+    bool initialized_;                              ///< A guard against using the hardware before it's been initialized
 };
 
 }    // namespace stm32

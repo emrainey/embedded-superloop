@@ -38,7 +38,8 @@ USED void timer2_isr(void) {
 
 Timer::Timer(stm32::peripherals::Timer2 volatile& timer)
     : timer_{timer}
-    , reload_value_{0U} {}
+    , reload_value_{0U}
+    , initialized_{false} {}
 
 core::Status Timer::Initialize(core::units::Hertz internal_clock, core::units::Hertz desired_timer_frequency) {
     stm32::peripherals::Timer2::Control1 control1;
@@ -64,11 +65,14 @@ core::Status Timer::Initialize(core::units::Hertz internal_clock, core::units::H
     core::units::timer2_iotas_per_millisecond = desired_timer_frequency.value() / (1U * iso::prefix::kilo);
     core::units::timer2_iotas_per_microsecond = desired_timer_frequency.value() / (1U * iso::prefix::mega);
     jarnax::print(
-        "Timer::Initialize: CLK: %lu Hz, Desired: %lu Hz => Prescalar is %lu. Auto Reload is %lu\r\n",
+        "Timer::Initialize: CLK: %lu Hz, Desired: %lu Hz => Prescalar is %lu. Auto Reload is %lu (Sec: %lu, Millis: %lu, Micro: %lu)\r\n",
         static_cast<unsigned long>(internal_clock.value()),
         static_cast<unsigned long>(desired_timer_frequency.value()),
         static_cast<unsigned long>(prescalar + 1U),
-        static_cast<unsigned long>(timer_.auto_reload.whole)
+        static_cast<unsigned long>(timer_.auto_reload.whole),
+        static_cast<unsigned long>(core::units::timer2_iotas_per_second),
+        static_cast<unsigned long>(core::units::timer2_iotas_per_millisecond),
+        static_cast<unsigned long>(core::units::timer2_iotas_per_microsecond)
     );
 
     // enable the update event
@@ -94,11 +98,15 @@ core::Status Timer::Initialize(core::units::Hertz internal_clock, core::units::H
     // enable the timer
     control1.bits.enable = 1U;     // enable
     timer_.control1 = control1;    // write
+    initialized_ = true;
 
     return core::Status{core::Result::Success, core::Cause::Unknown};
 }
 
 core::units::Iota Timer::GetIotas(void) const {
+    if (not initialized_) {
+        return core::units::Iota{0U};
+    }
     // read the high order bits once
     std::uint32_t high_order_bits;
     std::uint32_t low_order_bits;
@@ -118,20 +126,19 @@ core::units::Iota Timer::GetIotas(void) const {
 }
 
 core::units::MicroSeconds Timer::GetMicroseconds(void) const {
+    if (not initialized_) {
+        return core::units::MicroSeconds{0U};
+    }
     auto iotas = GetIotas();
     return core::units::ConvertToMicroSeconds(iotas);
 }
 
 core::units::Seconds Timer::GetSeconds(void) const {
+    if (not initialized_) {
+        return core::units::Seconds{0U};
+    }
     auto iotas = GetIotas();
     return core::units::ConvertToSeconds(iotas);
 }
 
 }    // namespace stm32
-
-namespace jarnax {
-Timer& GetTimer(void) {
-    static stm32::Timer timer{stm32::peripherals::timer2};
-    return timer;
-}
-}    // namespace jarnax

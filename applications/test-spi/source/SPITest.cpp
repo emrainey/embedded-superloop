@@ -9,7 +9,7 @@ SPITest::Statistics* app_statistics = nullptr;
 
 SPITest::SPITest()
     : ticker_{jarnax::GetTicker()}
-    , timer_{jarnax::GetTimer()}
+    , timer_{jarnax::GetBoardContext().GetTimer()}
     , spi_driver_{jarnax::GetBoardContext().GetSpi2Driver()}
     , spi_transaction_{timer_}
     , spi_buffer_{stm32::spi2_dma_buffer_size, jarnax::GetBoardContext().GetDmaAllocator()}

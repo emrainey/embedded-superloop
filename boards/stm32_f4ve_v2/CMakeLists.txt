@@ -26,4 +26,6 @@ add_board(NAME stm32_f4ve_v2
         stm32
     CONFIGURATIONS
         basic # not qemu!
+    DEFINES
+        # USE_NRF24L01 # Disabled for now! Shares pins with I2C1
 )

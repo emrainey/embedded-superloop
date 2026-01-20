@@ -13,7 +13,7 @@ using jarnax::SuperLoop;
 class GlobalContext : public Context {
 public:
     GlobalContext()
-        : display_driver_{jarnax::GetTimer(), jarnax::GetBoardContext().GetI2cDriver(), jarnax::GetBoardContext().GetDmaAllocator()}
+        : display_driver_{jarnax::GetBoardContext().GetTimer(), jarnax::GetBoardContext().GetI2cDriver(), jarnax::GetBoardContext().GetDmaAllocator()}
         , test_{display_driver_}
         , monitor_{jarnax::GetBoardContext().GetTimer(), jarnax::GetBoardContext().GetStatusIndicator(), jarnax::GetBoardContext().GetErrorIndicator()}
         , superloop_{jarnax::GetTicker()} {}

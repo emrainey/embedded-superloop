@@ -7,7 +7,7 @@ using namespace core::units;
 
 Demo::Demo()
     : ticker_{jarnax::GetTicker()}
-    , timer_{jarnax::GetTimer()}
+    , timer_{jarnax::GetBoardContext().GetTimer()}
     , usart_driver_{jarnax::GetBoardContext().GetCameraUsart()}
     , rng_{jarnax::GetBoardContext().GetRandomNumberGenerator()}
     , error_indicator_{jarnax::GetBoardContext().GetErrorIndicator()}

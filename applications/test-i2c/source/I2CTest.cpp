@@ -7,7 +7,7 @@ using namespace core::units;
 
 I2CTest::I2CTest()
     : ticker_{jarnax::GetTicker()}
-    , timer_{jarnax::GetTimer()}
+    , timer_{jarnax::GetBoardContext().GetTimer()}
     , i2c_driver_{jarnax::GetBoardContext().GetI2cDriver()}
     , i2c_transaction_{timer_}
     , i2c_buffer_{stm32::i2c_dma_buffer_size, jarnax::GetBoardContext().GetDmaAllocator()}

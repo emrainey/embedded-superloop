@@ -18,7 +18,7 @@ public:
         : demo_{}
         , monitor_{jarnax::GetBoardContext().GetTimer(), jarnax::GetBoardContext().GetStatusIndicator(), jarnax::GetBoardContext().GetErrorIndicator()}
         , console_{jarnax::GetBoardContext().GetConsole()}
-        , display_driver_{jarnax::GetTimer(), jarnax::GetBoardContext().GetI2cDriver(), jarnax::GetBoardContext().GetDmaAllocator()}
+        , display_driver_{jarnax::GetBoardContext().GetTimer(), jarnax::GetBoardContext().GetI2cDriver(), jarnax::GetBoardContext().GetDmaAllocator()}
         , superloop_{jarnax::GetTicker()} {}
 
     /// Default Destructor

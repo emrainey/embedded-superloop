@@ -59,9 +59,11 @@ BoardContext::BoardContext()
     , spi1_miso_{stm32::gpio::Port::B, 4}
     , spi1_sclk_{stm32::gpio::Port::B, 3}
     , flash_cs_{stm32::gpio::Port::B, 0}
+#if defined(USE_NRF24L01)
     , nrf_cs_{stm32::gpio::Port::B, 7}
     , nrf_ce_{stm32::gpio::Port::B, 6}
     , nrf_irq_{stm32::gpio::Port::B, 8}
+#endif
     , spi2_mosi_{stm32::gpio::Port::B, 15}
     , spi2_miso_{stm32::gpio::Port::B, 14}
     , spi2_sclk_{stm32::gpio::Port::B, 13}
@@ -142,6 +144,7 @@ core::Status BoardContext::Initialize(void) {
         .SetOutputType(stm32::gpio::OutputType::PushPull)
         .SetResistor(stm32::gpio::Resistor::None)
         .Value(true);    // CS is active low
+#if defined(USE_NRF24L01)
     nrf_cs_.SetMode(stm32::gpio::Mode::Output)
         .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
         .SetOutputType(stm32::gpio::OutputType::PushPull)
@@ -153,6 +156,7 @@ core::Status BoardContext::Initialize(void) {
         .SetResistor(stm32::gpio::Resistor::None)
         .Value(false);
     nrf_irq_.SetMode(stm32::gpio::Mode::Input).SetResistor(stm32::gpio::Resistor::PullUp);
+#endif
     spi2_miso_.SetMode(stm32::gpio::Mode::AlternateFunction)
         .SetAlternative(5)    // Alt 5 is SPI2
         .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)

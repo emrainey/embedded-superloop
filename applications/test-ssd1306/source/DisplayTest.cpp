@@ -7,7 +7,7 @@ using namespace core::units;
 
 DisplayTest::DisplayTest(jarnax::drivers::ssd1306::Driver& driver)
     : ticker_{jarnax::GetTicker()}
-    , timer_{jarnax::GetTimer()}
+    , timer_{jarnax::GetBoardContext().GetTimer()}
     , display_driver_{driver}
     , change_duration_{2'000'000_usec}
     , change_duration_iota_{core::units::ConvertToIota(change_duration_)}
@@ -33,6 +33,7 @@ void DisplayTest::OnEntry(AppState state) {
 
     if (state == AppState::Waiting) {
         jarnax::print("Booting Display.\r\n");
+        countdown_.Reset();
     } else if (state == AppState::DisplayPowerOn) {
         screen.clear();           // Clear the image buffer
         screen.checkerboard();    // Fill the screen with a checkerboard pattern
@@ -62,7 +63,7 @@ void DisplayTest::OnEntry(AppState state) {
         image.clear();
         display_driver_.Update();
     } else if (state == AppState::Error) {
-        //
+        jarnax::print("DisplayTest::OnEntry: Error state\r\n");
     }
 }
 
@@ -81,37 +82,38 @@ AppState DisplayTest::OnCycle(AppState state) {
             state = AppState::DisplayPowerOn;
         } else {
             jarnax::print("Display is not ready? ", status);
+            state = AppState::Error;
         }
     } else if (state == AppState::DisplayPowerOn) {
-        if (countdown_.IsExpired() and status != core::Result::Busy) {
+        if (countdown_.IsExpired() and not status.IsBusy()) {
             state = AppState::Pattern1;
         }
     } else if (state == AppState::Pattern1) {
-        if (countdown_.IsExpired() and status != core::Result::Busy) {
+        if (countdown_.IsExpired() and not status.IsBusy()) {
             state = AppState::Pattern2;
         }
     } else if (state == AppState::Pattern2) {
-        if (countdown_.IsExpired() and status != core::Result::Busy) {
+        if (countdown_.IsExpired() and not status.IsBusy()) {
             state = AppState::Pattern3;
         }
     } else if (state == AppState::Pattern3) {
-        if (countdown_.IsExpired() and status != core::Result::Busy) {
+        if (countdown_.IsExpired() and not status.IsBusy()) {
             state = AppState::Pattern4;
         }
     } else if (state == AppState::Pattern4) {
-        if (countdown_.IsExpired() and status != core::Result::Busy) {
+        if (countdown_.IsExpired() and not status.IsBusy()) {
             state = AppState::Pattern5;
         }
     } else if (state == AppState::Pattern5) {
-        if (countdown_.IsExpired() and status != core::Result::Busy) {
+        if (countdown_.IsExpired() and not status.IsBusy()) {
             state = AppState::Pattern6;
         }
     } else if (state == AppState::Pattern6) {
-        if (countdown_.IsExpired() and status != core::Result::Busy) {
+        if (countdown_.IsExpired() and not status.IsBusy()) {
             state = AppState::DisplayPowerOff;
         }
     } else if (state == AppState::DisplayPowerOff) {
-        if (countdown_.IsExpired() and status != core::Result::Busy) {
+        if (countdown_.IsExpired() and not status.IsBusy()) {
             state = AppState::DisplayPowerOn;
         }
     } else if (state == AppState::Error) {

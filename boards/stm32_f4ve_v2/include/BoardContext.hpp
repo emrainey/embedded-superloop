@@ -145,12 +145,14 @@ protected:
     stm32::gpio::Pin spi1_sclk_;
     /// The Flash Chip Select (CS)
     stm32::gpio::Pin flash_cs_;
+#if defined(USE_NRF24L01)
     /// Near Field Chip Select
     stm32::gpio::Pin nrf_cs_;
     /// Near Field Chip Enable
     stm32::gpio::Pin nrf_ce_;
     /// Near Field Interrupt Line
     stm32::gpio::Pin nrf_irq_;
+#endif
     /// The SPI1 Leader Out Follower In (SPI2_MOSI -> T_MOSI)
     stm32::gpio::Pin spi2_mosi_;
     /// The SPI1 Master In Slave Out (SPI2_MISO -> T_MISO)
