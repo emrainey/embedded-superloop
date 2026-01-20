@@ -16,15 +16,11 @@ add_compile_options(
     -Wstack-usage=32768
     $<$<CONFIG:Debug>:-fno-inline>
     # -fdiagnostics-all-candidates
+    $<$<CONFIG:Debug>:-g3>
+    $<$<CONFIG:Debug>:-ggdb3>
+    $<$<CONFIG:Debug>:-O0>
+    $<$<CONFIG:Debug>:-ftemplate-backtrace-limit=0>
 )
-
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-add_compile_options(-O1 -g3 -ggdb3)
-endif()
-
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-add_compile_options(-g3 -O0 -ftemplate-backtrace-limit=0)
-endif()
 
 message(STATUS "Enable reproducible build flags")
 add_compile_options(
