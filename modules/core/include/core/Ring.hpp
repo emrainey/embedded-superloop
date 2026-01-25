@@ -149,6 +149,10 @@ public:
         return false;
     }
 
+    /// @brief Peeks at the first element in the Ring without removing it
+    /// @param output The reference to the first element. When the Ring is empty, the value of the element is undefined.
+    ValueType& Peek() { return buffer_[head_]; }
+
     /// @brief The indexing operator for mutable access
     ValueType& operator[](size_t index) {
         if (index < Count()) {

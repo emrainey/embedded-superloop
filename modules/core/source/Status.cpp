@@ -5,6 +5,7 @@ namespace core {
 
 // === Static Storage ===
 Status::Statistics Status::statistics_ = {};
+Status::Log Status::log_ = {};
 
 Status::Status()
     : Status(Result::Success, Cause::Unknown) {}
@@ -18,6 +19,10 @@ Status::Status(Result result, Cause cause)
     statistics_.total++;
     statistics_.result_counts.array[static_cast<size_t>(result_)]++;
     statistics_.cause_counts.array[static_cast<size_t>(cause_)]++;
+    // Filter items which will do into the Log, Success will never be logged and "busy" should not be either as it would overwhelm the log.
+    if (result_ != Result::Success and result_ != Result::Busy) {
+        log_.Push(*this);    // will call the Copy Assign or Copy Constructor
+    }
 }
 
 bool Status::IsSuccess(void) const {

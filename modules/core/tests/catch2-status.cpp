@@ -51,4 +51,38 @@ TEST_CASE("Status") {
         REQUIRE(stats.cause_counts.fields.hardware >= 1U);
         REQUIRE(stats.cause_counts.fields.configuration >= 1U);
     }
+    SECTION("Log") {
+        core::Status status1{core::Result::Failure, core::Cause::Parameter};
+        core::Status status2{core::Result::Timeout, core::Cause::Hardware};
+        core::Status status3{core::Result::NotReady, core::Cause::Configuration};
+
+        auto& log = core::Status::GetLog();
+        REQUIRE(log.Count() >= 3U);
+
+        bool found_status1 = false;
+        bool found_status2 = false;
+        bool found_status3 = false;
+
+        while (log.Count() > 0) {
+            auto& entry = log.Peek();
+            if (entry == status1) {
+                found_status1 = true;
+            } else if (entry == status2) {
+                found_status2 = true;
+            } else if (entry == status3) {
+                found_status3 = true;
+            }
+            printf(
+                "Log Entry: Result=%d, Cause=%d Location=%p\r\n",
+                static_cast<int>(entry.GetResult()),
+                static_cast<int>(entry.GetCause()),
+                reinterpret_cast<void*>(entry.GetLocation())
+            );
+            log.Drop(1);    // remove 1 entry
+        }
+
+        REQUIRE(found_status1);
+        REQUIRE(found_status2);
+        REQUIRE(found_status3);
+    }
 }

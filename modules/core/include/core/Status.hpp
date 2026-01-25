@@ -1,12 +1,15 @@
 #ifndef CORE_STATUS_HPP_
 #define CORE_STATUS_HPP_
 
-#include <cstddef>
-#include <cstdint>
-
 /// @file
 /// core::Status Interface
 
+#include <cstddef>
+#include <cstdint>
+
+#include "core/Ring.hpp"
+
+/// The core namespace for fundamental system constructs
 namespace core {
 /// The enumeration of Results in the system
 /// @note Be sure to add a field to the Statistics struct in core::Status for each new Result
@@ -30,6 +33,7 @@ enum class Result : std::int8_t {
     _max = 16U,
 };
 
+/// @return The name of the Result as a string
 constexpr char const* GetResultName(Result r) {
 #define CASE_STR(x) \
     case x:         \
@@ -70,6 +74,7 @@ enum class Cause : std::uint8_t {
     _max = 8U,
 };
 
+/// @return The name of the Cause as a string
 constexpr char const* GetCauseName(Cause c) {
 #define CASE_STR(x) \
     case x:         \
@@ -94,6 +99,11 @@ using Location = std::uintptr_t;
 /// The Status object contains results and causes for any return value.
 class Status final {
 public:
+    // === Constexpr static members ===
+    constexpr static size_t LogCount = 128U;    ///< The number of items of the log buffer
+    /// The type of the log buffer
+    using Log = Ring<Status, LogCount>;
+
     /// Default Construct
     Status();
 
@@ -190,9 +200,13 @@ public:
     /// @return The statistics for Status objects
     static inline Statistics const& GetStatistics(void) { return statistics_; }
 
+    /// @return The log of recent Status objects, mutable so that items can be popped off.
+    static inline Log& GetLog(void) { return log_; }
+
 protected:
     // === Static Members ===
     static Statistics statistics_;    ///< The statistics for Status objects (shared between all objects)
+    static Log log_;                  ///< The log of recent Status objects
     // === Instance Members ===
     Result result_{Result::Success};    ///< The result of the operation
     Cause cause_{Cause::Unknown};       ///< The cause of the result (if any)
