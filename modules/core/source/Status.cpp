@@ -3,15 +3,21 @@
 
 namespace core {
 
+// === Static Storage ===
+Status::Statistics Status::statistics_ = {};
+
 Status::Status()
-    : Status(Result::Success, Cause::Unknown) {
-}
+    : Status(Result::Success, Cause::Unknown) {}
 
 Status::Status(Result result, Cause cause)
     : result_{result}
     , cause_{cause}
     , location_{0} {
     location_ = reinterpret_cast<std::uintptr_t>(__builtin_extract_return_addr(__builtin_return_address(0)));
+    // Update statistics
+    statistics_.total++;
+    statistics_.result_counts.array[static_cast<size_t>(result_)]++;
+    statistics_.cause_counts.array[static_cast<size_t>(cause_)]++;
 }
 
 bool Status::IsSuccess(void) const {

@@ -31,4 +31,24 @@ TEST_CASE("Status") {
         core::Status status{core::Result::Success, core::Cause::Unknown};
         REQUIRE(status.GetLocation() != 0);
     }
+    SECTION("Statistics") {
+        core::Status status1{core::Result::Success, core::Cause::Unknown};
+        core::Status status2{core::Result::Busy, core::Cause::State};
+        core::Status status3{core::Result::Failure, core::Cause::Parameter};
+        core::Status status4{core::Result::Timeout, core::Cause::Hardware};
+        core::Status status5{core::Result::NotReady, core::Cause::Configuration};
+
+        core::Status::Statistics const& stats = core::Status::GetStatistics();
+        REQUIRE(stats.total >= 5U);
+        REQUIRE(stats.result_counts.fields.success >= 1U);
+        REQUIRE(stats.result_counts.fields.busy >= 1U);
+        REQUIRE(stats.result_counts.fields.failure >= 1U);
+        REQUIRE(stats.result_counts.fields.timeout >= 1U);
+        REQUIRE(stats.result_counts.fields.not_ready >= 1U);
+        REQUIRE(stats.cause_counts.fields.unknown >= 1U);
+        REQUIRE(stats.cause_counts.fields.state >= 1U);
+        REQUIRE(stats.cause_counts.fields.parameter >= 1U);
+        REQUIRE(stats.cause_counts.fields.hardware >= 1U);
+        REQUIRE(stats.cause_counts.fields.configuration >= 1U);
+    }
 }
