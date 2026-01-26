@@ -12,17 +12,22 @@ namespace jarnax {
 namespace lsm9ds1 {
 
 /// A triple of X, Y, Z scalars to form a vector
-template <typename T>
+template <typename UNIT_TYPE>
 struct Vector {
-    T x;
-    T y;
-    T z;
+    using UnitType = UNIT_TYPE;    ///< The unit type of the vector components
+    UnitType x;                    ///< The X component
+    UnitType y;                    ///< The Y component
+    UnitType z;                    ///< The Z component
 };
 
 /// A Sample structure to hold sensor data and its timestamp of the capture time.
-template <typename T>
+template <typename SAMPLE_TYPE>
 struct Sample {
-    T data;
+    /// The type of the sample data
+    using SampleType = SAMPLE_TYPE;
+    /// The sensor data
+    SampleType data;
+    /// The timestamp of the data capture
     core::units::MicroSeconds timestamp{0U};
 };
 

@@ -18,6 +18,9 @@ public:
     explicit UsartConsole(jarnax::usart::Driver& driver);
 
     // === Overrides ===
+    /// Prints formatted output to the USART at the specified level
+    /// @param level The output level
+    /// @param fmt Printf-style format string
     void Print(Level level, char const fmt[], ...) override;
     bool Execute(void) override;
 

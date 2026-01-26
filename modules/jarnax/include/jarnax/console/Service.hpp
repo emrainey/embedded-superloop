@@ -13,8 +13,8 @@ namespace console {
 /// @brief The Console Interface
 class Service : public Loopable {
 public:
-    static constexpr size_t OutputLength{1024U};
-    static constexpr size_t InputLength{16U};
+    static constexpr size_t OutputLength{1024U};    ///< Maximum output buffer length
+    static constexpr size_t InputLength{16U};       ///< Maximum input buffer length
 
     /// @brief The Console Level
     enum class Level : std::uint8_t {
@@ -24,6 +24,9 @@ public:
         Info,             ///< Info level
         Debug,            ///< Debug level (rarely printed, often too verbose)
     };
+    /// Prints formatted output at the specified level
+    /// @param level The output level
+    /// @param format Printf-style format string
     virtual void Print(Level level, char const* format, ...) = 0;
 
     /// @brief Sets the level of the console

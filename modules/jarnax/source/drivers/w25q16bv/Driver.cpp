@@ -14,6 +14,7 @@ namespace w25q16bv {
 /// require additional data to be written to the buffer.
 class Empty : public Functor {
 public:
+    /// No-op operator that does nothing with the span
     void operator()(core::Span<uint8_t>&) override {
         // do nothing
     }

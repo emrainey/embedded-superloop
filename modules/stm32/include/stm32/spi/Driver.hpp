@@ -22,18 +22,26 @@ public:
     /// @param dma_manager The DMA Manager to use
     /// @param rx_peripheral The RX peripheral for the DMA Driver
     /// @param tx_peripheral The TX peripheral for the DMA Driver
-    /// @param dma_allocator The Allocator to use for DMA memory
     Driver(
         stm32::peripherals::SerialPeripheralInterface volatile& spi, jarnax::dma::Manager& dma_manager, cortex::Peripheral rx_peripheral,
         cortex::Peripheral tx_peripheral
     );
 
+    /// Initializes the SPI peripheral with the specified clock frequencies
+    /// @param peripheral_frequency The input clock frequency to the SPI peripheral
+    /// @param desired_spi_clock_frequency The desired SPI bus clock frequency
+    /// @return Status of initialization
     core::Status Initialize(core::units::Hertz peripheral_frequency, core::units::Hertz desired_spi_clock_frequency);
 
+    /// Finds the closest baud rate divider for the desired SPI clock frequency
+    /// @param peripheral_frequency The input clock frequency to the SPI peripheral
+    /// @param desired_spi_clock_frequency The desired SPI bus clock frequency
+    /// @return The baud rate divider setting that produces the closest frequency
     stm32::peripherals::SerialPeripheralInterface::Control1::BaudRateDivider FindClosestDivider(
         core::units::Hertz peripheral_frequency, core::units::Hertz desired_spi_clock_frequency
     );
 
+    /// Handles SPI peripheral interrupts
     void HandleInterrupt(void);
 
     //+======[ Transactor Interface ]=======================================================+
@@ -61,6 +69,8 @@ public:
         std::size_t transfers_sent{0U};              ///< The number of RX transfers completed
     };
 
+    /// Gets the current SPI driver statistics
+    /// @return Reference to the statistics structure
     inline Statistics const& GetStatistics(void) const { return statistics_; }
 
 protected:
@@ -78,6 +88,9 @@ protected:
     /// @brief Disables the SPI peripheral which stops any ongoing transactions.
     void Disable(void);
 
+    /// Prints transaction details for debugging
+    /// @param prefix Message prefix
+    /// @param transaction The transaction to print
     void PrintTransaction(char const* const prefix, jarnax::spi::Transaction const& transaction) const;
 
     /// The statistics for the SPI peripheral

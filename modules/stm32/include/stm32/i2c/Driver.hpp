@@ -28,9 +28,16 @@ public:
     );
     ~Driver() = default;
 
+    /// @brief Initializes the I²C Driver from the peripheral frequency and desired I²C clock frequency
+    /// @param peripheral_frequency The frequency of the peripheral clock
+    /// @param desired_i2c_clock_frequency The desired I²C clock frequency
+    /// @return Status indicating success or failure of initialization
     core::Status Initialize(core::units::Hertz peripheral_frequency, core::units::Hertz desired_i2c_clock_frequency);
 
+    /// @brief Handles I²C interrupts, processing events
     void HandleEvent(void);
+
+    /// @brief Handles I²C error conditions
     void HandleError(void);
 
     //+======[ Transactor Interface ]=======================================================+
@@ -51,7 +58,7 @@ public:
             size_t packet_error_code{0U};    ///< The number of packet error code errors
             size_t timeout{0U};              ///< The number of timeouts encountered
             size_t busy{0U};                 ///< The number of times the bus was busy
-        } errors;
+        } errors;                            ///< The error counters
         /// @brief Event counters for I²C bus operations
         struct Events {
             size_t start{0U};                ///< The number of start conditions generated
@@ -59,16 +66,19 @@ public:
             size_t transfer_finished{0U};    ///< The number of transfer finished events
             size_t smbus_alert{0U};          ///< The number of SMBus alert events
             size_t stop{0U};                 ///< The number of stop conditions generated
-        } events;
+        } events;                            ///< The event counters
         size_t bytes_received{0U};           ///< The number of bytes received
         size_t transmit_empty{0U};           ///< The number of bytes transmitted
     };
 
+    /// @brief Gets the statistics for the I²C peripheral
     inline Statistics const &GetStatistics(void) const { return statistics_; }
 
 protected:
+    /// @brief Resets the I²C peripheral to a known state
     void Reset(void);
 
+    /// @brief Calculates the clock divider for the desired I²C clock frequency
     uint32_t GetClockDivider(core::units::Hertz peripheral_frequency, core::units::Hertz desired_i2c_clock_frequency);
 
     // @TODO Untested function

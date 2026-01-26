@@ -29,12 +29,13 @@ public:
 
     /// @brief The summary of the DMA stream's status.
     struct Flags {
-        bool complete{false};
-        bool half_complete{false};
-        bool error{false};
-        bool direct_mode_error{false};
-        bool fifo_error{false};
+        bool complete{false};             ///< Indicates if the transfer is complete
+        bool half_complete{false};        ///< Indicates if half of the transfer is complete
+        bool error{false};                ///< Indicates if an error occurred during the transfer
+        bool direct_mode_error{false};    ///< Indicates if a direct mode error occurred
+        bool fifo_error{false};           ///< Indicates if a FIFO error occurred
 
+        /// @brief Sets all flags to true.
         inline void all() {
             complete = true;
             half_complete = true;
@@ -81,6 +82,9 @@ public:
     core::Status Copy(std::uint16_t destination[], std::uint16_t const source[], std::size_t count) override;
     core::Status Copy(std::uint32_t destination[], std::uint32_t const source[], std::size_t count) override;
 
+    /// @brief Handles the DMA interrupt for the given controller and stream.
+    /// @param controller The DMA controller number
+    /// @param stream The DMA stream number
     void HandleInterrupt(uint32_t controller, uint32_t stream);
 
     /// @brief Gets the status flags of the stream

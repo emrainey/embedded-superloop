@@ -77,8 +77,6 @@ public:
 
     /// @brief The parameter constructor
     /// @param callback The reference to the callback interface
-    /// @param initial_state The initial state of the StateChart
-    /// @param final_state The final state of the StateChart
     StateChart(Callback& callback)
         : callback_{callback}
         , state_{StateType::Undefined} {}

@@ -11,10 +11,13 @@ namespace peripherals {
 /// @details Represents the TCM configuration register in ARM Cortex-M processors.
 /// TCM provides low-latency memory directly coupled to the processor for performance-critical code and data.
 struct TightlyCoupledMemory final {
+    /// Default constructor - initializes to zero
     TightlyCoupledMemory()
         : whole{0} {}
+    /// Copy constructor from another instance
     TightlyCoupledMemory(TightlyCoupledMemory const& other)
         : whole{other.whole} {}
+    /// Copy constructor from volatile register
     TightlyCoupledMemory(TightlyCoupledMemory volatile& other)
         : whole{other.whole} {}
     /// @brief Bit field layout for the TCM control register

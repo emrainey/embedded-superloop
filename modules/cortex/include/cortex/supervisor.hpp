@@ -51,13 +51,16 @@ struct Marshal {
         // NO VALUES BEYOND HERE
     };
 
-    Marshal() : call(Calls::Unknown), type() {}
+    Marshal()
+        : call(Calls::Unknown)
+        , type() {}
 
     /// The call type
     Calls call;
     /// @brief  The union of argument types. All must be at most the size of the thumb::Stacked
     union Arguments {
-        Arguments() : bist{} {}
+        Arguments()
+            : bist{} {}
         /// Used with @see Calls::BuiltInSelfTest
         struct BuiltInSelfTest {
             std::uint32_t arg0{0};    ///< First Arg
@@ -97,6 +100,7 @@ struct Marshal {
         };
         /// Used with @see Calls::Processor
         struct Processor {
+            /// Processor control operations
             enum class Operations : std::uint32_t {
                 DisableInterrupts = 0x0UL,              ///< Disable Interrupts, no args
                 EnableInterrupts = 0x1UL,               ///< Enable Interrupts, no args

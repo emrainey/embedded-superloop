@@ -45,6 +45,8 @@ struct ProgramStatus final {
         std::uint32_t top    : 2U;     //!< Top ICI/IT Bits
         std::uint32_t        : 5U;     ///< Reserved field
 
+        /// Gets the combined ICI/IT state value
+        /// @return The 8-bit ICI/IT state (top 2 bits | bottom 6 bits)
         inline std::uint32_t get(void) const {
             std::uint32_t tmp = static_cast<uint32_t>(top << 6U);
             tmp |= bottom;
@@ -57,12 +59,12 @@ struct ProgramStatus final {
 struct Masks final {
     /// The Priority Mask Register (PRIMASK)
     struct Priority final {
-        std::uint32_t mask : 1;
+        std::uint32_t mask : 1;     ///< Disable all interrupts except NMI and HardFault
         std::uint32_t      : 31;    ///< Reserved field
     };
     /// The Fault Mask Register (FAULTMASK)
     struct Fault final {
-        std::uint32_t mask : 1;
+        std::uint32_t mask : 1;     ///< Disable all interrupts except NMI
         std::uint32_t      : 31;    ///< Reserved field
     };
     /// The Base Priority Mask Register (BASEPRI)

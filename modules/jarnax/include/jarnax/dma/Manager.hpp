@@ -15,17 +15,15 @@ namespace dma {
 class Manager {
 public:
     /// @brief Allows a resource to be assigned from a specififc peripheral.
-    /// @param[inout] resource On input, nullptr, on output the assigned resource
     /// @param peripheral The peripheral to assign the resource from.
     /// @return The pointer to the DMA Resource that was assigned, or nullptr if no resource could be assigned.
     /// @post After the Resource is no longer needed, it should be released back to the manager via Release()
     virtual jarnax::dma::Resource* Assign(Peripheral const& peripheral) = 0;
 
     /// @brief Acquires a resource from the manager from the given identifier (which is platform specific)
-    /// @param[inout] resource On input, nullptr, on output the acquired resource
     /// @param identifier The identifier of the resource to acquire, which is platform specific.
     /// @param peripheral The peripheral to assign the resource from, defaults to the empty peripheral.
-    /// @return Result::Success if the resource was acquired, Result::Busy if the resource is already acquired.
+    /// @return The pointer to the DMA Resource that was assigned, or nullptr if no resource could be assigned.
     /// @note The identifier is platform specific and may not be the same across all platforms.
     /// @post After the Resource is no longer needed, it should be released back to the manager via Release()
     virtual jarnax::dma::Resource* Acquire(size_t identifier, Peripheral const& peripheral = cortex::_) = 0;

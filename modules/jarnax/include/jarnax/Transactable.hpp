@@ -49,7 +49,7 @@ public:
 
     virtual ~Transactable() = default;
 
-    /// @brief The envent enumeration for the transaction
+    /// @brief The event enumeration for the transaction
     enum class Event {
         None = 0,            ///< No event has occurred (after an event has been processed it will be set back to None)
         Initialized = 10,    ///< The transaction has been initialized and is ready for scheduling
@@ -61,6 +61,7 @@ public:
         Discard = 16,        ///< The transaction will be discarded (unusable). It will have to be externally @ref Reset to be used again.
     };
 
+    /// @brief Prints the internal state of the transaction to the provided printer
     void Print(core::Printer& printer) const {
         printer(
             "Transactable State: %d:%d:%d, Event: %d, Attempts Remaining: %" PRIz ", Duration: %" PRIu64 " us Deadline: %" PRIu64 " \n",
@@ -134,6 +135,7 @@ public:
     }
 
 protected:
+    /// @brief Internal initialization of the transaction state
     void InternalInitialize() {
         status_ = core::Status{core::Result::NotInitialized, core::Cause::State};
         try_count_ = ATTEMPT_LIMIT;
@@ -151,7 +153,7 @@ protected:
         }
     }
 
-    /// @copydoc core::StateMachine<TransactionState>::Callback::OnEntry(TransactionState)
+    /// @copydoc core::StateMachine<TransactionState>::Callback::OnEntry
     void OnEntry(TransactionState state) override {
         if constexpr (debug::states) {
             jarnax::print("Transactable::OnEntry: %d\n", static_cast<int>(state));
@@ -172,7 +174,7 @@ protected:
         }
     }
 
-    /// @copydoc core::StateMachine<TransactionState>::Callback::OnCycle(TransactionState)
+    /// @copydoc core::StateMachine<TransactionState>::Callback::OnCycle
     TransactionState OnCycle(TransactionState state) override {
         if constexpr (debug::states) {
             jarnax::print("Transactable::OnCycle: %d w/ event=%d\n", static_cast<int>(state), static_cast<int>(event_));
@@ -230,7 +232,7 @@ protected:
         return state;            // otherwise stay in this state
     }
 
-    /// @copydoc core::StateMachine<TransactionState>::Callback::OnExit(TransactionState)
+    /// @copydoc core::StateMachine<TransactionState>::Callback::OnExit
     void OnExit(TransactionState state) override {
         // do nothing
         if constexpr (debug::states) {
@@ -238,7 +240,7 @@ protected:
         }
     }
 
-    /// @copydoc core::StateMachine<TransactionState>::Callback::OnTransition(TransactionState, TransactionState)
+    /// @copydoc core::StateMachine<TransactionState>::Callback::OnTransition
     void OnTransition(TransactionState from, TransactionState to) override {
         if constexpr (debug::states) {
             jarnax::print("Transactable::OnTransition: %d -> %d\n", static_cast<int>(from), static_cast<int>(to));

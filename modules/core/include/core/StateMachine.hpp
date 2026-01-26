@@ -58,7 +58,6 @@ public:
     /// @brief The parameter constructor
     /// @param callback The reference to the callback interface
     /// @param initial_state The initial state of the StateMachine
-    /// @param final_state The final state of the StateMachine
     StateMachine(Callback& callback, StateType initial_state)
         : callback_{callback}
         , initial_state_{initial_state}

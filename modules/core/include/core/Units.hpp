@@ -38,12 +38,6 @@
 namespace core {
 /// @brief The namespace for the core units of measure and their constants
 namespace units {
-
-/// User-defined literal for creating Celsius temperature values
-constexpr Celsius operator""_c(long double value) {
-    return Celsius{static_cast<double>(value)};
-}
-
 /// @brief The unit of Length is Meters
 using Length = Meters;
 /// @brief The unit of Area is Square Meters
@@ -302,6 +296,9 @@ namespace physics {
 constexpr static Speed c = 299'792'458.0_mps;
 }    // namespace physics
 
+/// User-defined literal for speed as a multiple of the speed of light
+/// @param value The multiple of c (e.g., 0.5_c = 149,896,229 m/s)
+/// @return Speed value in meters per second
 constexpr Speed operator""_c(long double value) {
     return Speed{physics::c.value() * static_cast<Speed::Type>(value)};
 }

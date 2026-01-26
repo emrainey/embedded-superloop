@@ -383,11 +383,10 @@ struct ClockConfiguration {
 extern ClockConfiguration const default_clock_configuration;
 
 /// Returns what the vendor considers the frequency of the system.
-/// @note Interface
 ClockTree const& GetClockTree();
 
 /// @brief Gets the clock frequency for the MCU
-/// @return
+/// @return The frequency of the MCU clock
 Hertz& GetClockFrequency();
 
 /// @brief Gets the system tick feeder clock frequency
@@ -396,8 +395,7 @@ Hertz& GetSystemClockFrequency();
 namespace initialize {
 
 /// Initializes the Clock Tree, but with a family specific definition of the Clock Configuration
-/// @param external_input_clock_frequency The clock frequency of the external clock (if present)
-/// @param clkcfg The configuration of the clock for the system
+/// @param clkcfg The clock configuration to use
 void clocks(ClockConfiguration const& clkcfg);
 
 }    // namespace initialize

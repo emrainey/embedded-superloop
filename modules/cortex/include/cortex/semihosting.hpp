@@ -44,74 +44,72 @@ enum class Mode : std::uint32_t {
     AppendPlusBinary = 11,
 };
 
-/// Checks if the debugger is connected.
+/// @brief Checks if the debugger is connected.
 bool IsConnected(void);
 
-/// Opens a file and returns a handle.
+/// @brief Opens a file and returns a handle.
 /// @param name The span of the name of the file to open.
 /// @param mode The mode to open the file in.
 Handle Open(core::Span<char const> name, Mode mode);
 
-/// Closes a file.
+/// @brief Closes a file.
 /// @param handle The handle of the file to close.
 /// @return 0 on success, -1 on error.
 Result Close(Handle handle);
 
-/// Writes data to a file.
+/// @brief Writes data to a file.
 /// @param handle The handle of the file to write to.
-/// @param buffer The data to write.
-/// @param len The length of the data to write.
+/// @param buffer The span over the buffer to write from
 /// @return The number of bytes written, or -1 on error.
 Result Write(Handle handle, core::Span<char const> buffer);
 
-/// Writes a single character to a file
+/// @brief Writes a single character to a file
 /// @param c The character to write.
 void Write(char c);
 
-/// Writes a string to a file.
+/// @brief Writes a string to a file.
 /// @param string The string to write.
 void Write(const char string[]);
 
-/// Reads data from a file.
+/// @brief Reads data from a file.
 /// @param handle The handle of the file to read from.
-/// @param buffer The buffer to read the data into.
-/// @param len The length of the data to read.
+/// @param buffer The span over the buffer to read the data into
 /// @return The number of bytes read, or -1 on error.
 Result Read(Handle handle, core::Span<char> buffer);
 
-/// Reads a character from a file.
+/// @brief Reads a character from a file.
 char Read(void);
 
-/// Checks if a value is an error.
+/// @brief Checks if a value is an error.
 /// @return True if the value is an error, false otherwise.
 bool IsError(int32_t value);
 
-/// Checks if a file handle is a TTY.
+/// @brief Checks if a file handle is a TTY.
 /// @param handle The handle of the file to check.
 /// @return True if the file is a TTY, false otherwise.
 bool IsTTY(int handle);
 
-/// Seeks to a position in a file.
+/// @brief Seeks to a position in a file.
 /// @param handle The handle of the file to seek in.
 /// @param position The position to seek to.
 /// @return The new position on success, or -1 on error.
 Result Seek(Handle handle, uint32_t position);
 
-/// Gets the length of a file.
+/// @brief Gets the length of a file.
 /// @param handle The handle of the file to get the length of.
 /// @return The length of the file, or -1 on error.
 int32_t Length(Handle handle);
 
-/// Gets A temporary name for a file.
-/// @param name[out] The location to store the name of the file
+/// @brief Gets A temporary name for a file.
+/// @param name The location to store the name of the file
 /// @param id The ID of the temporary file.
 Result TempName(core::Span<char const> name, uint32_t id);
 
-/// Removes a file from the Host File System
+/// @brief Removes a file from the Host File System
 /// @param name The span of the name of the file to remove
 Result Remove(core::Span<char const> name);
 
-/// Renames a file on the Host File System
+/// @brief Renames a file on the Host File System
 /// @param old_file The span of the current file name
 /// @param new_file The span of the new file name
 /// @return 0 on success, -1 on error
@@ -136,10 +134,10 @@ uint32_t GetCommandLine(core::Span<char> buffer);
 
 /// @brief Information about the heap and stack blocks
 struct BlockInfo {
-    uint32_t heap_base;
-    uint32_t heap_limit;
-    uint32_t stack_base;
-    uint32_t stack_limit;
+    uint32_t heap_base;      ///< Base address of heap
+    uint32_t heap_limit;     ///< Limit address of heap
+    uint32_t stack_base;     ///< Base address of stack
+    uint32_t stack_limit;    ///< Limit address of stack
 };
 
 /// @param[out] info The block information to fill in

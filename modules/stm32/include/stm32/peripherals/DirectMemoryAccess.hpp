@@ -462,18 +462,21 @@ struct DirectMemoryAccess final {
             /// Destructor is empty
             ~Configuration() = default;
 
+            /// Data transfer direction (DIR)
             enum class DataTransferDirection : uint32_t {
                 PeripheralToMemory = 0b00,
                 MemoryToPeripheral = 0b01,
                 MemoryToMemory = 0b10
             };
 
+            /// Data size (PSIZE and MSIZE)
             enum class DataSize : uint32_t {
                 Bits8 = 0b00,
                 Bits16 = 0b01,
                 Bits32 = 0b10
             };
 
+            /// Priority level (PL)
             enum class Priority : uint32_t {
                 Low = 0b00,
                 Medium = 0b01,
@@ -481,6 +484,7 @@ struct DirectMemoryAccess final {
                 VeryHigh = 0b11
             };
 
+            /// Burst transfer configuration (PBURST and MBURST)
             enum class Burst : uint32_t {
                 Single = 0b00,
                 Increment4 = 0b01,
@@ -643,6 +647,7 @@ struct DirectMemoryAccess final {
             /// Destructor is empty
             ~FifoControl() = default;
 
+            /// FIFO threshold selection (FTH)
             enum class FifoThreshold : uint32_t {
                 Empty = 0b00,
                 Quarter = 0b01,
@@ -650,6 +655,7 @@ struct DirectMemoryAccess final {
                 Full = 0b11
             };
 
+            /// FIFO status (FS)
             enum class FifoStatus : uint32_t {
                 ZeroToUnderQuarter = 0b000,
                 QuarterToUnderHalf = 0b001,

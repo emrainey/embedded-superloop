@@ -71,6 +71,7 @@ public:
         #name, name            \
     }
 
+    /// The number of test names in the test enumeration
     static constexpr size_t NumTestNames = to_underlying(EnumType::kMaximum) - to_underlying(EnumType::kMinimum) + 1U;
 
     /// Default Constructor
@@ -217,6 +218,10 @@ protected:
     }
 
     // this should be moved into the "standard" area for float operations
+    /// Calculates the absolute difference between two floats
+    /// @param lhs Left hand side value
+    /// @param rhs Right hand side value
+    /// @return Absolute difference between lhs and rhs
     float absolute_difference(float lhs, float rhs) {
         float difference = rhs - lhs;
         if (lhs > rhs) {

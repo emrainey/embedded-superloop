@@ -18,9 +18,16 @@ public:
     /// The maximum number of units to copy in a single operation.
     static constexpr std::size_t MaximumMemoryCopyUnits{65535U};
 
+    /// @brief Constructor
+    /// @param controller The DMA controller index
+    /// @param index The DMA stream index
     Resource(size_t controller, size_t index);
+
+    /// @brief Destructor
     ~Resource() = default;
 
+    /// @brief Gets the stream number associated with this resource.
+    /// @return The stream number
     inline size_t GetNumber(void) const { return stream_number_; }
 
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

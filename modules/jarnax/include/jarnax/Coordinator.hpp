@@ -20,9 +20,12 @@ namespace jarnax {
 template <typename TRANSACTION_TYPE, std::size_t DEPTH>
 class Coordinator : public Loopable {
 public:
+    /// The transaction type managed by this coordinator
     using TransactionType = TRANSACTION_TYPE;
     // static_assert(std::is_base_of<Transactable<TransactionType>, TransactionType>::value, "TransactionType must be derived from Transactable");
 
+    /// Constructs a coordinator with a reference to the transaction driver
+    /// @param driver The transactor driver that executes transactions
     Coordinator(Transactor<TransactionType>& driver)
         : Loopable()
         , transactions_{}

@@ -30,6 +30,11 @@ public:
     /// configured to use DMA.
     virtual core::Status ConfigureCopyToPeripheral(uintptr_t source, size_t count, size_t unit_size, uintptr_t destination) = 0;
 
+    /// Configures a DMA transfer to a peripheral from a memory span
+    /// @tparam UNIT_TYPE The type of each unit being copied
+    /// @param span The source data span
+    /// @param destination The peripheral register address
+    /// @return Status of the configuration
     template <typename UNIT_TYPE>
     core::Status ConfigureCopyToPeripheral(core::Span<UNIT_TYPE> span, uintptr_t destination) {
         constexpr size_t unit_size = sizeof(UNIT_TYPE);
@@ -43,6 +48,11 @@ public:
     /// @param unit_size The size of each unit
     virtual core::Status ConfigureCopyFromPeripheral(uintptr_t source, uintptr_t destination, size_t count, size_t unit_size) = 0;
 
+    /// Configures a DMA transfer from a peripheral to a memory span
+    /// @tparam UNIT_TYPE The type of each unit being copied
+    /// @param source The peripheral register address
+    /// @param span The destination data span
+    /// @return Status of the configuration
     template <typename UNIT_TYPE>
     core::Status ConfigureCopyFromPeripheral(uintptr_t source, core::Span<UNIT_TYPE> span) {
         constexpr size_t unit_size = sizeof(UNIT_TYPE);

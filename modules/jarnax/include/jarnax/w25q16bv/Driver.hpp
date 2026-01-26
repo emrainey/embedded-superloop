@@ -16,6 +16,7 @@ namespace w25q16bv {
 /// @brief A convenience class to be used as a callback for filling out instructions to write to the Chip
 class Functor {
 public:
+    /// @brief Callback operator to fill out instructions for writing to the chip
     virtual void operator()(core::Span<uint8_t>& data) = 0;
 
 protected:

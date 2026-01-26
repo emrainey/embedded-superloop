@@ -287,8 +287,7 @@ struct DataWatchAndTrace final {
     /// The Cluster Register
 };
 
-/// The Trace Point Interface Unit
-/// @aka TPIU
+/// The Trace Port Interface Unit (TPIU)
 struct TracePortInterfaceUnit final {
     /// @brief The bitfield definition of the register
     struct SupportedParallelPortSizes final {

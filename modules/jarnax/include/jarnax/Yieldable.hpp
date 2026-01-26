@@ -45,12 +45,14 @@ public:
     /// @param event_value When signalled the Yieldable will be executed on the next cycle
     void Signal(EVENT_TYPE event_value) { m_event = event_value; }
 
+    /// Starts the yieldable task (does not return)
     [[noreturn]] void Start(void) {
         // set the stack pointer to the address of one past the end of the stack
         //
     }
 
 protected:
+    /// Yields execution to the next yieldable task
     static void static_yield(void) {
         do {
             size_t next = s_current->m_index + 1;
@@ -82,8 +84,7 @@ protected:
     }
 
     /// @brief Retrieves the Event for the Yieldable
-    /// @param
-    /// @return
+    /// @return The reference to the Event
     core::events::Event<EVENT_TYPE> &GetEvent(void) { return m_event; }
 
     /// Prevent construction of Yieldable objects
@@ -105,23 +106,19 @@ private:
     static Yieldable *s_current;                  ///< The currently executing Yieldable
 };
 
-// EXPLICIT STATIC STORAGE
+// === EXPLICIT STATIC STORAGE ===
 
-/// @copydoc Yieldable::s_initialized
 template <typename EVENT_TYPE, size_t STACK_SIZE, size_t COUNT>
-bool Yieldable<EVENT_TYPE, STACK_SIZE, COUNT>::s_initialized{false};
+bool Yieldable<EVENT_TYPE, STACK_SIZE, COUNT>::s_initialized{false};    ///< Initialization state
 
-/// @copydoc Yieldable::s_yieldable_list
 template <typename EVENT_TYPE, size_t STACK_SIZE, size_t COUNT>
-Yieldable<EVENT_TYPE, STACK_SIZE, COUNT> *Yieldable<EVENT_TYPE, STACK_SIZE, COUNT>::s_yieldable_list[COUNT];
+Yieldable<EVENT_TYPE, STACK_SIZE, COUNT> *Yieldable<EVENT_TYPE, STACK_SIZE, COUNT>::s_yieldable_list[COUNT];    ///< List of yieldable instances
 
-/// @copydoc Yieldable::s_yieldable_count
 template <typename EVENT_TYPE, size_t STACK_SIZE, size_t COUNT>
-size_t Yieldable<EVENT_TYPE, STACK_SIZE, COUNT>::s_yieldable_count{0};
+size_t Yieldable<EVENT_TYPE, STACK_SIZE, COUNT>::s_yieldable_count{0};    ///< Number of registered yieldables
 
-/// @copydoc Yieldable::s_too_many_instances
 template <typename EVENT_TYPE, size_t STACK_SIZE, size_t COUNT>
-bool Yieldable<EVENT_TYPE, STACK_SIZE, COUNT>::s_too_many_instances{false};
+bool Yieldable<EVENT_TYPE, STACK_SIZE, COUNT>::s_too_many_instances{false};    ///< Instance overflow flag
 
 }    // namespace jarnax
 

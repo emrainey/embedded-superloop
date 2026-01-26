@@ -223,8 +223,10 @@ struct SystemControlBlock final {
         /// @brief Default constructor
         SystemHandlerControlState()
             : whole{0} {}
+        /// Copy constructor from another instance
         SystemHandlerControlState(SystemHandlerControlState const& other)
             : whole{other.whole} {}
+        /// Copy constructor from volatile register
         SystemHandlerControlState(SystemHandlerControlState volatile& other)
             : whole{other.whole} {}
         /// @brief The bit field for the System Handler Control State Register
@@ -268,8 +270,10 @@ struct SystemControlBlock final {
         /// @brief Default constructor
         ConfigurationFaultStatus()
             : whole{0} {}
+        /// Copy constructor from another instance
         ConfigurationFaultStatus(ConfigurationFaultStatus const& other)
             : whole{other.whole} {}
+        /// Copy constructor from volatile register
         ConfigurationFaultStatus(ConfigurationFaultStatus volatile& other)
             : whole{other.whole} {}
         /// @brief The bit field for the Configuration Fault Status Register
@@ -316,10 +320,13 @@ struct SystemControlBlock final {
 
     /// The Hard Fault Status Register (HFSR)
     struct HardFaultStatus final {
+        /// Default constructor - initializes to zero
         HardFaultStatus()
             : whole{0} {}
+        /// Copy constructor from another instance
         HardFaultStatus(HardFaultStatus const& other)
             : whole{other.whole} {}
+        /// Copy constructor from volatile register
         HardFaultStatus(HardFaultStatus volatile& other)
             : whole{other.whole} {}
         /// @brief The bit field for the Hard Fault Status Register
@@ -344,10 +351,13 @@ struct SystemControlBlock final {
 
     /// The Debug Fault Register (DFR)
     struct DebugFaultStatus final {
+        /// Default constructor - initializes to zero
         DebugFaultStatus()
             : whole{0} {}
+        /// Copy constructor from another instance
         DebugFaultStatus(DebugFaultStatus const& other)
             : whole{other.whole} {}
+        /// Copy constructor from volatile register
         DebugFaultStatus(DebugFaultStatus volatile& other)
             : whole{other.whole} {}
         /// @brief The bit field for the Debug Fault Register
@@ -373,7 +383,7 @@ struct SystemControlBlock final {
 
     /// The Memory Management Fault Address Register (MMFAR)
     struct MemoryManagementFaultAddress final {
-        std::uintptr_t address;
+        std::uintptr_t address;    ///< Address that caused the MemManage fault
     };
 #if defined(__arm__)
     static_assert(sizeof(MemoryManagementFaultAddress) == sizeof(std::uint32_t), "Must be exactly this size");
@@ -389,10 +399,13 @@ struct SystemControlBlock final {
 
     /// The Co Processor Access Control Register
     struct CoProcessorAccessControl final {
+        /// Default constructor - initializes to zero
         CoProcessorAccessControl()
             : whole{0} {}
+        /// Copy constructor from another instance
         CoProcessorAccessControl(CoProcessorAccessControl const& other)
             : whole{other.whole} {}
+        /// Copy constructor from volatile register
         CoProcessorAccessControl(CoProcessorAccessControl volatile& other)
             : whole{other.whole} {}
         /// @brief The access values for the register

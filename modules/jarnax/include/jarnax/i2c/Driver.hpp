@@ -48,14 +48,14 @@ union Address {
         std::uint8_t address  : 7;    ///< The 7-bit I2C address of the device to communicate with
         std::uint8_t          : 7;    ///< Reserved and unused
         std::uint8_t is_large : 1;    ///< Indicates if the address is large (1) or small (0)
-    } small;
+    } small;                          ///< 7-bit I2C address format
     /// Large address format
     struct large {
         std::uint16_t read     : 1;     ///< Indicates if the transaction is a read (1) or write (0)
         std::uint16_t address  : 10;    ///< The 10-bit I2C address of the device to communicate with
         std::uint16_t          : 4;     ///< Reserved and unused
         std::uint16_t is_large : 1;     ///< Indicates if the address is large (1) or small (0)
-    } large;
+    } large;                            ///< 10-bit I2C address format
     std::uint8_t parts[2];              ///< The address as an array of 2 bytes
     std::uint16_t whole;                ///< The whole address as an 8-bit value
 };
@@ -63,6 +63,8 @@ union Address {
 /// @brief Defines a CRTP Transactable object for I2C transactions
 class Transaction : public jarnax::Transactable<Transaction, DefaultRetries> {
 public:
+    /// Constructs an I2C transaction with a timer reference
+    /// @param timer Timer for tracking transaction timeouts and durations
     Transaction(jarnax::Timer const& timer)
         : jarnax::Transactable<Transaction, DefaultRetries>{timer}
         , address{}
@@ -90,7 +92,7 @@ public:
 
     /// @brief Removes the buffer from the transaction and returns it to the caller
     /// @return A container of the buffer
-    /// @post @ref Release() must be called to release the transaction
+    /// @post Release must be called to release the transaction buffer
     core::Buffer<DataUnit> Relinquish(void) { return std::move(buffer); }
 
     /// @return True if the transaction seems valid, false otherwise
@@ -110,6 +112,7 @@ public:
         return true;         // all checks passed, transaction seems valid
     }
 
+    /// Clears the transaction state to defaults
     void Clear() {
         address.whole = 0U;
         buffer.Release();    // if the memory has not been moved, this will free it

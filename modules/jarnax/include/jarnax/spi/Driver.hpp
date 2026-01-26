@@ -37,7 +37,9 @@ using DataUnit = uint8_t;
 /// @brief Defines a CRTP Transactable object for SPI transactions
 class Transaction : public jarnax::Transactable<Transaction, DefaultRetries> {
 public:
-    Transaction(jarnax::Timer const& timer)
+    /// @brief Constructor
+    /// @param timer The timer to use for timeouts
+    explicit Transaction(jarnax::Timer const& timer)
         : jarnax::Transactable<Transaction, DefaultRetries>{timer}
         , polarity{ClockPolarity::IdleLow}
         , phase{ClockPhase::ImmediateEdge}
@@ -88,9 +90,10 @@ public:
 
     /// @brief Removes the buffer from the transaction and returns it to the caller
     /// @return A container of the buffer
-    /// @post @ref Release() must be called to release the transaction
+    /// @post Release must be called to release the transaction buffer
     core::Buffer<DataUnit> Relinquish(void) { return std::move(buffer); }
 
+    /// @brief Clears the transaction to default values
     void Clear() {
         polarity = ClockPolarity::IdleLow;
         phase = ClockPhase::ImmediateEdge;

@@ -353,10 +353,10 @@ Hertz& GetClockFrequency();
 /// @brief Gets the system tick feeder clock frequency
 Hertz& GetSystemClockFrequency();
 
+/// @brief Initializes the system clocks based on the provided configuration
 namespace initialize {
 
-/// Initializes the Clock Tree, but with a family specific definition of the Clock Configuration
-/// @param external_input_clock_frequency The clock frequency of the external clock (if present)
+/// @brief Initializes the Clock Tree, but with a family specific definition of the Clock Configuration
 /// @param clkcfg The configuration of the clock for the system
 void clocks(ClockConfiguration const& clkcfg);
 
