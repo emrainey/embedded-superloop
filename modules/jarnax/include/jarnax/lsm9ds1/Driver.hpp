@@ -1,6 +1,9 @@
 #ifndef JARNAX_LSM9DS1_DRIVER_HPP
 #define JARNAX_LSM9DS1_DRIVER_HPP
 
+/// @file
+/// LSM9DS1 9-DOF IMU Driver
+
 #include <core/Units.hpp>
 #include <jarnax/Driver.hpp>
 #include "core/units/MicroSeconds.hpp"

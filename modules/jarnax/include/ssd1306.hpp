@@ -1,6 +1,9 @@
 #ifndef SDD1306_HPP
 #define SDD1306_HPP
 
+/// @file
+/// SSD1306 OLED Controller Register Definitions
+
 #include <cstddef>
 #include <cstdint>
 #include <limits>

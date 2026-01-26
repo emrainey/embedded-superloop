@@ -1,6 +1,9 @@
 #ifndef STM32_USART_DRIVER_HPP
 #define STM32_USART_DRIVER_HPP
 
+/// @file
+/// STM32 USART Driver Implementation
+
 #include <core/Allocator.hpp>
 #include <core/Buffer.hpp>
 #include <core/Statistician.hpp>

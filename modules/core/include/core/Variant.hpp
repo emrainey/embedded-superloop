@@ -1,6 +1,9 @@
 #ifndef CORE_VARIANT_HPP
 #define CORE_VARIANT_HPP
 
+/// @file
+/// Type-Safe Union (Variant) Implementation
+
 #include <cstddef>
 #include <cstdint>
 // #include <variant>

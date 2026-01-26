@@ -1,6 +1,9 @@
 #ifndef CORE_TIME_COUNTDOWN_HPP
 #define CORE_TIME_COUNTDOWN_HPP
 
+/// @file
+/// Countdown Timer Implementation
+
 #include "core/time/MonotonicClock.hpp"
 
 namespace core {
@@ -46,7 +49,7 @@ protected:
     mutable MicroSeconds delta_late_;
 };
 
-} // namespace time
-} // namespace core
+}    // namespace time
+}    // namespace core
 
-#endif // CORE_TIME_COUNTDOWN_HPP
+#endif    // CORE_TIME_COUNTDOWN_HPP

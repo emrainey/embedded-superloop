@@ -1,6 +1,9 @@
 #ifndef CORE_STATISTICIAN_HPP
 #define CORE_STATISTICIAN_HPP
 
+/// @file
+/// Statistics Tracking Mixin Class
+
 #include <cstdint>
 
 namespace core {

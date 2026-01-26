@@ -1,6 +1,9 @@
 #ifndef JARNAX_TIMER_HPP
 #define JARNAX_TIMER_HPP
 
+/// @file
+/// Timer Interface for Microsecond Timing
+
 #include "core/Units.hpp"
 
 namespace jarnax {

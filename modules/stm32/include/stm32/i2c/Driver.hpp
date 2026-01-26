@@ -1,5 +1,9 @@
 #ifndef STM32_I2C_DRIVER_HPP
 #define STM32_I2C_DRIVER_HPP
+
+/// @file
+/// STM32 I²C Driver Implementation
+
 #include "core/Buffer.hpp"
 #include "core/Units.hpp"
 #include "jarnax/i2c/Driver.hpp"

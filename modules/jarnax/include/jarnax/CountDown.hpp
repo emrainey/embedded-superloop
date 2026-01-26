@@ -1,6 +1,9 @@
 #ifndef JARNAX_COUNTDOWN_HPP
 #define JARNAX_COUNTDOWN_HPP
 
+/// @file
+/// Countdown Timer Implementation
+
 #include "core/Units.hpp"
 #include "jarnax/Timer.hpp"
 

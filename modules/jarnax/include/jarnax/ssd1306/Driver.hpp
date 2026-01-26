@@ -1,6 +1,9 @@
 #ifndef JARNAX_SSD1306_DRIVER_HPP
 #define JARNAX_SSD1306_DRIVER_HPP
 
+/// @file
+/// SSD1306 OLED Display Driver
+
 #include "jarnax/Loopable.hpp"
 #include "ssd1306.hpp"
 

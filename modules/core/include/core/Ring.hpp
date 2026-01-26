@@ -12,13 +12,13 @@
 
 namespace core {
 
-/// A simple non-overwriting Ring Template
+/// @brief A simple non-overwriting Ring Template
 /// @tparam TYPE The unit type
 /// @tparam COUNT The number of units in the Ring
 template <typename TYPE, std::size_t COUNT>
 class Ring final {
 public:
-    /// The value type of the Stack
+    /// The value type of the Ring
     using ValueType = TYPE;
     /// The pointer type to a ValueType
     using Pointer = TYPE*;

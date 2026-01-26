@@ -1,6 +1,9 @@
 #ifndef CORTEX_PROCESSOR_HPP_
 #define CORTEX_PROCESSOR_HPP_
 
+/// @file
+/// Cortex Processor Utilities
+
 #include <cortex/partnumber.hpp>
 #include <cortex/types.hpp>
 

@@ -1,6 +1,9 @@
 #ifndef STM32H7xXXX_HPP_
 #define STM32H7xXXX_HPP_
 
+/// @file
+/// STM32H7 Series Peripheral Definitions
+
 #include "stm32/stm32.hpp"
 ///=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 #include "stm32/peripherals/Debug.hpp"

@@ -1,6 +1,9 @@
 #ifndef TEST_CONTEXT_HPP_
 #define TEST_CONTEXT_HPP_
 
+/// @file
+/// Test Context for Unit Testing
+
 #include "jarnax/Context.hpp"
 
 namespace jarnax {

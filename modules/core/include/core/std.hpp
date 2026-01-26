@@ -1,6 +1,9 @@
 #ifndef CORE_STD_HPP
 #define CORE_STD_HPP
 
+/// @file
+/// Standard C++ Runtime Support look-a-likes for compiler compatibility
+
 #include <cstddef>
 #include <cstdint>
 

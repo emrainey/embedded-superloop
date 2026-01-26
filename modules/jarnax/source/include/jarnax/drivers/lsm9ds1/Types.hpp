@@ -1,6 +1,9 @@
 #ifndef JARNAX_DRIVERS_LSM9DS1_TYPES_HPP
 #define JARNAX_DRIVERS_LSM9DS1_TYPES_HPP
 
+/// @file
+/// LSM9DS1 Internal Type Definitions
+
 #include <cstdint>
 
 namespace jarnax {

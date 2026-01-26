@@ -1,6 +1,9 @@
 #ifndef GLACIAL_TIMER_HPP
 #define GLACIAL_TIMER_HPP
 
+/// @file
+/// Glacial Timer for Slow Time Testing
+
 #include "jarnax/Timer.hpp"
 
 namespace jarnax {

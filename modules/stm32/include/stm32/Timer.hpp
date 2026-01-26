@@ -1,6 +1,9 @@
 #ifndef STM32_TIMER_HPP
 #define STM32_TIMER_HPP
 
+/// @file
+/// STM32 Timer Driver Implementation
+
 #include "core/Conversions.hpp"
 #include "core/Status.hpp"
 #include "core/Units.hpp"

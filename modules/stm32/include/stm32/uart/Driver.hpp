@@ -1,6 +1,9 @@
 #ifndef STM32_UART_DRIVER_HPP
 #define STM32_UART_DRIVER_HPP
 
+/// @file
+/// STM32 UART Driver Implementation
+
 #include <core/Allocator.hpp>
 #include <core/Buffer.hpp>
 #include <core/Statistician.hpp>

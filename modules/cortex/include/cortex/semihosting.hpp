@@ -1,6 +1,9 @@
 #ifndef CORTEX_M_SEMIHOSTING_HPP
 #define CORTEX_M_SEMIHOSTING_HPP
 
+/// @file
+/// ARM Cortex-M Semihosting Interface
+
 #include <core/Span.hpp>
 #include <core/Units.hpp>
 

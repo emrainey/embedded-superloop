@@ -1,6 +1,9 @@
 #ifndef CORE_FRACTION_HPP
 #define CORE_FRACTION_HPP
 
+/// @file
+/// Fractional Number Representation
+
 #include <cstdint>
 #include <iostream>
 #include <type_traits>

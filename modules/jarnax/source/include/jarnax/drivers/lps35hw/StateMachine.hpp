@@ -1,6 +1,9 @@
 #ifndef LPS35HW_STATEMACHINE_HPP_
 #define LPS35HW_STATEMACHINE_HPP_
 
+/// @file
+/// LPS35HW Pressure Sensor State Machine Implementation
+
 #include <lps35hw.hpp>
 #include "core/StateMachine.hpp"
 #include "core/Status.hpp"

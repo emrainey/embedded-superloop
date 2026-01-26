@@ -1,6 +1,9 @@
 #ifndef STM32_INITIALIZE_HPP_
 #define STM32_INITIALIZE_HPP_
 
+/// @file
+/// STM32 Chip Initialization Functions
+
 /// The ST Micro 32 Namespace
 namespace stm32 {
 

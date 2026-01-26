@@ -1,6 +1,9 @@
 #ifndef CORE_SPLIT_HPP_
 #define CORE_SPLIT_HPP_
 
+/// @file
+/// Integer Bit Field Splitter
+
 #include "iso.hpp"
 
 namespace core {

@@ -1,6 +1,9 @@
 #ifndef JARNAX_USART_CONSOLE_HPP
 #define JARNAX_USART_CONSOLE_HPP
 
+/// @file
+/// USART Console Implementation
+
 #include <jarnax/console/Service.hpp>
 #include <jarnax/usart/Driver.hpp>
 

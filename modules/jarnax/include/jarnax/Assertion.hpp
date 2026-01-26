@@ -1,6 +1,9 @@
 #ifndef JARNAX_ASSERTION_HPP_
 #define JARNAX_ASSERTION_HPP_
 
+/// @file
+/// Runtime Assertion Macros
+
 #include "cortex/halt.hpp"
 #include "jarnax/print.hpp"
 

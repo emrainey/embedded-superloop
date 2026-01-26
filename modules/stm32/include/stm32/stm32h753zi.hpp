@@ -1,6 +1,9 @@
 #ifndef STM32H753ZI_HPP_
 #define STM32H753ZI_HPP_
 
+/// @file
+/// STM32H753ZI Chip-Specific Definitions
+
 #include "iso.hpp"
 #define STM32_HAS_FSMC 1
 #define STM32_HAS_ETHERNET 1

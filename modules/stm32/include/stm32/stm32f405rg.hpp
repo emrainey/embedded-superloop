@@ -1,6 +1,9 @@
 #ifndef STM32F405RG_HPP_
 #define STM32F405RG_HPP_
 
+/// @file
+/// STM32F405RG Chip-Specific Definitions
+
 #undef STM32_HAS_FSMC
 #undef STM32_HAS_ETHERNET
 #undef STM32_HAS_CAMERA

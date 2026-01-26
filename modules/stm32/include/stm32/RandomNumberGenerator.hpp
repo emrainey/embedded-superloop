@@ -1,6 +1,9 @@
 #ifndef STM32_RNG_H
 #define STM32_RNG_H
 
+/// @file
+/// STM32 Random Number Generator Driver
+
 #include "core/Status.hpp"
 #include "jarnax/Initializable.hpp"
 #include "jarnax/RandomNumberGenerator.hpp"

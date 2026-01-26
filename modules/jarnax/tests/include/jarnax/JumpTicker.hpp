@@ -1,6 +1,9 @@
 #ifndef JUMP_TICKER_HPP
 #define JUMP_TICKER_HPP
 
+/// @file
+/// Jump Ticker for Tick-Based Testing
+
 #include "configure.hpp"
 #include "core/Conversions.hpp"
 #include "jarnax/Ticker.hpp"

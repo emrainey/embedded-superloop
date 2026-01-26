@@ -1,6 +1,9 @@
 #ifndef GTEST_CORE_STATUS_HPP
 #define GTEST_CORE_STATUS_HPP
 
+/// @file
+/// GoogleTest Assertions for core::Status
+
 #include <gtest/gtest.h>
 
 // =======================================================

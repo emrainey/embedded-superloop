@@ -1,3 +1,6 @@
+/// @file
+/// GoogleMock LPS35HW Callback
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include "jarnax/drivers/lps35hw/StateMachine.hpp"

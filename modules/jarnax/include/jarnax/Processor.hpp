@@ -1,6 +1,9 @@
 #ifndef JARNAX_PROCESSOR_HPP_
 #define JARNAX_PROCESSOR_HPP_
 
+/// @file
+/// Processor Information and Utilities
+
 #include <core/Units.hpp>
 #include <cortex/partnumber.hpp>
 #include "cortex/tick.hpp"

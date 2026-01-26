@@ -1,6 +1,9 @@
 #ifndef JARNAX_DRIVERS_LSM9DS1_StateChart_HPP
 #define JARNAX_DRIVERS_LSM9DS1_StateChart_HPP
 
+/// @file
+/// LSM9DS1 IMU State Chart Implementation
+
 #include <core/StateChart.hpp>
 #include <core/Status.hpp>
 #include <cstdint>

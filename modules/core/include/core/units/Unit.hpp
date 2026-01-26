@@ -1,6 +1,9 @@
 #ifndef CORE_UNITS_UNIT_HPP
 #define CORE_UNITS_UNIT_HPP
 
+/// @file
+/// Strongly-Typed Unit System Base
+
 #include <cstdint>
 #include <type_traits>
 

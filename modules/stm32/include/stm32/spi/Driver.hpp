@@ -1,6 +1,9 @@
 #ifndef STM32_SPI_DRIVER_HPP
 #define STM32_SPI_DRIVER_HPP
 
+/// @file
+/// STM32 SPI Driver Implementation
+
 #include "core/Array.hpp"
 #include "core/Units.hpp"
 #include "jarnax/spi/Driver.hpp"

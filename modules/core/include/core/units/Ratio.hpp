@@ -1,6 +1,9 @@
 #ifndef CORE_RATIO_HPP
 #define CORE_RATIO_HPP
 
+/// @file
+/// Unit Ratio Types and Operations
+
 #include <core/units/Unit.hpp>
 
 namespace core {

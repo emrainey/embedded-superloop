@@ -1,6 +1,9 @@
 #ifndef STM32_DMA_MANAGER_HPP
 #define STM32_DMA_MANAGER_HPP
 
+/// @file
+/// STM32 DMA Manager Implementation
+
 #include <jarnax/Copier.hpp>
 #include <jarnax/dma/Manager.hpp>
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

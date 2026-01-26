@@ -1,6 +1,9 @@
 #ifndef CORE_HAYES_TOKENIZER_HPP
 #define CORE_HAYES_TOKENIZER_HPP
 
+/// @file
+/// Hayes Command Tokenizer
+
 #include "core/Span.hpp"
 #include "core/Statistician.hpp"
 #include "memory.hpp"

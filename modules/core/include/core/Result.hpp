@@ -1,6 +1,9 @@
 #ifndef CORE_RESULT_HPP
 #define CORE_RESULT_HPP
 
+/// @file
+/// Result Type for Error Handling
+
 #include <core/EnumType.hpp>
 #include <cstdint>
 

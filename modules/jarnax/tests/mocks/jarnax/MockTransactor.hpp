@@ -1,6 +1,9 @@
 #ifndef JARNAX_MOCK_TRANSACTOR_HPP_
 #define JARNAX_MOCK_TRANSACTOR_HPP_
 
+/// @file
+/// GoogleMock Transaction Executor
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

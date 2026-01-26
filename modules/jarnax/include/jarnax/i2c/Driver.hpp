@@ -1,6 +1,9 @@
 #ifndef JARNAX_I2C_DRIVER_HPP
 #define JARNAX_I2C_DRIVER_HPP
 
+/// @file
+/// Abstract I²C Driver Interface
+
 #include <cstdint>
 #include "compiler.hpp"
 #include "core/Buffer.hpp"

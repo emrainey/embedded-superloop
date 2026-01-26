@@ -1,6 +1,9 @@
 #ifndef JARNAX_DMA_MOCK_MANAGER_HPP
 #define JARNAX_DMA_MOCK_MANAGER_HPP
 
+/// @file
+/// GoogleMock DMA Manager
+
 #include <cortex/Peripheral.hpp>
 #include <jarnax/dma/Manager.hpp>
 #include <jarnax/dma/Resource.hpp>

@@ -1,6 +1,9 @@
 #ifndef JARNAX_CUSTOMIZE_HPP_
 #define JARNAX_CUSTOMIZE_HPP_
 
+/// @file
+/// Jarnax Customization Points
+
 namespace jarnax {
 /// @brief Prints a banner to the console. Customize this.
 void banner(void);

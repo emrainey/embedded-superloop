@@ -1,6 +1,9 @@
 #ifndef JARNAX_MONITOR_HPP
 #define JARNAX_MONITOR_HPP
 
+/// @file
+/// Monitor Interface for State Observation
+
 #include "core/Status.hpp"
 #include "jarnax/CountDown.hpp"
 #include "jarnax/Indicator.hpp"

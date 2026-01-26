@@ -1,6 +1,9 @@
 #ifndef LPS35HW_DRIVER_HPP_
 #define LPS35HW_DRIVER_HPP_
 
+/// @file
+/// LPS35HW Driver Internal Implementation
+
 #include <core/Buffer.hpp>
 #include <core/Units.hpp>
 #include "jarnax/drivers/lps35hw/StateMachine.hpp"
@@ -21,7 +24,7 @@ public:
     /// @param allocator The Allocator to use for the buffer.
     Driver(jarnax::Timer const& timer, core::units::Iota duration, jarnax::spi::Driver& spi, core::Allocator& allocator);
     ~Driver() = default;
-    
+
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // jarnax::lps35hw::Driver
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

@@ -1,6 +1,9 @@
 #ifndef JARNAX_GPIO_INPUT_HPP
 #define JARNAX_GPIO_INPUT_HPP
 
+/// @file
+/// GPIO Input Interface
+
 #include <cstddef>
 #include <cstdint>
 

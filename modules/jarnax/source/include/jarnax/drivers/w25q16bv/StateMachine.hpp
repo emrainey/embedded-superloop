@@ -1,6 +1,9 @@
 #ifndef JARNAX_W25Q16BV_STATE_MACHINE_HPP
 #define JARNAX_W25Q16BV_STATE_MACHINE_HPP
 
+/// @file
+/// W25Q16BV Flash State Machine Implementation
+
 #include "core/StateMachine.hpp"
 #include "core/Status.hpp"
 #include "w25q16bv.hpp"

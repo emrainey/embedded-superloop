@@ -1,6 +1,9 @@
 #ifndef JARNAX_DMA_RESOURCE_HPP
 #define JARNAX_DMA_RESOURCE_HPP
 
+/// @file
+/// DMA Resource Abstraction
+
 #include <type_traits>
 #include "core/Span.hpp"
 #include "core/Status.hpp"

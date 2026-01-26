@@ -38,7 +38,7 @@ struct DebugSystem final {
             std::uint32_t reset                 : 1U;
             std::uint32_t                       : 6U;    ///< Reserved field
         };
-        /// @brief Write-only fields of the Debug Halting Control register  
+        /// @brief Write-only fields of the Debug Halting Control register
         struct Write final {
             std::uint32_t     : 16U;    ///< Reserved field
             std::uint32_t key : 16U;

@@ -1,6 +1,9 @@
 #ifndef JARNAX_SPI_DRIVER_HPP
 #define JARNAX_SPI_DRIVER_HPP
 
+/// @file
+/// Abstract SPI Driver Interface
+
 #include "core/Buffer.hpp"
 #include "jarnax/Coordinator.hpp"
 #include "jarnax/Transactable.hpp"

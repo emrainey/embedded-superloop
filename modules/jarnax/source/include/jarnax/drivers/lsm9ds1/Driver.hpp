@@ -1,6 +1,9 @@
 #ifndef JARNAX_DRIVERS_LSM9DS1_DRIVER_HPP
 #define JARNAX_DRIVERS_LSM9DS1_DRIVER_HPP
 
+/// @file
+/// LSM9DS1 Driver Internal Implementation
+
 #include <core/Buffer.hpp>
 #include <core/Statistician.hpp>
 #include <jarnax/lsm9ds1/Driver.hpp>

@@ -1,6 +1,9 @@
 #ifndef JARNAX_DMA_MANAGER_HPP
 #define JARNAX_DMA_MANAGER_HPP
 
+/// @file
+/// Abstract DMA Manager Interface
+
 #include "core/Span.hpp"
 #include "core/Status.hpp"
 #include "jarnax/dma/Resource.hpp"

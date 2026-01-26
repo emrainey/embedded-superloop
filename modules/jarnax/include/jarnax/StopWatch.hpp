@@ -1,6 +1,9 @@
 #ifndef JARNAX_STOPWATCH_HPP
 #define JARNAX_STOPWATCH_HPP
 
+/// @file
+/// StopWatch Utility for Timing Measurements
+
 #include "core/Units.hpp"
 #include "jarnax/Timer.hpp"
 

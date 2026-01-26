@@ -1,6 +1,9 @@
 #ifndef JUMP_CLOCK_HPP
 #define JUMP_CLOCK_HPP
 
+/// @file
+/// Jump Clock for Time-Based Testing
+
 #include "core/time/MonotonicClock.hpp"
 
 namespace core {

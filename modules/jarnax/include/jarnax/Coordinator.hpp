@@ -1,6 +1,9 @@
 #ifndef JARNAX_COORDINATOR_HPP
 #define JARNAX_COORDINATOR_HPP
 
+/// @file
+/// Transaction Coordinator for Asynchronous Operations
+
 #include <cstddef>
 #include "core/Ring.hpp"
 #include "core/StateMachine.hpp"

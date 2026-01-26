@@ -1,6 +1,9 @@
 #ifndef W25Q16BV_HPP
 #define W25Q16BV_HPP
 
+/// @file
+/// W25Q16BV Flash Memory Register Definitions
+
 #include <cstddef>
 #include <cstdint>
 

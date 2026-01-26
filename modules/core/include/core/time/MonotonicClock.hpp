@@ -1,6 +1,9 @@
 #ifndef CORE_TIME_HPP
 #define CORE_TIME_HPP
 
+/// @file
+/// Monotonic Clock Interface
+
 #include <core/units/MicroSeconds.hpp>
 
 namespace core {
@@ -17,12 +20,13 @@ public:
     /// @note If not adjusted, this time is based on the system clock and is a "time since boot"
     /// @return The current time in microseconds since Epoch if adjusted.
     virtual MicroSeconds Now() const = 0;
+
 protected:
     virtual ~MonotonicClock() = default;
 };
 
-} // namespace time
+}    // namespace time
 
-} // namespace core
+}    // namespace core
 
-#endif // CORE_TIME_HPP
+#endif    // CORE_TIME_HPP

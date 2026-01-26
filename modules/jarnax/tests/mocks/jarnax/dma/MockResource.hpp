@@ -1,6 +1,9 @@
 #ifndef JARNAX_MOCK_RESOURCE_HPP_
 #define JARNAX_MOCK_RESOURCE_HPP_
 
+/// @file
+/// GoogleMock DMA Resource
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

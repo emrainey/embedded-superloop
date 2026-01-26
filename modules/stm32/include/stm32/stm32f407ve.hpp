@@ -1,6 +1,9 @@
 #ifndef STM32F407VE_HPP_
 #define STM32F407VE_HPP_
 
+/// @file
+/// STM32F407VE Chip-Specific Definitions
+
 #define STM32_HAS_FSMC 1
 #define STM32_HAS_ETHERNET 1
 #define STM32_HAS_CAMERA 1

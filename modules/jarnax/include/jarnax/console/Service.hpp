@@ -1,6 +1,9 @@
 #ifndef JARNAX_CONSOLE_HPP
 #define JARNAX_CONSOLE_HPP
 
+/// @file
+/// Console Service Interface
+
 #include <core/Ring.hpp>
 #include <cstdint>
 #include <jarnax/Loopable.hpp>

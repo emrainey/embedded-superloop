@@ -1,6 +1,9 @@
 #ifndef STM32F40XXX_HPP_
 #define STM32F40XXX_HPP_
 
+/// @file
+/// STM32F40xxx Series Peripheral Definitions
+
 #include "stm32/stm32.hpp"
 ///=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 #include "stm32/peripherals/Debug.hpp"

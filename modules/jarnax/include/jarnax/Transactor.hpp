@@ -1,6 +1,9 @@
 #ifndef JARNAX_TRANSACTOR_HPP
 #define JARNAX_TRANSACTOR_HPP
 
+/// @file
+/// Transaction Execution Interface
+
 #include <cstddef>
 #include "core/StateMachine.hpp"
 #include "jarnax/Timer.hpp"

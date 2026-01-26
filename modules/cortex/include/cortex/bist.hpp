@@ -1,6 +1,9 @@
 #ifndef CORTEX_BIST_HPP_
 #define CORTEX_BIST_HPP_
 
+/// @file
+/// Built-In Self Test (BIST) Framework
+
 #include <cstdint>
 
 namespace cortex {

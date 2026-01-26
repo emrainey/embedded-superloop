@@ -1,6 +1,9 @@
 #ifndef CORE_FOLDS_HPP_
 #define CORE_FOLDS_HPP_
 
+/// @file
+/// Variadic Template Fold Operations
+
 #include <cstddef>
 #include <cstdint>
 

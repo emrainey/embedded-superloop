@@ -1,6 +1,9 @@
 #ifndef CORE_INTERVALS_HPP
 #define CORE_INTERVALS_HPP
 
+/// @file
+/// Interval Mathematics and Operations
+
 #include <cstddef>
 #include <cstdint>
 #include <limits>

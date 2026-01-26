@@ -1,6 +1,9 @@
 #ifndef CORE_AVL_NODE_HPP
 #define CORE_AVL_NODE_HPP
 
+/// @file
+/// AVL Tree Node Implementation
+
 #include "compiler.hpp"
 #include "polyfill.hpp"
 

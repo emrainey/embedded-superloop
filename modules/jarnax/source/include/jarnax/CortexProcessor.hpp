@@ -1,6 +1,9 @@
 #ifndef JARNAX_INTERNAL_PROCESSOR_HPP_
 #define JARNAX_INTERNAL_PROCESSOR_HPP_
 
+/// @file
+/// Cortex-M Processor Implementation
+
 #include "jarnax/Processor.hpp"
 
 namespace jarnax {

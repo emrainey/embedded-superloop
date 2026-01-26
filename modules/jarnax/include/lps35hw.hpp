@@ -1,6 +1,9 @@
 #ifndef LPS35HW_HPP_
 #define LPS35HW_HPP_
 
+/// @file
+/// LPS35HW Pressure Sensor Register Definitions
+
 #include <core/Split.hpp>
 #include <core/Units.hpp>
 #include "core/units/MilliSeconds.hpp"

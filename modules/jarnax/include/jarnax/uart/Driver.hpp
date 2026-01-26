@@ -1,6 +1,9 @@
 #ifndef JARNAX_UART_DRIVER_HPP
 #define JARNAX_UART_DRIVER_HPP
 
+/// @file
+/// Abstract UART Driver Interface
+
 #include "core/Span.hpp"
 #include "core/Status.hpp"
 #include "jarnax/Driver.hpp"
