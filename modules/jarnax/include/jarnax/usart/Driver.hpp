@@ -10,6 +10,10 @@ namespace jarnax {
 /// @brief The USART Namespace
 namespace usart {
 
+/// @brief Abstract USART driver interface
+/// @details Provides a hardware-independent interface for USART (Universal Synchronous/Asynchronous
+/// Receiver/Transmitter) communication. This interface supports configuration, data transmission,
+/// and reception through queue-based operations, suitable for asynchronous state-machine driven implementations.
 class Driver : public jarnax::Driver {
 public:
     /// The data unit of the UART Driver

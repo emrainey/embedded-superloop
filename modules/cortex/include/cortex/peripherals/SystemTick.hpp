@@ -12,6 +12,8 @@ namespace peripherals {
 /// The System Tick Registers
 struct SystemTick final {
     /// The Control Status Register
+    /// @brief System Timer Control and Status Register
+    /// @details Controls the SysTick timer operation and reports its status
     struct ControlStatus final {
         ControlStatus()
             : whole{0} {}
@@ -19,6 +21,7 @@ struct SystemTick final {
             : whole{other.whole} {}
         ControlStatus(ControlStatus volatile& other)
             : whole{other.whole} {}
+        /// @brief Bit field layout for the Control and Status register
         struct Fields final {
             std::uint32_t enable              : 1U;
             std::uint32_t interrupt           : 1U;
@@ -34,6 +37,8 @@ struct SystemTick final {
         void operator=(ControlStatus const& other) volatile { whole = other.whole; }
         void operator=(ControlStatus volatile& other) { whole = other.whole; }
     };
+    /// @brief System Timer Reload Value Register
+    /// @details Specifies the reload value for the SysTick counter
     struct Reload final {
         Reload()
             : whole{0} {}
@@ -41,6 +46,7 @@ struct SystemTick final {
             : whole{other.whole} {}
         Reload(Reload volatile& other)
             : whole{other.whole} {}
+        /// @brief Bit field layout for the Reload register
         struct Fields final {
             std::uint32_t value : 24U;    ///< The value that is reloaded into the current value
             std::uint32_t       : 8U;     ///< Reserved field
@@ -60,6 +66,7 @@ struct SystemTick final {
             : whole{other.whole} {}
         Calibration(Calibration volatile& other)
             : whole{other.whole} {}
+        /// @brief Bit field layout for the Calibration register
         struct Fields final {
             std::uint32_t ten_millisecond_count : 24U;    ///< The number of reference clocks per 10ms
             std::uint32_t                       : 6U;     ///< Reserved field

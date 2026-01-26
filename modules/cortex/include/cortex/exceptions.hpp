@@ -134,6 +134,7 @@ static_assert(sizeof(ExtendedFrame) == 0x64U, "Must be this size exactly");
 struct ExceptionReturn final {
     constexpr ExceptionReturn()
         : whole{0xFF'FF'FF'E1UL} {}
+    /// The bit fields of the Exception Return value
     struct Fields final {
         std::uint32_t              : 2U;     ///< Reserved
         cortex::modes::Stack stack : 1U;     ///< Chooses between Main (0) and Process (1) Stack
@@ -142,10 +143,13 @@ struct ExceptionReturn final {
         std::uint32_t              : 20U;    ///< Reserved
         std::uint32_t top          : 4U;     ///< Used to check if the value is a valid exception return
     };
+    // === MEMORY LAYOUT ===
+    /// The union of the fields and the whole value
     union {
         Fields parts;
         std::uint32_t whole;
     };
+    // === MEMORY LAYOUT ===
 
     /// Indicates if a ExceptionReturn is a valid type of return.
     /// @see armv7-m architecture manual

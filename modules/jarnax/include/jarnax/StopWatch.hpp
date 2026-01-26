@@ -6,6 +6,7 @@
 
 namespace jarnax {
 
+/// @brief A simple StopWatch utility to measure elapsed time between Start and Stop calls.
 class StopWatch {
 public:
     /// @brief The Parameter Constructor

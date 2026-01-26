@@ -29,6 +29,9 @@ struct Statistics {
     uint32_t bytes_transmitted{0U};           ///< The number of bytes transmitted
 };
 
+/// @brief STM32 USART peripheral driver implementation
+/// @details Provides DMA-enabled USART communication for STM32 microcontrollers.
+/// Implements the jarnax::usart::Driver interface with STM32-specific hardware control.
 class Driver final : public jarnax::usart::Driver, public core::Statistician<Statistics> {
 public:
     /// @brief Constructor

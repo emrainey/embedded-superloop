@@ -9,6 +9,9 @@
 
 namespace stm32 {
 namespace spi {
+/// @brief STM32 SPI peripheral driver implementation
+/// @details Provides DMA-enabled SPI master communication for STM32 microcontrollers.
+/// Implements the jarnax::spi::Driver interface with STM32-specific hardware control.
 class Driver : public jarnax::spi::Driver, private jarnax::spi::Transactor {
 public:
     /// @brief Constructor
@@ -36,6 +39,8 @@ public:
     core::Status Check(jarnax::spi::Transaction& transaction) override;
     core::Status Cancel(jarnax::spi::Transaction& transaction) override;
 
+    /// @brief SPI driver statistics and diagnostic counters
+    /// @details Tracks operational metrics, error conditions, and transfer counts for debugging and monitoring
     struct Statistics {
         std::size_t interrupts{0U};                  ///< The number of interrupts handled
 

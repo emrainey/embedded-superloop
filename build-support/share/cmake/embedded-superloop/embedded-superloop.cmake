@@ -306,13 +306,13 @@ function(add_doxygen_target)
         set(DOXYGEN_IMAGE_PATH "documentation/images")
 
         file(GLOB SUBDIRS LIST_DIRECTORIES true RELATIVE ${CMAKE_SOURCE_DIR} "modules/*")
+        # message(STATUS "Searching from ${CMAKE_SOURCE_DIR}/modules found ${SUBDIRS} modules for documentation")
         foreach(_mod IN LISTS SUBDIRS)
-            file(GLOB_RECURSE _MOD_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/modules/${_mod}/include/**/*.hpp)
+            file(GLOB_RECURSE _MOD_INCLUDES ${CMAKE_SOURCE_DIR}/${_mod}/include/**/*.hpp)
             list(APPEND DOXYGEN_INCLUDES ${_MOD_INCLUDES})
-            file(GLOB_RECURSE _MOD_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/modules/${_mod}/source/*.cpp)
+            file(GLOB_RECURSE _MOD_SOURCES ${CMAKE_SOURCE_DIR}/${_mod}/source/**/*.cpp)
             list(APPEND DOXYGEN_SOURCES ${_MOD_SOURCES})
         endforeach()
-
         # message(STATUS "DOXYGEN_INCLUDES=${DOXYGEN_INCLUDES}")
         # message(STATUS "DOXYGEN_SOURCES=${DOXYGEN_SOURCES}")
         doxygen_add_docs(docs

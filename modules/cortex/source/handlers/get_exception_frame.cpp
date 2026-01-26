@@ -5,6 +5,7 @@ namespace cortex {
 
 /// The local copy of the Frame Data which is copied from the stack upon exception.
 LINKER_SECTION(".privileged_data") cortex::exceptions::ExtendedFrame exception_frame;
+/// The indicator if the frame is a basic frame or an extended frame
 LINKER_SECTION(".privileged_data") bool is_basic_frame;
 
 namespace handlers {

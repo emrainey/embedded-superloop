@@ -44,6 +44,7 @@ using CacheInformation = peripherals::CacheInformation;
 
 /// The Data and Instruction Cache Control Register (DCIMVAC, DCCMVAC, DCCSW, DCCISW, ICIALLU, ICIMVAU, DCIMVAC, DCISW)
 struct DataAndInstructionCacheControl final {
+    /// The Set-Way structure for cache operations
     struct SetWay {
         std::uint32_t  : 5;     // bits 0:4
         uint32_t way   : 9;     // bits 5:13
@@ -73,6 +74,7 @@ extern DataAndInstructionCacheControl volatile data_and_instruction_cache_contro
 /// The Auxiliary Control Register (ACTLR) is outside the System Control Block (SCB)
 /// @warning Only use these if you know EXACTLY what you are doing!
 struct AuxiliaryControl final {
+    /// The bit fields of the Auxiliary Control Register
     struct Fields final {
         std::uint32_t                                               : 2U;    // Reserved
         std::uint32_t                                               : 1U;    // DISFOLD (0==Normal)
@@ -99,14 +101,17 @@ struct AuxiliaryControl final {
         std::uint32_t                                               : 1U;    // DISFPUISSOPT (0=Normal)
         std::uint32_t                                               : 3U;
     };
+    // === MEMORY LAYOUT ===
     union {
         Fields bits;
         std::uint32_t whole;
     };
+    // === MEMORY LAYOUT ===
 };
 
 /// Auxiliary Bus Fault Status Register (ABFSR) bitfield
 struct AuxiliaryBusFaultStatus final {
+    /// The bit fields of the Auxiliary Bus Fault Status Register
     struct Fields {
         std::uint32_t itcm     : 1U;     ///< Bit 0: ITCM Fault
         std::uint32_t dtcm     : 1U;     ///< Bit 1: DTCM Fault
@@ -117,11 +122,12 @@ struct AuxiliaryBusFaultStatus final {
         std::uint32_t aximtype : 2U;     ///< Bits 8-9: AXIM Type
         std::uint32_t          : 22U;    ///< Bits 10-31: Reserved
     };
-
+    // === MEMORY LAYOUT ===
     union {
         Fields bits;            ///< Access the individual bits of the register
         std::uint32_t whole;    ///< Access the whole 32 bits as a single value
     };
+    // === MEMORY LAYOUT ===
 };
 
 /// Each bit maps to an (AFSR) bit somewhere in the documentation.

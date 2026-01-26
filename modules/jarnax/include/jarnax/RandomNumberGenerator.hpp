@@ -9,6 +9,7 @@
 
 namespace jarnax {
 
+/// @brief The Random Number Generator Interface
 class RandomNumberGenerator {
 public:
     /// Returns a random 32 bit number.

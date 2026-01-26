@@ -7,6 +7,9 @@
 namespace cortex {
 namespace peripherals {
 
+/// @brief Tightly Coupled Memory (TCM) control register
+/// @details Represents the TCM configuration register in ARM Cortex-M processors.
+/// TCM provides low-latency memory directly coupled to the processor for performance-critical code and data.
 struct TightlyCoupledMemory final {
     TightlyCoupledMemory()
         : whole{0} {}
@@ -14,6 +17,7 @@ struct TightlyCoupledMemory final {
         : whole{other.whole} {}
     TightlyCoupledMemory(TightlyCoupledMemory volatile& other)
         : whole{other.whole} {}
+    /// @brief Bit field layout for the TCM control register
     struct Fields {
         std::uint32_t enable            : 1;     ///< Enable the TCM
         std::uint32_t read_modify_write : 1;     ///< Enable Read-Modify-Write for modifications which are not unit sized.

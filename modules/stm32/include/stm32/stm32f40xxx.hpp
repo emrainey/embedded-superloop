@@ -273,6 +273,10 @@ static_assert(ADC1 == ADC1, "Must be this value exactly");
 static_assert((TIM8_CH1 | TIM8_CH2) == TIM8_CH1, "Must be this value exactly");
 static_assert((TIM8_CH1 | TIM8_CH2 | TIM8_CH3) == TIM8_CH1, "Must be this value exactly");
 
+/// @brief STM32F40xxx clock tree configuration
+/// @details Holds the configured frequencies for all clock domains in the STM32F40xxx series.
+/// These values are typically set during system initialization and used throughout the system
+/// to calculate timing parameters for peripherals.
 // The STM32F40xx Clock Tree frequencies
 struct ClockTree {
     Hertz low_speed_internal;

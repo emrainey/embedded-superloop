@@ -10,6 +10,10 @@ namespace jarnax {
 /// @brief The UART Namespace
 namespace uart {
 
+/// @brief Abstract UART driver interface
+/// @details Provides a hardware-independent interface for UART (Universal Asynchronous Receiver/Transmitter)
+/// communication. This interface supports configuration, data transmission, and reception through queue-based
+/// operations, suitable for asynchronous state-machine driven implementations.
 class Driver : public jarnax::Driver {
 public:
     /// The data unit of the UART Driver

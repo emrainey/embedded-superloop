@@ -60,6 +60,8 @@ struct MemoryProtectionUnit {
         void operator=(Control volatile& other) volatile { whole = other.whole; }
     };
 
+    /// @brief Memory Protection Unit Region Number Register
+    /// @details Selects which MPU region to configure
     /// The Region Register
     struct Region final {
         Region()
@@ -67,6 +69,7 @@ struct MemoryProtectionUnit {
         /// Copy Constructor
         Region(Region volatile& other)
             : whole{other.whole} {}
+        /// @brief Bit field layout for the Region Number register
         struct Fields final {
             std::uint32_t number : 8U;     ///< The region value. @see MPU_RNR
             std::uint32_t        : 24U;    ///< Reserved field
@@ -109,6 +112,7 @@ struct MemoryProtectionUnit {
         /// Write Only Operator
         void operator=(BaseAddress volatile& other) { whole = other.whole; }
 
+        /// @brief Bit field layout for the Region Base Address register
         struct Fields final {
             AddressType region  : 4U;
             AddressType valid   : 1U;

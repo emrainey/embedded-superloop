@@ -21,13 +21,17 @@ public:
     virtual ~Empty() = default;
 };
 
+/// This functor writes the 24-bit address into the data buffer.
 class Addresser : public Functor {
 public:
+    /// @brief The Parameterized Constructor
+    /// @param address The address to write into the buffer
     Addresser(::w25q16bv::Address& address)
         : address_{address} {}
 
     virtual ~Addresser() = default;
 
+    /// @brief Writes the 24-bit address into the data buffer.
     void operator()(core::Span<uint8_t>& data) override {
         // instruction goes into data[0U]
         data[1U] = address_.address[0U];
@@ -36,13 +40,15 @@ public:
     }
 
 protected:
-    ::w25q16bv::Address address_;
+    ::w25q16bv::Address address_;    ///< The address to write into the buffer
 };
 
+/// This functor writes the Reset Device instruction into the data buffer.
 class Reseter : public Functor {
 public:
     virtual ~Reseter() = default;
 
+    /// @brief Writes the Reset Device instruction into the data buffer.
     void operator()(core::Span<uint8_t>& data) override {
         // instruction goes into data[0U]
         data[1U] = to_underlying(::w25q16bv::Instruction::ResetDevice);

@@ -121,6 +121,7 @@ int32_t Errno();
 /// @return The command line given to the Debugger to hand off to the program
 uint32_t GetCommandLine(core::Span<char> buffer);
 
+/// @brief Information about the heap and stack blocks
 struct BlockInfo {
     uint32_t heap_base;
     uint32_t heap_limit;
@@ -128,6 +129,7 @@ struct BlockInfo {
     uint32_t stack_limit;
 };
 
+/// @param[out] info The block information to fill in
 void HeapInfo(BlockInfo*& info);
 
 /// @param[out] ticks the elapsed ticks since the system started.

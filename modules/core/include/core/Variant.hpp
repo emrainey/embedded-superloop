@@ -88,6 +88,9 @@ struct type_index_mapper<T, type_list<U, TYPES...>> {
 template <typename T, typename... TYPES>
 struct is_variant_alternative : false_type {};
 
+/// Specialization when the type is found in the variant's type list
+/// @tparam T The type to check
+/// @tparam ...TYPES The variant's type list
 template <typename T, typename... TYPES>
 struct is_variant_alternative<T, type_list<TYPES...>> {
     static constexpr bool value = any(same_type<T, TYPES>::value...);

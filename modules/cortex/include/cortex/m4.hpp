@@ -39,6 +39,7 @@ struct CentralProcessingUnitIdentification final {
 
 /// The Auxiliary Control Register (ACTLR) is outside the System Control Block (SCB)
 struct AuxiliaryControl final {
+    /// The bit fields of the Auxiliary Control Register
     struct Fields final {
         std::uint32_t disable_interruption_multicycle_instructions : 1U;
         std::uint32_t disable_write_buffer_default_memory_map      : 1U;
@@ -48,10 +49,12 @@ struct AuxiliaryControl final {
         std::uint32_t disable_lazy_stacking_float_context          : 1U;
         std::uint32_t                                              : 21U;
     };
+    // === MEMORY LAYOUT ===
     union {
         Fields bits;
         std::uint32_t whole;
     };
+    // === MEMORY LAYOUT ===
 };
 
 /// Each bit maps to an (AFSR) bit somewhere in the documentation.

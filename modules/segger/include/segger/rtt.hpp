@@ -70,6 +70,8 @@ protected:
     SizeType size_{0U};
     SizeType volatile write_offset_{0u};
     SizeType volatile read_offset_{0u};
+    /// @brief RTT buffer operation mode flags
+    /// @details Controls buffer behavior when full or when read/write operations are attempted
     struct Flags {
         enum class Mode : uint32_t {
             NoBlockSkip = 0U,
@@ -94,10 +96,12 @@ static_assert(sizeof(BufferInfo) == 24U, "Must be exactly this size on 32 bit");
 
 static constexpr size_t kIndexBits{4u};
 
+/// @brief Index into RTT buffer arrays
+/// @details Provides a compact index representation for accessing RTT up/down buffers
 struct Index {
     Index(uint32_t i)
         : index{i & 0xF} {}
-    uint32_t index : kIndexBits;
+    uint32_t index : kIndexBits;    ///< Buffer index (0-15)
     uint32_t       : 32U - kIndexBits;
 };
 

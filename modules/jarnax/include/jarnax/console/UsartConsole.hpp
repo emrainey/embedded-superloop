@@ -7,19 +7,23 @@
 namespace jarnax {
 namespace console {
 
+/// @brief A Console Service which uses a USART Driver for output
 class UsartConsole : public jarnax::console::Service {
 public:
-    UsartConsole(jarnax::usart::Driver& driver);
+    /// The Parameterized Constructor
+    /// @param driver The USART Driver to use for output
+    explicit UsartConsole(jarnax::usart::Driver& driver);
 
+    // === Overrides ===
     void Print(Level level, char const fmt[], ...) override;
     bool Execute(void) override;
 
 protected:
-    jarnax::usart::Driver& driver_;
-    char buffer_[OutputLength];
+    jarnax::usart::Driver& driver_;    ///< The reference to the USART Driver
+    char buffer_[OutputLength];        ///< The internal buffer for formatted output
 };
 
 }    // namespace console
 }    // namespace jarnax
 
-#endif    //
+#endif    // JARNAX_USART_CONSOLE_HPP

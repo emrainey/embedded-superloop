@@ -22,26 +22,31 @@ using DataUnit = uint8_t;
 
 /// @brief The I2C Address structure
 union Address {
+    /// Default Constructor
     constexpr Address()
         : whole{0U} {}
+    /// Small address format constructor
     constexpr Address(std::uint8_t addr)
         : whole{addr} {
         small.read = 0U;                // Default to write
         small.address = addr & 0x7F;    // Mask to 7 bits
         small.is_large = 0U;            // Default to small address
     }
+    /// Large address format constructor
     constexpr Address(std::uint16_t addr)
         : whole{addr} {
         large.read = 0U;                 // Default to write
         large.address = addr & 0x3FF;    // Mask to 10 bits
         large.is_large = 1U;             // Default to large address
     }
+    /// Small address format
     struct small {
         std::uint8_t read     : 1;    ///< Indicates if the transaction is a read (1) or write (0)
         std::uint8_t address  : 7;    ///< The 7-bit I2C address of the device to communicate with
         std::uint8_t          : 7;    ///< Reserved and unused
         std::uint8_t is_large : 1;    ///< Indicates if the address is large (1) or small (0)
     } small;
+    /// Large address format
     struct large {
         std::uint16_t read     : 1;     ///< Indicates if the transaction is a read (1) or write (0)
         std::uint16_t address  : 10;    ///< The 10-bit I2C address of the device to communicate with

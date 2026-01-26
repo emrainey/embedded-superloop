@@ -8,6 +8,9 @@
 
 namespace stm32 {
 namespace i2c {
+/// @brief STM32 I²C peripheral driver implementation
+/// @details Provides DMA-enabled I²C master communication for STM32 microcontrollers.
+/// Implements the jarnax::i2c::Driver interface with STM32-specific hardware control.
 class Driver final : public jarnax::i2c::Driver, private jarnax::i2c::Transactor {
 public:
     /// @brief Constructor
@@ -32,7 +35,10 @@ public:
     core::Status Check(jarnax::i2c::Transaction &transaction) override;
     core::Status Cancel(jarnax::i2c::Transaction &transaction) override;
 
+    /// @brief I²C driver statistics and diagnostic counters
+    /// @details Tracks operational metrics, error conditions, and event counts for debugging and monitoring
     struct Statistics {
+        /// @brief Error counters for I²C bus failures
         struct Errors {
             size_t bus{0U};                  ///< The number of bus errors encountered
             size_t arbitration_lost{0U};     ///< The number of times arbitration was lost
@@ -42,6 +48,7 @@ public:
             size_t timeout{0U};              ///< The number of timeouts encountered
             size_t busy{0U};                 ///< The number of times the bus was busy
         } errors;
+        /// @brief Event counters for I²C bus operations
         struct Events {
             size_t start{0U};                ///< The number of start conditions generated
             size_t address_match{0U};        ///< The number of address sent events

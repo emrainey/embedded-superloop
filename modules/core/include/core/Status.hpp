@@ -163,8 +163,9 @@ public:
     /// Tracks the total status objects created and the counts for each Result and Cause.
     struct Statistics {
         size_t total{0U};    ///< The total number of Status objects created
+        /// The union of the Result counts and the raw array
         union ResultCounts {
-            struct {         // anonymous struct for each Result field
+            struct {    // anonymous struct for each Result field
                 size_t success{0U};
                 size_t failure{0U};
                 size_t busy{0U};
@@ -183,6 +184,7 @@ public:
             } fields;
             size_t array[static_cast<size_t>(Result::_max)]{0U};
         } result_counts;
+        /// The union of the Cause counts and the raw array
         union CauseCounts {
             struct {    // anonymous struct for each Cause field
                 size_t unknown{0U};

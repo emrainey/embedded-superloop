@@ -90,6 +90,7 @@ public:
     /// @return True if the StateChart is final
     bool IsFinal() const { return stopped_; }
 
+    /// @brief The statistics of the StateChart
     struct Statistics {
         size_t entered{0U};        ///< The number of times OnEnter() was called
         size_t entries{0U};        ///< The number of times OnEntry() was called

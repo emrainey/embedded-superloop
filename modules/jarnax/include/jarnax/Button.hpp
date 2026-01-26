@@ -6,8 +6,10 @@
 
 namespace jarnax {
 
+/// @brief The Button Interface
 class Button {
 public:
+    /// @return true if the button is currently pressed, false otherwise
     virtual bool IsPressed() const = 0;
 
 protected:

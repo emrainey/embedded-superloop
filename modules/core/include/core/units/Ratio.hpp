@@ -5,6 +5,10 @@
 
 namespace core {
 namespace units {
+
+/// @brief A type to represent a ratio of two units.
+/// @tparam NumeratorType The type of the numerator unit
+/// @tparam DenominatorType The type of the denominator unit
 template <typename NumeratorType, typename DenominatorType>
 class Ratio : public units::Unit<typename NumeratorType::Type> {
 public:
