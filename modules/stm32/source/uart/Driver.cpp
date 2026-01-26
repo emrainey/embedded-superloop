@@ -6,7 +6,9 @@
 #include "stm32/configure.hpp"
 
 namespace stm32 {
-uart::Driver* uart_instances[4] = {nullptr, nullptr, nullptr, nullptr};         // 4, 5, 7, 8
+/// Array of UART Driver instances for interrupt handling
+uart::Driver* uart_instances[4] = {nullptr, nullptr, nullptr, nullptr};    // 4, 5, 7, 8
+/// Array of UART statistics pointers for interrupt handling
 uart::Statistics* uart_statistics[4] = {nullptr, nullptr, nullptr, nullptr};    // 4, 5, 7, 8
 
 /// Interrupt service routine for UART4

@@ -11,16 +11,19 @@ namespace cortex {
 namespace peripherals {
 /// (STIR) The Software Triggered Interrupt Register
 struct SoftwareTriggeredInterrupt final {
+    /// Default constructor - initializes to zero
     SoftwareTriggeredInterrupt()
         : whole{0U} {}
+    /// Copy constructor from volatile register
     SoftwareTriggeredInterrupt(SoftwareTriggeredInterrupt volatile const& other)
         : whole{other.whole} {}
+    /// Copy constructor from another instance
     SoftwareTriggeredInterrupt(SoftwareTriggeredInterrupt const& other)
         : whole{other.whole} {}
     /// @brief The bitfield definition of the register
     struct Fields final {
-        std::uint32_t interrupt : 9U;
-        std::uint32_t           : 23U;
+        std::uint32_t interrupt : 9U;     ///< Interrupt number to trigger (0-511)
+        std::uint32_t           : 23U;    ///< Reserved field
     };
     union {
         Fields bits;

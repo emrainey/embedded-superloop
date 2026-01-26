@@ -186,7 +186,7 @@ public:
                 size_t exceeded_limit{0U};
                 size_t not_implemented{0U};
                 size_t not_configured{0U};
-            } fields;
+            } fields;                                               ///< Named field access to result counts
             size_t array[static_cast<size_t>(Result::_max)]{0U};    ///< Array access to result counts
         } result_counts;                                            ///< Counts of each result type encountered
         /// The union of the Cause counts and the raw array

@@ -16,15 +16,15 @@ struct FloatingPoint final {
     struct ContextControl final {
         /// @brief The bitfield definition of the register
         struct Fields final {
-            std::uint32_t lazy_preservation           : 1U;
+            std::uint32_t lazy_preservation           : 1U;    ///< Enable lazy context preservation
             modes::Privileged privilege               : 1U;    ///< (Also know as USER)
             std::uint32_t                             : 1U;
             modes::Execution execution                : 1U;    ///< (THREAD)
-            std::uint32_t hard_fault_pending          : 1U;
-            std::uint32_t memory_management_pending   : 1U;
-            std::uint32_t bus_fault_pending           : 1U;
+            std::uint32_t hard_fault_pending          : 1U;    ///< Hard fault exception pending
+            std::uint32_t memory_management_pending   : 1U;    ///< Memory management fault pending
+            std::uint32_t bus_fault_pending           : 1U;    ///< Bus fault exception pending
             std::uint32_t                             : 1U;
-            std::uint32_t debug_monitor_pending       : 1U;
+            std::uint32_t debug_monitor_pending       : 1U;    ///< Debug monitor exception pending
             std::uint32_t                             : 21U;
             std::uint32_t lazy_context_save           : 1U;    ///< (LSPEN)
             std::uint32_t floating_point_context_save : 1U;    ///< (ASPEN)
@@ -40,7 +40,7 @@ struct FloatingPoint final {
         /// @brief The bitfield definition of the register
         struct Fields final {
             std::uint32_t         : 3U;
-            std::uint32_t address : 29U;
+            std::uint32_t address : 29U;    ///< Address of floating-point context (8-byte aligned)
         };
         union {
             Fields bits;
@@ -53,10 +53,10 @@ struct FloatingPoint final {
         /// @brief The bitfield definition of the register
         struct Fields final {
             std::uint32_t                : 22U;
-            modes::Rounding rounding     : 2U;
-            std::uint32_t flush_to_zero  : 1U;
-            std::uint32_t default_nan    : 1U;
-            std::uint32_t half_precision : 1U;
+            modes::Rounding rounding     : 2U;    ///< Default rounding mode for FP operations
+            std::uint32_t flush_to_zero  : 1U;    ///< Flush-to-zero mode for denormal numbers
+            std::uint32_t default_nan    : 1U;    ///< Default NaN mode
+            std::uint32_t half_precision : 1U;    ///< Alternative half-precision format
             std::uint32_t                : 5U;
         };
         union {
@@ -69,14 +69,14 @@ struct FloatingPoint final {
     struct MediaFeatures0 final {
         /// @brief The bitfield definition of the register
         struct Fields final {
-            std::uint32_t simd             : 4U;
-            std::uint32_t single_precision : 4U;
-            std::uint32_t double_precision : 4U;
-            std::uint32_t exception        : 4U;
-            std::uint32_t divide           : 4U;
-            std::uint32_t square_root      : 4U;
-            std::uint32_t short_vectors    : 4U;
-            std::uint32_t rounding         : 4U;
+            std::uint32_t simd             : 4U;    ///< SIMD instruction support level
+            std::uint32_t single_precision : 4U;    ///< Single-precision floating-point support
+            std::uint32_t double_precision : 4U;    ///< Double-precision floating-point support
+            std::uint32_t exception        : 4U;    ///< FP exception trapping support
+            std::uint32_t divide           : 4U;    ///< Hardware divide instruction support
+            std::uint32_t square_root      : 4U;    ///< Hardware square root support
+            std::uint32_t short_vectors    : 4U;    ///< Short vector support
+            std::uint32_t rounding         : 4U;    ///< Rounding modes supported
         };
         union {
             Fields bits;
@@ -88,11 +88,11 @@ struct FloatingPoint final {
     struct MediaFeatures1 final {
         /// @brief The bitfield definition of the register
         struct Fields final {
-            std::uint32_t flush_to_zero       : 4U;
-            std::uint32_t default_nan         : 4U;
+            std::uint32_t flush_to_zero       : 4U;    ///< Flush-to-zero support level
+            std::uint32_t default_nan         : 4U;    ///< Default NaN mode support
             std::uint32_t                     : 16U;
-            std::uint32_t half_precision      : 4U;
-            std::uint32_t multiply_accumulate : 4U;
+            std::uint32_t half_precision      : 4U;    ///< Half-precision support level
+            std::uint32_t multiply_accumulate : 4U;    ///< FP fused multiply-accumulate support
         };
         union {
             Fields bits;
@@ -105,7 +105,7 @@ struct FloatingPoint final {
         /// @brief The bitfield definition of the register
         struct Fields final {
             std::uint32_t               : 4U;
-            std::uint32_t miscellaneous : 4U;
+            std::uint32_t miscellaneous : 4U;    ///< Miscellaneous FP features
             std::uint32_t               : 24U;
         };
         union {
@@ -115,12 +115,12 @@ struct FloatingPoint final {
     };
 
     //==MEMORY===================================
-    ContextControl context_control;
-    ContextAddress context_address;
-    DefaultStatusControl default_status_control;
-    MediaFeatures0 media_features_0;
-    MediaFeatures1 media_features_1;
-    MediaFeatures2 media_features_2;
+    ContextControl context_control;                 ///< Floating-point context control register
+    ContextAddress context_address;                 ///< Floating-point context address register
+    DefaultStatusControl default_status_control;    ///< Floating-point default status control register
+    MediaFeatures0 media_features_0;                ///< Media and VFP feature register 0
+    MediaFeatures1 media_features_1;                ///< Media and VFP feature register 1
+    MediaFeatures2 media_features_2;                ///< Media and VFP feature register 2
     //==MEMORY===================================
 };
 

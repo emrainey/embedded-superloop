@@ -94,16 +94,16 @@ struct AuxiliaryControl final {
         // 16
         std::uint32_t disable_dual_issue_direct_braches             : 1U;    ///< Disable dual-issue for direct branches
         std::uint32_t disable_dual_issue_indirect_branches          : 1U;    ///< Disable dual-issue for indirect branches
-        std::uint32_t disable_dual_issue_loads_to_PC                : 1U;
-        std::uint32_t disable_dual_issue_integer_MAC_and_MUL        : 1U;
-        std::uint32_t disable_dual_issue_VFP                        : 1U;
-        std::uint32_t disable_instruction_issue_direct_branch       : 1U;
-        std::uint32_t disable_instruction_issue_indirect_branch     : 1U;
-        std::uint32_t disable_instruction_issue_loads_PC            : 1U;
-        std::uint32_t disable_instruction_issue_integer_MAC_and_MUL : 1U;
-        std::uint32_t disable_instruction_issue_VFP                 : 1U;
-        std::uint32_t disable_dynamic_allocation_of_ADD_SUB         : 1U;
-        std::uint32_t disable_critical_axi_read_under_write         : 1U;
+        std::uint32_t disable_dual_issue_loads_to_PC                : 1U;    ///< Disable dual-issue for loads to PC
+        std::uint32_t disable_dual_issue_integer_MAC_and_MUL        : 1U;    ///< Disable dual-issue for integer MAC and MUL
+        std::uint32_t disable_dual_issue_VFP                        : 1U;    ///< Disable dual-issue for VFP instructions
+        std::uint32_t disable_instruction_issue_direct_branch       : 1U;    ///< Disable instruction issue for direct branches
+        std::uint32_t disable_instruction_issue_indirect_branch     : 1U;    ///< Disable instruction issue for indirect branches
+        std::uint32_t disable_instruction_issue_loads_PC            : 1U;    ///< Disable instruction issue for loads to PC
+        std::uint32_t disable_instruction_issue_integer_MAC_and_MUL : 1U;    ///< Disable instruction issue for integer MAC and MUL
+        std::uint32_t disable_instruction_issue_VFP                 : 1U;    ///< Disable instruction issue for VFP instructions
+        std::uint32_t disable_dynamic_allocation_of_ADD_SUB         : 1U;    ///< Disable dynamic allocation of ADD and SUB instructions
+        std::uint32_t disable_critical_axi_read_under_write         : 1U;    ///< Disable critical AXI read-under-write
         std::uint32_t                                               : 1U;    // DISFPUISSOPT (0=Normal)
         std::uint32_t                                               : 3U;
     };

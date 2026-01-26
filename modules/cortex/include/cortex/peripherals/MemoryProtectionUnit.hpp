@@ -23,10 +23,10 @@ struct MemoryProtectionUnit {
 
         /// @brief The bitfield definition of the register
         struct Fields final {
-            std::uint32_t separate                      : 1U;
+            std::uint32_t separate                      : 1U;    ///< Separate instruction and data regions supported
             std::uint32_t                               : 7U;    ///< Reserved field
-            std::uint32_t number_of_data_regions        : 8U;    //<! Unifed number of regions (in doc as number of data regions)
-            std::uint32_t number_of_instruction_regions : 8U;
+            std::uint32_t number_of_data_regions        : 8U;    ///< Number of unified regions (labeled as data regions in docs)
+            std::uint32_t number_of_instruction_regions : 8U;    ///< Number of instruction regions (0 if unified)
             std::uint32_t                               : 8U;    ///< Reserved field
         };
         /// @brief The union of the bitfield and the register as a whole.
@@ -46,9 +46,9 @@ struct MemoryProtectionUnit {
             : whole{other.whole} {}
         /// @brief The bitfield definition of the register
         struct Fields final {
-            std::uint32_t enable                           : 1U;
-            std::uint32_t core_handlers_use_mpu            : 1U;
-            std::uint32_t default_memory_map_in_privileged : 1U;
+            std::uint32_t enable                           : 1U;     ///< Enable MPU
+            std::uint32_t core_handlers_use_mpu            : 1U;     ///< Enable MPU during fault handlers
+            std::uint32_t default_memory_map_in_privileged : 1U;     ///< Enable default memory map in privileged mode
             std::uint32_t                                  : 29U;    ///< Reserved field
         };
         /// @brief The union of the bitfield and the register as a whole.
@@ -114,8 +114,8 @@ struct MemoryProtectionUnit {
 
         /// @brief Bit field layout for the Region Base Address register
         struct Fields final {
-            AddressType region  : 4U;
-            AddressType valid   : 1U;
+            AddressType region  : 4U;    ///< Region number (when valid=1)
+            AddressType valid   : 1U;    ///< Region number valid flag
             ///@todo Find a way to make this a uintptr_t again. Compiler was very insistent that it
             /// would not allow a narrowing here, which is nice but not useful in this one place
             AddressType address : (sizeof(AddressType) * 8u) - 5u;    // 27 in 32 bit, more on 64 bit
@@ -159,15 +159,15 @@ struct MemoryProtectionUnit {
 
         public:
             std::uint32_t                   : 2U;
-            std::uint32_t subregion_disable : 8U;
-            std::uint32_t bufferable        : 1U;
-            std::uint32_t cacheable         : 1U;
-            std::uint32_t sharable          : 1U;
+            std::uint32_t subregion_disable : 8U;    ///< Subregion disable bitmap
+            std::uint32_t bufferable        : 1U;    ///< Memory bufferable attribute
+            std::uint32_t cacheable         : 1U;    ///< Memory cacheable attribute
+            std::uint32_t sharable          : 1U;    ///< Memory shareable attribute
             std::uint32_t type_extension    : 3U;    ///< This field is so poorly documented!
             std::uint32_t                   : 2U;
-            Permissions permissions         : 3U;
+            Permissions permissions         : 3U;    ///< Access permissions (priv/user read/write)
             std::uint32_t                   : 1U;
-            std::uint32_t execute_never     : 1U;
+            std::uint32_t execute_never     : 1U;    ///< Execute never (XN) attribute
             std::uint32_t                   : 3U;
 
             /// Setting the Power of Two Size requires this interface
@@ -208,11 +208,11 @@ struct MemoryProtectionUnit {
     //=======================
     // MEMORY
     //=======================
-    Type type;
-    Control control;
-    Region region;
-    BaseAddress base;
-    Access access;
+    Type type;           ///< MPU type register
+    Control control;     ///< MPU control register
+    Region region;       ///< MPU region number register
+    BaseAddress base;    ///< MPU region base address register
+    Access access;       ///< MPU region attribute and size register
     //=======================
 
     /// Returns the number of regions this processor supports

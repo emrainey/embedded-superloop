@@ -284,58 +284,58 @@ static_assert((TIM8_CH1 | TIM8_CH2 | TIM8_CH3) == TIM8_CH1, "Must be this value 
 /// to calculate timing parameters for peripherals.
 // The STM32F40xx Clock Tree frequencies
 struct ClockTree {
-    Hertz low_speed_internal;
-    Hertz low_speed_external;
-    Hertz high_speed_internal;
-    Hertz high_speed_external;
-    Hertz pll_input;          ///< The frequency of the input to the PLL
-    Hertz pll_vco;            ///< The frequency of the VCO
-    Hertz pll_output;         ///< The frequency of the PLL output
-    Hertz sysclk;             ///< the clock before the AHB/APB divider
-    Hertz eth_ptp;            ///< The frequency of the Ethernet PTP clock
-    Hertz fclk;               ///< The frequency of the cortex free running clock
-    Hertz hclk;               ///< The frequency of the AHB bus, DMA and Core Memory (HCLK)
-    Hertz system_timer;       ///< The frequency of the Cortex SYSTICK
-    Hertz apb1_peripheral;    ///< The frequency of the APB1 bus (low speed)
-    Hertz apb2_peripheral;    ///< The frequency of the APB2 bus (high speed)
-    Hertz pll_i2s;
-    Hertz pll_48ck;
-    Hertz rtc;
-    Hertz rng;
-    Hertz usbotg;
-    Hertz apb1_timer_clk;    ///< The frequency of the TIMx clocks  (TIMxCLK)
-    Hertz apb2_timer_clk;    ///< The frequency of the TIMx clocks  (TIMxCLK)
+    Hertz low_speed_internal;     ///< The frequency of the LSI
+    Hertz low_speed_external;     ///< The frequency of the LSE
+    Hertz high_speed_internal;    ///< The frequency of the HSI
+    Hertz high_speed_external;    ///< The frequency of the HSE
+    Hertz pll_input;              ///< The frequency of the input to the PLL
+    Hertz pll_vco;                ///< The frequency of the VCO
+    Hertz pll_output;             ///< The frequency of the PLL output
+    Hertz sysclk;                 ///< the clock before the AHB/APB divider
+    Hertz eth_ptp;                ///< The frequency of the Ethernet PTP clock
+    Hertz fclk;                   ///< The frequency of the cortex free running clock
+    Hertz hclk;                   ///< The frequency of the AHB bus, DMA and Core Memory (HCLK)
+    Hertz system_timer;           ///< The frequency of the Cortex SYSTICK
+    Hertz apb1_peripheral;        ///< The frequency of the APB1 bus (low speed)
+    Hertz apb2_peripheral;        ///< The frequency of the APB2 bus (high speed)
+    Hertz pll_i2s;                ///< The frequency of the PLLI2S output
+    Hertz pll_48ck;               ///< The frequency of the 48MHz clock (USB, RNG, SDIO)
+    Hertz rtc;                    ///< The frequency of the RTC clock
+    Hertz rng;                    ///< The frequency of the RNG clock (from PLL48CK)
+    Hertz usbotg;                 ///< The frequency of the USB OTG clock (from PLL48CK)
+    Hertz apb1_timer_clk;         ///< The frequency of the TIMx clocks  (TIMxCLK)
+    Hertz apb2_timer_clk;         ///< The frequency of the TIMx clocks  (TIMxCLK)
 };
 
 /// @brief The STM32F40xx clock configuration.
 /// @note This does NOT map to hardware but it does have register values which will so we limit
 /// their possible value ranges.
 struct ClockConfiguration {
-    bool use_internal;
-    bool use_bypass;
-    Hertz external_clock_frequency;
-    Hertz low_speed_external_oscillator_frequency;
+    bool use_internal;                                ///< Whether to use the internal or external high speed oscillator
+    bool use_bypass;                                  ///< Whether to use bypass mode for the external high speed oscillator
+    Hertz external_clock_frequency;                   ///< The frequency of the external high speed oscillator
+    Hertz low_speed_external_oscillator_frequency;    ///< The frequency of the external low speed oscillator
     //---
-    std::uint32_t ahb_divider             : 4;
+    std::uint32_t ahb_divider             : 4;    ///< AHB Divider
     std::uint32_t                         : 28;
-    std::uint32_t apb1_low_speed_divider  : 3;
+    std::uint32_t apb1_low_speed_divider  : 3;    ///< APB1 Low Speed Divider
     std::uint32_t                         : 29;
-    std::uint32_t apb2_high_speed_divider : 3;
+    std::uint32_t apb2_high_speed_divider : 3;    ///< APB2 High Speed Divider
     std::uint32_t                         : 29;
-    std::uint32_t mcu_clock1_divider      : 3;
+    std::uint32_t mcu_clock1_divider      : 3;    ///< MCU Clock 1 Divider
     std::uint32_t                         : 29;
-    std::uint32_t mcu_clock2_divider      : 3;
+    std::uint32_t mcu_clock2_divider      : 3;    ///< MCU Clock 2 Divider
     std::uint32_t                         : 29;
-    std::uint32_t rtc_divider             : 5;
+    std::uint32_t rtc_divider             : 5;    ///< RTC Divider
     std::uint32_t                         : 27;
     //---
-    std::uint32_t pll_m                   : 6;
+    std::uint32_t pll_m                   : 6;    ///< PLL M Divider
     std::uint32_t                         : 32 - 6;
-    std::uint32_t pll_n                   : 9;
+    std::uint32_t pll_n                   : 9;    ///< PLL N Multiplier
     std::uint32_t                         : 32 - 9;
-    std::uint32_t pll_p                   : 2;
+    std::uint32_t pll_p                   : 2;    ///< PLL P Divider
     std::uint32_t                         : 32 - 2;
-    std::uint32_t pll_q                   : 4;
+    std::uint32_t pll_q                   : 4;    ///< PLL Q Divider
     std::uint32_t                         : 32 - 4;
 };
 
