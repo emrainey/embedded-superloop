@@ -56,6 +56,10 @@ void print(const char* format, ...) ATTRIBUTE((format(printf, 1, 2)));
 /// @param args The variable arguments list
 unsigned long vsnprint(char buffer[], size_t buffer_size, const char* format, va_list args);
 
+/// Prints a span of values in hex format with prefix
+/// @tparam T The type of elements in the span
+/// @param prefix The prefix string to print
+/// @param span The span of data to print
 template <typename T>
 void print(char const* const prefix, core::Span<T> const& span) {
     print("%s span: %p:%zu\r\n", prefix, span.data(), span.count());

@@ -109,7 +109,9 @@ public:
     }
 };
 
+/// Type alias for SPI transaction handler
 using Transactor = jarnax::Transactor<spi::Transaction>;
+/// Type alias for SPI transaction queue coordinator
 using Coordinator = jarnax::Coordinator<spi::Transaction, DefaultQueueDepth>;
 
 /// The SPI Driver Interface has a Transactor of SPI Transactions and is a Coordinator of the SPI Transactions

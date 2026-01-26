@@ -10,7 +10,7 @@ namespace core {
 // The time namespace for the core library
 namespace time {
 
-// The basic time unit is microseconds
+/// The basic time unit is microseconds
 using MicroSeconds = core::units::MicroSeconds;
 
 /// The interface which a monotonic clock must implement

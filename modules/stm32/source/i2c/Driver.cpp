@@ -4,11 +4,12 @@
 #include "stm32/configure.hpp"
 
 namespace stm32 {
+/// Array of pointers to active I2C driver instances (I2C1-3)
 i2c::Driver* i2c_instances[3] = {nullptr, nullptr, nullptr};
+/// Array of pointers to I2C driver statistics structures (I2C1-3)
 i2c::Driver::Statistics* i2c_statistics[3] = {nullptr, nullptr, nullptr};
 
-// Declare instances of the templates so that they have debugging symbols
-
+/// Interrupt service routine for I2C1 event events
 void i2c1_event_isr(void) {
     cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::InterIntegratedCircuit1_Event)]++;
     if (i2c_instances[0]) {
@@ -16,6 +17,7 @@ void i2c1_event_isr(void) {
     }
 }
 
+/// Interrupt service routine for I2C1 error events
 void i2c1_error_isr(void) {
     cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::InterIntegratedCircuit1_Error)]++;
     if (i2c_instances[0]) {
@@ -23,6 +25,7 @@ void i2c1_error_isr(void) {
     }
 }
 
+/// Interrupt service routine for I2C2 event events
 void i2c2_event_isr(void) {
     cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::InterIntegratedCircuit2_Event)]++;
     if (i2c_instances[1]) {
@@ -30,13 +33,15 @@ void i2c2_event_isr(void) {
     }
 }
 
+/// Interrupt service routine for I2C2 error events
 void i2c2_error_isr(void) {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::InterIntegratedCircuit2_Event)]++;
+    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::InterIntegratedCircuit2_Error)]++;
     if (i2c_instances[1]) {
         i2c_instances[1]->HandleError();
     }
 }
 
+/// Interrupt service routine for I2C3 event events
 void i2c3_event_isr(void) {
     cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::InterIntegratedCircuit3_Event)]++;
     if (i2c_instances[2]) {
@@ -44,10 +49,11 @@ void i2c3_event_isr(void) {
     }
 }
 
+/// Interrupt service routine for I2C3 error events
 void i2c3_error_isr(void) {
     cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::InterIntegratedCircuit3_Error)]++;
     if (i2c_instances[2]) {
-        i2c_instances[2]->HandleEvent();
+        i2c_instances[2]->HandleError();
     }
 }
 

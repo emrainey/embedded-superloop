@@ -16,6 +16,7 @@ namespace core {
 /// of the AVL.
 namespace avl {
 
+/// Indicates which side of an AVL tree node (left, right, or neither)
 enum class Side : int {
     Neither = -1,
     Left = 0,

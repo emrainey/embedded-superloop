@@ -302,6 +302,11 @@ constexpr static Peripheral dma_endpoints[stm32::peripherals::NumberOfDmaControl
 };
 // clang-format on
 
+/// Finds the DMA channel for a given controller/stream/peripheral combination
+/// @param controller The DMA controller index (0 or 1)
+/// @param stream The stream number (0-7)
+/// @param peripheral The peripheral to look up
+/// @return The channel number if found, or NumChannelsPerStream if not found
 constexpr std::size_t GetChannelFromStreamPeripheral(std::size_t controller, std::size_t stream, Peripheral const& peripheral) {
     for (std::size_t channel = 0; channel < dma::Manager::NumChannelsPerStream; ++channel) {
         if (dma_endpoints[controller][stream][channel] == peripheral) {

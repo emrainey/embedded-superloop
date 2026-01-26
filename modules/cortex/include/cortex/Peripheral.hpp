@@ -111,6 +111,10 @@ constexpr bool operator==(Peripheral const& lhs, Peripheral const& rhs) {
     return type_match and instance_match and sub_match;
 }
 
+/// Combines two peripherals by OR-ing their sub-components
+/// @param lhs The left-hand peripheral
+/// @param rhs The right-hand peripheral
+/// @return A new peripheral with combined sub-components
 constexpr Peripheral operator|(Peripheral const& lhs, Peripheral const& rhs) {
     return Peripheral{lhs.type, lhs.instance, static_cast<Peripheral::Sub>(to_underlying(lhs.sub) | to_underlying(rhs.sub))};
 }

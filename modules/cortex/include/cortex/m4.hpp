@@ -8,10 +8,15 @@
 #include <iso.hpp>
 #include "core/Intervals.hpp"
 
+/// Indicates this Cortex-M4 has Flash memory
 #define CORTEX_HAS_FLASH 1
+/// Cortex-M4 does not have Instruction Tightly Coupled Memory
 #undef CORTEX_HAS_ITCM
+/// Cortex-M4 does not have Data Tightly Coupled Memory
 #undef CORTEX_HAS_DTCM
+/// Indicates this Cortex-M4 has Core Coupled Memory
 #define CORTEX_HAS_CCM 1
+/// Indicates this Cortex-M4 has SRAM
 #define CORTEX_HAS_SRAM 1
 
 namespace cortex {

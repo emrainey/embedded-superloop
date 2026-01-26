@@ -18,9 +18,13 @@ class Fraction_ {
     // static_assert(std::is_unsigned<DenominatorType>::value, "Must be unsigned denominator_");
 
 protected:
-    NumeratorType numerator_;
-    DenominatorType denominator_;
+    NumeratorType numerator_;        ///< The numerator of the fraction
+    DenominatorType denominator_;    ///< The denominator of the fraction
 
+    /// @brief Computes the greatest common divisor (GCD) of two numbers
+    /// @param a The first number
+    /// @param b The second number
+    /// @return The GCD of the two numbers
     static DenominatorType gcd(NumeratorType a, DenominatorType b) {
         DenominatorType c = static_cast<DenominatorType>(std::abs(a));    // ensure positive
         DenominatorType gcd = std::min(c, b);
@@ -33,8 +37,13 @@ protected:
         return 0;
     }
 
+    /// @brief Computes the least common multiple (LCM) of two numbers
+    /// @param a The first number
+    /// @param b The second number
+    /// @return The LCM of the two numbers
     static DenominatorType lcm(DenominatorType a, DenominatorType b) { return (a * b) / gcd(a, b); }
 
+    /// @brief Reduces the fraction to its simplest form
     void reduce() {
         auto g = gcd(numerator_, denominator_);
         if (g > 1) {
@@ -407,6 +416,7 @@ public:
     }
 };
 
+/// @brief A simple case of an integral fraction with both numerator and denominator as int
 using Fraction = Fraction_<int, int>;
 
 }    // namespace core

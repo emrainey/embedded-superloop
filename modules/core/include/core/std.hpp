@@ -9,6 +9,7 @@
 
 #if not defined(UNITTEST)
 // C++ Requires some global symbols defined in order to compile.
+/// Pure virtual function handler for C++ compatibility
 extern "C" void __cxa_pure_virtual(void);
 
 /// Placement new operator given pointer

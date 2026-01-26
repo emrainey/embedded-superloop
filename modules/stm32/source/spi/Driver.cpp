@@ -10,11 +10,14 @@
 
 namespace stm32 {
 
+/// Array of pointers to active SPI driver instances (SPI1-3)
 spi::Driver* spi_instances[3] = {nullptr, nullptr, nullptr};
+/// Array of pointers to SPI driver statistics structures (SPI1-3)
 spi::Driver::Statistics* spi_statistics[3] = {nullptr, nullptr, nullptr};
 
 // Declare instances of the templates so that they have debugging symbols
 
+/// Interrupt service routine for SPI1
 void spi1_isr(void) {
     cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::SerialPeripheralInterface1)]++;
     if (spi_instances[0]) {
@@ -22,6 +25,7 @@ void spi1_isr(void) {
     }
 }
 
+/// Interrupt service routine for SPI2
 void spi2_isr(void) {
     cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::SerialPeripheralInterface2)]++;
     if (spi_instances[1]) {
@@ -29,6 +33,7 @@ void spi2_isr(void) {
     }
 }
 
+/// Interrupt service routine for SPI3
 void spi3_isr(void) {
     cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::SerialPeripheralInterface3)]++;
     if (spi_instances[2]) {

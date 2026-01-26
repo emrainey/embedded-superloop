@@ -16,10 +16,13 @@ namespace cortex {
 /// @see https://developer.arm.com/documentation/dui0205/f/semihosting/semihosting-swis
 namespace semihosting {
 
+/// File handle type for semihosting operations
 using Handle = std::int32_t;
 
+/// Invalid file handle constant
 constexpr static Handle InvalidHandle{-1};
 
+/// Result codes for semihosting operations
 enum class Result : std::int32_t {
     Success = 0,
     Failure = -1,
@@ -108,6 +111,10 @@ Result TempName(core::Span<char const> name, uint32_t id);
 /// @param name The span of the name of the file to remove
 Result Remove(core::Span<char const> name);
 
+/// Renames a file on the Host File System
+/// @param old_file The span of the current file name
+/// @param new_file The span of the new file name
+/// @return 0 on success, -1 on error
 Result Rename(core::Span<char const> old_file, core::Span<char const> new_file);
 
 /// @return The number of Seconds since the start of Execution
@@ -116,6 +123,9 @@ core::units::Seconds Clock();
 /// @return The current time in seconds since the epoch.
 core::units::Seconds Time();
 
+/// Executes a command on the host system
+/// @param command The command to execute on the host
+/// @return 0 on success, -1 on error
 Result System(core::Span<char const> command);
 
 /// @return The host system errno value.
@@ -143,6 +153,7 @@ Result ElapsedTicks(uint64_t& ticks);
 /// @retval 0xFF'FF'FF'FF indicates an error.
 uint32_t TickFrequency(void);
 
+/// Exception codes for semihosting exception reporting
 enum class Exception : int32_t {
     // Hardware Exceptions
     BranchToZero = 0x2'00'00U,            ///< The PC was branched to address 0

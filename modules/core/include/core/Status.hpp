@@ -76,6 +76,7 @@ enum class Cause : std::uint8_t {
 
 /// @return The name of the Cause as a string
 constexpr char const* GetCauseName(Cause c) {
+/// Helper macro to return a string representation of an enum case
 #define CASE_STR(x) \
     case x:         \
         return #x

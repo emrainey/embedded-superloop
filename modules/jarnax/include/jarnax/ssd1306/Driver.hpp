@@ -10,7 +10,9 @@
 namespace jarnax {
 namespace ssd1306 {
 
+/// Type alias for 128x32 pixel image buffer
 using Image128x32 = ::ssd1306::Image128x32;
+/// Type alias for 128x32 pixel screen representation
 using Screen128x32 = ::ssd1306::Screen128x32;
 
 /// @brief The Abstract Interface for the SSD1306 Driver to be used by Applications.

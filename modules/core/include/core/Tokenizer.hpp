@@ -20,6 +20,7 @@ struct TokenStatistics {
     size_t dropped{0U};
 };
 
+/// A token is a span of characters
 using Token = core::Span<char>;
 
 /// @brief A simple tokenizer that splits input data into tokens based on a separator string.

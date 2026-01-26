@@ -39,6 +39,11 @@ namespace core {
 /// @brief The namespace for the core units of measure and their constants
 namespace units {
 
+/// User-defined literal for creating Celsius temperature values
+constexpr Celsius operator""_c(long double value) {
+    return Celsius{static_cast<double>(value)};
+}
+
 /// @brief The unit of Length is Meters
 using Length = Meters;
 /// @brief The unit of Area is Square Meters

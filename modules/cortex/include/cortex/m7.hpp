@@ -10,10 +10,15 @@
 #include "cortex/peripherals/CacheInformation.hpp"
 #include "cortex/peripherals/TightlyCoupledMemory.hpp"
 
+/// Indicates this Cortex-M7 has Flash memory
 #define CORTEX_HAS_FLASH 1
+/// Indicates this Cortex-M7 has Instruction Tightly Coupled Memory
 #define CORTEX_HAS_ITCM 1
+/// Indicates this Cortex-M7 has Data Tightly Coupled Memory
 #define CORTEX_HAS_DTCM 1
+/// Cortex-M7 does not have Core Coupled Memory
 #undef CORTEX_HAS_CCM
+/// Indicates this Cortex-M7 has SRAM
 #define CORTEX_HAS_SRAM 1
 
 namespace cortex {
@@ -39,7 +44,7 @@ struct CentralProcessingUnitIdentification final {
     std::uint32_t ISAR[5]; /*!< Offset: 0x060 (R/ )  Instruction Set Attributes Register                   */
 };
 
-// Pull the M7 definition into the variant definition.
+/// Pull the M7 definition into the variant definition.
 using CacheInformation = peripherals::CacheInformation;
 
 /// The Data and Instruction Cache Control Register (DCIMVAC, DCCMVAC, DCCSW, DCCISW, ICIALLU, ICIMVAU, DCIMVAC, DCISW)
@@ -69,6 +74,7 @@ struct DataAndInstructionCacheControl final {
 static_assert(sizeof(DataAndInstructionCacheControl) == 0x30UL, "Must be this exact size");
 #endif
 
+/// Memory-mapped register block for cache control operations
 extern DataAndInstructionCacheControl volatile data_and_instruction_cache_control;
 
 /// The Auxiliary Control Register (ACTLR) is outside the System Control Block (SCB)

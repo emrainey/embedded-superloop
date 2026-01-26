@@ -9,6 +9,7 @@
 namespace stm32 {
 namespace configure {
 
+/// Operating mode for STM32 peripheral drivers (polling, interrupt, or DMA)
 enum class Mode : std::uint8_t {
     None = 0,
     Polling = 1,
@@ -16,26 +17,32 @@ enum class Mode : std::uint8_t {
     Dma = 3,
 };
 
+/// Operating mode for I2C peripheral (defaults to Interrupt)
 #ifndef STM32_I2C_MODE
 #define STM32_I2C_MODE Interrupt
 #endif
 
+/// Operating mode for SPI peripheral (defaults to Interrupt)
 #ifndef STM32_SPI_MODE
 #define STM32_SPI_MODE Interrupt
 #endif
 
+/// Operating mode for UART peripheral (defaults to Interrupt)
 #ifndef STM32_UART_MODE
 #define STM32_UART_MODE Interrupt
 #endif
 
+/// Operating mode for USART peripheral (defaults to Interrupt)
 #ifndef STM32_USART_MODE
 #define STM32_USART_MODE Interrupt
 #endif
 
+/// Operating mode for CAN peripheral (defaults to Interrupt)
 #ifndef STM32_CAN_MODE
 #define STM32_CAN_MODE Interrupt
 #endif
 
+/// Operating mode for ADC peripheral (defaults to Interrupt)
 #ifndef STM32_ADC_MODE
 #define STM32_ADC_MODE Interrupt
 #endif

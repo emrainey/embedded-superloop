@@ -118,7 +118,9 @@ public:
     }
 };
 
+/// Type alias for I2C transaction handler
 using Transactor = jarnax::Transactor<i2c::Transaction>;
+/// Type alias for I2C transaction queue coordinator
 using Coordinator = jarnax::Coordinator<i2c::Transaction, DefaultQueueDepth>;
 
 /// The I2C Driver Interface has a Transactor of I2C Transactions and is a Coordinator of the I2C Transactions

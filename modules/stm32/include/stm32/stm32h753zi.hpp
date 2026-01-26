@@ -5,8 +5,11 @@
 /// STM32H753ZI Chip-Specific Definitions
 
 #include "iso.hpp"
+/// Indicates this chip has Flexible Static Memory Controller
 #define STM32_HAS_FSMC 1
+/// Indicates this chip has Ethernet MAC
 #define STM32_HAS_ETHERNET 1
+/// Indicates this chip has Digital Camera Memory Interface
 #define STM32_HAS_CAMERA 1
 
 #include "stm32/stm32h7xxxx.hpp"

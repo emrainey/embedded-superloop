@@ -20,6 +20,7 @@
 
 namespace stm32 {
 
+/// Type alias for frequency measurements in Hertz
 using Hertz = core::units::Hertz;
 using core::units::operator""_Hz;
 using core::units::operator""_KHz;
@@ -148,6 +149,7 @@ enum class InterruptRequest : cortex::InterruptRequestType {
 };
 static_assert(static_cast<std::size_t>(InterruptRequest::_count) == number_of_interrupt_channels, "The number of interrupts is incorrect");
 
+/// Type alias for STM32 peripheral descriptor
 using Peripheral = cortex::Peripheral;
 
 constexpr static Peripheral _ = cortex::_;
@@ -337,7 +339,7 @@ struct ClockConfiguration {
     std::uint32_t                         : 32 - 4;
 };
 
-// Vendor Chips declare this structure
+/// Vendor chip-specific default clock configuration
 extern ClockConfiguration const default_clock_configuration;
 
 /// Returns what the vendor considers the frequency of the system.

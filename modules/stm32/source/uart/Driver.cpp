@@ -9,6 +9,7 @@ namespace stm32 {
 uart::Driver* uart_instances[4] = {nullptr, nullptr, nullptr, nullptr};         // 4, 5, 7, 8
 uart::Statistics* uart_statistics[4] = {nullptr, nullptr, nullptr, nullptr};    // 4, 5, 7, 8
 
+/// Interrupt service routine for UART4
 void uart4_isr(void) {
     cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter4)]++;
     if (uart_instances[0]) {
@@ -16,6 +17,7 @@ void uart4_isr(void) {
     }
 }
 
+/// Interrupt service routine for UART5
 void uart5_isr(void) {
     cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter5)]++;
     if (uart_instances[1]) {
@@ -23,6 +25,7 @@ void uart5_isr(void) {
     }
 }
 
+/// Interrupt service routine for UART7
 void uart7_isr(void) {
     // cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter7)]++;
     if (uart_instances[2]) {
@@ -30,6 +33,7 @@ void uart7_isr(void) {
     }
 }
 
+/// Interrupt service routine for UART8
 void uart8_isr(void) {
     // cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter8)]++;
     if (uart_instances[3]) {

@@ -9,6 +9,7 @@
 
 namespace jarnax {
 
+/// Evaluates a condition and creates an Assertion object to check it at runtime
 #define assertion(condition)                                         \
     {                                                                \
         jarnax::Assertion _assertion{condition, __FILE__, __LINE__}; \

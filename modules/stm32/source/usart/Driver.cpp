@@ -9,6 +9,7 @@ namespace stm32 {
 usart::Driver* usart_instances[4] = {nullptr, nullptr, nullptr, nullptr};         // 4, 5, 7, 8
 usart::Statistics* usart_statistics[4] = {nullptr, nullptr, nullptr, nullptr};    // 4, 5, 7, 8
 
+/// Interrupt service routine for USART1
 void usart1_isr(void) {
     cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter1)]++;
     if (usart_instances[0]) {
@@ -16,6 +17,7 @@ void usart1_isr(void) {
     }
 }
 
+/// Interrupt service routine for USART2
 void usart2_isr(void) {
     cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter2)]++;
     if (usart_instances[1]) {
@@ -23,6 +25,7 @@ void usart2_isr(void) {
     }
 }
 
+/// Interrupt service routine for USART3
 void usart3_isr(void) {
     cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter3)]++;
     if (usart_instances[2]) {
@@ -30,6 +33,7 @@ void usart3_isr(void) {
     }
 }
 
+/// Interrupt service routine for USART6
 void usart6_isr(void) {
     cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter6)]++;
     if (usart_instances[3]) {
