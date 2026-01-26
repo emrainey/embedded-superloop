@@ -35,9 +35,11 @@ enum class Result : std::int8_t {
 
 /// @return The name of the Result as a string
 constexpr char const* GetResultName(Result r) {
+/// @cond INTERNAL
 #define CASE_STR(x) \
     case x:         \
         return #x
+    /// @endcond
     switch (r) {
         CASE_STR(Result::Success);
         CASE_STR(Result::Failure);
@@ -76,10 +78,12 @@ enum class Cause : std::uint8_t {
 
 /// @return The name of the Cause as a string
 constexpr char const* GetCauseName(Cause c) {
+/// @cond INTERNAL
 /// Helper macro to return a string representation of an enum case
 #define CASE_STR(x) \
     case x:         \
         return #x
+    /// @endcond
     switch (c) {
         CASE_STR(Cause::Unknown);
         CASE_STR(Cause::Parameter);
@@ -183,8 +187,8 @@ public:
                 size_t not_implemented{0U};
                 size_t not_configured{0U};
             } fields;
-            size_t array[static_cast<size_t>(Result::_max)]{0U};
-        } result_counts;
+            size_t array[static_cast<size_t>(Result::_max)]{0U};    ///< Array access to result counts
+        } result_counts;                                            ///< Counts of each result type encountered
         /// The union of the Cause counts and the raw array
         union CauseCounts {
             struct {    // anonymous struct for each Cause field
@@ -195,9 +199,9 @@ public:
                 size_t configuration{0U};
                 size_t hardware{0U};
                 size_t state{0U};
-            } fields;
-            size_t array[static_cast<size_t>(Cause::_max)]{0U};
-        } cause_counts;
+            } fields;                                              ///< Named field access to cause counts
+            size_t array[static_cast<size_t>(Cause::_max)]{0U};    ///< Array access to cause counts
+        } cause_counts;                                            ///< Counts of each cause type encountered
     };
 
     /// @return The statistics for Status objects

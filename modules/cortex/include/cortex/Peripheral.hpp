@@ -91,18 +91,18 @@ struct Peripheral {
         J = (1U << 20U),
         K = (1U << 21U),
     };
-    Type type;
-    uint8_t instance;
-    Sub sub;    // a field of flags
+    Type type;           ///< The type of peripheral (ADC, UART, etc.)
+    uint8_t instance;    ///< The instance number of this peripheral type
+    Sub sub;             ///< Sub-component flags for this peripheral
 };
 
 /// @brief A special Peripheral that represents no peripheral.
 constexpr static Peripheral _ = Peripheral{Peripheral::Type::None, 0, Peripheral::Sub::None};
 
 /// @brief Determine if the two peripherals are the same or if they are contained within each other.
-/// @param lhs
-/// @param rhs
-/// @return
+/// @param lhs The left-hand peripheral
+/// @param rhs The right-hand peripheral
+/// @return True if they match, false otherwise
 constexpr bool operator==(Peripheral const& lhs, Peripheral const& rhs) {
     // the type and instance must match, but the sub can be a subset or superset
     bool type_match = (lhs.type == rhs.type);

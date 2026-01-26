@@ -73,31 +73,31 @@ using HandlerFunction = void (*)(void);
 
 /// The Cortex Microcontroller Vector Table
 struct VectorTable final {
-    void* stack_pointer;
+    void* stack_pointer;    ///< Initial stack pointer value
     /// Contains the Exception Handlers (Reset + Faults + Interrupts)
     struct Handlers final {
-        HandlerFunction reset_entry;
-        HandlerFunction non_maskable_interrupt;
+        HandlerFunction reset_entry;               ///< Reset handler entry point
+        HandlerFunction non_maskable_interrupt;    ///< Non-maskable interrupt handler
         /// Contains the Fault Handlers
         struct FaultHandlers final {
-            HandlerFunction hard;
-            HandlerFunction memory_management;
-            HandlerFunction bus;
-            HandlerFunction usage;
+            HandlerFunction hard;                 ///< Hard fault handler
+            HandlerFunction memory_management;    ///< Memory management fault handler
+            HandlerFunction bus;                  ///< Bus fault handler
+            HandlerFunction usage;                ///< Usage fault handler
         };
-        FaultHandlers faults;
-        HandlerFunction _reserved1;
-        HandlerFunction _reserved2;
-        HandlerFunction _reserved3;
-        HandlerFunction _reserved4;
-        HandlerFunction supervisor_call;
-        HandlerFunction debug_monitor;
-        HandlerFunction _reserved5;
-        HandlerFunction pending_supervisor;
-        HandlerFunction system_tick;
+        FaultHandlers faults;                     ///< Fault handler structure
+        HandlerFunction _reserved1;               ///< Reserved slot
+        HandlerFunction _reserved2;               ///< Reserved slot
+        HandlerFunction _reserved3;               ///< Reserved slot
+        HandlerFunction _reserved4;               ///< Reserved slot
+        HandlerFunction supervisor_call;          ///< Supervisor call handler (SVC)
+        HandlerFunction debug_monitor;            ///< Debug monitor handler
+        HandlerFunction _reserved5;               ///< Reserved slot
+        HandlerFunction pending_supervisor;       ///< PendSV handler
+        HandlerFunction system_tick;              ///< SysTick handler
     };
     // static_assert(sizeof(Handlers) == 16*sizeof(Handler), "Must be exactly this size");
-    Handlers handlers;
+    Handlers handlers;    ///< Exception and interrupt handlers
 };
 #if defined(__arm__)
 // debug::ConstexprValueCompare<sizeof(VectorTable::Handlers), 15*sizeof(Handler)> test;

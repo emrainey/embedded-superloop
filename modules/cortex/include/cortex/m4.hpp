@@ -46,13 +46,13 @@ struct CentralProcessingUnitIdentification final {
 struct AuxiliaryControl final {
     /// The bit fields of the Auxiliary Control Register
     struct Fields final {
-        std::uint32_t disable_interruption_multicycle_instructions : 1U;
-        std::uint32_t disable_write_buffer_default_memory_map      : 1U;
-        std::uint32_t disable_folding_instruction                  : 1U;
-        std::uint32_t                                              : 5U;
-        std::uint32_t disable_floating_pointer_out_of_order        : 1U;
-        std::uint32_t disable_lazy_stacking_float_context          : 1U;
-        std::uint32_t                                              : 21U;
+        std::uint32_t disable_interruption_multicycle_instructions : 1U;     ///< Disable interruption of multi-cycle instructions
+        std::uint32_t disable_write_buffer_default_memory_map      : 1U;     ///< Disable write buffer use for default memory map
+        std::uint32_t disable_folding_instruction                  : 1U;     ///< Disable IT folding
+        std::uint32_t                                              : 5U;     ///< Reserved
+        std::uint32_t disable_floating_pointer_out_of_order        : 1U;     ///< Disable FP instructions out-of-order execution
+        std::uint32_t disable_lazy_stacking_float_context          : 1U;     ///< Disable lazy context save of FP state
+        std::uint32_t                                              : 21U;    ///< Reserved
     };
     // === MEMORY LAYOUT ===
     union {

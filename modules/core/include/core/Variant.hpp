@@ -53,6 +53,7 @@ struct enable_if {};
 /// @tparam T Type to enable
 template <typename T>
 struct enable_if<true, T> {
+    /// The enabled type when condition is true
     using type = T;
 };
 
@@ -96,6 +97,7 @@ struct is_variant_alternative : false_type {};
 /// @tparam ...TYPES The variant's type list
 template <typename T, typename... TYPES>
 struct is_variant_alternative<T, type_list<TYPES...>> {
+    /// True if T is one of TYPES, false otherwise
     static constexpr bool value = any(same_type<T, TYPES>::value...);
 };
 

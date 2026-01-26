@@ -107,7 +107,7 @@ public:
     bool operator!=(Fraction_ const& other) const { return not operator==(other); }
 
     /// @brief Greater than operator
-    /// @param other The other fraction to compare to
+    /// @param m The scalar numerator to compare to
     /// @return True if this fraction is greater than the other, false otherwise
     bool operator>(NumeratorType m) const {
         // convert to Fraction_ and compare
@@ -124,7 +124,7 @@ public:
     }
 
     /// @brief Less than operator
-    /// @param other The other fraction to compare to
+    /// @param m The scalar numerator to compare to
     /// @return True if this fraction is less than the other, false otherwise
     bool operator<(NumeratorType m) const {
         // convert to Fraction_ and compare

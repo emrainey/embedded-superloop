@@ -27,8 +27,8 @@ enum class PartNumber : std::uint16_t {
 
 /// @brief Holds the Revision and Patch bits
 struct Revision {
-    uint8_t patch    : 4;
-    uint8_t revision : 4;
+    uint8_t patch    : 4;    ///< Patch version number
+    uint8_t revision : 4;    ///< Revision number
 };
 
 constexpr static Revision r0p0{0, 0};

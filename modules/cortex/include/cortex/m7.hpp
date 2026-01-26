@@ -51,10 +51,10 @@ using CacheInformation = peripherals::CacheInformation;
 struct DataAndInstructionCacheControl final {
     /// The Set-Way structure for cache operations
     struct SetWay {
-        std::uint32_t  : 5;     // bits 0:4
-        uint32_t way   : 9;     // bits 5:13
-        uint32_t       : 16;    // bits 14:29
-        uint32_t level : 2;     // bits 30:31
+        std::uint32_t  : 5;     ///< Reserved bits 0:4
+        uint32_t way   : 9;     ///< Cache way number (bits 5:13)
+        uint32_t       : 16;    ///< Reserved bits 14:29
+        uint32_t level : 2;     ///< Cache level (bits 30:31)
     };
 
     std::uint32_t invalidate_whole_instruction_cache;             ///< I-Cache Invalidate All to PoU by writing any value (ICIALLU)
@@ -82,18 +82,18 @@ extern DataAndInstructionCacheControl volatile data_and_instruction_cache_contro
 struct AuxiliaryControl final {
     /// The bit fields of the Auxiliary Control Register
     struct Fields final {
-        std::uint32_t                                               : 2U;    // Reserved
-        std::uint32_t                                               : 1U;    // DISFOLD (0==Normal)
-        std::uint32_t                                               : 7U;    // Reserved
-        std::uint32_t disable_floating_point_exception_outputs      : 1U;
-        std::uint32_t disable_dynamic_read_allocate_mode_wbwa       : 1U;
-        std::uint32_t disable_itm_and_dwt_atb_flush                 : 1U;
-        std::uint32_t disable_btac_read                             : 1U;
-        std::uint32_t disable_btac_alloc                            : 1U;
-        std::uint32_t disable_critical_axi_read_under_read          : 1U;
+        std::uint32_t                                               : 2U;    ///< Reserved
+        std::uint32_t                                               : 1U;    ///< DISFOLD (0==Normal)
+        std::uint32_t                                               : 7U;    ///< Reserved
+        std::uint32_t disable_floating_point_exception_outputs      : 1U;    ///< Disable FP exception outputs
+        std::uint32_t disable_dynamic_read_allocate_mode_wbwa       : 1U;    ///< Disable dynamic read allocate mode for WBWA
+        std::uint32_t disable_itm_and_dwt_atb_flush                 : 1U;    ///< Disable ITM and DWT ATB flush
+        std::uint32_t disable_btac_read                             : 1U;    ///< Disable BTAC read
+        std::uint32_t disable_btac_alloc                            : 1U;    ///< Disable BTAC allocate
+        std::uint32_t disable_critical_axi_read_under_read          : 1U;    ///< Disable critical AXI read-under-read
         // 16
-        std::uint32_t disable_dual_issue_direct_braches             : 1U;
-        std::uint32_t disable_dual_issue_indirect_branches          : 1U;
+        std::uint32_t disable_dual_issue_direct_braches             : 1U;    ///< Disable dual-issue for direct branches
+        std::uint32_t disable_dual_issue_indirect_branches          : 1U;    ///< Disable dual-issue for indirect branches
         std::uint32_t disable_dual_issue_loads_to_PC                : 1U;
         std::uint32_t disable_dual_issue_integer_MAC_and_MUL        : 1U;
         std::uint32_t disable_dual_issue_VFP                        : 1U;

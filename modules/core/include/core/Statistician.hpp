@@ -15,6 +15,7 @@ class Statistician {
 public:
     static_assert(std::is_trivially_copyable_v<TYPE>, "Statistician can only be used with trivially copyable types, such as structs or POD types.");
 
+    /// The type of the statistics structure
     using StatisticsType = TYPE;
 
     /// @brief Constructor

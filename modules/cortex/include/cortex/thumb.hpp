@@ -103,6 +103,7 @@ ALWAYS_INLINE inline void nop(void) {
 
 /// @brief A set of 4 word sized parameters used in exceptions which typically contains exception related information.
 struct Stacked {
+    /// The stacked parameters
     cortex::word parameters[4];
 };
 

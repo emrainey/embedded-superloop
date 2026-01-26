@@ -199,8 +199,8 @@ LINKER_SYMBOL(__cortex_backup_pow2);
 
 /// Used to initialize memory to zero at boot without having to declare each type of memory separately
 struct ZeroEntry {
-    std::uintptr_t start;
-    std::uintptr_t limit;
+    std::uintptr_t start;    ///< Starting address of memory region to zero
+    std::uintptr_t limit;    ///< Ending address of memory region to zero
 };
 
 /// Linker Symbols for the Zero Initialization Table, Start

@@ -253,6 +253,7 @@ constexpr Iota operator""_iota(unsigned long long value) {
 }
 
 /// @brief Converts Hertz to Seconds
+/// @param scalar The scalar numerator value
 /// @param frequency The frequency to convert
 /// @return The Seconds value
 constexpr Seconds operator/(float scalar, Hertz const& frequency) {

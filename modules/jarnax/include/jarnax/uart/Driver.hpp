@@ -24,7 +24,9 @@ public:
 
     /// @brief Configures the UART Driver
     /// @param baud_rate The baud rate to use for the UART
-    /// @return
+    /// @param parity True to enable parity, false to disable
+    /// @param stop_bits The number of stop bits (1 or 2)
+    /// @return Status indicating success or failure of configuration
     virtual core::Status Configure(uint32_t baud_rate, bool parity, uint8_t stop_bits) = 0;
 
     /// @brief Enqueues the data to be sent to the UART

@@ -21,9 +21,9 @@ using core::units::operator""_MHz;
 
 /// The bit layout of an IEEE-754 Single Precision Floating Point number.
 struct SinglePrecision final {
-    std::uint32_t mantissa : 23U;
-    std::uint32_t exponent : 8U;
-    std::uint32_t sign     : 1U;
+    std::uint32_t mantissa : 23U;    ///< 23-bit mantissa/significand
+    std::uint32_t exponent : 8U;     ///< 8-bit biased exponent
+    std::uint32_t sign     : 1U;     ///< Sign bit (0=positive, 1=negative)
 };
 #if defined(__arm__)
 static_assert(sizeof(SinglePrecision) == sizeof(float), "Must be the same size");
@@ -74,6 +74,9 @@ union word final {
     char as_chr[4];               ///< extract value as a quad of chars
     SinglePrecision as_f32;       ///< extract value as a single precision
 
+    /// Reinterprets the word as a pointer to the specified type
+    /// @tparam Type The pointer type to cast to
+    /// @return The word value reinterpreted as Type
     template <typename Type>
     [[gnu::always_inline]] inline Type as() const {
         return reinterpret_cast<Type>(as_address);

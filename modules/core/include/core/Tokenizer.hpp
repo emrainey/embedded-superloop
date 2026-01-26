@@ -14,10 +14,10 @@ namespace hayes {
 
 /// The statistics for the Tokenizer
 struct TokenStatistics {
-    size_t tokens{0U};
-    size_t pushed{0U};
-    size_t counted{0U};
-    size_t dropped{0U};
+    size_t tokens{0U};     ///< Number of tokens found
+    size_t pushed{0U};     ///< Number of characters pushed to buffer
+    size_t counted{0U};    ///< Number of characters counted
+    size_t dropped{0U};    ///< Number of characters dropped due to buffer overflow
 };
 
 /// A token is a span of characters

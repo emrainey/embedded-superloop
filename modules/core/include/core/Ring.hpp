@@ -132,7 +132,7 @@ public:
     }
 
     /// @brief Drops a specific number of elements off the Ring off the head and does not return them
-    /// @param count The number of elements to drop off the head
+    /// @param number The number of elements to drop off the head
     /// @return True when the elements were dropped, false when not enough elements were present
     bool Drop(SizeType number) {
         if (number <= Count()) {

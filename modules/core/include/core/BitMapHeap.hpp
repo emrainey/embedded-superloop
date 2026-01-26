@@ -189,8 +189,8 @@ protected:
     inline std::size_t bytes_to_blocks(std::size_t bytes, std::size_t alignment) { return (bytes + alignment - 1 + BlockSize - 1) / BlockSize; }
 
     /// @brief Determines of a pointer and number of bytes is contained in the Heap or not.
-    /// @param p Pointer to memory
-    /// @param bytes The number of bytes which p points to
+    /// @param pointer Pointer to memory
+    /// @param bytes The number of bytes which the pointer points to
     /// @return True if contained, false otherwise.
     inline bool is_contained(void* pointer, std::size_t bytes) {
         uintptr_t base = reinterpret_cast<uintptr_t>(buffer_);

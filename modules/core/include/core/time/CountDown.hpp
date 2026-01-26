@@ -16,8 +16,8 @@ namespace time {
 class CountDown {
 public:
     /// @brief Construct a new Count Down object with an initial duration.
-    /// @param timer
-    /// @param duration
+    /// @param clock The monotonic clock to use for timing
+    /// @param duration The countdown duration in microseconds
     CountDown(core::time::MonotonicClock const& clock, MicroSeconds duration);
 
     /// @brief Indicates if the countdown has expired.

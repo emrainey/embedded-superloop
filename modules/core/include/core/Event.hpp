@@ -16,6 +16,8 @@ public:
     Event()
         : raised_{false}
         , value_{StorageType()} {}
+    /// Constructs an event with a value and marks it as raised
+    /// @param v The initial value for the event
     Event(StorageType v)
         : raised_{true}
         , value_{v} {}

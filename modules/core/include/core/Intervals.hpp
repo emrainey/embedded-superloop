@@ -120,6 +120,7 @@ struct Interval {
 /// Finds the index of the interval that contains the given address.
 /// @tparam N The number of elemens in the intervals array.
 /// @param intervals The pre-sorted array of intervals to search.
+/// @param count The number of intervals in the array.
 /// @param address The address to search for.
 /// @return The index of the interval that contains the address, or std::numeric_limits<std::size_t>::max() if not found.
 std::size_t FindIndex(Interval const intervals[], size_t count, std::uintptr_t address);
