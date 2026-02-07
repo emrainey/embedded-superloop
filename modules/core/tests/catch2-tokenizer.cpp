@@ -1,12 +1,13 @@
 // #define CATCH_CONFIG_MAIN
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
+
 #include "core/Tokenizer.hpp"
 
 #include <iostream>
 
 void Print(core::hayes::Token token, const char *expected) {
-    printf("Actual Token=[%zu]\"%.*s\" Expected: \"%s\"\r\n", token.size(), static_cast<int>(token.size()), token.data(), expected);
+    printf("Actual Token=[%" PRIz "]\"%.*s\" Expected: \"%s\"\r\n", token.size(), static_cast<int>(token.size()), token.data(), expected);
 }
 
 class TokenizerTest {

@@ -40,11 +40,7 @@ bool UsartTest::Execute() {
 
 void UsartTest::OnEnter() {
     jarnax::print("UsartTest::OnEnter\r\n");
-    jarnax::print(
-        "Using %lu iotas (%lu milliseconds) for timeout\r\n",
-        static_cast<unsigned long>(countdown_time_iotas_.value()),
-        static_cast<unsigned long>(countdown_time_msec_.value())
-    );
+    jarnax::print("Using %" PRIu64 " iotas (%" PRIu32 " milliseconds) for timeout\r\n", countdown_time_iotas_.value(), countdown_time_msec_.value());
     delivered_ = false;
     console_.SetLevel(Level::Debug);
 }

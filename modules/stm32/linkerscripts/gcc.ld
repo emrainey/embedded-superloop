@@ -16,7 +16,7 @@ SECTIONS {
         __vector_table_start = .;
         KEEP(*(.vectors))
         KEEP(*(.extended_vectors))
-        __vector_table_end = .;
+        __vector_table_limit = .;
     } >REGION_TEXT
 
     /* Program Code (aligned at next 1KB) */
@@ -31,7 +31,7 @@ SECTIONS {
     .preinit_array ALIGN(4) : {
         PROVIDE_HIDDEN(__preinit_array_start = .);
         KEEP(*(.preinit_array))
-        PROVIDE_HIDDEN(__preinit_array_end = .);
+        PROVIDE_HIDDEN(__preinit_array_limit = .);
     } >REGION_TEXT
 
     .init_array ALIGN(4) : {
@@ -41,7 +41,7 @@ SECTIONS {
         PROVIDE_HIDDEN(__init_array_start = .);
         KEEP(*(SORT(.init_array.*)))
         KEEP(*(.init_array))
-        PROVIDE_HIDDEN(__init_array_end = .);
+        PROVIDE_HIDDEN(__init_array_limit = .);
     } >REGION_TEXT
 
     .fini_array ALIGN(4) : {
@@ -49,7 +49,7 @@ SECTIONS {
         PROVIDE_HIDDEN (__fini_array_start = .);
         KEEP(*(SORT(.fini_array.*)))
         KEEP(*(.fini_array*))
-        PROVIDE_HIDDEN (__fini_array_end = .);
+        PROVIDE_HIDDEN (__fini_array_limit = .);
         *(SORT(.dtors.*))
         *(.dtors)
         . = ALIGN(4);
@@ -57,18 +57,18 @@ SECTIONS {
 
     /* Initialized Constant Static Storage */
     .rodata ALIGN(4) : {
-        __data_load = .;
+        __const_static_data_load = .;
         *(.rodata)
         *(.rodata.*)
     } >REGION_TEXT
 
-    /* Initialized Static Storage */
+    /* Initialized Static Storage in RAM (no longer really Constant!)*/
     .data : {
-        __data_start = .;
+        __const_static_data_start = .;
         *(.data)
         *(.data.*)
         . = ALIGN(4);
-        __data_end = .;
+        __const_static_data_limit = .;
     } >REGION_DATA AT> REGION_TEXT
 
     /* The privileged memory section contains data which only Privileged mode should access.
@@ -78,18 +78,18 @@ SECTIONS {
         __privileged_data_start = .;
         *(.privileged_data)
         . = ALIGN(1024);
-        __privileged_data_end = .;
+        __privileged_data_limit = .;
     } >REGION_DATA AT> REGION_TEXT
     __privileged_data_size = SIZEOF(.privileged_data);
     __privileged_data_size_pow2 = LOG2CEIL(__privileged_data_size);
 
     /* Uninitialized Static Storage */
     .bss (NOLOAD) : {
-        __bss_start = ALIGN(4);
+        __static_data_start = ALIGN(4);
         *(.bss)
         *(.bss.*)
         . = ALIGN(4);
-        __bss_end = .;
+        __static_data_limit = .;
     } >REGION_BSS
 
     /* DMA Buffers (uncached memory) */
@@ -97,7 +97,7 @@ SECTIONS {
         __dma_buffers_start = .;
         *(.dma_buffers)
         . = ALIGN(8);
-        __dma_buffers_end = .;
+        __dma_buffers_limit = .;
     } > REGION_DATA
     __dma_buffers_size = SIZEOF(.dma_buffers);
     __dma_buffers_size_pow2 = LOG2CEIL(__dma_buffers_size);

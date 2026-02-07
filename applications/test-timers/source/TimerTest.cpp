@@ -27,9 +27,7 @@ bool TimerTest::Execute() {
 void TimerTest::OnEnter() {
     jarnax::print("TimerTest::OnEnter\r\n");
     jarnax::print(
-        "Using %lu iotas (%lu milliseconds) for each state period\r\n",
-        static_cast<unsigned long>(countdown_time_iotas_.value()),
-        static_cast<unsigned long>(countdown_time_msec_.value())
+        "Using %" PRIu64 " iotas (%" PRIu32 " milliseconds) for each state period\r\n", countdown_time_iotas_.value(), countdown_time_msec_.value()
     );
     jarnax::print("The Timing Pin will be active and inactive for the above iota period. The high and low should be equal.\r\n");
 }
@@ -79,7 +77,7 @@ void TimerTest::OnExit(AppState state) {
         g_lateness = countdown_.GetLateness();
         if (g_lateness > 0_iota) {
             // the more this prints the later we become?
-            jarnax::print("TimerTest::OnTransition: Lateness: %lu iota\r\n", static_cast<unsigned long>(g_lateness.value()));
+            jarnax::print("TimerTest::OnTransition: Lateness: %" PRIu64 " iota\r\n", g_lateness.value());
         }
     }
     if (state == AppState::High) {

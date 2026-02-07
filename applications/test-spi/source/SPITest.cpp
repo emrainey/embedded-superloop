@@ -64,7 +64,7 @@ core::Status SPITest::TransactionCycle(std::uint8_t address, size_t count) {
         assertion(not spi_buffer_.IsEmpty());
         if (spi_transaction_.received_size > 0) {
             jarnax::print(
-                "SPI Transaction buffer size: %zu send/t: %u/%u receive/d %u/%u\r\n",
+                "SPI Transaction buffer size: %" PRIz " send/t: %" PRIz " / %" PRIz " receive/d %" PRIz " / %" PRIz "\r\n",
                 spi_buffer_.capacity(),
                 spi_transaction_.send_size,
                 spi_transaction_.sent_size,
@@ -73,10 +73,10 @@ core::Status SPITest::TransactionCycle(std::uint8_t address, size_t count) {
             );
             auto read_span = spi_buffer_.as_span().subspan(0, spi_transaction_.sent_size + spi_transaction_.received_size);
             for (std::size_t i = 0; i < read_span.count(); i++) {
-                jarnax::print("Buffer[%zu]: 0x%x\r\n", i, read_span[i]);
+                jarnax::print("Buffer[%" PRIz "]: 0x%x\r\n", i, read_span[i]);
             }
         } else {
-            // jarnax::print("spi Transaction buffer size: %zu wrote %u\r\n", spi_buffer_.count(), spi_transaction_.actual_count);
+            // jarnax::print("spi Transaction buffer size: %" PRIz " wrote %" PRIz "\r\n", spi_buffer_.count(), spi_transaction_.actual_count);
         }
         // this will move it back to the Uninitialized state
         core::Status status = spi_transaction_.GetStatus();

@@ -142,7 +142,7 @@ core::Status Driver::Initialize(core::units::Hertz peripheral_frequency, core::u
 
     auto divider = control1.baud_rate_divider();
     jarnax::print(
-        "Peripheral: %" PRIu32 " SPI Divider: %" PRIu32 " Clock Rate: %lu\n",
+        "Peripheral: %" PRIu32 " SPI Divider: %" PRIu32 " Clock Rate: %" PRIu32 "\n",
         peripheral_frequency.value(),
         divider,
         peripheral_frequency.value() / divider
@@ -175,7 +175,7 @@ void Driver::PrintTransaction(char const* const prefix, jarnax::spi::Transaction
             transaction.received_size,
             transaction.receive_size,
             transaction.receive_offset,
-            span.data(),
+            reinterpret_cast<void const*>(span.data()),
             span.size()
         );
         jarnax::print("Span Data: ", span);

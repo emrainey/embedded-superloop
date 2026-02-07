@@ -271,13 +271,13 @@ These should be moved to the chip specific vendor area for per-mcu builds.
 
 Currently it's challenging to get the MPU related entries for size/log2(size) and start/end address to resolve correctly. Some of those are still defined as `std::uintptr_t` types with fixed 32 addresses at the moment. This will be removed in the future.
 
-Additionally one of the only allowed macros are the `LINKER_SYMBOL` macros which are used to help define link-time values in `<linker.hpp>` like `__vector_table_start` and others. These are used the MPU code to help narrow the range of specific regions to exactly where they are in memory and in the startup code to help zero out `__ccm_beg` to `__ccm_end` and other ranges. Ultimately these just need to be byte pointers but in order to use them in low level code without casting oddly the macro does this:
+Additionally one of the only allowed macros are the `LINKER_SYMBOL` macros which are used to help define link-time values in `<linker.hpp>` like `__vector_table_start` and others. These are used the MPU code to help narrow the range of specific regions to exactly where they are in memory and in the startup code to help zero out `__ccm_start` to `__ccm_limit` and other ranges. Ultimately these just need to be byte pointers but in order to use them in low level code without casting oddly the macro does this:
 
 ```c++
 #define LINKER_TYPED_SYMBOL(symbol, type) extern type symbol[]
 #define LINKER_SYMBOL(symbol) LINKER_TYPED_SYMBOL(symbol, std::uint32_t)
-LINKER_SYMBOL(__sram_beg);
-LINKER_SYMBOL(__sram_end);
+LINKER_SYMBOL(__sram_start);
+LINKER_SYMBOL(__sram_limit);
 ```
 
 Sadly we also have to communicate _sizes_ this way too from the Linker and that's done using the _same_ mechanism.

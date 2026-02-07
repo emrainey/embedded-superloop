@@ -8,8 +8,8 @@ namespace initialize {
 #endif
 void zero_bss(void) {
     // zero initialize the bss from the start (bottom) to the end (top)
-    std::uint32_t* tmp = __bss_start;
-    std::uint32_t const* const end = __bss_end;
+    std::uint32_t* tmp = __static_data_start;
+    std::uint32_t const* const end = __static_data_limit;
     while (tmp < end) {
         *tmp = 0U;
         ++tmp;

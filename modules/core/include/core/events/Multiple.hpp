@@ -1,6 +1,8 @@
 #ifndef CORE_EVENTS_MULTIPLE_HPP_
 #define CORE_EVENTS_MULTIPLE_HPP_
 
+#include <compiler.hpp>
+
 #include <core/events/Single.hpp>
 
 /// @file
@@ -44,7 +46,7 @@ public:
     void operator=(StorageType const &other) override {
         input_ = other;
         for (size_t i = 0; i < count_; i++) {
-            printf("Test [%zu] = %p\r\n", i, reinterpret_cast<void *>(outputs_[i]));
+            printf("Test [%" PRIz "] = %p\r\n", i, reinterpret_cast<void *>(outputs_[i]));
             if (outputs_[i]) {
                 *outputs_[i] = other;
             }

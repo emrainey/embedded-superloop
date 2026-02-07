@@ -62,14 +62,14 @@ unsigned long vsnprint(char buffer[], size_t buffer_size, const char* format, va
 /// @param span The span of data to print
 template <typename T>
 void print(char const* const prefix, core::Span<T> const& span) {
-    print("%s span: %p:%zu\r\n", prefix, span.data(), span.count());
+    print("%s span: %p:%" PRIz "\r\n", prefix, span.data(), span.count());
     for (size_t i = 0U; i < span.count(); i++) {
         bool is_first = ((i % 8U) == 0U);
         if (is_first) {
             if (i != 0U) {
                 print("\r\n");
             }
-            print("[%x]", i);
+            print("[%zx]", i);
         }
         print("%hhx ", span.data()[i]);
     }

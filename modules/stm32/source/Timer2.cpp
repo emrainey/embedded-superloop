@@ -65,14 +65,15 @@ core::Status Timer::Initialize(core::units::Hertz internal_clock, core::units::H
     core::units::timer2_iotas_per_millisecond = desired_timer_frequency.value() / (1U * iso::prefix::kilo);
     core::units::timer2_iotas_per_microsecond = desired_timer_frequency.value() / (1U * iso::prefix::mega);
     jarnax::print(
-        "Timer::Initialize: CLK: %lu Hz, Desired: %lu Hz => Prescalar is %lu. Auto Reload is %lu (Sec: %lu, Millis: %lu, Micro: %lu)\r\n",
-        static_cast<unsigned long>(internal_clock.value()),
-        static_cast<unsigned long>(desired_timer_frequency.value()),
-        static_cast<unsigned long>(prescalar + 1U),
-        static_cast<unsigned long>(timer_.auto_reload.whole),
-        static_cast<unsigned long>(core::units::timer2_iotas_per_second),
-        static_cast<unsigned long>(core::units::timer2_iotas_per_millisecond),
-        static_cast<unsigned long>(core::units::timer2_iotas_per_microsecond)
+        "Timer::Initialize: CLK: %" PRIu32 " Hz, Desired: %" PRIu32 " Hz => Prescalar is %" PRIu32 ". Auto Reload is %" PRIu32 " (Sec: %" PRIu32
+        ", Millis: %" PRIu32 ", Micro: %" PRIu32 ")\r\n",
+        internal_clock.value(),
+        desired_timer_frequency.value(),
+        prescalar + 1U,
+        timer_.auto_reload.whole,
+        core::units::timer2_iotas_per_second,
+        core::units::timer2_iotas_per_millisecond,
+        core::units::timer2_iotas_per_microsecond
     );
 
     // enable the update event

@@ -21,46 +21,46 @@
 LINKER_SYMBOL(__vector_table_start);
 
 /// Link Symbol of the End of the VectorTable
-LINKER_SYMBOL(__vector_table_end);
+LINKER_SYMBOL(__vector_table_limit);
 
 /// Link Symbol of End of Coupled Memory
-LINKER_SYMBOL(__ccm_end);
+LINKER_SYMBOL(__ccm_limit);
 
 /// Link Symbol of Start of Coupled Memory
-LINKER_SYMBOL(__ccm_beg);
+LINKER_SYMBOL(__ccm_start);
 
 /// Link Symbol of End of Instruction Tightly Coupled Memory
-LINKER_SYMBOL(__itcm_end);
+LINKER_SYMBOL(__itcm_limit);
 
 /// Link Symbol of Start of Instruction Tightly Coupled Memory
-LINKER_SYMBOL(__itcm_beg);
+LINKER_SYMBOL(__itcm_start);
 
 /// Link Symbol of End of Data Tightly Coupled Memory
-LINKER_SYMBOL(__dtcm_end);
+LINKER_SYMBOL(__dtcm_limit);
 
 /// Link Symbol of Start of Data Tightly Coupled Memory
-LINKER_SYMBOL(__dtcm_beg);
+LINKER_SYMBOL(__dtcm_start);
 
 /// Link Symbol of End of System RAM
-LINKER_SYMBOL(__sram_end);
+LINKER_SYMBOL(__sram_limit);
 
 /// Link Symbol of Start of System RAM
-LINKER_SYMBOL(__sram_beg);
+LINKER_SYMBOL(__sram_start);
 
 /// Link Symbol of Start of Uninitialized Data
-LINKER_SYMBOL(__bss_start);
+LINKER_SYMBOL(__static_data_start);
 
 /// Link Symbol of End of Uninitialized Data
-LINKER_SYMBOL(__bss_end);
+LINKER_SYMBOL(__static_data_limit);
 
 /// Link Symbol of Start of Initialized Data
-LINKER_SYMBOL(__data_start);
+LINKER_SYMBOL(__const_static_data_start);
 
 /// Link Symbol of End of Initialized Data
-LINKER_SYMBOL(__data_end);
+LINKER_SYMBOL(__const_static_data_limit);
 
 /// Link Symbol of Load of Initialized Data
-LINKER_SYMBOL(__data_load);
+LINKER_SYMBOL(__const_static_data_load);
 
 /// Linker Symbol of the Bottom of the Main Stack
 LINKER_SYMBOL(__main_stack_bottom);
@@ -96,7 +96,7 @@ LINKER_SYMBOL(__process_stack_size_pow2);
 LINKER_SYMBOL(__privileged_data_start);
 
 /// Linker Symbol of the End of Privileged Data Section
-LINKER_SYMBOL(__privileged_data_end);
+LINKER_SYMBOL(__privileged_data_limit);
 
 /// Linker Symbol of the Size of Privileged Data Section
 LINKER_SYMBOL(__privileged_data_size);
@@ -108,19 +108,19 @@ LINKER_SYMBOL(__privileged_data_size_pow2);
 LINKER_TYPED_SYMBOL(__preinit_array_start, cortex::constructor);
 
 /// Link Symbol of Preinitialized Array End
-LINKER_TYPED_SYMBOL(__preinit_array_end, cortex::constructor);
+LINKER_TYPED_SYMBOL(__preinit_array_limit, cortex::constructor);
 
 /// Link Symbol of Initialized Array Start
 LINKER_TYPED_SYMBOL(__init_array_start, cortex::constructor);
 
 /// Link Symbol of Initialized Array End
-LINKER_TYPED_SYMBOL(__init_array_end, cortex::constructor);
+LINKER_TYPED_SYMBOL(__init_array_limit, cortex::constructor);
 
 /// Link Symbol of Destructor Array Start
 LINKER_TYPED_SYMBOL(__fini_array_start, cortex::destructor);
 
 /// Link Symbol of Destructor Array End
-LINKER_TYPED_SYMBOL(__fini_array_end, cortex::destructor);
+LINKER_TYPED_SYMBOL(__fini_array_limit, cortex::destructor);
 
 /// Link Symbol of the Begining of Flash
 LINKER_SYMBOL(__cortex_flash_start);

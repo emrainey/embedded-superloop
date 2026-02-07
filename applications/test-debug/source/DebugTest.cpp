@@ -16,7 +16,7 @@ DebugTest::DebugTest()
 bool DebugTest::Execute() {
     if (one_time_) {
         uint32_t frequency = cortex::semihosting::TickFrequency();
-        jarnax::print("Host Tick Freq=%lu\r\n", frequency);
+        jarnax::print("Host Tick Freq=%" PRIu32 "\r\n", frequency);
         auto clock = cortex::semihosting::Clock();
         jarnax::print("Host Clock=%f\r\n", static_cast<double>(clock.value()));
         auto secs = cortex::semihosting::Time();

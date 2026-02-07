@@ -4,10 +4,12 @@
 /// @file
 /// Hayes Command Tokenizer
 
+#include <compiler.hpp>
+#include <memory.hpp>
+#include <strings.hpp>
+
 #include "core/Span.hpp"
 #include "core/Statistician.hpp"
-#include "memory.hpp"
-#include "strings.hpp"
 
 namespace core {
 namespace hayes {

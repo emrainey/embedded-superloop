@@ -4,7 +4,7 @@
 #include "polyfill.hpp"
 
 /// The dummy ISR used by the linker to fill in unused vectors.
-extern "C" NAKED void dummy_isr(void) {
+extern "C" NAKED [[noreturn]] void dummy_isr(void) {
     cortex::handlers::dummy();
     __builtin_unreachable();
 }

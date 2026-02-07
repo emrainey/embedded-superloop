@@ -3,9 +3,26 @@ set(CMAKE_SYSTEM_PROCESSOR ${CMAKE_HOST_SYSTEM_PROCESSOR})
 
 message(STATUS "PATH=$ENV{PATH}")
 
-# Set the C and CXX compilers in the command line
-# find_program(CMAKE_C_COMPILER NAME gcc REQUIRED)
-# find_program(CMAKE_CXX_COMPILER NAME g++ REQUIRED)
+find_program(CMAKE_C_COMPILER REQUIRED
+    NAMES gcc-13 gcc-14 gcc-15 gcc
+    PATHS /opt/homebrew/bin
+          /usr/bin/
+)
+find_program(CMAKE_CXX_COMPILER REQUIRED
+    NAMES g++-13 g++-14 g++-15 g++
+    PATHS /opt/homebrew/bin
+          /usr/bin/
+)
+find_program(CMAKE_AR REQUIRED
+    NAMES ar-13 ar-14 ar-15 ar
+    PATHS /opt/homebrew/bin
+          /usr/bin/
+)
+find_program(CMAKE_NM REQUIRED
+    NAMES nm-13 nm-14 nm-15 nm
+    PATHS /opt/homebrew/bin
+          /usr/bin/
+)
 
 message(NOTICE "No Exceptions and No RTTI")
 add_compile_options(-fno-exceptions -fno-rtti)

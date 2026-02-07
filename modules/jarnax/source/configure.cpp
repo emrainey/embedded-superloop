@@ -27,8 +27,8 @@ void ATTRIBUTE((used)) configure(void) {
         jarnax::print("Initializing System Clocks\r\n");
         // each vendors clock tree is a unique and confusing flower, let them deal with it!
         vendor::initialize::clocks();
-        jarnax::print("Core Clock Frequency is %lu Hz\r\n", vendor::GetClockFrequency().value());
-        jarnax::print("System Clock Frequency is %lu Hz\r\n", vendor::GetSystemClockFrequency().value());
+        jarnax::print("Core Clock Frequency is %" PRIu32 " Hz\r\n", vendor::GetClockFrequency().value());
+        jarnax::print("System Clock Frequency is %" PRIu32 " Hz\r\n", vendor::GetSystemClockFrequency().value());
         // Set the clock frequency from the vendor
         cortex::SetClockFrequency(vendor::GetClockFrequency());
         cortex::SetSystemClockFrequency(vendor::GetSystemClockFrequency());
@@ -41,7 +41,9 @@ void ATTRIBUTE((used)) configure(void) {
     }
 
     // initialize the system tick
-    jarnax::print("Initializing Tick @ %lu/sec from %lu\r\n", cortex::GetTickRate().value(), cortex::GetSystemClockFrequency().value());
+    jarnax::print(
+        "Initializing Tick @ %" PRIu32 "/sec from %" PRIu32 "\r\n", cortex::GetTickRate().value(), cortex::GetSystemClockFrequency().value()
+    );
     cortex::initialize::tick(cortex::GetTickRate(), cortex::GetSystemClockFrequency());
     cortex::initialize::swo(cortex::swo::baudrate, cortex::GetClockFrequency());
     // configure the system control block configuration register

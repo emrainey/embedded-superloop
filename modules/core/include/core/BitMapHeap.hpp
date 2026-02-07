@@ -3,9 +3,7 @@
 /// @file
 /// The BitMapHeap Interface
 
-#include <cstddef>
-#include <cstdint>
-#include <limits>
+#include "compiler.hpp"
 
 #include <core/Allocator.hpp>
 #include <core/Array.hpp>
@@ -106,7 +104,7 @@ public:
         }
         if (bytes == 0 or alignment == 0 or alignment > MaxAlignment) {
             GetPrinter()(
-                "WARNING: [%p] Allocation request of %zu bytes with alignment %zu (could be default initialization)\r\n",
+                "WARNING: [%p] Allocation request of %" PRIz " bytes with alignment %" PRIz " (could be default initialization)\r\n",
                 reinterpret_cast<void*>(this),
                 bytes,
                 alignment
@@ -122,7 +120,7 @@ public:
                 return upstream_->allocate(bytes, alignment);
             } else {
                 GetPrinter()(
-                    "FATAL: [%p] Not enough free blocks (%u) available for allocation of %zu:%u bytes\r\n",
+                    "FATAL: [%p] Not enough free blocks (%" PRIz ") available for allocation of %" PRIz ":%" PRIz " bytes\r\n",
                     reinterpret_cast<void*>(this),
                     stats_.free_blocks,
                     bytes / BlockSize,
@@ -138,7 +136,7 @@ public:
             std::size_t alignedOffset = (offset + alignment - 1) & ~(alignment - 1);
             pointer = static_cast<char*>(buffer_) + alignedOffset;
             GetPrinter()(
-                "%p: Allocated %zu bytes at %p (offset=%zu, alignedOffset=%zu)\r\n",
+                "%p: Allocated %" PRIz " bytes at %p (offset=%" PRIz ", alignedOffset=%" PRIz ")\r\n",
                 reinterpret_cast<void*>(this),
                 bytes,
                 pointer,
@@ -159,7 +157,7 @@ public:
     void deallocate(void* pointer, std::size_t bytes, std::size_t alignment) noexcept override {
         if (buffer_ == nullptr or size_ == 0) {
             // pass this on in case this means something to another allocator.
-            GetPrinter()("%p: Tried to deallocate %zu bytes at %p\r\n", reinterpret_cast<void*>(this), bytes, pointer);
+            GetPrinter()("%p: Tried to deallocate %" PRIz " bytes at %p\r\n", reinterpret_cast<void*>(this), bytes, pointer);
             if (upstream_) {
                 upstream_->deallocate(pointer, bytes, alignment);
             }
@@ -170,11 +168,11 @@ public:
             std::size_t offset = reinterpret_cast<uintptr_t>(pointer) - reinterpret_cast<uintptr_t>(buffer_);
             std::size_t startBlock = offset / BlockSize;
             std::size_t blocks = (bytes + alignment - 1 + BlockSize - 1) / BlockSize;
-            GetPrinter()("%p: Deallocated %zu bytes at %p (offset %zu)\r\n", reinterpret_cast<void*>(this), bytes, pointer, offset);
+            GetPrinter()("%p: Deallocated %" PRIz " bytes at %p (offset %" PRIz ")\r\n", reinterpret_cast<void*>(this), bytes, pointer, offset);
             stats_.waste_bytes -= (blocks * BlockSize) - bytes;
             markBlocksAsFree(startBlock, blocks);
         } else {
-            GetPrinter()("%p: Passing deallocation of %zu bytes at %p\r\n", reinterpret_cast<void*>(this), bytes, pointer);
+            GetPrinter()("%p: Passing deallocation of %" PRIz " bytes at %p\r\n", reinterpret_cast<void*>(this), bytes, pointer);
             if (upstream_) {
                 upstream_->deallocate(pointer, bytes, alignment);
             }
@@ -195,7 +193,14 @@ protected:
     inline bool is_contained(void* pointer, std::size_t bytes) {
         uintptr_t base = reinterpret_cast<uintptr_t>(buffer_);
         uintptr_t offset = reinterpret_cast<uintptr_t>(pointer) - base;
-        GetPrinter()("%p: Checking if %p is contained in %p:%zu with offset %zu\r\n", reinterpret_cast<void*>(this), pointer, buffer_, size_, offset);
+        GetPrinter()(
+            "%p: Checking if %p is contained in %p:%" PRIz " with offset %" PRIz "\r\n",
+            reinterpret_cast<void*>(this),
+            pointer,
+            buffer_,
+            size_,
+            offset
+        );
         return offset < size_ and offset + bytes <= size_;
     }
 
@@ -212,7 +217,7 @@ private:
                     if ((bitmap_[i] & (1u << j)) == 0) {
                         ++freeBlocks;
                         if (freeBlocks == blocks) {
-                            // printf("Found %lu contiguous blocks at %lu\r\n", blocks, startBlock);
+                            // printf("Found %" PRIu32 " contiguous blocks at %" PRIu32 "\r\n", blocks, startBlock);
                             return startBlock;
                         }
                     } else {
@@ -261,7 +266,7 @@ private:
     /// @brief Prints the bitmap for debugging purposes
     void printBitmap() {
         printf(
-            "Heap Total: %zu Allocated: %lu Free: %lu Waste:%lu Count: %lu Valid? %s\r\n",
+            "Heap Total: %" PRIz " Allocated: %" PRIu32 " Free: %" PRIu32 " Waste:%" PRIu32 " Count: %" PRIu32 " Valid? %s\r\n",
             stats_.size_bytes,
             stats_.used_blocks,
             stats_.free_blocks,

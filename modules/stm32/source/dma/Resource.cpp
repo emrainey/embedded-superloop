@@ -33,7 +33,7 @@ void Resource::Initialize(Peripheral const& peripheral) {
     }
     size_t channel = stm32::dma::GetChannelFromStreamPeripheral(controller_index_, stream_index_, peripheral);
     if constexpr (debug::dma) {
-        jarnax::print("DMA Stream %u assigned to channel %" PRIz "\n", stream_number_, channel);
+        jarnax::print("DMA Stream %" PRIz " assigned to channel %" PRIz "\n", stream_number_, channel);
     }
     configuration.bits.channel_selection = (channel & 0x3U);    // mask to prevent overflow
     stream_.configuration = configuration;                      // write
@@ -104,7 +104,7 @@ core::Status Resource::ConfigureCopyToPeripheral(uintptr_t source, size_t count,
     configuration.bits.transfer_complete_interrupt_enable = 1;
     stream_.configuration = configuration;    // write it out so we can see the settings
     if constexpr (debug::dma) {
-        jarnax::print("Configured Copy %p <= %p, %u elements\n", reinterpret_cast<void*>(destination), reinterpret_cast<void*>(source), count);
+        jarnax::print("Configured Copy %p <= %p, %" PRIz " elements\n", reinterpret_cast<void*>(destination), reinterpret_cast<void*>(source), count);
     }
     return core::Status{};
 }
@@ -162,7 +162,7 @@ core::Status Resource::ConfigureCopyFromPeripheral(uintptr_t source, uintptr_t d
     configuration.bits.transfer_complete_interrupt_enable = 1;
     stream_.configuration = configuration;    // write it out so we can see the settings
     if constexpr (debug::dma) {
-        jarnax::print("Configured Copy %p => %p, %u elements\n", reinterpret_cast<void*>(source), reinterpret_cast<void*>(destination), count);
+        jarnax::print("Configured Copy %p => %p, %" PRIz " elements\n", reinterpret_cast<void*>(source), reinterpret_cast<void*>(destination), count);
     }
     return core::Status{};
 }
@@ -182,7 +182,8 @@ core::Status Resource::GetStatus(void) const {
     stm32::dma::Manager::GetStreamStatus(stream_number_, flags);
     if constexpr (debug::dma) {
         jarnax::print(
-            "DMA Stream %u Status: Complete: %lu, Half Complete: %lu, Error: %lu, Direct Mode Error: %lu, FIFO Error: %lu\n",
+            "DMA Stream %" PRIz " Status: Complete: %" PRIu32 ", Half Complete: %" PRIu32 ", Error: %" PRIu32 ", Direct Mode Error: %" PRIu32
+            ", FIFO Error: %" PRIu32 "\n",
             stream_number_,
             static_cast<uint32_t>(flags.complete),
             static_cast<uint32_t>(flags.half_complete),

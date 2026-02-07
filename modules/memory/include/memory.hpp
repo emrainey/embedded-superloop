@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <cstdint>
 
+#if defined(__arm__)    // on target builds only
 /// @brief Standard C compatibility API for memory sets.
 /// @param dst The pointer to the location to write the value.
 /// @param value The value to write (truncated to a byte).
@@ -20,6 +21,7 @@ extern "C" void *memset(void *dst, int value, std::size_t bytes);
 /// @param bytes The number of bytes to copy.
 /// @return Returns dst.
 extern "C" void *memcpy(void *dst, void const *src, std::size_t bytes);
+#endif
 
 /// The memory namespace
 namespace memory {

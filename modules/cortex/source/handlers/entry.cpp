@@ -73,16 +73,16 @@ namespace handlers {
     // IF the device had ITCM, or DTCM enable here.
     if constexpr (not use_zero_table and zero_itcm_at_boot and variant::configuration::has_itcm) {
         // TODO enable ITCM here if the processor has it (M7)
-        std::uint32_t volatile const *end = reinterpret_cast<std::uint32_t volatile const *>(__itcm_end);
-        std::uint32_t volatile *beg = reinterpret_cast<std::uint32_t volatile *>(__itcm_beg);
+        std::uint32_t volatile const *end = reinterpret_cast<std::uint32_t volatile const *>(__itcm_limit);
+        std::uint32_t volatile *beg = reinterpret_cast<std::uint32_t volatile *>(__itcm_start);
         while (beg < end) {
             *beg++ = 0;
         }
     }
     if constexpr (not use_zero_table and zero_dtcm_at_boot and variant::configuration::has_dtcm) {
         // TODO enable DTCM here if the processor has it (M7)
-        std::uint32_t volatile const *end = reinterpret_cast<std::uint32_t volatile const *>(__dtcm_end);
-        std::uint32_t volatile *beg = reinterpret_cast<std::uint32_t volatile *>(__dtcm_beg);
+        std::uint32_t volatile const *end = reinterpret_cast<std::uint32_t volatile const *>(__dtcm_limit);
+        std::uint32_t volatile *beg = reinterpret_cast<std::uint32_t volatile *>(__dtcm_start);
         while (beg < end) {
             *beg++ = 0;
         }
@@ -94,13 +94,13 @@ namespace handlers {
     // IF the device has CCM clear it here
     if constexpr (not use_zero_table and zero_ccm_at_boot and variant::configuration::has_ccm) {
         cortex::peripherals::system_control_block.configuration_control.parts.enable_data_cache = 1U;
-        std::uint32_t volatile const *end = reinterpret_cast<std::uint32_t volatile const *>(__ccm_end);
-        std::uint32_t volatile *beg = reinterpret_cast<std::uint32_t volatile *>(__ccm_beg);
+        std::uint32_t volatile const *end = reinterpret_cast<std::uint32_t volatile const *>(__ccm_limit);
+        std::uint32_t volatile *beg = reinterpret_cast<std::uint32_t volatile *>(__ccm_start);
         while (beg < end) {
             *beg++ = 0;
         }
         if constexpr (verify_ccm_at_boot) {
-            beg = reinterpret_cast<uint32_t volatile *>(__ccm_beg);
+            beg = reinterpret_cast<uint32_t volatile *>(__ccm_start);
             while (beg < end) {
                 if (*beg != 0) {
                     cortex::spinhalt();
@@ -110,13 +110,13 @@ namespace handlers {
         }
     }
     if constexpr (not use_zero_table and zero_sram_at_boot and variant::configuration::has_sram) {
-        uint32_t volatile const *end = reinterpret_cast<uint32_t volatile const *>(__sram_end);
-        uint32_t volatile *beg = reinterpret_cast<uint32_t volatile *>(__sram_beg);
+        uint32_t volatile const *end = reinterpret_cast<uint32_t volatile const *>(__sram_limit);
+        uint32_t volatile *beg = reinterpret_cast<uint32_t volatile *>(__sram_start);
         while (beg < end) {
             *beg++ = 0;
         }
         if constexpr (verify_sram_at_boot) {
-            beg = reinterpret_cast<uint32_t volatile *>(__sram_beg);
+            beg = reinterpret_cast<uint32_t volatile *>(__sram_start);
             while (beg < end) {
                 if (*beg != 0) {
                     cortex::spinhalt();

@@ -57,7 +57,7 @@ void print(const char *format, ...) {
 
 void print(char const *const source, core::Status status) {
     print(
-        "%s => Status{Result=%d, Cause=%u Location=%x}\n",
+        "%s => Status{Result=%d, Cause=%u Location=%" PRIxPTR "}\n",
         source,
         to_underlying(status.GetResult()),
         to_underlying(status.GetCause()),

@@ -41,7 +41,7 @@ bool bist(bool is_system_initialized, bool is_system_configured) {
         // we do trap, which is nice, but we *return* here too! We need to save the address of the source two
         // lines down, then restore to that location (modify the LR in the exception frame?)
         // pretend we ran off the stack
-        __ccm_beg[-1] = 0xDEADBEEF;
+        __ccm_start[-1] = 0xDEADBEEF;
         result &= built_in_self_test.trigger_bus_fault.has_passed;
         built_in_self_test.trigger_bus_fault.is_testing = false;
     }

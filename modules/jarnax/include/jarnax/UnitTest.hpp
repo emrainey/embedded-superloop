@@ -108,7 +108,7 @@ public:
         bool continue_tests = true;
         if (test_index_ < kMaximum) {
             if (states_[test_index_] == State::NotEvalutated) {
-                jarnax::print("%s Running Test %s [%lu] ... ", name_, test_names_[test_index_].name, static_cast<unsigned long>(test_index_));
+                jarnax::print("%s Running Test %s [%" PRIu32 "] ... ", name_, test_names_[test_index_].name, static_cast<unsigned long>(test_index_));
                 // run it
                 states_[test_index_] = Test(test_enum_);
                 // print results

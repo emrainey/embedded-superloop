@@ -10,9 +10,9 @@ namespace initialize {
 #endif
 void load_data(void) {
     // load the read only data from the
-    std::uint32_t volatile* dst = __data_start;
-    std::uint32_t volatile* src = __data_load;
-    std::uint32_t volatile const* const end = __data_end;
+    std::uint32_t volatile* dst = __const_static_data_start;
+    std::uint32_t volatile* src = __const_static_data_load;
+    std::uint32_t volatile const* const end = __const_static_data_limit;
     while (dst < end) {
         *dst = *src;
         ++dst;

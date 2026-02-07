@@ -164,7 +164,11 @@ jarnax::dma::Resource* Manager::Assign(Peripheral const& peripheral) {
                         // assign the Channel!
                         if constexpr (debug::dma) {
                             jarnax::print(
-                                "Assigning DMA Stream: %u on controller: %u (%u) (will be channel %u)\n", index, controller, number, channel
+                                "Assigning DMA Stream: %" PRIz " on controller: %" PRIz " (%" PRIz ") (will be channel %" PRIz ")\n",
+                                index,
+                                controller,
+                                number,
+                                channel
                             );
                         }
                         return &resources_[number];
@@ -187,7 +191,7 @@ jarnax::dma::Resource* Manager::Acquire(size_t number, Peripheral const& periphe
         size_t c{0U}, i{0U};
         dma::Manager::GetIndexes(number, c, i);
         if constexpr (debug::dma) {
-            jarnax::print("Acquiring DMA Stream: %u on controller: %u (%u)\n", i, c, number);
+            jarnax::print("Acquiring DMA Stream: %" PRIz " on controller: %" PRIz " (%" PRIz ")\n", i, c, number);
         }
         resources_[number].Initialize(peripheral);
         return &resources_[number];

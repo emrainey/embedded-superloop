@@ -203,10 +203,10 @@
     } > AHB3
 
     /* These are used to zero initialize memory */
-    __ccm_beg = ORIGIN(CCM);
-    __ccm_end = ORIGIN(CCM) + LENGTH(CCM);
-    __sram_beg = ORIGIN(SRAM);
-    __sram_end = ORIGIN(SRAM) + LENGTH(SRAM);
+    __ccm_start = ORIGIN(CCM);
+    __ccm_limit = ORIGIN(CCM) + LENGTH(CCM);
+    __sram_start = ORIGIN(SRAM);
+    __sram_limit = ORIGIN(SRAM) + LENGTH(SRAM);
 
     /* Private Peripheral Block for Cortex M */
     .ppb (NOLOAD) : {

@@ -12,7 +12,7 @@ extern "C" NAKED [[noreturn]] void dummy_isr(void);
 namespace stm32 {
 
 /// TIM2 ISR Handler
-void timer2_isr(void) ISR;
+ISR void timer2_isr(void);
 
 /// DMA 1 ISR Handlers
 ISR void dma1_stream0_isr(void);

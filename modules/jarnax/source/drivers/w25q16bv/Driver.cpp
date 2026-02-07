@@ -124,7 +124,7 @@ core::Status Driver::Reinitialize(Instruction instruction, size_t write_size, si
 
     if (not transaction_.IsEmpty()) {
         auto data = transaction_.buffer.as_span<uint8_t>();
-        printer_("SPI Transaction Buffer Span = %p:%u\r\n", data.data(), data.count());
+        printer_("SPI Transaction Buffer Span = %p:%" PRIz "\r\n", static_cast<void*>(data.data()), data.count());
         memory::fill(data.data(), 0, data.count());
         auto write_span = data.subspan(0U, write_size);
         write_span[0U] = static_cast<uint8_t>(instruction);
@@ -200,7 +200,7 @@ core::Status Driver::GetStatusAndData(void) {
         // get the sent instruction
         w25q16bv::Instruction instruction = last_instruction_;
         auto read_span = span.subspan(transaction_.receive_offset, transaction_.send_size + transaction_.receive_size);
-        printer_("SPI Transaction Read Span = %p:%u\r\n", read_span.data(), read_span.count());
+        printer_("SPI Transaction Read Span = %p:%" PRIz "\r\n", read_span.data(), read_span.count());
         jarnax::print("SPI Transaction Read Span", read_span);
         if (instruction == w25q16bv::Instruction::ReleasePowerDown) {
             uint8_t device_id = read_span[0U];

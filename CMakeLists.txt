@@ -114,6 +114,3 @@ foreach(test IN LISTS LOCAL_UNITTESTS)
         add_subdirectory(${EMBEDDED_SUPERLOOP_PROJECT_ROOT}/modules/${test}/tests)
     endif()
 endforeach()
-
-# This should be added *after* all the modules, boards and applications
-add_doxygen_target()

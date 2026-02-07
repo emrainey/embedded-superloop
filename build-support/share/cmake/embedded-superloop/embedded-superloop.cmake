@@ -288,42 +288,6 @@ if(NOT TARGET coverage AND BUILD_COVERAGE)
     add_dependencies(coverage test)
 endif()
 
-function(add_doxygen_target)
-    # Documentation
-    find_package(Doxygen)
-
-    if(Doxygen_FOUND)
-        set(DOXYGEN_GENERATE_HTML YES)
-        set(DOXYGEN_GENERATE_MAN NO)
-        set(DOXYGEN_PROJECT_BRIEF "A simple C++ only Microcontroller System")
-        set(DOXYGEN_USE_MDFILE_AS_MAINPAGE README.md)
-        set(DOXYGEN_GENERATE_TREEVIEW YES)
-        set(DOXYGEN_DISABLE_SEARCH NO)
-        set(DOXYGEN_FULL_SIDEBAR NO)
-        set(DOXYGEN_HTML_EXTRA_STYLESHEET documentation/doxygen-awesome-css/doxygen-awesome.css)
-        set(DOXYGEN_HTML_COLORSTYLE LIGHT)
-        set(DOXYGEN_PREDEFINED "__attribute__(x)=")
-        set(DOXYGEN_IMAGE_PATH "documentation/images")
-
-        file(GLOB SUBDIRS LIST_DIRECTORIES true RELATIVE ${CMAKE_SOURCE_DIR} "modules/*")
-        # message(STATUS "Searching from ${CMAKE_SOURCE_DIR}/modules found ${SUBDIRS} modules for documentation")
-        foreach(_mod IN LISTS SUBDIRS)
-            file(GLOB_RECURSE _MOD_INCLUDES ${CMAKE_SOURCE_DIR}/${_mod}/include/**/*.hpp)
-            list(APPEND DOXYGEN_INCLUDES ${_MOD_INCLUDES})
-            file(GLOB_RECURSE _MOD_SOURCES ${CMAKE_SOURCE_DIR}/${_mod}/source/**/*.cpp)
-            list(APPEND DOXYGEN_SOURCES ${_MOD_SOURCES})
-        endforeach()
-        # message(STATUS "DOXYGEN_INCLUDES=${DOXYGEN_INCLUDES}")
-        # message(STATUS "DOXYGEN_SOURCES=${DOXYGEN_SOURCES}")
-        doxygen_add_docs(docs
-            # FILES
-            README.md
-            ${DOXYGEN_INCLUDES}
-            ${DOXYGEN_SOURCES}
-            USE_STAMP_FILE
-            COMMENT "Doxygen Generation")
-    endif()
-endfunction()
 
 # This should be called AFTER all the configuration, family and chips are defined
 function(export_properties)

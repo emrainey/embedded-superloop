@@ -1,22 +1,18 @@
 #ifndef COMPILER_HPP_
 #define COMPILER_HPP_
 
-#include <concepts>
-#include <type_traits>
-
 /// @file
 /// Contains compiler specific attributes and macros. These should be the only MACROS in the system due to how the attributes are different on
 /// different compilers.
 
+#define ATTRIBUTE(x) __attribute__(x)
 #if defined(UNITTEST)
-#define ATTRIBUTE(x)
 #define LINKER_SECTION(x)
 #define NAKED
 #define USED __attribute__((used))
 #define ALWAYS_INLINE
 #define ISR
-#elif defined(__GNUC__) or defined(__clang__)
-#define ATTRIBUTE(x) __attribute__(x)
+#elif (defined(__GNUC__) or defined(__clang__)) and defined(__arm__)
 #define LINKER_SECTION(x) ATTRIBUTE((used, section(x)))
 #define NAKED ATTRIBUTE((used, naked))
 #define USED ATTRIBUTE((used))
@@ -28,9 +24,16 @@
 
 #include <cinttypes>
 #include <compare>
+#include <concepts>
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <new>
+#include <type_traits>
+
+#if not defined(PRIz)
+#define PRIz "zu"
+#endif
 
 // clang-format off
 inline size_t operator""_Z( unsigned long long int value) {

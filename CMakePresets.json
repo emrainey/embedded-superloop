@@ -171,28 +171,16 @@
         {
             "name": "build-native-gcc",
             "inherits": "build-common",
-            "targets": [
-                "all",
-                "docs"
-            ],
             "configurePreset": "native-gcc"
         },
         {
             "name": "build-native-clang",
             "inherits": "build-common",
-            "targets": [
-                "all",
-                "docs"
-            ],
             "configurePreset": "native-clang"
         },
         {
             "name": "build-native-llvm",
             "inherits": "build-common",
-            "targets": [
-                "all",
-                "docs"
-            ],
             "configurePreset": "native-llvm"
         }
     ],

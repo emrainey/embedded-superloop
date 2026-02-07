@@ -289,7 +289,7 @@ core::Status Driver::Start(jarnax::i2c::Transaction& transaction) {
     // print the buffer count and the first bytes (up to the first 16 if possible)
     jarnax::print(
         "STM32 I2C Driver: Address: %" PRIx8 " Buffer capacity: %" PRIz " count: %" PRIz "\r\n",
-        transaction.address.small.address,
+        static_cast<uint8_t>(transaction.address.small.address),    // defeat the automatic int promotion
         transaction.buffer.capacity(),
         transaction.desired_count
     );

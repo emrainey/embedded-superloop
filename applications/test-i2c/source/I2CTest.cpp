@@ -53,17 +53,17 @@ core::Status I2CTest::TransactionCycle(std::uint8_t command) {
         assertion(not i2c_buffer_.IsEmpty());
         if (i2c_transaction_.address.small.read == 1) {
             jarnax::print(
-                "I2C Transaction buffer size: %zu received desired: %u, actual %u\r\n",
+                "I2C Transaction buffer size: %" PRIz " received desired: %" PRIz ", actual %" PRIz "\r\n",
                 i2c_buffer_.capacity(),
                 i2c_transaction_.desired_count,
                 i2c_transaction_.actual_count
             );
             auto read_span = i2c_buffer_.as_span().subspan(0, i2c_transaction_.actual_count);
             for (std::size_t i = 0; i < read_span.count(); i++) {
-                jarnax::print("Buffer[%zu]: %02X\r\n", i, read_span[i]);
+                jarnax::print("Buffer[%" PRIz "]: %02X\r\n", i, read_span[i]);
             }
         } else {
-            // jarnax::print("I2C Transaction buffer size: %zu wrote %u\r\n", i2c_buffer_.count(), i2c_transaction_.actual_count);
+            // jarnax::print("I2C Transaction buffer size: %" PRIz " wrote %u\r\n", i2c_buffer_.count(), i2c_transaction_.actual_count);
         }
         // this will move it back to the Uninitialized state
         core::Status status = i2c_transaction_.GetStatus();

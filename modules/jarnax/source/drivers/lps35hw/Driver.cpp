@@ -67,7 +67,7 @@ core::Status Driver::GetRegisterValue(uint8_t address, uint8_t count, uint8_t va
         // the span to the buffer
         auto span = buffer_.as_span();
         if constexpr (debug) {
-            jarnax::print("LPS35HW: GetRegisterValue: address=%x, count=%u, preface=%zu\r\n", address, count, preface);
+            jarnax::print("LPS35HW: GetRegisterValue: address=%x, count=%u, preface=%" PRIz "\r\n", address, count, preface);
             jarnax::print("SPI Data received: ", span);
         }
         // the address is in the first byte of the transmit side
@@ -83,7 +83,11 @@ core::Status Driver::GetRegisterValue(uint8_t address, uint8_t count, uint8_t va
             }
             // leave as success
         } else {
-            jarnax::print("Address mismatch: expected %" PRIx8 ", but got %" PRIx8 "\r\n", address, addr.bits.address);
+            jarnax::print(
+                "Address mismatch: expected %" PRIx8 ", but got %" PRIx8 "\r\n",
+                static_cast<uint8_t>(address),             // defeat the automatic int promotion
+                static_cast<uint8_t>(addr.bits.address)    // defeat the automatic int promotion
+            );
             status = core::Status{core::Result::NotExpected, core::Cause::State};
         }
         transaction_.Inform(jarnax::spi::Transaction::Event::Recycle);

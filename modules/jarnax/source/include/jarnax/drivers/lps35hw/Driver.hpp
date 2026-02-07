@@ -23,6 +23,8 @@ public:
     /// @param spi The SPI Driver to use for communication with the chip.
     /// @param allocator The Allocator to use for the buffer.
     Driver(jarnax::Timer const& timer, core::units::Iota duration, jarnax::spi::Driver& spi, core::Allocator& allocator);
+
+    /// @brief Destructor
     ~Driver() = default;
 
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
