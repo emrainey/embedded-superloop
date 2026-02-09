@@ -166,7 +166,7 @@ void Driver::Reset(void) {
 void Driver::HandleEvent(void) {
     // Handle the event here
     stm32::peripherals::InterIntegratedCircuit::Status1 status1 = i2c_.status1;    // read
-    if constexpr (debug::i2c_isr) {
+    if constexpr (debug::I2cIsr) {
         jarnax::print(
             "I2C Event Status1 st:%" PRIu32 " a:%" PRIu32 " rne:%" PRIu32 " te:%" PRIu32 " tf:%" PRIu32 "\n",
             static_cast<uint32_t>(status1.bits.start_bit),

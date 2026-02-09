@@ -1,5 +1,7 @@
 # STM32F407VE Memory Map
 
+(Generated w/ Copilot, so if there are issues, please file a bug report!)
+
 ## Overview
 
 The STM32F407VE microcontroller features multiple memory regions optimized for different purposes. This document details the complete memory layout as defined by the linker scripts.

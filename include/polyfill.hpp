@@ -2,7 +2,7 @@
 #define POLYFILL_HPP_
 
 /// @file
-/// The C++ PolyFill for features which are not available in the current version of C++
+/// @brief The C++ PolyFill for features which are not available in the current version of C++
 
 #include <cstddef>
 #include <cstdint>

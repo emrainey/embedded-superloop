@@ -162,7 +162,7 @@ jarnax::dma::Resource* Manager::Assign(Peripheral const& peripheral) {
                     if (peripheral == dma_endpoints[controller][index][channel]) {
                         used_[number] = true;
                         // assign the Channel!
-                        if constexpr (debug::dma) {
+                        if constexpr (debug::Dma) {
                             jarnax::print(
                                 "Assigning DMA Stream: %" PRIz " on controller: %" PRIz " (%" PRIz ") (will be channel %" PRIz ")\n",
                                 index,
@@ -190,7 +190,7 @@ jarnax::dma::Resource* Manager::Acquire(size_t number, Peripheral const& periphe
         used_[number] = true;
         size_t c{0U}, i{0U};
         dma::Manager::GetIndexes(number, c, i);
-        if constexpr (debug::dma) {
+        if constexpr (debug::Dma) {
             jarnax::print("Acquiring DMA Stream: %" PRIz " on controller: %" PRIz " (%" PRIz ")\n", i, c, number);
         }
         resources_[number].Initialize(peripheral);
@@ -377,7 +377,7 @@ void Manager::HandleInterrupt(uint32_t controller, uint32_t stream) {
     dma::Manager::Flags flags;
     auto status = GetStreamStatus(number, flags);
     if (status) {
-        if constexpr (debug::dma_isr) {
+        if constexpr (debug::DmaIsr) {
             jarnax::print(
                 "DMA Interrupt: %" PRIu32 ", %" PRIu32 " status: c:%" PRIu32 " h:%" PRIu32 " e:%" PRIu32 " dme:%" PRIu32 " fe:%" PRIu32 "\n",
                 controller,

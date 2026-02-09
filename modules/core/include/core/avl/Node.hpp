@@ -25,7 +25,7 @@ enum class Side : int {
 
 /// @brief A template node wrapper class for an AVL tree.
 /// @tparam TYPE The type to wrap in the node.
-template <Comparible TYPE>    // C++20 Concepts FTW!
+template <Comparable TYPE>    // C++20 Concepts FTW!
 class Node {
 public:
     /// @brief The balance factor minimum

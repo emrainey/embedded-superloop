@@ -32,7 +32,7 @@ void Resource::Initialize(Peripheral const& peripheral) {
             stm32::peripherals::DirectMemoryAccess::Stream::Configuration::DataTransferDirection::MemoryToMemory;
     }
     size_t channel = stm32::dma::GetChannelFromStreamPeripheral(controller_index_, stream_index_, peripheral);
-    if constexpr (debug::dma) {
+    if constexpr (debug::Dma) {
         jarnax::print("DMA Stream %" PRIz " assigned to channel %" PRIz "\n", stream_number_, channel);
     }
     configuration.bits.channel_selection = (channel & 0x3U);    // mask to prevent overflow
@@ -103,7 +103,7 @@ core::Status Resource::ConfigureCopyToPeripheral(uintptr_t source, size_t count,
     configuration.bits.half_transfer_interrupt_enable = 0;
     configuration.bits.transfer_complete_interrupt_enable = 1;
     stream_.configuration = configuration;    // write it out so we can see the settings
-    if constexpr (debug::dma) {
+    if constexpr (debug::Dma) {
         jarnax::print("Configured Copy %p <= %p, %" PRIz " elements\n", reinterpret_cast<void*>(destination), reinterpret_cast<void*>(source), count);
     }
     return core::Status{};
@@ -161,7 +161,7 @@ core::Status Resource::ConfigureCopyFromPeripheral(uintptr_t source, uintptr_t d
     configuration.bits.half_transfer_interrupt_enable = 0;
     configuration.bits.transfer_complete_interrupt_enable = 1;
     stream_.configuration = configuration;    // write it out so we can see the settings
-    if constexpr (debug::dma) {
+    if constexpr (debug::Dma) {
         jarnax::print("Configured Copy %p => %p, %" PRIz " elements\n", reinterpret_cast<void*>(source), reinterpret_cast<void*>(destination), count);
     }
     return core::Status{};
@@ -180,7 +180,7 @@ core::Status Resource::GetStatus(void) const {
     // get the status of the stream
     dma::Manager::Flags flags;
     stm32::dma::Manager::GetStreamStatus(stream_number_, flags);
-    if constexpr (debug::dma) {
+    if constexpr (debug::Dma) {
         jarnax::print(
             "DMA Stream %" PRIz " Status: Complete: %" PRIu32 ", Half Complete: %" PRIu32 ", Error: %" PRIu32 ", Direct Mode Error: %" PRIu32
             ", FIFO Error: %" PRIu32 "\n",

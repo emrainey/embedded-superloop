@@ -96,17 +96,17 @@ struct Empty {};
 
 template <size_t N>
 struct Data : Address {
-    uint8_t data[N];
+    uint8_t data[N];    ///< Data buffer for reading or writing
 };
 
 template <size_t N>
 struct Dummy {
-    uint8_t dummy[N];
+    uint8_t dummy[N];    ///< Dummy buffer
 };
 
 template <size_t N>
 struct ID : Dummy<N> {
-    uint8_t id;
+    uint8_t id;    ///< ID value
 };
 
 struct Format {

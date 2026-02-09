@@ -200,6 +200,7 @@
         "testMate.cpp.test.parallelExecutionOfExecutableLimit": 2,
         "cSpell.words": [
             "distcc"
-        ]
+        ],
+        "cmake.configureOnOpen": false
     }
 }

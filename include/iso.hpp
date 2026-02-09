@@ -2,7 +2,7 @@
 #define ISO_HPP_
 
 /// @file
-/// The ISO Prefixes for base 10 and base 2 powers
+/// @brief The ISO Prefixes for base 10 and base 2 powers
 
 #include <cstddef>
 #include <cstdint>
@@ -31,14 +31,17 @@ static_assert(polyfill::log2(gibi) == 30, "Must be this value exactly");
 
 }    // namespace prefix
 
+/// @brief User-defined literal for gibibytes
 constexpr std::size_t operator""_GiB(unsigned long long value) {
     return static_cast<std::size_t>(value) * prefix::gibi;
 }
 
+/// @brief User-defined literal for mebibytes
 constexpr std::size_t operator""_MiB(unsigned long long value) {
     return static_cast<std::size_t>(value) * prefix::mebi;
 }
 
+/// @brief User-defined literal for kibibytes
 constexpr std::size_t operator""_KiB(unsigned long long value) {
     return static_cast<std::size_t>(value) * prefix::kibi;
 }

@@ -80,7 +80,7 @@ public:
     /// @param event The input event
     /// @param status The status to assign to the completion status if the event is Completed
     void Inform(Event event, core::Status status = core::Status{core::Result::NotAvailable, core::Cause::Parameter}) {
-        if constexpr (debug::info) {
+        if constexpr (debug::Info) {
             jarnax::print("Transactable::Inform: %d (Final? %s)\n", static_cast<int>(event), IsFinal() ? "true" : "false");
         }
         if (not IsFinal()) {
@@ -127,7 +127,7 @@ public:
             return true;
         } else {
             // do nothing
-            if constexpr (debug::states) {
+            if constexpr (debug::States) {
                 jarnax::print("Reset: Not Final\n");
             }
             return false;
@@ -148,14 +148,14 @@ protected:
     /// @copydoc core::StateMachine<TransactionState>::Callback::OnEnter
     void OnEnter() override {
         // do nothing
-        if constexpr (debug::states) {
+        if constexpr (debug::States) {
             jarnax::print("Transactable::OnEnter\n");
         }
     }
 
     /// @copydoc core::StateMachine<TransactionState>::Callback::OnEntry
     void OnEntry(TransactionState state) override {
-        if constexpr (debug::states) {
+        if constexpr (debug::States) {
             jarnax::print("Transactable::OnEntry: %d\n", static_cast<int>(state));
         }
         if (state == TransactionState::Uninitialized) {
@@ -168,7 +168,7 @@ protected:
             status_ = core::Status{core::Result::Busy, core::Cause::State};
         } else if (state == TransactionState::Complete) {
             duration_ = timer_.GetMicroseconds() - start_;
-            if constexpr (debug::duration) {
+            if constexpr (debug::Duration) {
                 jarnax::print("Transactable::OnComplete: Duration: %" PRIu64 " microseconds\n", duration_.value());
             }
         }
@@ -176,7 +176,7 @@ protected:
 
     /// @copydoc core::StateMachine<TransactionState>::Callback::OnCycle
     TransactionState OnCycle(TransactionState state) override {
-        if constexpr (debug::states) {
+        if constexpr (debug::States) {
             jarnax::print("Transactable::OnCycle: %d w/ event=%d\n", static_cast<int>(state), static_cast<int>(event_));
             Print(core::GetPrinter());
         }
@@ -235,14 +235,14 @@ protected:
     /// @copydoc core::StateMachine<TransactionState>::Callback::OnExit
     void OnExit(TransactionState state) override {
         // do nothing
-        if constexpr (debug::states) {
+        if constexpr (debug::States) {
             jarnax::print("Transactable::OnExit: %d\n", static_cast<int>(state));
         }
     }
 
     /// @copydoc core::StateMachine<TransactionState>::Callback::OnTransition
     void OnTransition(TransactionState from, TransactionState to) override {
-        if constexpr (debug::states) {
+        if constexpr (debug::States) {
             jarnax::print("Transactable::OnTransition: %d -> %d\n", static_cast<int>(from), static_cast<int>(to));
         }
     }
@@ -250,7 +250,7 @@ protected:
     /// @copydoc core::StateMachine<TransactionState>::Callback::OnExit()
     void OnExit() override {
         // do nothing
-        if constexpr (debug::states) {
+        if constexpr (debug::States) {
             jarnax::print("Transactable::OnExit\n");
         }
     }

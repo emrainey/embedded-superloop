@@ -2,17 +2,44 @@
 #define COMPILER_HPP_
 
 /// @file
-/// Contains compiler specific attributes and macros. These should be the only MACROS in the system due to how the attributes are different on
+/// @brief Contains compiler specific attributes and macros. These should be the only MACROS in the system due to how the attributes are different on
 /// different compilers.
 
+#if defined(__GNUC__) or defined(__clang__)
+/// @brief Defines a compiler-specific attribute
 #define ATTRIBUTE(x) __attribute__(x)
+#endif
+
+/// @def LINKER_SECTION
+/// @brief Places a variable or function in a specific linker section
+
+/// @def NAKED
+/// @brief Marks a function as naked, meaning it has no prologue/epilogue
+
+/// @def USED
+/// @brief Marks a variable or function as used, preventing the compiler from optimizing it away
+
+/// @def ALWAYS_INLINE
+/// @brief Marks a function as always inline, preventing the compiler from generating a separate function call
+
+/// @def ISR
+/// @brief Marks a function as an interrupt service routine. This applies several attributes to ensure the functions are used and do not have a
+/// prologue/epilogue.
+
 #if defined(UNITTEST)
+
+// Unit Testing on GCC/Clang typically will not need or want the on-target attributes defined as
+// they interfere with the normal operation of the unit tests.
+
 #define LINKER_SECTION(x)
 #define NAKED
 #define USED __attribute__((used))
 #define ALWAYS_INLINE
 #define ISR
 #elif (defined(__GNUC__) or defined(__clang__)) and defined(__arm__)
+
+// On GCC/Clang for ARM, define the attributes for the target
+
 #define LINKER_SECTION(x) ATTRIBUTE((used, section(x)))
 #define NAKED ATTRIBUTE((used, naked))
 #define USED ATTRIBUTE((used))
@@ -35,22 +62,22 @@
 #define PRIz "zu"
 #endif
 
-// clang-format off
-inline size_t operator""_Z( unsigned long long int value) {
-    return size_t(value);
+/// @brief User-defined literal for size_t
+inline size_t operator""_Z(unsigned long long int value) {
+    return static_cast<size_t>(value);
 }
-// clang-format on
 
-/// On 32 bit system the precision type that is passed around on the stack is a float, on 64 bit systems it is a double.
 #if defined(__SIZEOF_POINTER__) && __SIZEOF_POINTER__ == 8
+/// On 64 bit system the precision type that is passed around on the stack is a double.
 using precision = double;
-#else
+#else    // 32 bit systems
+/// On 32 bit system the precision type that is passed around on the stack is a float.
 using precision = float;
 #endif
 
 /// A concept that requires the type to implement all the comparison operators
 template <typename TYPE>
-concept Comparible = requires(std::remove_reference_t<TYPE> const& t, std::remove_reference_t<TYPE> const& u) {
+concept Comparable = requires(std::remove_reference_t<TYPE> const& t, std::remove_reference_t<TYPE> const& u) {
     { t < u } -> std::convertible_to<bool>;
     { t <= u } -> std::convertible_to<bool>;
     { t > u } -> std::convertible_to<bool>;

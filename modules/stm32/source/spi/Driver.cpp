@@ -165,7 +165,7 @@ core::Status Driver::Initialize(core::units::Hertz peripheral_frequency, core::u
 }
 
 void Driver::PrintTransaction(char const* const prefix, jarnax::spi::Transaction const& transaction) const {
-    if constexpr (debug::spi) {
+    if constexpr (debug::Spi) {
         auto span = transaction.buffer.as_span();
         jarnax::print(
             "%s: SPI transaction: TX: %" PRIz "/%" PRIz " RX: %" PRIz "/%" PRIz " off: %" PRIz " buffer=%p:%" PRIz "\n",
@@ -384,7 +384,7 @@ void Driver::HandleInterrupt(void) {
     status = spi_.status;    // read the status register
 
     statistics_.interrupts++;
-    if constexpr (debug::spi_isr) {
+    if constexpr (debug::SpiIsr) {
         jarnax::print(
             "SPI ISR Status: %" PRIx32 " ISRs:%" PRIz " u:%" PRIu32 " o:%" PRIu32 " tbe:%" PRIu32 " rbne:%" PRIu32 " crce:%" PRIu32 " mf:%" PRIu32
             " b:%" PRIu32 "\n",
@@ -413,7 +413,7 @@ void Driver::HandleInterrupt(void) {
                 auto rx_span = transaction_->buffer.as_span().subspan(transaction_->receive_offset, transaction_->receive_size);
                 data = spi_.data;                                                                                      // read
                 rx_span[transaction_->received_size++] = static_cast<jarnax::spi::DataUnit>(data.bits.data & mask);    // write to buffer
-                if constexpr (debug::spi_isr) {
+                if constexpr (debug::SpiIsr) {
                     jarnax::print("SPI Read %hx\n", data.bits.data);
                 }
                 statistics_.bytes_received++;

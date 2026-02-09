@@ -145,7 +145,7 @@ bool Driver::AreCommandsComplete(core::Status& status) {
             statistics_.failures++;                                  // Increment the failure count if the transaction failed
             jarnax::print("SSD1306 Transaction Error: ", status);    // Log the error if the transaction failed
         } else {
-            if constexpr (debug::inform) {
+            if constexpr (debug::Inform) {
                 jarnax::print("SSD1306 Transaction Success: ", status);    // Log the success if the transaction succeeded
             }
         }

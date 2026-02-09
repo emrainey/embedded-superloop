@@ -98,7 +98,7 @@ void Driver::ComputeBaudRate(uint32_t baud_rate) const {
     brr.bits.div_mantissa = mantissa & 0xFFF;
     brr.bits.div_fraction = fraction & 0x0F;
     usart_.baudrate = brr;    // write
-    if constexpr (debug::usart) {
+    if constexpr (debug::Usart) {
         jarnax::print(
             "USART divider: %lf mantissa:%" PRIu32 " fraction:%" PRIu32 "\r\n",
             static_cast<double>(divider),
@@ -115,7 +115,7 @@ uint32_t Driver::GetBaudRate(void) const {
     float over8f = control1.bits.oversampling_mode ? 8.0f : 16.0f;
     float divider = (static_cast<float>(brr.bits.div_mantissa) + (static_cast<float>(brr.bits.div_fraction) / over8f));
     uint32_t baud_rate = static_cast<uint32_t>(static_cast<float>(peripheral_frequency_.value()) / (divider * over8f));
-    if constexpr (debug::usart) {
+    if constexpr (debug::Usart) {
         jarnax::print(
             "USART divider: %lf mantissa:%" PRIu32 " fraction:%" PRIu32 " => BaudRate: %" PRIu32 "\r\n",
             static_cast<double>(divider),
@@ -199,7 +199,7 @@ core::Status Driver::Configure(uint32_t desired_baud_rate, bool parity, uint8_t 
     if (actual_baud_rate != desired_baud_rate) {
         uint32_t distance = (actual_baud_rate > desired_baud_rate) ? actual_baud_rate - desired_baud_rate : desired_baud_rate - actual_baud_rate;
         float error = static_cast<float>(distance) / static_cast<float>(desired_baud_rate);
-        if constexpr (debug::usart) {
+        if constexpr (debug::Usart) {
             jarnax::print("USART BaudRate error: %lf %% (%" PRIu32 ")\r\n", static_cast<double>(error * 100.0f), static_cast<uint32_t>(distance));
         }
     }
@@ -220,7 +220,7 @@ core::Status Driver::Configure(uint32_t desired_baud_rate, bool parity, uint8_t 
 
 void Driver::HandleInterrupt(void) {
     peripherals::UniversalSynchronousAsynchronousReceiverTransmitter::Status status = usart_.status;    // read
-    if constexpr (debug::usart_isr) {
+    if constexpr (debug::UsartIsr) {
         jarnax::print(
             "USART Status: %" PRIx32 " pe:%" PRIu32 " fe:%" PRIu32 " nf:%" PRIu32 " oe:%" PRIu32 " id:%" PRIu32 " rxne:%" PRIu32 " txe:%" PRIu32
             " tc:%" PRIu32 "\r\n",

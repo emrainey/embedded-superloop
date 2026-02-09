@@ -2,11 +2,13 @@
 
 namespace ssd1306 {
 
-/**
-    Symbols are constructed as a set of 8 bytes with each byte having 8 bits
+/*! @brief The SSD1306 symbols.
 
-   0 1 2 3 4 5 6 7 (bytes)
-  +-+-+-+-+-+-+-+-+
+  @details Symbols are constructed as a set of 8 bytes with each byte having 8 bits
+
+  @code
+   0 1 2 3 4 5 6 7 (<-bytes)
+  +-+-+-+-+-+-+-+-+ (bits)
 0 | | | | | | | | | (0x1)
   +-+-+-+-+-+-+-+-+
 1 | | |X|X|X|X| | | (0x2)
@@ -23,14 +25,14 @@ namespace ssd1306 {
   +-+-+-+-+-+-+-+-+
 7 | | | | | | | | | (0x80)
   +-+-+-+-+-+-+-+-+
-  This is the 2
+  @endcode
+  This is the 2 symbol.
 */
 namespace symbols {
 symbol const block = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 symbol const space = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 symbol const box = {0x00, 0x7E, 0x42, 0x42, 0x42, 0x42, 0x7E, 0x00};
 symbol const hash = {0x00, 0x24, 0x7E, 0x24, 0x24, 0x7E, 0x24, 0x00};
-
 symbol const alphabet[26] = {
     {0x00, 0x78, 0x14, 0x12, 0x12, 0x14, 0x78, 0x00},    // A
     {0x00, 0x7E, 0x4A, 0x4A, 0x4A, 0x4A, 0x34, 0x00},    // B
@@ -59,7 +61,6 @@ symbol const alphabet[26] = {
     {0x00, 0x02, 0x04, 0x78, 0x78, 0x04, 0x02, 0x00},    // Y
     {0x00, 0x42, 0x62, 0x52, 0x4A, 0x46, 0x42, 0x00},    // Z
 };
-
 symbol const numerals[10] = {
     {0x00, 0x3C, 0x62, 0x52, 0x4A, 0x46, 0x3C, 0x00},    // 0
     {0x00, 0x40, 0x48, 0x44, 0x7E, 0x40, 0x40, 0x00},    // 1
@@ -81,13 +82,13 @@ symbol const& to_symbol(char c) {
     } else if (c >= '0' and c <= '9') {
         return numerals[c - '0'];
     } else if (c == ' ') {
-        return space;    // Return space for unsupported characters
+        return space;                              // Return space for unsupported characters
     } else if (c == '#') {
         return hash;                               // Return hash for unsupported characters
-    } else if (c == static_cast<char>(0xa6U)) {    // Box character
+    } else if (c == static_cast<char>(0xA6U)) {    // Box character
         return box;                                // Return box for unsupported characters
     } else {
-        return space;    // Return space for unsupported characters
+        return space;                              // Return space for unsupported characters
     }
 }
 

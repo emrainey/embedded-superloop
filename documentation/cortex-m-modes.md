@@ -1,13 +1,32 @@
 # Processor Modes
 
-There are several "dimensions" to the Mode discussion.
+Cortex-M uses three independent axes of "modes" that often get conflated:
 
-* Privilege - Determines access in the MPU to protected regions of memory and to specific (co)processor instructions.
-* Stack - Stores data and frames on one of two stacks Main (stored in `MSP`) and Process (stored in `PSP`)
-* Execution - Code can be executed in either Handler (via any handler) or Thread (normal)
+* Privilege: access permissions for MPU regions and privileged system instructions.
+* Stack: which stack pointer is active for exception entry/return.
+* Execution: Thread mode (normal code) vs Handler mode (exceptions/interrupts).
 
-In this mix several concepts together with some disjointed parlance but the core notion is that when you are in the elevated Mode you'll be executing a `handler` which will be `privileged`, with it's context on `main` stack.
+These axes combine to define what is possible at any time.
 
-When you are in the non-elevated mode, you'll be in some `Thread` of execution, which will be `non-privileged` with it's context on the `process` stack.
+| Execution | Privilege | Stack pointer | What is possible |
+| --- | --- | --- | --- |
+| Thread | Privileged or Unprivileged | PSP or MSP (configurable) | Normal code; unprivileged thread cannot access protected regions or privileged instructions. |
+| Handler | Always Privileged | MSP (fixed) | Exception/ISR code with full privileged access. |
 
-When you call an `svc #IMM` in `Thread` mode, the processor will save it's state on the `Process` Stack and then swap to the `Main` stack and run a `handler` in `privileged` mode.
+Key rules:
+
+* Handler mode is always privileged and always uses the Main stack.
+* Thread mode can be privileged or unprivileged and can use either stack pointer.
+* Unprivileged thread code cannot switch to privileged; it must request service via exceptions.
+
+Typical flow:
+
+* Thread mode executes application code, often unprivileged on the Process stack.
+* An exception (IRQ, fault, or `svc #imm`) causes hardware to push the Thread context to the current stack, switch to the Main stack, and enter Handler mode as privileged.
+* Returning from the exception restores the prior Thread mode privilege and stack selection.
+
+Reset vector:
+
+* On reset, the core loads the initial MSP from the vector table at address 0x00000000 and then loads the Reset handler address from 0x00000004.
+* The Reset handler runs in Handler mode, privileged, using the Main stack.
+* Reset can be triggered by power-on reset, external reset pin, watchdog reset, software system reset (e.g., `SCB->AIRCR`), or brown-out conditions (device dependent).

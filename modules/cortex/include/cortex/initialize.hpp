@@ -10,7 +10,7 @@
 
 namespace cortex {
 
-/// Contains the methods to initialize various parts of the MCU.
+/// @brief Contains the methods to initialize various parts of the MCU.
 /// @warning These should ONLY be called by the boot sequence!
 namespace initialize {
 

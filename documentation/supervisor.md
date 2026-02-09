@@ -14,9 +14,9 @@ svc #IMM
 ### How could/should it be used?
 
 * `IMM` - This could be the enumerated value of the "command" or some other indicator of calling convention.
-* The Registers are 32 bit values, but can be any 32 bit value (pointer, float, uint32_t, etc)
-* Returned values should not be pointers or references back to supervisor memory (which will be protected). Access to protected memory will fault.
-* Returned values should be system codes (if they can fit in a single uint32_t)
+* The Registers are 32 bit values, but can be any 32 bit value (pointer, float, uint32_t, etc) and should use `cortex::word` type.
+* Returned values should not be pointers or references back to supervisor memory (which will be protected). Access to protected memory from unprivileged code will fault.
+* Returned values should be system codes (if they can fit in a single `cortex::word`)
 
 ### Usecases
 
@@ -29,7 +29,7 @@ svc #IMM
 
 All `IMM` are just enumeration of commands. Parameters are ad-hoc. Returns are simple Status codes.
 
-`auto ret = foo(x, y, z, w);` becomes `auto ret = supervisor<FOO>(x, y, z, w);`, internally a switch cases handles `case FOO:` which knows to how reinterpret `arg0-arg3`. Things are added manually.
+`auto ret = foo(x, y, z, w);` becomes `auto ret = supervisor<FOO>(x, y, z, w);`, internally a switch cases handles `case FOO:` which knows to how reinterpret `arg0-arg3`. Things are added manually to the enumeration of `IMM` values.
 
 #### Pros
 
@@ -38,7 +38,7 @@ All `IMM` are just enumeration of commands. Parameters are ad-hoc. Returns are s
 #### Cons
 
 * Poor object oriented abstraction, hard to mock.
-* Lots of duplicated code.
+* Lots of duplicated, boilerplate code.
 
 ### Option 2
 
@@ -76,7 +76,7 @@ All `IMM` indicate which type of C++ interface they are using. The System mainta
 
 #### Cons
 
-* Some repeated code over each different interface type
+* Some repeated boilerplate code over each different interface type
 
 ### Option 3
 

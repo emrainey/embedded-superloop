@@ -5,6 +5,7 @@
 /// The header for the core units of measure
 /// @brief This file contains the definitions for the core units of measure used in the Jarnax Framework.
 
+#include <cstddef>
 #include <cstdint>
 #include <type_traits>
 

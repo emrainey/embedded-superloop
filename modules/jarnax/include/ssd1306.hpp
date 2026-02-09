@@ -2,7 +2,7 @@
 #define SDD1306_HPP
 
 /// @file
-/// SSD1306 OLED Controller Register Definitions
+/// @brief SSD1306 OLED Controller Register Definitions
 
 #include <cstddef>
 #include <cstdint>
@@ -12,17 +12,25 @@
 #include <cstdio>
 #endif
 
+/// @brief The SSD1306 OLED Controller namespace
 namespace ssd1306 {
 
+/// @brief A symbol is an 8x8 bitmap representing a character or icon.
 using symbol = uint8_t[8];
 static_assert(sizeof(symbol) == 8u, "Must be 8 bytes in size");
 
 namespace symbols {
+/// @brief The block symbol
 extern symbol const block;
+/// @brief The space symbol
 extern symbol const space;
+/// @brief The box symbol
 extern symbol const box;
+/// @brief The hash symbol
 extern symbol const hash;
+/// @brief The english alphabet symbols A-Z (capitals only)
 extern symbol const alphabet[26];
+/// @brief The numeral symbols 0-9
 extern symbol const numerals[10];
 
 /// @brief Converts a character to a symbol.
@@ -31,6 +39,7 @@ extern symbol const numerals[10];
 symbol const& to_symbol(char c);
 }    // namespace symbols
 
+/// @brief The Control bytes for the SSD1306
 struct Control {
     /// @brief Value to use for Commands Following this Byte
     /// Co = 1, D/C = 0
@@ -43,6 +52,7 @@ struct Control {
     static constexpr std::uint8_t DataOnly{0x00U};
 };
 
+/// @brief The Command bytes for the SSD1306
 struct Command {
     // Lower Column Addresses = 0x00 to 0x0F
     // Higher Column Addresses = 0x10 to 0x1F
@@ -110,6 +120,11 @@ public:
         }
     }
 
+    /// @brief Sets a pixel in the image.
+    /// @param value The value to set the pixel to (true for on, false for off).
+    /// @param x The x-coordinate of the pixel.
+    /// @param y The y-coordinate of the pixel.
+    /// @return True if the pixel was set successfully, false otherwise.
     bool set(bool value, uint8_t x, uint8_t y) {
         if (x < width and y < height) {
             _set(value, x, y);
@@ -119,6 +134,10 @@ public:
         }
     }
 
+    /// @brief Gets the value of a pixel in the image.
+    /// @param x The x-coordinate of the pixel.
+    /// @param y The y-coordinate of the pixel.
+    /// @return True if the pixel is on, false otherwise.
     bool get(uint8_t x, uint8_t y) const {
         if (x < width and y < height) {
             uint8_t row = y >> 3;
@@ -129,6 +148,12 @@ public:
         }
     }
 
+    /// @brief Clears a rectangular area of the image.
+    /// @param x The x-coordinate of the top-left corner of the area.
+    /// @param y The y-coordinate of the top-left corner of the area.
+    /// @param dx The width of the area.
+    /// @param dy The height of the area.
+    /// @return True if the area was cleared successfully, false otherwise.
     bool clear(uint8_t x, uint8_t y, uint8_t dx, uint8_t dy) {
         if (((y + dy) < y) or ((x + dx) < x)) {
             return false;
@@ -141,8 +166,11 @@ public:
         return true;
     }
 
+    /// @brief Clears the entire image.
     void clear(void) { memory::fill(&data[0][0], 0, sizeof(data)); }
 
+    /// @brief Fills the image with a pattern.
+    /// @param pattern The pattern to fill the image with.
     void pattern(Pattern pattern) {
         if (pattern == Pattern::FlippingCounters) {
             for (uint8_t p = 0; p < pages; p++) {
@@ -185,6 +213,7 @@ public:
         fflush(stdout);
     }
 
+    /// @brief Renders the image to stdout for debugging purposes.
     void render(void) {
         for (uint8_t y = 0; y < height; y++) {
             for (uint8_t x = 0; x < width; x++) {
@@ -195,7 +224,9 @@ public:
         printf("---128x32--- (set terminal to 128x34)\r\n");
     }
 #endif
+    /// @brief Gets a pointer to the image data.
     constexpr uint8_t const* GetData(void) const { return &data[0][0]; }
+    /// @brief Gets the size of the image data in bytes.
     constexpr std::size_t GetSize(void) const { return sizeof(data); }
 
 protected:
@@ -220,17 +251,30 @@ protected:
     }
 };
 
+/// @brief A 128x32 image.
 using Image128x32 = Image<128, 32>;
 
+/// @brief The Screen class represents a screen that can display symbols.
+/// @tparam W The width of the screen in symbols.
+/// @tparam H The height of the screen in symbols.
 template <size_t W, size_t H>
 class Screen {
 public:
+    /// @brief The width of the screen in symbols.
     constexpr static uint8_t width{W / sizeof(symbol)};
+    /// @brief The height of the screen in symbols.
     constexpr static uint8_t height{H};
 
+    /// @brief Constructs a Screen object with the given image.
+    /// @param im The image to associate with the screen.
     Screen(Image<W, H>& im)
         : image{im} {}
 
+    /// @brief Writes a symbol to the screen at the specified coordinates.
+    /// @param x The x-coordinate of the symbol.
+    /// @param y The y-coordinate of the symbol.
+    /// @param sym The symbol to write.
+    /// @return True if the symbol was written successfully, false otherwise.
     bool write(uint8_t x, uint8_t y, symbol const& sym) {
         if (x < width and y < height) {
             // memcpy(symbols[x][y], sym, sizeof(symbol));
@@ -242,11 +286,13 @@ public:
         return false;
     }
 
+    /// @brief Clears the screen by filling it with spaces.
     void clear(void) {
         memory::fill(&symbols[0][0][0], 0, sizeof(symbols));
         image.clear();
     }
 
+    /// @brief Fills the screen with a checkerboard pattern.
     void checkerboard(void) {
         for (uint8_t v = 0; v < height; v++) {
             for (uint8_t u = 0; u < width; u++) {
@@ -259,7 +305,7 @@ public:
         }
     }
 
-    /// @brief Writes a string of characters to the screen, wrapping at the edges
+    /// @brief Writes a string of characters to the screen, wrapping at the edges.
     /// @param x The x-coordinate to start writing at
     /// @param y The y-coordinate to start writing at
     /// @param string The string to write, must be null-terminated
@@ -297,6 +343,7 @@ public:
     }
 
 #if defined(UNITTEST)
+    /// @brief Dumps the contents of the screen to the console.
     void dump(void) {
         for (uint8_t y = 0; y < height; y++) {
             for (uint8_t x = 0; x < width; x++) {
@@ -311,6 +358,7 @@ public:
     }
 #endif
 
+    /// @brief Renders the contents of the screen to the associated image.
     void render(void) {
         for (uint8_t y = 0; y < height; y++) {
             for (uint8_t x = 0; x < width; x++) {
@@ -327,10 +375,11 @@ public:
     }
 
 protected:
-    Image<W, H>& image;
-    symbol symbols[height][width];
+    Image<W, H>& image;               ///< @brief The image associated with the screen.
+    symbol symbols[height][width];    ///< @brief The symbols currently displayed on the screen.
 };
 
+/// @brief A 128x32 screen.
 using Screen128x32 = Screen<128, 32>;
 
 }    // namespace ssd1306
