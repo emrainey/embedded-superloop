@@ -59,8 +59,8 @@ void print(char const *const source, core::Status status) {
     print(
         "%s => Status{Result=%d, Cause=%u Location=%" PRIxPTR "}\n",
         source,
-        to_underlying(status.GetResult()),
-        to_underlying(status.GetCause()),
+        polyfill::to_underlying(status.GetResult()),
+        polyfill::to_underlying(status.GetCause()),
         status.GetLocation()
     );
 }

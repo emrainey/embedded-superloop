@@ -13,7 +13,7 @@ uart::Statistics* uart_statistics[4] = {nullptr, nullptr, nullptr, nullptr};    
 
 /// Interrupt service routine for UART4
 void uart4_isr(void) {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter4)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter4)]++;
     if (uart_instances[0]) {
         uart_instances[0]->HandleInterrupt();
     }
@@ -21,7 +21,7 @@ void uart4_isr(void) {
 
 /// Interrupt service routine for UART5
 void uart5_isr(void) {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter5)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter5)]++;
     if (uart_instances[1]) {
         uart_instances[1]->HandleInterrupt();
     }
@@ -30,7 +30,7 @@ void uart5_isr(void) {
 #if defined(STM32H7XX)
 /// Interrupt service routine for UART7
 void uart7_isr(void) {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter7)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter7)]++;
     if (uart_instances[2]) {
         uart_instances[2]->HandleInterrupt();
     }
@@ -38,7 +38,7 @@ void uart7_isr(void) {
 
 /// Interrupt service routine for UART8
 void uart8_isr(void) {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter8)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter8)]++;
     if (uart_instances[3]) {
         uart_instances[3]->HandleInterrupt();
     }

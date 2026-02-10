@@ -19,7 +19,7 @@ spi::Driver::Statistics* spi_statistics[3] = {nullptr, nullptr, nullptr};
 
 /// Interrupt service routine for SPI1
 void spi1_isr(void) {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::SerialPeripheralInterface1)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::SerialPeripheralInterface1)]++;
     if (spi_instances[0]) {
         spi_instances[0]->HandleInterrupt();
     }
@@ -27,7 +27,7 @@ void spi1_isr(void) {
 
 /// Interrupt service routine for SPI2
 void spi2_isr(void) {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::SerialPeripheralInterface2)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::SerialPeripheralInterface2)]++;
     if (spi_instances[1]) {
         spi_instances[1]->HandleInterrupt();
     }
@@ -35,7 +35,7 @@ void spi2_isr(void) {
 
 /// Interrupt service routine for SPI3
 void spi3_isr(void) {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::SerialPeripheralInterface3)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::SerialPeripheralInterface3)]++;
     if (spi_instances[2]) {
         spi_instances[2]->HandleInterrupt();
     }
@@ -121,7 +121,7 @@ core::Status Driver::Initialize(core::units::Hertz peripheral_frequency, core::u
     stm32::peripherals::SerialPeripheralInterface::Control1 control1;
     stm32::peripherals::SerialPeripheralInterface::Control2 control2;
 
-    std::uint32_t setting = to_underlying(FindClosestDivider(peripheral_frequency_, desired_spi_clock_frequency));
+    std::uint32_t setting = polyfill::to_underlying(FindClosestDivider(peripheral_frequency_, desired_spi_clock_frequency));
     // disable at first
     control1 = spi_.control1;                              // read
     control1.bits.clock_polarity = 0;                      // first clock transition is the first data capture edge

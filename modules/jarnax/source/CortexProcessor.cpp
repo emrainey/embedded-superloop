@@ -21,7 +21,7 @@ void CortexProcessor::DisableInterrupts() {
         cortex::supervisor::Marshal marshal;
         marshal.call = cortex::supervisor::Marshal::Calls::Processor;
         marshal.type.processor.operation = cortex::supervisor::Marshal::Arguments::Processor::Operations::DisableInterrupts;
-        thumb::supervisor<to_underlying(cortex::supervisor::Marshal::Calls::Processor)>(&marshal.type.generic);
+        thumb::supervisor<polyfill::to_underlying(cortex::supervisor::Marshal::Calls::Processor)>(&marshal.type.generic);
     }
 }
 
@@ -32,7 +32,7 @@ void CortexProcessor::EnableInterrupts() {
         cortex::supervisor::Marshal marshal;
         marshal.call = cortex::supervisor::Marshal::Calls::Processor;
         marshal.type.processor.operation = cortex::supervisor::Marshal::Arguments::Processor::Operations::DisableInterrupts;
-        thumb::supervisor<to_underlying(cortex::supervisor::Marshal::Calls::Processor)>(&marshal.type.generic);
+        thumb::supervisor<polyfill::to_underlying(cortex::supervisor::Marshal::Calls::Processor)>(&marshal.type.generic);
     }
 }
 
@@ -45,7 +45,7 @@ cortex::Ticks CortexProcessor::GetTicks() const {
         marshal.call = cortex::supervisor::Marshal::Calls::Processor;
         marshal.type.processor.operation = cortex::supervisor::Marshal::Arguments::Processor::Operations::GetTicks;
         marshal.type.processor.arg1.as_pointer = &ticks;
-        thumb::supervisor<to_underlying(cortex::supervisor::Marshal::Calls::Processor)>(&marshal.type.generic);
+        thumb::supervisor<polyfill::to_underlying(cortex::supervisor::Marshal::Calls::Processor)>(&marshal.type.generic);
         // ticks was filled in by the call
     }
     return ticks;
@@ -60,7 +60,7 @@ cortex::PartNumber CortexProcessor::GetPartNumber() const {
         marshal.call = cortex::supervisor::Marshal::Calls::Processor;
         marshal.type.processor.operation = cortex::supervisor::Marshal::Arguments::Processor::Operations::GetPartNumber;
         marshal.type.processor.arg1.as_pointer = &partno;
-        thumb::supervisor<to_underlying(cortex::supervisor::Marshal::Calls::Processor)>(&marshal.type.generic);
+        thumb::supervisor<polyfill::to_underlying(cortex::supervisor::Marshal::Calls::Processor)>(&marshal.type.generic);
         // partno was filled in by the call
     }
     return partno;
@@ -75,7 +75,7 @@ cortex::Revision CortexProcessor::GetRevision() const {
         marshal.call = cortex::supervisor::Marshal::Calls::Processor;
         marshal.type.processor.operation = cortex::supervisor::Marshal::Arguments::Processor::Operations::GetRevision;
         marshal.type.processor.arg1.as_pointer = &revision;
-        thumb::supervisor<to_underlying(cortex::supervisor::Marshal::Calls::Processor)>(&marshal.type.generic);
+        thumb::supervisor<polyfill::to_underlying(cortex::supervisor::Marshal::Calls::Processor)>(&marshal.type.generic);
         // partno was filled in by the call
     }
     return revision;
@@ -90,7 +90,7 @@ cortex::Hertz CortexProcessor::GetCoreFrequency() const {
         marshal.call = cortex::supervisor::Marshal::Calls::Processor;
         marshal.type.processor.operation = cortex::supervisor::Marshal::Arguments::Processor::Operations::GetCoreClockFrequency;
         marshal.type.processor.arg1.as_pointer = &freq;
-        thumb::supervisor<to_underlying(cortex::supervisor::Marshal::Calls::Processor)>(&marshal.type.generic);
+        thumb::supervisor<polyfill::to_underlying(cortex::supervisor::Marshal::Calls::Processor)>(&marshal.type.generic);
         // freq was filled in by the call
     }
     return freq;
@@ -105,7 +105,7 @@ cortex::Hertz CortexProcessor::GetSystemTickClockFrequency() const {
         marshal.call = cortex::supervisor::Marshal::Calls::Processor;
         marshal.type.processor.operation = cortex::supervisor::Marshal::Arguments::Processor::Operations::GetSystemTickClockFrequency;
         marshal.type.processor.arg1.as_pointer = &freq;
-        thumb::supervisor<to_underlying(cortex::supervisor::Marshal::Calls::Processor)>(&marshal.type.generic);
+        thumb::supervisor<polyfill::to_underlying(cortex::supervisor::Marshal::Calls::Processor)>(&marshal.type.generic);
         // freq was filled in by the call
     }
     return freq;
@@ -120,7 +120,7 @@ cortex::modes::Privileged CortexProcessor::GetMode() const {
         marshal.call = cortex::supervisor::Marshal::Calls::Processor;
         marshal.type.processor.operation = cortex::supervisor::Marshal::Arguments::Processor::Operations::GetMode;
         marshal.type.processor.arg1.as_pointer = &mode;
-        thumb::supervisor<to_underlying(cortex::supervisor::Marshal::Calls::Processor)>(&marshal.type.generic);
+        thumb::supervisor<polyfill::to_underlying(cortex::supervisor::Marshal::Calls::Processor)>(&marshal.type.generic);
         // mode was filled in by the call
     }
     return mode;
@@ -133,7 +133,7 @@ void CortexProcessor::SoftwareReset() {
         cortex::supervisor::Marshal marshal;
         marshal.call = cortex::supervisor::Marshal::Calls::Processor;
         marshal.type.processor.operation = cortex::supervisor::Marshal::Arguments::Processor::Operations::SoftwareReset;
-        thumb::supervisor<to_underlying(cortex::supervisor::Marshal::Calls::Processor)>(&marshal.type.generic);
+        thumb::supervisor<polyfill::to_underlying(cortex::supervisor::Marshal::Calls::Processor)>(&marshal.type.generic);
     }
 }
 

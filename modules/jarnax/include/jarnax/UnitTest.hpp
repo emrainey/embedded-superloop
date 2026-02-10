@@ -26,13 +26,13 @@ public:
     // must be in order
     static_assert(EnumType::kMinimum < EnumType::kMaximum, "Must have a minimum and maximum and be in order");
     /// The inclusive test enumeration bottom bound
-    constexpr static UnderlyingType kMinimum = to_underlying(EnumType::kMinimum);
+    constexpr static UnderlyingType kMinimum = polyfill::to_underlying(EnumType::kMinimum);
     /// The exclusive test enumeration top bound
-    constexpr static UnderlyingType kMaximum = to_underlying(EnumType::kMaximum);
-    static_assert(to_underlying(EnumType::kStep) > 0U, "Must be a positive step");
+    constexpr static UnderlyingType kMaximum = polyfill::to_underlying(EnumType::kMaximum);
+    static_assert(polyfill::to_underlying(EnumType::kStep) > 0U, "Must be a positive step");
 
     /// The step to move after each test
-    constexpr static UnderlyingType kStep = to_underlying(EnumType::kStep);
+    constexpr static UnderlyingType kStep = polyfill::to_underlying(EnumType::kStep);
     /// The number of tests to perform
     constexpr static size_t kNumTests = kMaximum - kMinimum;
     static_assert(kNumTests % kStep == 0, "The number of Tests Must be step-able exactly by kStep");
@@ -72,7 +72,7 @@ public:
     }
 
     /// The number of test names in the test enumeration
-    static constexpr size_t NumTestNames = to_underlying(EnumType::kMaximum) - to_underlying(EnumType::kMinimum) + 1U;
+    static constexpr size_t NumTestNames = polyfill::to_underlying(EnumType::kMaximum) - polyfill::to_underlying(EnumType::kMinimum) + 1U;
 
     /// Default Constructor
     UnitTest(char const* const name, TestName const (&test_names)[NumTestNames])
@@ -94,7 +94,7 @@ public:
     /// @return The current state per test (if no test is given index zero is used)
     inline State GetState(EnumType test_enum) const {
         // convert to the index
-        UnderlyingType index = to_underlying(test_enum);
+        UnderlyingType index = polyfill::to_underlying(test_enum);
         // if bounds checkout, return State
         if (kMinimum <= index and index <= kMaximum) {
             return states_[index - kMinimum];
@@ -118,7 +118,7 @@ public:
                     jarnax::print("COMPLETED\n");
                     for (size_t i = 0; i < result_index_; ++i) {
                         if (results_[i].test_enum == test_enum_) {
-                            jarnax::print("%c", to_underlying(results_[i].test_result));
+                            jarnax::print("%c", polyfill::to_underlying(results_[i].test_result));
                         }
                     }
                     jarnax::print("\r\n");
@@ -239,7 +239,7 @@ private:
     /// Returns the index of the enumerated value
     /// @param value The numerated value
     /// @return The index in the underlying type
-    UnderlyingType IndexOf(EnumType value) const { return to_underlying(value) - kMinimum; }
+    UnderlyingType IndexOf(EnumType value) const { return polyfill::to_underlying(value) - kMinimum; }
 
     /// return the enumerated value from an index
     /// @param index The index to enumerate

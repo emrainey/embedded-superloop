@@ -11,7 +11,7 @@ i2c::Driver::Statistics* i2c_statistics[3] = {nullptr, nullptr, nullptr};
 
 /// Interrupt service routine for I2C1 event events
 void i2c1_event_isr(void) {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::InterIntegratedCircuit1_Event)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::InterIntegratedCircuit1_Event)]++;
     if (i2c_instances[0]) {
         i2c_instances[0]->HandleEvent();
     }
@@ -19,7 +19,7 @@ void i2c1_event_isr(void) {
 
 /// Interrupt service routine for I2C1 error events
 void i2c1_error_isr(void) {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::InterIntegratedCircuit1_Error)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::InterIntegratedCircuit1_Error)]++;
     if (i2c_instances[0]) {
         i2c_instances[0]->HandleError();
     }
@@ -27,7 +27,7 @@ void i2c1_error_isr(void) {
 
 /// Interrupt service routine for I2C2 event events
 void i2c2_event_isr(void) {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::InterIntegratedCircuit2_Event)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::InterIntegratedCircuit2_Event)]++;
     if (i2c_instances[1]) {
         i2c_instances[1]->HandleEvent();
     }
@@ -35,7 +35,7 @@ void i2c2_event_isr(void) {
 
 /// Interrupt service routine for I2C2 error events
 void i2c2_error_isr(void) {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::InterIntegratedCircuit2_Error)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::InterIntegratedCircuit2_Error)]++;
     if (i2c_instances[1]) {
         i2c_instances[1]->HandleError();
     }
@@ -43,7 +43,7 @@ void i2c2_error_isr(void) {
 
 /// Interrupt service routine for I2C3 event events
 void i2c3_event_isr(void) {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::InterIntegratedCircuit3_Event)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::InterIntegratedCircuit3_Event)]++;
     if (i2c_instances[2]) {
         i2c_instances[2]->HandleEvent();
     }
@@ -51,7 +51,7 @@ void i2c3_event_isr(void) {
 
 /// Interrupt service routine for I2C3 error events
 void i2c3_error_isr(void) {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::InterIntegratedCircuit3_Error)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::InterIntegratedCircuit3_Error)]++;
     if (i2c_instances[2]) {
         i2c_instances[2]->HandleError();
     }

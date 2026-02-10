@@ -1,24 +1,23 @@
 /// @file
 /// The Indicator Implementation
 
-#include "iso.hpp"
 #include "stm32/Indicator.hpp"
+#include "iso.hpp"
 #include "stm32/gpio/Pin.hpp"
 
 namespace stm32 {
 
 Indicator::Indicator(stm32::gpio::Pin& pin, Level level)
     : level_{level}
-    , pin_{pin} {
-}
+    , pin_{pin} {}
 
 void Indicator::Active() {
-    state_ = to_underlying(level_);
+    state_ = polyfill::to_underlying(level_);
     pin_.Value(state_);
 }
 
 void Indicator::Inactive() {
-    state_ = to_underlying(level_);
+    state_ = polyfill::to_underlying(level_);
     pin_.Value(not state_);
 }
 

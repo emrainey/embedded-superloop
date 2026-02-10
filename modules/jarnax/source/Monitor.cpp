@@ -1,5 +1,6 @@
 #include "jarnax/Monitor.hpp"
 #include "core/Conversions.hpp"
+#include "debug.hpp"
 #include "jarnax/print.hpp"
 
 namespace jarnax {
@@ -28,7 +29,9 @@ bool Monitor::Execute() {
     while (not log.IsEmpty()) {
         core::Status status;
         log.Pop(status);
-        jarnax::print("Monitor Log: ", status);
+        if constexpr (debug::Monitor) {
+            jarnax::print("Monitor Log: ", status);
+        }
     }
     return true;
 }

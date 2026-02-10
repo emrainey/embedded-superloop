@@ -13,7 +13,8 @@ usart::Statistics* usart_statistics[4] = {nullptr, nullptr, nullptr, nullptr};  
 
 /// Interrupt service routine for USART1
 void usart1_isr(void) {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter1)]++;
+    cortex::extended_vector_statistics
+        .count[polyfill::to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter1)]++;
     if (usart_instances[0]) {
         usart_instances[0]->HandleInterrupt();
     }
@@ -21,7 +22,8 @@ void usart1_isr(void) {
 
 /// Interrupt service routine for USART2
 void usart2_isr(void) {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter2)]++;
+    cortex::extended_vector_statistics
+        .count[polyfill::to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter2)]++;
     if (usart_instances[1]) {
         usart_instances[1]->HandleInterrupt();
     }
@@ -29,7 +31,8 @@ void usart2_isr(void) {
 
 /// Interrupt service routine for USART3
 void usart3_isr(void) {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter3)]++;
+    cortex::extended_vector_statistics
+        .count[polyfill::to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter3)]++;
     if (usart_instances[2]) {
         usart_instances[2]->HandleInterrupt();
     }
@@ -37,7 +40,8 @@ void usart3_isr(void) {
 
 /// Interrupt service routine for USART6
 void usart6_isr(void) {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter6)]++;
+    cortex::extended_vector_statistics
+        .count[polyfill::to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter6)]++;
     if (usart_instances[3]) {
         usart_instances[3]->HandleInterrupt();
     }

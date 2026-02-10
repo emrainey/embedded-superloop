@@ -15,7 +15,7 @@ void L1DataCache::Enable() {
         cortex::supervisor::Marshal marshal;
         marshal.call = cortex::supervisor::Marshal::Calls::DataCache;
         marshal.type.data_cache.operation = cortex::supervisor::Marshal::Arguments::DataCache::Operations::Enable;
-        thumb::supervisor<to_underlying(cortex::supervisor::Marshal::Calls::DataCache)>(&marshal.type.generic);
+        thumb::supervisor<polyfill::to_underlying(cortex::supervisor::Marshal::Calls::DataCache)>(&marshal.type.generic);
     }
 }
 
@@ -26,7 +26,7 @@ void L1DataCache::Disable() {
         cortex::supervisor::Marshal marshal;
         marshal.call = cortex::supervisor::Marshal::Calls::DataCache;
         marshal.type.data_cache.operation = cortex::supervisor::Marshal::Arguments::DataCache::Operations::Disable;
-        thumb::supervisor<to_underlying(cortex::supervisor::Marshal::Calls::DataCache)>(&marshal.type.generic);
+        thumb::supervisor<polyfill::to_underlying(cortex::supervisor::Marshal::Calls::DataCache)>(&marshal.type.generic);
     }
 }
 
@@ -37,7 +37,7 @@ void L1DataCache::Invalidate() {
         cortex::supervisor::Marshal marshal;
         marshal.call = cortex::supervisor::Marshal::Calls::DataCache;
         marshal.type.data_cache.operation = cortex::supervisor::Marshal::Arguments::DataCache::Operations::Invalidate;
-        thumb::supervisor<to_underlying(cortex::supervisor::Marshal::Calls::DataCache)>(&marshal.type.generic);
+        thumb::supervisor<polyfill::to_underlying(cortex::supervisor::Marshal::Calls::DataCache)>(&marshal.type.generic);
     }
 }
 
@@ -50,7 +50,7 @@ void L1DataCache::Invalidate(std::uintptr_t address, size_t bytes) {
         marshal.type.data_cache.operation = cortex::supervisor::Marshal::Arguments::DataCache::Operations::InvalidateByAddress;
         marshal.type.data_cache.address = address;
         marshal.type.data_cache.size = bytes;
-        thumb::supervisor<to_underlying(cortex::supervisor::Marshal::Calls::DataCache)>(&marshal.type.generic);
+        thumb::supervisor<polyfill::to_underlying(cortex::supervisor::Marshal::Calls::DataCache)>(&marshal.type.generic);
     }
 }
 
@@ -61,7 +61,7 @@ void L1DataCache::Clean() {
         cortex::supervisor::Marshal marshal;
         marshal.call = cortex::supervisor::Marshal::Calls::DataCache;
         marshal.type.data_cache.operation = cortex::supervisor::Marshal::Arguments::DataCache::Operations::Clean;
-        thumb::supervisor<to_underlying(cortex::supervisor::Marshal::Calls::DataCache)>(&marshal.type.generic);
+        thumb::supervisor<polyfill::to_underlying(cortex::supervisor::Marshal::Calls::DataCache)>(&marshal.type.generic);
     }
 }
 
@@ -74,7 +74,7 @@ void L1DataCache::Clean(std::uintptr_t address, size_t bytes) {
         marshal.type.data_cache.operation = cortex::supervisor::Marshal::Arguments::DataCache::Operations::CleanByAddress;
         marshal.type.data_cache.address = address;
         marshal.type.data_cache.size = bytes;
-        thumb::supervisor<to_underlying(cortex::supervisor::Marshal::Calls::DataCache)>(&marshal.type.generic);
+        thumb::supervisor<polyfill::to_underlying(cortex::supervisor::Marshal::Calls::DataCache)>(&marshal.type.generic);
     }
 }
 
@@ -85,7 +85,7 @@ void L1DataCache::Flush() {
         cortex::supervisor::Marshal marshal;
         marshal.call = cortex::supervisor::Marshal::Calls::DataCache;
         marshal.type.data_cache.operation = cortex::supervisor::Marshal::Arguments::DataCache::Operations::Flush;
-        thumb::supervisor<to_underlying(cortex::supervisor::Marshal::Calls::DataCache)>(&marshal.type.generic);
+        thumb::supervisor<polyfill::to_underlying(cortex::supervisor::Marshal::Calls::DataCache)>(&marshal.type.generic);
     }
 }
 
@@ -98,7 +98,7 @@ void L1DataCache::Flush(std::uintptr_t address, size_t bytes) {
         marshal.type.data_cache.operation = cortex::supervisor::Marshal::Arguments::DataCache::Operations::FlushByAddress;
         marshal.type.data_cache.address = address;
         marshal.type.data_cache.size = bytes;
-        thumb::supervisor<to_underlying(cortex::supervisor::Marshal::Calls::DataCache)>(&marshal.type.generic);
+        thumb::supervisor<polyfill::to_underlying(cortex::supervisor::Marshal::Calls::DataCache)>(&marshal.type.generic);
     }
 }
 

@@ -33,7 +33,7 @@ USED void timer2_isr(void) {
     // store the update
     timer2_high_order_bits = count + 1U;
 
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::Timer2)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::Timer2)]++;
 }
 
 Timer::Timer(stm32::peripherals::Timer2 volatile& timer)

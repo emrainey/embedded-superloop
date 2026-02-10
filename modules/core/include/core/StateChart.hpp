@@ -35,7 +35,7 @@ public:
     static_assert(std::is_enum<EnumType>::value, "EnumType must be an enumerated type");
     /// @brief The type of the state machine's enum
     using StateType = EnumType;
-    static_assert(to_underlying(StateType::Undefined) == 0U, "EnumType must have a Undefined state and it must be zero");
+    static_assert(polyfill::to_underlying(StateType::Undefined) == 0U, "EnumType must have a Undefined state and it must be zero");
 
     /// @brief The callback interface for the StateChart
     class Callback {

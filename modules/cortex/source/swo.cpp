@@ -3,7 +3,7 @@
 namespace cortex {
 namespace swo {
 void emit(Port port, std::uint8_t value) {
-    auto index = to_underlying(port);
+    auto index = polyfill::to_underlying(port);
     while (peripherals::instruction_trace_macrocell.stimulus_port[index].read.fifo_ready == 0U) {
         /* spin */
     }

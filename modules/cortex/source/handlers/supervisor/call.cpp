@@ -124,7 +124,7 @@ void svc(cortex::exceptions::ExtendedFrame *frame, cortex::exceptions::Exception
     // @TODO isn't this done automatically on return from SVC when there's no more exceptions?
     cortex::supervisor::restore(old);
     // save a return value for the SVC
-    frame->basic.r0.as_u32[0] = to_underlying(status);
+    frame->basic.r0.as_u32[0] = polyfill::to_underlying(status);
 }
 
 void call(void) {

@@ -22,7 +22,7 @@ public:
     static_assert(std::is_enum<ENUM_TPARAM>::value, "ENUM_TPARAM must be an enumerated type");
     /// @brief The type of the state machine's enum
     using StateType = ENUM_TPARAM;
-    static_assert(to_underlying(StateType::Undefined) == 0U, "ENUM_TPARAM must have a Undefined state and it must be zero");
+    static_assert(polyfill::to_underlying(StateType::Undefined) == 0U, "ENUM_TPARAM must have a Undefined state and it must be zero");
 
     /// @brief The callback interface for the StateMachine
     class Callback {

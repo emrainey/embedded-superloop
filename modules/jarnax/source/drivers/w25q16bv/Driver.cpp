@@ -52,7 +52,7 @@ public:
     /// @brief Writes the Reset Device instruction into the data buffer.
     void operator()(core::Span<uint8_t>& data) override {
         // instruction goes into data[0U]
-        data[1U] = to_underlying(::w25q16bv::Instruction::ResetDevice);
+        data[1U] = polyfill::to_underlying(::w25q16bv::Instruction::ResetDevice);
     }
 };
 
@@ -145,7 +145,7 @@ core::Status Driver::Reinitialize(Instruction instruction, size_t write_size, si
 bool Driver::Execute(void) {
     // only allow processing the state machine if the startup timer is expired
     if (startup_countdown_.IsExpired()) {
-        jarnax::print("%s Processing Event %d\r\n", __func__, to_underlying(next_event_));
+        jarnax::print("%s Processing Event %d\r\n", __func__, polyfill::to_underlying(next_event_));
         state_machine_.Process(next_event_);
         next_event_ = Event::None;
     }
@@ -230,7 +230,7 @@ core::Status Driver::GetStatusAndData(void) {
         } else if (instruction == w25q16bv::Instruction::ResetDevice) {
             printer_("Reset Device\r\n");
         } else {
-            printer_("Instruction %hhx\r\n", to_underlying(instruction));
+            printer_("Instruction %hhx\r\n", polyfill::to_underlying(instruction));
         }
         // we've gotten the data out of the transaction, so we can recycle it
         transaction_.Inform(jarnax::spi::Transaction::Event::Recycle, status);
@@ -255,7 +255,7 @@ void Driver::OnEvent(Event event, core::Status status) {
         identified_ = true;
         // TODO print ID numbers
     }
-    printer_("OnEvent passed %x\r\n", to_underlying(event));
+    printer_("OnEvent passed %x\r\n", polyfill::to_underlying(event));
     printer_("OnEvent had status ", status);
 }
 

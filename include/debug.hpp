@@ -12,18 +12,103 @@ namespace debug {
 
 /// @brief Used to compare two sizes at compile time.
 /// Typically this will force a compiler to evaluate the expression at compile time. Used in place of the availability of consteval.
+/// @tparam A The first value to compare
+/// @tparam B The second value to compare
+/// @code
+/// using Check = ConstexprValueCompare<sizeof(MyType), 4>;
+/// @endcode
 template <std::size_t A, std::size_t B>
 class ConstexprValueCompare final {
 public:
     static_assert(A == B, "Values must match!");
+    static constexpr bool value = true;    // for SFINAE purposes
 };
 
 /// @brief Used to compare two values at compile time to see if A is evenly divisible by B.
-/// Typically this will force a compiler to evaluate the expression at compile time. Used in place of the availability of consteval.
+/// Use in a manner to force a compiler to evaluate the expression at compile time.
+/// @tparam A The first value to compare
+/// @tparam B The second value to compare
 template <std::size_t A, std::size_t B>
 class ConstexprValueDivisible final {
 public:
     static_assert((A % B) == 0, "Second value must evenly divide first value!");
+    static constexpr bool value = true;    // for SFINAE purposes
+};
+
+/// @brief Used to compare two values at compile time to see if A is less than B.
+/// Use in a manner to force a compiler to evaluate the expression at compile time.
+/// @tparam A The first value to compare
+/// @tparam B The second value to compare
+template <std::size_t A, std::size_t B>
+class ConstexprValueLessThan final {
+public:
+    static_assert(A < B, "First value must be less than second value!");
+    static constexpr bool value = true;    // for SFINAE purposes
+};
+
+/// @brief Used to compare two values at compile time to see if A is less than or equal to B.
+/// Use in a manner to force a compiler to evaluate the expression at compile time.
+/// @tparam A The first value to compare
+/// @tparam B The second value to compare
+template <std::size_t A, std::size_t B>
+class ConstexprValueLessEqual final {
+public:
+    static_assert(A <= B, "First value must be less than or equal to second value!");
+    static constexpr bool value = true;    // for SFINAE purposes
+};
+
+/// @brief Used to determine if a value is a power of two at compile time.
+/// Use in a manner to force a compiler to evaluate the expression at compile time.
+/// @tparam N The value to check if it is a power of two
+template <std::size_t N>
+class ConstexprIsPowerOfTwo final {
+public:
+    static_assert(N > 0 && (N & (N - 1)) == 0, "Value must be a power of two!");
+    static constexpr bool value = true;    // for SFINAE purposes
+};
+
+/// @brief Used to determine if a value is within a specified range at compile time.
+/// Use in a manner to force a compiler to evaluate the expression at compile time.
+/// @tparam Value The value to check if it is within the range
+/// @tparam Min The minimum value of the range (inclusive)
+/// @tparam Max The maximum value of the range (inclusive)
+template <std::size_t Value, std::size_t Min, std::size_t Max>
+class ConstexprValueInRange final {
+public:
+    static_assert(Value >= Min && Value <= Max, "Value must be within specified range!");
+    static constexpr bool value = true;    // for SFINAE purposes
+};
+
+/// @brief Force a compile error showing the type T
+/// @tparam T The type to show in the compile error
+/// Usage: TypeDebugger<decltype(my_var)> show_type;
+template <typename T>
+class TypeDebugger;    // Intentionally no definition - will cause compile error showing T
+
+/// @brief Show size of a type at compile time (will fail, but show size in error)
+/// @tparam T The type to show the size of
+/// Usage: TypeSizeDebugger<my_type> show_size;
+template <typename T, std::size_t Size = sizeof(T)>
+class TypeSizeDebugger;    // Intentionally no definition
+
+/// @brief Verify type sizes match expectations
+/// @tparam T The type to check the size of
+/// @tparam ExpectedSize The expected size of the type in bytes
+template <typename T, std::size_t ExpectedSize>
+class TypeSizeValidator final {
+public:
+    static_assert(sizeof(T) == ExpectedSize, "Type size does not match expected size!");
+    static constexpr std::size_t value = sizeof(T);
+};
+
+/// @brief Verify type alignment matches expectations
+/// @tparam T The type to check the alignment of
+/// @tparam ExpectedAlignment The expected alignment of the type in bytes
+template <typename T, std::size_t ExpectedAlignment>
+class TypeAlignmentValidator final {
+public:
+    static_assert(alignof(T) == ExpectedAlignment, "Type alignment does not match expected alignment!");
+    static constexpr std::size_t value = alignof(T);
 };
 
 /// The type used to store debug masks.
@@ -107,18 +192,35 @@ enum class MaskType : StorageType {
     All = ~0U,    ///< Used to indicate that the message will be grouped with All operations.
 };
 
+/// @brief Bitwise operators for MaskType to allow for easy combination and checking of masks.
+/// @param lhs The left-hand side of the bitwise operation, which is a StorageType value.
+/// @param rhs The right-hand side of the bitwise operation, which is a MaskType
+/// @return A boolean value indicating whether the bitwise AND of the StorageType and MaskType is non-zero.
 constexpr bool operator&(StorageType lhs, MaskType rhs) {
     return (lhs & static_cast<StorageType>(rhs)) != 0;
 }
+
+/// @brief Bitwise operators for MaskType to allow for easy combination and checking of masks.
+/// @param lhs The left-hand side of the bitwise operation, which is a MaskType value.
+/// @param rhs The right-hand side of the bitwise operation, which is a StorageType value.
+/// @return A boolean value indicating whether the bitwise AND of the MaskType and StorageType is non-zero.
 constexpr bool operator&(MaskType lhs, StorageType rhs) {
     return (static_cast<StorageType>(lhs) & rhs) != 0;
 }
+
+/// @brief Bitwise operators for MaskType to allow for easy combination of MaskType values.
+/// @param lhs The left-hand side of the bitwise operation, which is a MaskType value.
+/// @param rhs The right-hand side of the bitwise operation, which is a MaskType value.
+/// @return A MaskType value that is the result of the bitwise OR of the two MaskType values. This "value" WILL NO LONGER be a valid MaskType, but can
+/// be used to nest further bitwise operations to combine multiple MaskType values together.
 constexpr MaskType operator|(MaskType lhs, MaskType rhs) {
     return static_cast<MaskType>(static_cast<StorageType>(lhs) | static_cast<StorageType>(rhs));
 }
 
 #if not defined(DEBUG_MASK)
-#define DEBUG_MASK static_cast<StorageType>(0x7ULL)
+/// @brief The mask used to determine which debug messages are enabled. This should be defined by the user before including this header.
+/// The default value does not enable all messages.
+#define DEBUG_MASK static_cast<StorageType>(0x0000'0002'0000'0007ULL)
 #endif
 
 constexpr static bool Fatal{DEBUG_MASK & MaskType::Fatal};

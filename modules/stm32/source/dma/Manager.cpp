@@ -9,56 +9,56 @@ dma::Manager* dma_instance = nullptr;
 
 /// Interrupt service routine for DMA1 Stream 0
 void dma1_stream0_isr() {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess1Stream0)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::DirectMemoryAccess1Stream0)]++;
     if (dma_instance) {
         dma_instance->HandleInterrupt(0, 0);
     }
 }
 /// Interrupt service routine for DMA1 Stream 1
 void dma1_stream1_isr() {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess1Stream1)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::DirectMemoryAccess1Stream1)]++;
     if (dma_instance) {
         dma_instance->HandleInterrupt(0, 1);
     }
 }
 /// Interrupt service routine for DMA1 Stream 2
 void dma1_stream2_isr() {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess1Stream2)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::DirectMemoryAccess1Stream2)]++;
     if (dma_instance) {
         dma_instance->HandleInterrupt(0, 2);
     }
 }
 /// Interrupt service routine for DMA1 Stream 3
 void dma1_stream3_isr() {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess1Stream3)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::DirectMemoryAccess1Stream3)]++;
     if (dma_instance) {
         dma_instance->HandleInterrupt(0, 3);
     }
 }
 /// Interrupt service routine for DMA1 Stream 4
 void dma1_stream4_isr() {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess1Stream4)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::DirectMemoryAccess1Stream4)]++;
     if (dma_instance) {
         dma_instance->HandleInterrupt(0, 4);
     }
 }
 /// Interrupt service routine for DMA1 Stream 5
 void dma1_stream5_isr() {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess1Stream5)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::DirectMemoryAccess1Stream5)]++;
     if (dma_instance) {
         dma_instance->HandleInterrupt(0, 5);
     }
 }
 /// Interrupt service routine for DMA1 Stream 6
 void dma1_stream6_isr() {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess1Stream6)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::DirectMemoryAccess1Stream6)]++;
     if (dma_instance) {
         dma_instance->HandleInterrupt(0, 6);
     }
 }
 /// Interrupt service routine for DMA1 Stream 7
 void dma1_stream7_isr() {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess1Stream7)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::DirectMemoryAccess1Stream7)]++;
     if (dma_instance) {
         dma_instance->HandleInterrupt(0, 7);
     }
@@ -66,56 +66,56 @@ void dma1_stream7_isr() {
 
 /// Interrupt service routine for DMA2 Stream 0
 void dma2_stream0_isr() {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream0)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream0)]++;
     if (dma_instance) {
         dma_instance->HandleInterrupt(1, 0);
     }
 }
 /// Interrupt service routine for DMA2 Stream 1
 void dma2_stream1_isr() {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream1)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream1)]++;
     if (dma_instance) {
         dma_instance->HandleInterrupt(1, 1);
     }
 }
 /// Interrupt service routine for DMA2 Stream 2
 void dma2_stream2_isr() {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream2)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream2)]++;
     if (dma_instance) {
         dma_instance->HandleInterrupt(1, 2);
     }
 }
 /// Interrupt service routine for DMA2 Stream 3
 void dma2_stream3_isr() {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream3)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream3)]++;
     if (dma_instance) {
         dma_instance->HandleInterrupt(1, 3);
     }
 }
 /// Interrupt service routine for DMA2 Stream 4
 void dma2_stream4_isr() {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream4)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream4)]++;
     if (dma_instance) {
         dma_instance->HandleInterrupt(1, 4);
     }
 }
 /// Interrupt service routine for DMA2 Stream 5
 void dma2_stream5_isr() {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream5)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream5)]++;
     if (dma_instance) {
         dma_instance->HandleInterrupt(1, 5);
     }
 }
 /// Interrupt service routine for DMA2 Stream 6
 void dma2_stream6_isr() {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream6)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream6)]++;
     if (dma_instance) {
         dma_instance->HandleInterrupt(1, 6);
     }
 }
 /// Interrupt service routine for DMA2 Stream 7
 void dma2_stream7_isr() {
-    cortex::extended_vector_statistics.count[to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream7)]++;
+    cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::DirectMemoryAccess2Stream7)]++;
     if (dma_instance) {
         dma_instance->HandleInterrupt(1, 7);
     }

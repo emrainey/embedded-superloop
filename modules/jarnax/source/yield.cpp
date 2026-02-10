@@ -13,7 +13,7 @@ void yield(void) {
         cortex::trigger::non_maskable_interrupt();
     } else {
         thumb::Stacked parameters{{{0U}, {0U}, {0U}, {0U}}};
-        thumb::supervisor<to_underlying(cortex::supervisor::Marshal::Calls::Yield)>(&parameters);
+        thumb::supervisor<polyfill::to_underlying(cortex::supervisor::Marshal::Calls::Yield)>(&parameters);
     }
 }
 

@@ -134,7 +134,7 @@ void StateMachine::OnExit(State state) {
 
 void StateMachine::OnTransition(State from, State to) {
     // do nothing for now
-    core::GetPrinter()("StateMachine %hx -> %hx\r\n", to_underlying(from), to_underlying(to));
+    core::GetPrinter()("StateMachine %hx -> %hx\r\n", polyfill::to_underlying(from), polyfill::to_underlying(to));
 }
 
 void StateMachine::OnExit() {

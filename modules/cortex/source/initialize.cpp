@@ -54,7 +54,7 @@ void class_globals() {
     std::uint8_t pow2 = 0U;
     //===============================================================================
     pow2 = static_cast<uint8_t>(reinterpret_cast<uintptr_t>(__cortex_flash_pow2));
-    mpui[idx].region.parts.number = to_underlying(cortex::peripherals::ProtectedRegion::Code);
+    mpui[idx].region.parts.number = polyfill::to_underlying(cortex::peripherals::ProtectedRegion::Code);
     mpui[idx].address.Set(reinterpret_cast<uintptr_t>(__cortex_flash_start));
     mpui[idx].access = make_access(peripherals::MemoryProtectionUnit::Attribute::NormalWriteThroughSingle);
     mpui[idx].access.bits.set_power2_size(pow2);
@@ -63,7 +63,7 @@ void class_globals() {
     idx++;
     //===============================================================================
     pow2 = static_cast<uint8_t>(reinterpret_cast<uintptr_t>(__cortex_sram_pow2));
-    mpui[idx].region.parts.number = to_underlying(cortex::peripherals::ProtectedRegion::Data);
+    mpui[idx].region.parts.number = polyfill::to_underlying(cortex::peripherals::ProtectedRegion::Data);
     mpui[idx].address.Set(reinterpret_cast<uintptr_t>(__cortex_sram_start));
     mpui[idx].access = make_access(peripherals::MemoryProtectionUnit::Attribute::NormalWriteBackWriteAllocateSingle);
     mpui[idx].access.bits.set_power2_size(pow2);
@@ -72,7 +72,7 @@ void class_globals() {
     idx++;
     //===============================================================================
     pow2 = static_cast<uint8_t>(reinterpret_cast<uintptr_t>(__cortex_stack_pow2));
-    mpui[idx].region.parts.number = to_underlying(cortex::peripherals::ProtectedRegion::Stack);
+    mpui[idx].region.parts.number = polyfill::to_underlying(cortex::peripherals::ProtectedRegion::Stack);
     mpui[idx].address.Set(reinterpret_cast<uintptr_t>(__cortex_stack_start));
     mpui[idx].access = make_access(peripherals::MemoryProtectionUnit::Attribute::NormalWriteBackWriteAllocateSingle);
     mpui[idx].access.bits.set_power2_size(pow2);
@@ -82,11 +82,11 @@ void class_globals() {
     //===============================================================================
     std::uint32_t const volatile main_stack_size = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(__main_stack_size));
     if (main_stack_size > 0U) {
-        if (not ::is_power_of_two(main_stack_size)) {
+        if (not polyfill::is_power_of_two(main_stack_size)) {
             cortex::spinhalt();
         }
         uintptr_t base_address = reinterpret_cast<uintptr_t>(__main_stack_bottom);
-        mpui[idx].region.parts.number = to_underlying(peripherals::ProtectedRegion::MainStack);
+        mpui[idx].region.parts.number = polyfill::to_underlying(peripherals::ProtectedRegion::MainStack);
         mpui[idx].address.Set(base_address);
         mpui[idx].access = make_access(peripherals::MemoryProtectionUnit::Attribute::NormalWriteBackWriteAllocateSingle);
         mpui[idx].access.bits.set_power2_size(main_stack_size);
@@ -100,11 +100,11 @@ void class_globals() {
     // the linker script computed the size of the process stack and we pull it in here...
     size = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(__process_stack_size));
     if (size > 0U) {
-        if (not ::is_power_of_two(size)) {
+        if (not polyfill::is_power_of_two(size)) {
             cortex::spinhalt();
         }
         uintptr_t base_address = reinterpret_cast<uintptr_t>(__process_stack_bottom);
-        mpui[idx].region.parts.number = to_underlying(peripherals::ProtectedRegion::ProcessStack);
+        mpui[idx].region.parts.number = polyfill::to_underlying(peripherals::ProtectedRegion::ProcessStack);
         mpui[idx].address.Set(base_address);
         mpui[idx].access = make_access(peripherals::MemoryProtectionUnit::Attribute::NormalWriteBackWriteAllocateSingle);
         mpui[idx].access.bits.set_power2_size(size);
@@ -116,11 +116,11 @@ void class_globals() {
     // Read/Write over the Privileged Data, never execute!
     size = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(__privileged_data_size));
     if (size > 0U) {
-        if (not ::is_power_of_two(size)) {
+        if (not polyfill::is_power_of_two(size)) {
             cortex::spinhalt();
         }
         uintptr_t base_address = reinterpret_cast<uintptr_t>(__privileged_data_start);
-        mpui[idx].region.parts.number = to_underlying(peripherals::ProtectedRegion::PrivilegedData);
+        mpui[idx].region.parts.number = polyfill::to_underlying(peripherals::ProtectedRegion::PrivilegedData);
         mpui[idx].address.Set(base_address);
         mpui[idx].access = make_access(peripherals::MemoryProtectionUnit::Attribute::NormalWriteBackWriteAllocateSingle);
         mpui[idx].access.bits.set_power2_size(size);
@@ -133,7 +133,7 @@ void class_globals() {
     // Read/Write over the Peripherals, but all R/W
     size = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(__cortex_peripheral_size));
     if (size > 0) {
-        mpui[idx].region.parts.number = to_underlying(peripherals::ProtectedRegion::Peripherals);
+        mpui[idx].region.parts.number = polyfill::to_underlying(peripherals::ProtectedRegion::Peripherals);
         mpui[idx].address.Set(reinterpret_cast<uintptr_t>(__cortex_peripheral_start));
         mpui[idx].access = make_access(peripherals::MemoryProtectionUnit::Attribute::DeviceSingleProcessor);
         mpui[idx].access.bits.set_power2_size(size);
@@ -146,7 +146,7 @@ void class_globals() {
     // Read/Write over the Backup (adding execute never)
     size = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(__cortex_backup_size));
     if (size > 0U) {
-        mpui[idx].region.parts.number = to_underlying(peripherals::ProtectedRegion::Backup);
+        mpui[idx].region.parts.number = polyfill::to_underlying(peripherals::ProtectedRegion::Backup);
         mpui[idx].address.Set(reinterpret_cast<uintptr_t>(__cortex_backup_start));
         mpui[idx].access = make_access(peripherals::MemoryProtectionUnit::Attribute::NormalWriteBackWriteAllocateSingle);
         mpui[idx].access.bits.set_power2_size(size);
@@ -159,7 +159,7 @@ void class_globals() {
     // Read/Write over the System, but Privilege Only RW
     size = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(__cortex_system_size));
     if (size > 0U) {
-        mpui[idx].region.parts.number = to_underlying(peripherals::ProtectedRegion::System);
+        mpui[idx].region.parts.number = polyfill::to_underlying(peripherals::ProtectedRegion::System);
         mpui[idx].address.Set(reinterpret_cast<uintptr_t>(__cortex_system_start));
         mpui[idx].access = make_access(peripherals::MemoryProtectionUnit::Attribute::StronglyOrdered);
         mpui[idx].access.bits.set_power2_size(size);

@@ -107,7 +107,8 @@ constexpr bool operator==(Peripheral const& lhs, Peripheral const& rhs) {
     // the type and instance must match, but the sub can be a subset or superset
     bool type_match = (lhs.type == rhs.type);
     bool instance_match = (lhs.instance == rhs.instance);
-    bool sub_match = ((to_underlying(lhs.sub) & to_underlying(rhs.sub)) > 0U) or (to_underlying(lhs.sub) == 0U and to_underlying(rhs.sub) == 0U);
+    bool sub_match = ((polyfill::to_underlying(lhs.sub) & polyfill::to_underlying(rhs.sub)) > 0U) or
+                     (polyfill::to_underlying(lhs.sub) == 0U and polyfill::to_underlying(rhs.sub) == 0U);
     return type_match and instance_match and sub_match;
 }
 
@@ -116,7 +117,7 @@ constexpr bool operator==(Peripheral const& lhs, Peripheral const& rhs) {
 /// @param rhs The right-hand peripheral
 /// @return A new peripheral with combined sub-components
 constexpr Peripheral operator|(Peripheral const& lhs, Peripheral const& rhs) {
-    return Peripheral{lhs.type, lhs.instance, static_cast<Peripheral::Sub>(to_underlying(lhs.sub) | to_underlying(rhs.sub))};
+    return Peripheral{lhs.type, lhs.instance, static_cast<Peripheral::Sub>(polyfill::to_underlying(lhs.sub) | polyfill::to_underlying(rhs.sub))};
 }
 
 }    // namespace cortex

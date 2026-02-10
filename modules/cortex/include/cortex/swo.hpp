@@ -27,7 +27,7 @@ enum class Port : PortType {
 };
 
 /// The mask of all enumerated types
-constexpr static PortType PortMask = ((1U << to_underlying(Port::_max)) - 1U);
+constexpr static PortType PortMask = ((1U << polyfill::to_underlying(Port::_max)) - 1U);
 
 /// Emits a single value on a single port.
 void emit(Port port, std::uint8_t value);

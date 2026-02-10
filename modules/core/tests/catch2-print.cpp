@@ -1,8 +1,8 @@
-#include <cstdio>
 #include <cstdarg>
-#include "polyfill.hpp"
-#include "core/Status.hpp"
+#include <cstdio>
 #include "core/Printer.hpp"
+#include "core/Status.hpp"
+#include "polyfill.hpp"
 
 namespace core {
 
@@ -15,8 +15,8 @@ public:
         operator()(
             "%s => Status{Result=%d, Cause=%u Location=%x}\n",
             source,
-            to_underlying(status.GetResult()),
-            to_underlying(status.GetCause()),
+            polyfill::to_underlying(status.GetResult()),
+            polyfill::to_underlying(status.GetCause()),
             status.GetLocation()
         );
     }

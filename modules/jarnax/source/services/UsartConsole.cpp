@@ -8,7 +8,7 @@ UsartConsole::UsartConsole(jarnax::usart::Driver& driver)
     : driver_{driver} {}
 
 void UsartConsole::Print(Level level, char const format[], ...) {
-    if (to_underlying(level_) >= to_underlying(level)) {
+    if (polyfill::to_underlying(level_) >= polyfill::to_underlying(level)) {
         va_list args;
         va_start(args, format);
         unsigned long count = core::vsnprint(buffer_, sizeof(buffer_), format, args);

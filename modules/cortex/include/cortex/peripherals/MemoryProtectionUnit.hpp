@@ -173,7 +173,7 @@ struct MemoryProtectionUnit {
             /// Setting the Power of Two Size requires this interface
             /// to ensure it is done correctly w/ all the strict flags on.
             inline bool set_power2_size(std::uint32_t bytes) volatile {
-                if (::is_power_of_two(bytes)) {
+                if (polyfill::is_power_of_two(bytes)) {
                     core::Split<std::uint32_t, 5U> tmp;
                     tmp.whole = polyfill::log2(bytes) - 1U;
                     pow2_size = tmp.parts.lower;
