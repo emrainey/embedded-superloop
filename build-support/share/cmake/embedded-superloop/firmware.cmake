@@ -155,7 +155,7 @@ function(add_firmware)
                 add_custom_command(
                     OUTPUT ${ARG_DISASM}
                     DEPENDS ${ARG_ELF}
-                    COMMAND ${CMAKE_OBJDUMP} -d ${ARG_ELF} -marm -C -z > ${ARG_DISASM}
+                    COMMAND ${CMAKE_OBJDUMP} -D ${ARG_ELF} -s -marm -C -z > ${ARG_DISASM}
                     COMMENT "Creating Disassembly of ${ARG_ELF}"
                 )
 

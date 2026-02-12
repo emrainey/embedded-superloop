@@ -8,7 +8,7 @@
 namespace stm32 {
 
 /// @brief Dedicate a chunk of memory for the DMA buffers
-LINKER_SECTION(".dma_buffer") alignas(alignof(std::max_align_t)) static core::Array<uint8_t, DmaBlockSize * DmaBlockCount> dma_memory;
+LINKER_SECTION(".dma_buffers") alignas(alignof(std::max_align_t)) static core::Array<uint8_t, DmaBlockSize * DmaBlockCount> dma_memory;
 /// @brief Manage the DMA buffers with a bitmap allocator
 static core::BitMapHeap<DmaBlockSize, DmaBlockCount> dma_heap_allocator{&dma_memory[0], dma_memory.size()};
 
