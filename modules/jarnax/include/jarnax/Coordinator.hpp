@@ -29,6 +29,7 @@ public:
     Coordinator(Transactor<TransactionType>& driver)
         : Loopable()
         , transactions_{}
+        , active_{nullptr}
         , stats_{}
         , driver_{driver} {
         // do nothing
@@ -53,6 +54,15 @@ public:
         if (not transaction->IsInitialized()) {
             return core::Status{core::Result::NotInitialized, core::Cause::Parameter};
         }
+        // Prevent duplicate enqueue of the same transaction instance.
+        if (active_ == transaction) {
+            return core::Status{core::Result::Busy, core::Cause::State};
+        }
+        for (std::size_t i = 0U; i < transactions_.Count(); ++i) {
+            if (transactions_[i] == transaction) {
+                return core::Status{core::Result::Busy, core::Cause::State};
+            }
+        }
         if (transactions_.IsFull()) {
             return core::Status{core::Result::ExceededLimit, core::Cause::Resource};
         }
@@ -61,7 +71,7 @@ public:
             // we've already verified it's not full
             transactions_.Push(transaction);
             // we've already verified it's not nullptr
-            transaction->Inform(TransactionType::Event::Scheduled);
+            transaction->Inform(TransactionType::Event::Scheduled, core::Status{core::Result::Success, core::Cause::State});
             stats_.accepted++;
             return core::Status{core::Result::Success, core::Cause::State};
         } else {
@@ -90,7 +100,7 @@ public:
         // check the state of the active_ transaction
         if (active_->IsQueued()) {
             // ask it to Start, this will internally check to see if the dead line has been passed.
-            active_->Inform(TransactionType::Event::Start);
+            active_->Inform(TransactionType::Event::Start, core::Status{core::Result::Success, core::Cause::State});
             if (active_->IsRunning()) {
                 status = driver_.Start(*active_);
                 if (status.IsSuccess()) {
@@ -116,7 +126,13 @@ public:
                 stats_.passed++;
                 active_->Inform(TransactionType::Event::Completed, status);
             } else if (status.IsBusy()) {
-                // do nothing
+                // Keep the transaction state machine progressing so deadline timeouts can occur.
+                active_->Inform(TransactionType::Event::None, core::Status{core::Result::Success, core::Cause::State});
+                if (active_->IsComplete()) {
+                    stats_.completed++;
+                    stats_.failed++;
+                    (void)driver_.Cancel(*active_);
+                }
             } else {
                 // some failure occurred
                 if (active_->GetAttemptsRemaining() > 0) {
@@ -130,7 +146,6 @@ public:
                     status = driver_.Cancel(*active_);
                     // ignore the status of the cancel
                 }
-                active_->Inform(TransactionType::Event::Retry);
             }
         }
         // if it's completed, forget the active transaction

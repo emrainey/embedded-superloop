@@ -165,64 +165,98 @@ void Driver::Reset(void) {
 
 void Driver::HandleEvent(void) {
     // Handle the event here
-    stm32::peripherals::InterIntegratedCircuit::Status1 status1 = i2c_.status1;    // read
-    if constexpr (debug::I2cIsr) {
-        jarnax::print(
-            "I2C Event Status1 st:%" PRIu32 " a:%" PRIu32 " rne:%" PRIu32 " te:%" PRIu32 " tf:%" PRIu32 "\n",
-            static_cast<uint32_t>(status1.bits.start_bit),
-            static_cast<uint32_t>(status1.bits.address),
-            static_cast<uint32_t>(status1.bits.receive_not_empty),
-            static_cast<uint32_t>(status1.bits.transmit_empty),
-            static_cast<uint32_t>(status1.bits.byte_transfer_finished)
-        );
-    }
-    if (status1.bits.start_bit) {
-        statistics_.events.start++;    // Increment the start condition count
-        // write the address out to the bus, this write will clear the START BIT
-        if (transaction_ != nullptr and transaction_->address.small.is_large == 0U) {
-            i2c_.data.bits.data = transaction_->address.parts[0];    // writes the R/W + the address
-        } else {
-            // TODO write out two ?
+    bool should_poll_again = false;                                                    // Flag to indicate if we should stop the transaction
+    do {
+        stm32::peripherals::InterIntegratedCircuit::Status1 status1 = i2c_.status1;    // read
+        if constexpr (debug::I2cIsr) {
+            jarnax::print(
+                "I2C Event Status1 st:%" PRIu32 " a:%" PRIu32 " rne:%" PRIu32 " te:%" PRIu32 " tf:%" PRIu32 "\n",
+                static_cast<uint32_t>(status1.bits.start_bit),
+                static_cast<uint32_t>(status1.bits.address),
+                static_cast<uint32_t>(status1.bits.receive_not_empty),
+                static_cast<uint32_t>(status1.bits.transmit_empty),
+                static_cast<uint32_t>(status1.bits.byte_transfer_finished)
+            );
         }
-    }
-    if (status1.bits.address) {
-        stm32::peripherals::InterIntegratedCircuit::Status2 status2;
-        status2 = i2c_.status2;                // read, this clears the ADDRESS BIT
-        statistics_.events.address_match++;    // Increment the address sent count
-    }
-    if (status1.bits.byte_transfer_finished) {
-        statistics_.events.transfer_finished++;    // Increment the address received count
-        if (transaction_) {
-            core::Status status{core::Result::Success, core::Cause::State};
-            // If there is a transaction, we can inform it of the error
-            transaction_->Inform(jarnax::i2c::Transaction::Event::Completed, status);
-            transaction_ = nullptr;    // Clear the transaction pointer
+        if (status1.bits.start_bit) {
+            statistics_.events.start++;    // Increment the start condition count
+            // write the address out to the bus, this write will clear the START BIT
+            if (transaction_ != nullptr and transaction_->address.small.is_large == 0U) {
+                i2c_.data.bits.data = transaction_->address.parts[0];    // writes the R/W + the address
+            } else {
+                // TODO write out two ?
+            }
         }
-    }
-    if (status1.bits.system_management_bus_alert) {
-        statistics_.events.smbus_alert++;    // Increment the SMBus alert count
-    }
-    if (status1.bits.receive_not_empty) {
-        statistics_.bytes_received++;    // Increment the received byte count
-        if (transaction_ != nullptr and transaction_->actual_count < transaction_->desired_count) {
-            auto span = transaction_->buffer.as_span().subspan(0, transaction_->desired_count);
-            span[transaction_->actual_count] = i2c_.data.bits.data;    // read the data from the I2C peripheral
-            transaction_->actual_count++;                              // increment the actual count
+        if (status1.bits.address) {
+            stm32::peripherals::InterIntegratedCircuit::Status2 status2;
+            status2 = i2c_.status2;                // read, this clears the ADDRESS BIT
+            statistics_.events.address_match++;    // Increment the address sent count
+            // nothing else to do in leader mode.
         }
-    }
-    if (status1.bits.transmit_empty) {
-        statistics_.transmit_empty++;    // Increment the transmitted byte count
-        if (transaction_ != nullptr and transaction_->actual_count < transaction_->desired_count) {
-            auto span = transaction_->buffer.as_span().subspan(0, transaction_->desired_count);
-            i2c_.data.bits.data = span[transaction_->actual_count++];
-        } else {
-            // If we have sent all the data, we can set the stop condition
-            stm32::peripherals::InterIntegratedCircuit::Control1 control1;
-            control1 = i2c_.control1;    // read
-            control1.bits.stop = 1;      // set stop condition
-            i2c_.control1 = control1;    // write
+        if (status1.bits.byte_transfer_finished) {
+            statistics_.events.transfer_finished++;    // Increment the transfer-finished count
+            should_poll_again = false;                 // we got the BTF!
+
+            // For write transfers, EV8_2 indicates the shift register and DR are empty.
+            // Assert STOP and complete only at this point.
+            if (transaction_ != nullptr and transaction_->address.small.read == 0U and transaction_->actual_count >= transaction_->desired_count) {
+                stm32::peripherals::InterIntegratedCircuit::Control1 control1;
+                control1 = i2c_.control1;     // read
+                control1.bits.stop = 1;       // set stop condition
+                i2c_.control1 = control1;     // write
+                statistics_.events.stop++;    // Increment the stop condition count
+
+                core::Status status{core::Result::Success, core::Cause::State};
+                transaction_->Inform(jarnax::i2c::Transaction::Event::Completed, status);
+                transaction_ = nullptr;
+            }
         }
-    }
+        if (status1.bits.system_management_bus_alert) {
+            statistics_.events.smbus_alert++;    // Increment the SMBus alert count
+        }
+        if (status1.bits.receive_not_empty) {
+            statistics_.events.receive_not_empty++;    // Increment the receive not empty count
+            if (transaction_ != nullptr and transaction_->address.small.read != 0U and transaction_->actual_count < transaction_->desired_count) {
+                auto span = transaction_->buffer.as_span().subspan(0, transaction_->desired_count);
+                span[transaction_->actual_count] = i2c_.data.bits.data;    // read the data from the I2C peripheral
+                transaction_->actual_count++;                              // increment the actual count
+                statistics_.bytes_received++;                              // Increment the bytes received count
+
+                // complete once the requested byte count has been received.
+                if (transaction_->actual_count >= transaction_->desired_count) {
+                    statistics_.completed++;      // Increment the completed count, this should match the number of STOPs
+                    stm32::peripherals::InterIntegratedCircuit::Control1 control1;
+                    control1 = i2c_.control1;     // read
+                    control1.bits.stop = 1;       // set stop condition
+                    i2c_.control1 = control1;     // write
+                    statistics_.events.stop++;    // Increment the stop condition count
+
+                    core::Status status{core::Result::Success, core::Cause::State};
+                    transaction_->Inform(jarnax::i2c::Transaction::Event::Completed, status);
+                    transaction_ = nullptr;
+                }
+            }
+        }
+        if (status1.bits.transmit_empty) {
+            statistics_.events.transmit_empty++;    // Increment the transmit empty count
+            if (transaction_ != nullptr and transaction_->address.small.read == 0U and transaction_->actual_count < transaction_->desired_count) {
+                auto span = transaction_->buffer.as_span().subspan(0, transaction_->desired_count);
+                i2c_.data.bits.data = span[transaction_->actual_count];
+                transaction_->actual_count++;       // increment the actual count
+                statistics_.bytes_transmitted++;    // Increment the bytes transmitted count
+                // we set the STOP once the BTF indicates that the last byte has been physically transmitted,
+                // this is handled in the byte_transfer_finished event above
+
+                if (transaction_->actual_count >= transaction_->desired_count) {
+                    // all data has been written to the peripheral, now we just need to wait for the BTF event to indicate it has been sent out before
+                    // we can complete the transaction
+                    statistics_.completed++;     // Increment the completed count, this should match the number of STOPs
+                    should_poll_again = true;    // we're done writing the data to the peripheral, but we need to ensure we'll catch the BTF event to
+                                                 // complete the transaction
+                }
+            }
+        }
+    } while (should_poll_again);
 }
 
 void Driver::HandleError(void) {
@@ -235,7 +269,9 @@ void Driver::HandleError(void) {
         should_stop = true;          // Set the flag to stop the transaction
     }
     if (status1.bits.arbitration_lost) {
-        statistics_.errors.arbitration_lost++;    // Increment the arbitration lost count
+        status = core::Status{core::Result::NotReady, core::Cause::Hardware};    // set the status to not available
+        statistics_.errors.arbitration_lost++;                                   // Increment the arbitration lost count
+        should_stop = true;                                                      // Set the flag to stop the transaction
     }
     if (status1.bits.acknowledge_failure) {
         statistics_.errors.acknowledge++;                                            // Increment the acknowledge failure count
@@ -245,13 +281,14 @@ void Driver::HandleError(void) {
         should_stop = true;                                                          // Set the flag to stop the transaction
     }
     if (status1.bits.overrun) {
-        statistics_.errors.overrun++;                                                // Increment the overrun error count
-        status = core::Status{core::Result::NotAvailable, core::Cause::Hardware};    // set the status to not available
-        should_stop = true;                                                          // Set the flag to stop the transaction
+        statistics_.errors.overrun++;                                                 // Increment the overrun error count
+        status = core::Status{core::Result::ExceededLimit, core::Cause::Hardware};    // set the status to not available
+        should_stop = true;                                                           // Set the flag to stop the transaction
     }
     if (status1.bits.packet_error_code_error) {
-        statistics_.errors.packet_error_code++;    // Increment the packet error code error count
-        should_stop = true;                        // Set the flag to stop the transaction
+        statistics_.errors.packet_error_code++;                                 // Increment the packet error code error count
+        status = core::Status{core::Result::Failure, core::Cause::Hardware};    // set the status to not available
+        should_stop = true;                                                     // Set the flag to stop the transaction
     }
     if (status1.bits.timeout) {
         statistics_.errors.timeout++;                                           // Increment the timeout error count
@@ -266,9 +303,10 @@ void Driver::HandleError(void) {
     if (should_stop) {
         // If we should stop the transaction, we can set the stop condition
         stm32::peripherals::InterIntegratedCircuit::Control1 control1;
-        control1 = i2c_.control1;    // read
-        control1.bits.stop = 1;      // set stop condition
-        i2c_.control1 = control1;    // write
+        control1 = i2c_.control1;     // read
+        control1.bits.stop = 1;       // set stop condition
+        i2c_.control1 = control1;     // write
+        statistics_.events.stop++;    // Increment the stop condition count
         if (transaction_) {
             // If there is a transaction, we can inform it of the error
             transaction_->Inform(jarnax::i2c::Transaction::Event::Completed, status);
@@ -348,11 +386,50 @@ core::Status Driver::Check(jarnax::i2c::Transaction& transaction) {
     if constexpr (configure::use_i2c_as == configure::Mode::Dma) {
         // @TODO check to see if the DMA is complete yet.
     } else {
+        // Keep the transaction busy until ISR-level completion clears the active pointer.
+        // This avoids reporting success while the final byte/STOP sequence is still in flight.
+        if (transaction_ == &transaction) {
+            if (transaction.address.small.read == 0U and transaction.desired_count > 0U and transaction.actual_count >= transaction.desired_count) {
+                // Hardware should complete write transfers on BTF. If BTF is occasionally
+                // missed, finalize here once all bytes were queued to avoid deadline timeouts.
+                stm32::peripherals::InterIntegratedCircuit::Control1 control1;
+                control1 = i2c_.control1;    // read
+                control1.bits.stop = 1;      // set stop condition
+                i2c_.control1 = control1;    // write
+
+                core::Status status{core::Result::Success, core::Cause::State};
+                transaction_->Inform(jarnax::i2c::Transaction::Event::Completed, status);
+                transaction_ = nullptr;
+                return status;
+            }
+            if constexpr (debug::I2c) {
+                static std::size_t last_actual_count{static_cast<std::size_t>(-1)};
+                static std::uint32_t stagnant_count{0U};
+                if (transaction.actual_count == last_actual_count) {
+                    stagnant_count++;
+                } else {
+                    stagnant_count = 0U;
+                    last_actual_count = transaction.actual_count;
+                }
+                if ((stagnant_count & 0x3FU) == 0U) {
+                    jarnax::print(
+                        "STM32 I2C Check: busy desired=%" PRIz " actual=%" PRIz " stagnant=%" PRIu32 "\r\n",
+                        transaction.desired_count,
+                        transaction.actual_count,
+                        stagnant_count
+                    );
+                }
+            }
+            return core::Status{core::Result::Busy, core::Cause::State};
+        }
         // compare the send vs send or received vs receive size
         if (transaction.desired_count > 0 and transaction.actual_count < transaction.desired_count) {
             // If we have not sent all the data, we need to continue sending
             return core::Status{core::Result::Busy, core::Cause::State};
         }
+    }
+    if constexpr (debug::I2c) {
+        jarnax::print("STM32 I2C Check: complete desired=%" PRIz " actual=%" PRIz "\r\n", transaction.desired_count, transaction.actual_count);
     }
     return core::Status{core::Result::Success, core::Cause::State};
 }
@@ -368,10 +445,11 @@ core::Status Driver::Cancel(jarnax::i2c::Transaction& transaction) {
     i2c_.control2 = control2;                     // write
     // clear the start condition
     stm32::peripherals::InterIntegratedCircuit::Control1 control1;
-    control1 = i2c_.control1;    // read
-    control1.bits.start = 0;     // clear start condition
-    control1.bits.stop = 1;      // set stop condition
-    i2c_.control1 = control1;    // write
+    control1 = i2c_.control1;     // read
+    control1.bits.start = 0;      // clear start condition
+    control1.bits.stop = 1;       // set stop condition
+    i2c_.control1 = control1;     // write
+    statistics_.events.stop++;    // Increment the stop condition count
     Reset();
     return core::Status{core::Result::Success, core::Cause::State};
 }

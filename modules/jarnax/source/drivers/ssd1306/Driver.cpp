@@ -22,10 +22,12 @@ Driver::Driver(jarnax::Timer const& timer, jarnax::i2c::Driver& i2c_driver, core
     , next_event_{Event::None}
     , powered_{false}
     , updated_{false}
-    , statistics_{} {}
+    , statistics_{}
+    , status_{core::Result::NotReady, core::Cause::State} {}
 
 core::Status Driver::Initialize(jarnax::i2c::Address address) {
     address_ = address;                                                // Set the I2C address for the SSD1306 display
+    status_ = core::Status{core::Result::NotReady, core::Cause::State};
     next_event_ = Event::PowerOn;                                      // Set the next event to PowerOn
     state_machine_.Enter();                                            // Initialize the state machine to start the powering on process
     return core::Status{core::Result::Success, core::Cause::State};    // Initialization successful
@@ -36,11 +38,16 @@ core::Status Driver::GetStatus(void) const {
     if (not powered_) {
         return core::Status{core::Result::NotReady, core::Cause::State};    // Not ready if the display is not powered
     }
-    core::Status status = i2c_transaction_.GetStatus();                     // Get the status from the I2C driver
-    if (status.IsBusy()) {
-        return status;                                                      // If the I2C transaction is busy, return that status
+    // A transaction that is initialized/queued/running still means the display
+    // is occupied, even if its internal status is not yet Busy.
+    if (i2c_transaction_.IsInitialized() or i2c_transaction_.IsQueued() or i2c_transaction_.IsRunning()) {
+        return core::Status{core::Result::Busy, core::Cause::State};
     }
-    return core::Status{core::Result::Success, core::Cause::State};         // Otherwise, return success
+    core::Status status = i2c_transaction_.GetStatus();    // Get the terminal status from the I2C transaction
+    if (i2c_transaction_.IsComplete()) {
+        return status;
+    }
+    return status_;    // Preserve the last operation outcome while idle/powered.
 }
 
 jarnax::ssd1306::Image128x32& Driver::GetImage(void) {
@@ -88,8 +95,10 @@ core::Status Driver::Prepare(Sequence sequence) {
             return core::Status{core::Result::NotAvailable, core::Cause::Resource};    // If the buffer is empty, return not available
         }
         statistics_.prepared++;
-        i2c_transaction_.Inform(jarnax::i2c::Transaction::Event::Initialized);    // Mark the transaction as initialized
-        return core::Status{core::Result::Success, core::Cause::State};           // Return success status
+        i2c_transaction_.Inform(
+            jarnax::i2c::Transaction::Event::Initialized, core::Status{core::Result::NotReady, core::Cause::State}
+        );                                                                 // Mark the transaction as initialized
+        return core::Status{core::Result::Success, core::Cause::State};    // Return success status
     } else {
         jarnax::print("SSD1306 Driver: Prepare called while not uninitialized\r\n");
     }
@@ -113,8 +122,10 @@ core::Status Driver::PrepareRender(Sequence sequence) {
             return core::Status{core::Result::NotAvailable, core::Cause::Resource};    // If the buffer is empty, return not available
         }
         statistics_.prepared++;
-        i2c_transaction_.Inform(jarnax::i2c::Transaction::Event::Initialized);    // Mark the transaction as initialized
-        return core::Status{core::Result::Success, core::Cause::State};           // Return success status
+        i2c_transaction_.Inform(
+            jarnax::i2c::Transaction::Event::Initialized, core::Status{core::Result::NotReady, core::Cause::State}
+        );                                                                 // Mark the transaction as initialized
+        return core::Status{core::Result::Success, core::Cause::State};    // Return success status
     } else {
         jarnax::print("SSD1306 Driver: PrepareRender called while not uninitialized", i2c_transaction_.GetStatus());
     }
@@ -149,8 +160,27 @@ bool Driver::AreCommandsComplete(core::Status& status) {
                 jarnax::print("SSD1306 Transaction Success: ", status);    // Log the success if the transaction succeeded
             }
         }
-        i2c_transaction_.Inform(jarnax::i2c::Transaction::Event::Recycle);    // Inform the transaction that it has been recycled
+        i2c_transaction_.Inform(
+            jarnax::i2c::Transaction::Event::Recycle, core::Status{core::Result::Success, core::Cause::State}
+        );    // Inform the transaction that it has been recycled
         return true;
+    }
+    static std::uint32_t pending_count{0U};
+    if constexpr (debug::Inform) {
+        pending_count++;
+        if ((pending_count & 0x3FU) == 0U) {
+            core::Status tx_status = i2c_transaction_.GetStatus();
+            jarnax::print(
+                "SSD1306 pending tx: init=%u queue=%u run=%u done=%u desired=%" PRIz " actual=%" PRIz "\r\n",
+                static_cast<unsigned>(i2c_transaction_.IsInitialized()),
+                static_cast<unsigned>(i2c_transaction_.IsQueued()),
+                static_cast<unsigned>(i2c_transaction_.IsRunning()),
+                static_cast<unsigned>(i2c_transaction_.IsComplete()),
+                i2c_transaction_.desired_count,
+                i2c_transaction_.actual_count
+            );
+            jarnax::print("SSD1306 pending tx status: ", tx_status);
+        }
     }
     return false;
 }
@@ -158,17 +188,23 @@ bool Driver::AreCommandsComplete(core::Status& status) {
 void Driver::OnEvent(Event event, core::Status status) {
     // Handle events from the state machine
     jarnax::print("SSD1306 Event: %d\r\n", static_cast<int>(event));
+    status_ = status;
     if (status.IsFailure()) {
-        status_ = status;                                    // Update the status if the event failed
         jarnax::print("SSD1306 Event Failure: ", status);    // Log the failure status if the event failed
     }
     if (event == Event::PowerOn) {
-        powered_ = true;
+        if (status.IsSuccess()) {
+            powered_ = true;
+        }
     } else if (event == Event::PowerOff) {
-        powered_ = false;
+        if (status.IsSuccess()) {
+            powered_ = false;
+        }
     } else if (event == Event::Update) {
-        updated_ = true;
-        statistics_.updated++;
+        if (status.IsSuccess()) {
+            updated_ = true;
+            statistics_.updated++;
+        }
     }
 }
 

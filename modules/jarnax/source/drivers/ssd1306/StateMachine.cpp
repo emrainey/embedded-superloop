@@ -1,9 +1,47 @@
-#include "core/Array.hpp"
 #include "jarnax/drivers/ssd1306/StateMachine.hpp"
+#include "core/Array.hpp"
+#include "debug.hpp"
+#include "jarnax/print.hpp"
 
 namespace jarnax {
 namespace drivers {
 namespace ssd1306 {
+
+namespace {
+[[maybe_unused]] char const* ToString(State state) {
+    switch (state) {
+        case State::Undefined:
+            return "Undefined";
+        case State::PoweringOn:
+            return "PoweringOn";
+        case State::Awaiting:
+            return "Awaiting";
+        case State::Idle:
+            return "Idle";
+        case State::Updating:
+            return "Updating";
+        case State::PoweringOff:
+            return "PoweringOff";
+        case State::Error:
+            return "Error";
+    }
+    return "<?>";
+}
+
+[[maybe_unused]] char const* ToString(Event event) {
+    switch (event) {
+        case Event::None:
+            return "None";
+        case Event::PowerOn:
+            return "PowerOn";
+        case Event::PowerOff:
+            return "PowerOff";
+        case Event::Update:
+            return "Update";
+    }
+    return "<?>";
+}
+}    // namespace
 
 // Prepare the command sequence to power on the display
 static constexpr std::uint8_t const power_on_sequence[] = {
@@ -89,11 +127,15 @@ StateMachine::StateMachine(Client& client)
     , input_event_{Event::None}                                           // Initialize the input event to None
     , last_event_{Event::None}                                            // Initialize the last event to None
     , status_{core::Status{core::Result::Success, core::Cause::State}}    // Initialize the status to success
-{
-}
+{}
 
 void StateMachine::Process(Event event) {
     if (not IsFinal()) {
+        if constexpr (debug::States) {
+            if (event != Event::None) {
+                jarnax::print("SSD1306 SM Process event=%s\r\n", ToString(event));
+            }
+        }
         input_event_ = event;          // Set the event to be processed
         RunOnce();                     // Process the event through the state machine
         input_event_ = Event::None;    // Reset the event after processing
@@ -141,11 +183,11 @@ State StateMachine::OnCycle(State state) {
         if (client_.IsPresent()) {
             status_ = client_.Prepare(Sequence{power_on_sequence});    // Prepare the command sequence
             if (status_.IsSuccess()) {
-                status_ = client_.Issue();    // Issue the command sequence
+                status_ = client_.Issue();                             // Issue the command sequence
                 if (status_.IsSuccess()) {
-                    state = State::Awaiting;    // Transition to Awaiting state after powering on
+                    state = State::Awaiting;                           // Transition to Awaiting state after powering on
                 } else {
-                    state = State::Error;    // Transition to Error state if issuing failed
+                    state = State::Error;                              // Transition to Error state if issuing failed
                 }
             } else {
                 state = State::Error;    // Transition to Error state if preparing failed
@@ -159,15 +201,23 @@ State StateMachine::OnCycle(State state) {
             state = State::Idle;
         } else {
             // If commands are not complete, stay in Awaiting state
+            if constexpr (debug::States) {
+                static std::uint32_t awaiting_count{0U};
+                awaiting_count++;
+                if ((awaiting_count & 0x3FU) == 0U) {
+                    jarnax::print("SSD1306 SM Awaiting... last status: ");
+                    jarnax::print("", status_);
+                }
+            }
         }
     } else if (state == State::Updating) {
         status_ = client_.PrepareRender(render_image);    // Prepare the display with the current image
         if (status_.IsSuccess()) {
-            status_ = client_.Issue();    // Issue the command sequence
+            status_ = client_.Issue();                    // Issue the command sequence
             if (status_.IsSuccess()) {
-                state = State::Awaiting;    // Transition to Awaiting state after powering on
+                state = State::Awaiting;                  // Transition to Awaiting state after powering on
             } else {
-                state = State::Error;    // Transition to Error state if issuing failed
+                state = State::Error;                     // Transition to Error state if issuing failed
             }
         } else {
             state = State::Error;    // Transition to Error state if rendering failed
@@ -175,18 +225,18 @@ State StateMachine::OnCycle(State state) {
     } else if (state == State::PoweringOff) {
         status_ = client_.Prepare(Sequence{power_off_sequence});    // Prepare the command sequence
         if (status_.IsSuccess()) {
-            status_ = client_.Issue();    // Issue the command sequence
+            status_ = client_.Issue();                              // Issue the command sequence
             if (status_.IsSuccess()) {
-                state = State::Awaiting;    // Transition to Awaiting state after powering off
+                state = State::Awaiting;                            // Transition to Awaiting state after powering off
             } else {
-                state = State::Error;    // Transition to Error state if issuing failed
+                state = State::Error;                               // Transition to Error state if issuing failed
             }
         }
     } else if (state == State::Error) {
         // Handle error state?
         state = State::Idle;    // Placeholder, implement actual logic
     }
-    return state;    // Stay in the same state if no conditions matched
+    return state;               // Stay in the same state if no conditions matched
 }
 
 void StateMachine::OnExit(State state) {
@@ -213,9 +263,10 @@ void StateMachine::OnExit() {
 }
 
 void StateMachine::OnTransition(State from, State to) {
-    // This is called when transitioning from one state to another
-    if (from != to) {
-        // Log or handle the transition if needed
+    if constexpr (debug::States) {
+        if (from != to) {
+            jarnax::print("SSD1306 SM Transition: %s -> %s (event=%s)\r\n", ToString(from), ToString(to), ToString(last_event_));
+        }
     }
 }
 

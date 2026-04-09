@@ -66,9 +66,12 @@ public:
             size_t transfer_finished{0U};    ///< The number of transfer finished events
             size_t smbus_alert{0U};          ///< The number of SMBus alert events
             size_t stop{0U};                 ///< The number of stop conditions generated
+            size_t receive_not_empty{0U};    ///< The number of times the receive buffer was not empty
+            size_t transmit_empty{0U};       ///< The number of times the transmit buffer was empty
         } events;                            ///< The event counters
-        size_t bytes_received{0U};           ///< The number of bytes received
-        size_t transmit_empty{0U};           ///< The number of bytes transmitted
+        size_t completed{0U};                ///< The total number of completed transactions (should match STOPs)
+        size_t bytes_received{0U};           ///< The total number of bytes received
+        size_t bytes_transmitted{0U};        ///< The total number of bytes transmitted
     };
 
     /// @brief Gets the statistics for the I²C peripheral

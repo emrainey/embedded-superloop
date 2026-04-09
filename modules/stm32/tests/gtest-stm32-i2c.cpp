@@ -118,34 +118,35 @@ protected:
                 }
             } else {                                               // write
                 // Simulate the data transfer by calling the ISR directly
-                // we call N+1 times to cover the STOP condition
-                for (size_t i = 0; i < injected.count() + 1U; ++i) {
+                for (size_t i = 0; i < injected.count(); ++i) {
                     stm32::peripherals::InterIntegratedCircuit::Data data;
-                    status1.bits.transmit_empty = 1;               // set transmit empty
-                    stm32::peripherals::i2c1.status1 = status1;    // write
-                    stm32::i2c1_event_isr();                       // call the ISR to handle the data
-                    // ASSERT_EQ(i + 1, i2c_driver_.GetStatistics().bytes_transmitted);
-                    if (i < injected.count()) {
-                        data = stm32::peripherals::i2c1.data;      // read the data register
-                        ASSERT_EQ(injected[i], data.bits.data);    // check the data
+                    status1.bits.transmit_empty = 1;                // set transmit empty
+                    if (i + 1U == injected.count()) {
+                        status1.bits.byte_transfer_finished = 1;    // present BTF during the final TXE ISR
                     }
+                    stm32::peripherals::i2c1.status1 = status1;     // write
+                    stm32::i2c1_event_isr();                        // call the ISR to handle the data
+                    // ASSERT_EQ(i + 1, i2c_driver_.GetStatistics().bytes_transmitted);
+                    data = stm32::peripherals::i2c1.data;          // read the data register
+                    ASSERT_EQ(injected[i], data.bits.data);        // check the data
                     status1.bits.transmit_empty = 0;               // clear transmit empty
                     stm32::peripherals::i2c1.status1 = status1;    // write
                 }
-                // check for the STOP condition on tx
-                control1 = stm32::peripherals::i2c1.control1;    // read
-                ASSERT_EQ(1U, control1.bits.stop);               // check for stop condition
-                control1.bits.stop = 0;                          // clear stop condition
-                stm32::peripherals::i2c1.control1 = control1;    // write
+                control1 = stm32::peripherals::i2c1.control1;      // read
+                ASSERT_EQ(1U, control1.bits.stop);                 // check for stop condition
+                control1.bits.stop = 0;                            // clear stop condition
+                stm32::peripherals::i2c1.control1 = control1;      // write
                 // ASSERT_EQ(i + 1, i2c_driver_.GetStatistics().transmitted);
             }
-            // now trigger a byte_transfer_finished
-            status1 = stm32::peripherals::i2c1.status1;    // read
-            status1.bits.byte_transfer_finished = 1;       // modify the status
-            stm32::peripherals::i2c1.status1 = status1;    // write
-            stm32::i2c1_event_isr();                       // call the ISR to handle the data
-            status1.bits.byte_transfer_finished = 0;       // modify the status
-            stm32::peripherals::i2c1.status1 = status1;    // write
+            if (txn_.address.small.read) {
+                // For reads we still model BTF as a later interrupt after the final byte arrives.
+                status1 = stm32::peripherals::i2c1.status1;    // read
+                status1.bits.byte_transfer_finished = 1;       // modify the status
+                stm32::peripherals::i2c1.status1 = status1;    // write
+                stm32::i2c1_event_isr();                       // call the ISR to handle the data
+                status1.bits.byte_transfer_finished = 0;       // modify the status
+                stm32::peripherals::i2c1.status1 = status1;    // write
+            }
         } else {
             ASSERT_TRUE(false) << "DMA for I2C not implemented in this test";
         }
