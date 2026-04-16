@@ -79,7 +79,7 @@ public:
     /// If the event is a completion, the status is set to the completion status will be saved and the RunOnce will be run again to close the machine.
     /// @param event The input event
     /// @param status The status to assign to the completion status if the event is Completed
-    void Inform(Event event, core::Status status = core::Status{core::Result::NotAvailable, core::Cause::Parameter}) {
+    bool Inform(Event event, core::Status status = core::Status{core::Result::NotAvailable, core::Cause::Parameter}) {
         if constexpr (debug::Info) {
             jarnax::print("Transactable::Inform: %d (Final? %s)\n", static_cast<int>(event), IsFinal() ? "true" : "false");
         }
@@ -89,7 +89,9 @@ public:
                 completion_status_ = status;
             }
             RunOnce();
+            return true;
         }
+        return false;
     }
 
     /// @return True if the transaction is Uninitialized
@@ -114,7 +116,18 @@ public:
     std::size_t GetAttemptsRemaining() const { return try_count_; }
 
     /// The duration of the transaction in microseconds. This is only valid after the transaction has completed
-    core::units::MicroSeconds GetDuration() const { return duration_; }
+    core::units::MicroSeconds GetDuration() const {
+        if (IsComplete()) {
+            return duration_;
+        } else if (IsQueued() or IsRunning()) {
+            // the difference between now and the start time is the elapsed time for the transaction so far, even if it is not complete yet
+            auto now = timer_.GetMicroseconds();
+            auto elapsed = now - start_;
+            return elapsed;
+        }
+        // otherswise, the duration is not valid, return zero
+        return core::units::MicroSeconds{0U};
+    }
 
     /// Sets the deadline for the transaction to a non-infinite value.
     void SetDeadline(core::units::MicroSeconds deadline) { deadline_ = deadline; }

@@ -125,6 +125,7 @@ StateMachine::StateMachine(Client& client)
     : core::StateMachine<State>{*this, State::Idle}
     , client_{client}
     , input_event_{Event::None}                                           // Initialize the input event to None
+    , pending_event_{Event::None}                                         // Initialize deferred event storage
     , last_event_{Event::None}                                            // Initialize the last event to None
     , status_{core::Status{core::Result::Success, core::Cause::State}}    // Initialize the status to success
 {}
@@ -136,7 +137,14 @@ void StateMachine::Process(Event event) {
                 jarnax::print("SSD1306 SM Process event=%s\r\n", ToString(event));
             }
         }
-        input_event_ = event;          // Set the event to be processed
+        if (event != Event::None) {
+            if (Is(State::Idle) and input_event_ == Event::None) {
+                input_event_ = event;
+            } else if (pending_event_ == Event::None) {
+                // Keep one deferred event while work is in flight.
+                pending_event_ = event;
+            }
+        }
         RunOnce();                     // Process the event through the state machine
         input_event_ = Event::None;    // Reset the event after processing
     }
@@ -166,6 +174,10 @@ void StateMachine::OnEntry(State state) {
 
 State StateMachine::OnCycle(State state) {
     if (state == State::Idle) {
+        if (input_event_ == Event::None and pending_event_ != Event::None) {
+            input_event_ = pending_event_;
+            pending_event_ = Event::None;
+        }
         if (input_event_ == Event::PowerOn) {
             // Transition to PoweringOn state if PowerOn event is received
             state = State::PoweringOn;
@@ -181,24 +193,31 @@ State StateMachine::OnCycle(State state) {
         }
     } else if (state == State::PoweringOn) {
         if (client_.IsPresent()) {
-            status_ = client_.Prepare(Sequence{power_on_sequence});    // Prepare the command sequence
+            status_ = client_.PrepareCommand(Sequence{power_on_sequence});    // Prepare the command sequence
             if (status_.IsSuccess()) {
-                status_ = client_.Issue();                             // Issue the command sequence
+                status_ = client_.Issue();                                    // Issue the command sequence
                 if (status_.IsSuccess()) {
-                    state = State::Awaiting;                           // Transition to Awaiting state after powering on
+                    state = State::Awaiting;                                  // Transition to Awaiting state after powering on
                 } else {
-                    state = State::Error;                              // Transition to Error state if issuing failed
+                    state = State::Error;                                     // Transition to Error state if issuing failed
                 }
             } else {
                 state = State::Error;    // Transition to Error state if preparing failed
             }
         } else {
-            // wait for the display to be present
+            // the display is not present, so this must fail!
+            status_ = core::Status{core::Result::NotAvailable, core::Cause::Hardware};
+            state = State::Error;
         }
     } else if (state == State::Awaiting) {
-        if (client_.AreCommandsComplete(status_)) {
-            // If commands are complete, transition to Idle state
-            state = State::Idle;
+        if (client_.CompleteCommand(status_)) {
+            // If commands are complete, recycle the transaction and wait for it to be uninitialized
+            // Do NOT transition to Idle yet - we need to give the transaction time to fully recycle
+            if (client_.IsReadyForPreparation()) {
+                // Transaction has fully recycled, safe to move to Idle
+                state = State::Idle;
+            }
+            // Otherwise, stay in Awaiting and wait for next cycle
         } else {
             // If commands are not complete, stay in Awaiting state
             if constexpr (debug::States) {
@@ -223,13 +242,13 @@ State StateMachine::OnCycle(State state) {
             state = State::Error;    // Transition to Error state if rendering failed
         }
     } else if (state == State::PoweringOff) {
-        status_ = client_.Prepare(Sequence{power_off_sequence});    // Prepare the command sequence
+        status_ = client_.PrepareCommand(Sequence{power_off_sequence});    // Prepare the command sequence
         if (status_.IsSuccess()) {
-            status_ = client_.Issue();                              // Issue the command sequence
+            status_ = client_.Issue();                                     // Issue the command sequence
             if (status_.IsSuccess()) {
-                state = State::Awaiting;                            // Transition to Awaiting state after powering off
+                state = State::Awaiting;                                   // Transition to Awaiting state after powering off
             } else {
-                state = State::Error;                               // Transition to Error state if issuing failed
+                state = State::Error;                                      // Transition to Error state if issuing failed
             }
         }
     } else if (state == State::Error) {
@@ -253,9 +272,9 @@ void StateMachine::OnExit(State state) {
     } else if (state == State::PoweringOff) {
         //
     } else if (state == State::Error) {
-        //
+        last_event_ = Event::None;                                            // Reset the last event after processing
+        status_ = core::Status{core::Result::Success, core::Cause::State};    // Reset the status once error callbacks
     }
-    status_ = core::Status{core::Result::Success, core::Cause::State};    // Reset the status to success after exiting the state
 }
 
 void StateMachine::OnExit() {

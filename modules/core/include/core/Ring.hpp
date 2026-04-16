@@ -153,6 +153,13 @@ public:
     /// @return The reference to the first element in the Ring. When the Ring is empty, behavior is undefined.
     ValueType& Peek() { return buffer_[head_]; }
 
+    /// @brief Clears all contents from the Ring.
+    void Clear() {
+        head_ = 0U;
+        tail_ = 0U;
+        count_ = 0U;
+    }
+
     /// @brief The indexing operator for mutable access
     ValueType& operator[](size_t index) {
         if (index < Count()) {

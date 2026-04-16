@@ -37,12 +37,29 @@ using Sequence = core::Span<std::uint8_t const>;
 /// @brief To be implemented by the user of the SSD1306StateMachine (i.e. the Driver)
 class Client {
 public:
+    /// @brief Checks if the SSD1306 display is present and can be communicated with
     virtual bool IsPresent(void) const = 0;
-    virtual core::Status Prepare(Sequence sequence) = 0;
+
+    /// @brief Prepares a sequence of commands to be sent to the SSD1306 display.
+    virtual core::Status PrepareCommand(Sequence sequence) = 0;
+
+    /// @brief Prepares a sequence of commands or data to be sent to the SSD1306 display for rendering.
     virtual core::Status PrepareRender(Sequence sequence) = 0;
+
+    /// @brief Issues the prepared commands or data to the SSD1306 display.
     virtual core::Status Issue(void) = 0;
-    virtual bool AreCommandsComplete(core::Status& status) = 0;
+
+    /// @brief Returns true if the issued commands or data have been completed by the SSD1306 display.
+    virtual bool IsComplete() const = 0;
+
+    /// @brief Checks if the issued commands have been completed by the SSD1306 display
+    virtual bool CompleteCommand(core::Status& status) = 0;
+
+    /// @brief Callback for when an event occurs in the state machine
     virtual void OnEvent(Event event, core::Status status) = 0;
+
+    /// @brief Checks if the client is ready for preparation of a new command sequence
+    virtual bool IsReadyForPreparation(void) const = 0;
 
 protected:
     /// Do not allow destruction through the interface
@@ -83,6 +100,7 @@ protected:
 
     Client& client_;         ///< The callback interface to interact with the SSD1306 commands
     Event input_event_;      ///< The current event being processed by the state machine
+    Event pending_event_;    ///< Deferred event captured while the machine is busy
     Event last_event_;       ///< The last event processed by the state machine
     core::Status status_;    ///< The status of the last operation performed by the state machine
 };

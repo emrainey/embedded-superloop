@@ -62,11 +62,13 @@ protected:
     // jarnax::ssd1306::StateMachine::Client interface
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     bool IsPresent(void) const override;
-    core::Status Prepare(Sequence sequence) override;
+    core::Status PrepareCommand(Sequence sequence) override;
     core::Status PrepareRender(Sequence sequence) override;
     core::Status Issue(void) override;
-    bool AreCommandsComplete(core::Status& status) override;
+    bool IsComplete() const override;
+    bool CompleteCommand(core::Status& status) override;
     void OnEvent(Event event, core::Status status) override;
+    bool IsReadyForPreparation(void) const override;
 
     jarnax::Timer const& timer_;                        ///< The System Timer to use for transactions
     jarnax::i2c::Driver& i2c_driver_;                   ///< The I2C Driver to use

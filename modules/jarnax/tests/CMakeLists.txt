@@ -28,6 +28,8 @@ host_unit_test(NAME jarnax-googletest
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/gtest-mocks.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/gtest-coordinator.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/gtest-ssd1306-driver.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/gtest-ssd1306-statemachine.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/gtest-w25q16bv-statemachine.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/gtest-lps35hw-statemachine.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/gtest-lsm9ds1-statemachine.cpp

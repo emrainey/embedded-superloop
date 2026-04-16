@@ -195,12 +195,12 @@
         "python.analysis.autoFormatStrings": true,
         "python.analysis.typeCheckingMode": "strict",
         "python.defaultInterpreterPath": "${command:cmake.buildDirectory}/venv/bin/python3",
-        "testMate.cpp.test.executables": "${command:cmake.buildDirectory}/**/test-*",
+        "testMate.cpp.test.executables": "${workspaceFolder}/build/native-*/modules/**/tests/test-*",
         "testMate.cpp.test.parallelExecutionLimit": 2,
         "testMate.cpp.test.parallelExecutionOfExecutableLimit": 2,
         "cSpell.words": [
             "distcc"
         ],
-        "cmake.configureOnOpen": false
+        "cmake.configureOnOpen": false,
     }
 }

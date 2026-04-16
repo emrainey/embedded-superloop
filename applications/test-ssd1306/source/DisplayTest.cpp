@@ -34,7 +34,7 @@ void DisplayTest::OnEntry(AppState state) {
     if (state == AppState::Waiting) {
         jarnax::print("Booting Display.\r\n");
         countdown_.Reset();
-    } else if (state == AppState::DisplayPowerOn) {
+    } else if (state == AppState::DisplayPoweredOn) {
         screen.clear();           // Clear the image buffer
         screen.checkerboard();    // Fill the screen with a checkerboard pattern
         screen.render();          // transfer to the image buffer
@@ -59,7 +59,7 @@ void DisplayTest::OnEntry(AppState state) {
         screen.write(0, 0, "Hello World");    // Write a message to the screen
         screen.render();                      // transfer to the image buffer
         display_driver_.Update();
-    } else if (state == AppState::DisplayPowerOff) {
+    } else if (state == AppState::DisplayPoweredOff) {
         image.clear();
         display_driver_.Update();
     } else if (state == AppState::Error) {
@@ -68,52 +68,67 @@ void DisplayTest::OnEntry(AppState state) {
 }
 
 AppState DisplayTest::OnCycle(AppState state) {
-    core::Status status = display_driver_.GetStatus();
-    // jarnax::print("DisplayTest::OnCycle: %u\r\n", static_cast<std::uint8_t>(state));
-    if (state != AppState::Waiting and status.IsFailure() and not status.IsBusy()) {
-        jarnax::print("Display Driver is ", status);
-    }
+    // core::Status status = display_driver_.GetStatus();
+    // // jarnax::print("DisplayTest::OnCycle: %u\r\n", static_cast<std::uint8_t>(state));
+    // if (state != AppState::Waiting and status.IsFailure() and not status.IsBusy()) {
+    //     jarnax::print("Display Driver is ", status);
+    // }
     if (state == AppState::Waiting) {
+        auto status = display_driver_.GetStatus();
         if (status.IsSuccess()) {
             // Display is ready, proceed
-            state = AppState::DisplayPowerOn;
+            state = AppState::DisplayPoweredOn;
         } else if (status.IsBusy() or status == core::Result::NotReady) {
             // Display is still starting up.
         } else {
             jarnax::print("Display is not ready? ", status);
             state = AppState::Error;
         }
-    } else if (state == AppState::DisplayPowerOn) {
+    } else if (state == AppState::DisplayPoweredOn) {
+        auto status = display_driver_.GetStatus();
         if (countdown_.IsExpired() and status.IsSuccess()) {
-            state = AppState::Pattern1;
+            if (display_driver_.IsUpdated()) {
+                jarnax::print("Display powered on and updated successfully.\r\n");
+                state = AppState::Pattern1;
+            } else {
+                jarnax::print("Display powered on but not updated? ", status);
+            }
         }
     } else if (state == AppState::Pattern1) {
+        auto status = display_driver_.GetStatus();
         if (countdown_.IsExpired() and status.IsSuccess()) {
             state = AppState::Pattern2;
         }
     } else if (state == AppState::Pattern2) {
+        auto status = display_driver_.GetStatus();
+
         if (countdown_.IsExpired() and status.IsSuccess()) {
             state = AppState::Pattern3;
         }
     } else if (state == AppState::Pattern3) {
+        auto status = display_driver_.GetStatus();
         if (countdown_.IsExpired() and status.IsSuccess()) {
             state = AppState::Pattern4;
         }
     } else if (state == AppState::Pattern4) {
+        auto status = display_driver_.GetStatus();
         if (countdown_.IsExpired() and status.IsSuccess()) {
             state = AppState::Pattern5;
         }
     } else if (state == AppState::Pattern5) {
+        auto status = display_driver_.GetStatus();
         if (countdown_.IsExpired() and status.IsSuccess()) {
             state = AppState::Pattern6;
         }
     } else if (state == AppState::Pattern6) {
+        auto status = display_driver_.GetStatus();
         if (countdown_.IsExpired() and status.IsSuccess()) {
-            state = AppState::DisplayPowerOff;
+            state = AppState::DisplayPoweredOff;
         }
-    } else if (state == AppState::DisplayPowerOff) {
+    } else if (state == AppState::DisplayPoweredOff) {
+        auto status = display_driver_.GetStatus();
         if (countdown_.IsExpired() and status.IsSuccess()) {
-            state = AppState::DisplayPowerOn;
+            state = AppState::DisplayPoweredOn;
         }
     } else if (state == AppState::Error) {
         //
@@ -125,7 +140,7 @@ void DisplayTest::OnExit(AppState state) {
     jarnax::print("DisplayTest::OnExit: %u\r\n", static_cast<std::uint8_t>(state));
     if (state == AppState::Waiting) {
         jarnax::print("\r\n");
-    } else if (state == AppState::DisplayPowerOn) {
+    } else if (state == AppState::DisplayPoweredOn) {
         countdown_.Reset();
     } else if (state == AppState::Pattern1) {
         countdown_.Reset();
@@ -139,7 +154,7 @@ void DisplayTest::OnExit(AppState state) {
         countdown_.Reset();
     } else if (state == AppState::Pattern6) {
         countdown_.Reset();
-    } else if (state == AppState::DisplayPowerOff) {
+    } else if (state == AppState::DisplayPoweredOff) {
         countdown_.Reset();
     } else if (state == AppState::Error) {
         //
