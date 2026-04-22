@@ -1,12 +1,14 @@
-#include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <gtest/gtest.h>
+#include "core/Status.hpp"
 #include "core/Units.hpp"
+#include "gtest/Status.hpp"
 #include "jarnax/Context.hpp"
+#include "jarnax/Coordinator.hpp"
+#include "jarnax/JumpTimer.hpp"
+#include "jarnax/TestContext.hpp"
 #include "jarnax/Transactable.hpp"
 #include "jarnax/Transactor.hpp"
-#include "jarnax/Coordinator.hpp"
-#include "jarnax/TestContext.hpp"
-#include "jarnax/JumpTimer.hpp"
 
 using ::testing::Return;
 // using ::testing::WillOnce;
@@ -56,56 +58,255 @@ protected:
     core::Status not_initialized{core::Result::NotInitialized, core::Cause::Parameter};
     core::Status invalid_value{core::Result::InvalidValue, core::Cause::Parameter};
     core::Status timeout{core::Result::Timeout, core::Cause::State};
+    core::Status unavailable_hardware{core::Result::NotAvailable, core::Cause::Hardware};
+    core::Status verify_failed{core::Result::NotSupported, core::Cause::Hardware};
 };
 
-TEST_F(CoordinatorTest, Empty) {
-}
+TEST_F(CoordinatorTest, Empty) {}
 
 TEST_F(CoordinatorTest, BadParameter) {
-    ASSERT_EQ(invalid_value, coord.Schedule(nullptr));
+    core::Status status = coord.Schedule(nullptr);
+    ASSERT_STATUS_EQ(status, core::Result::InvalidValue, core::Cause::Parameter);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().accepted);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().rejected);
 }
 
 TEST_F(CoordinatorTest, NotInitialized) {
-    ASSERT_EQ(not_initialized, coord.Schedule(&txn));
+    core::Status status = coord.Schedule(&txn);
+    ASSERT_STATUS_EQ(status, core::Result::NotInitialized, core::Cause::Parameter);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().accepted);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().rejected);
 }
 
 TEST_F(CoordinatorTest, Verify) {
-    txn.Inform(TestTransaction::Event::Initialized);
+    EXPECT_TRUE(txn.Inform(TestTransaction::Event::Initialized));
     EXPECT_CALL(mock, Verify(testing::_)).WillOnce(Return(success));
-    ASSERT_EQ(success, coord.Schedule(&txn));
+    core::Status status = coord.Schedule(&txn);
+    ASSERT_TRUE(txn.IsQueued());
+    ASSERT_STATUS_EQ(status, core::Result::Success, core::Cause::State);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().accepted);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().rejected);
+}
+
+TEST_F(CoordinatorTest, VerifyFailureIsReturned) {
+    EXPECT_TRUE(txn.Inform(TestTransaction::Event::Initialized));
+    EXPECT_CALL(mock, Verify(testing::_)).WillOnce(Return(verify_failed));
+    core::Status status = coord.Schedule(&txn);
+    ASSERT_FALSE(txn.IsQueued());
+    ASSERT_FALSE(txn.IsComplete());
+    ASSERT_TRUE(txn.IsInitialized());
+    ASSERT_STATUS_EQ(status, core::Result::NotSupported, core::Cause::Hardware);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().accepted);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().rejected);
+}
+
+TEST_F(CoordinatorTest, DuplicateScheduleReturnsNotInitialized) {
+    EXPECT_TRUE(txn.Inform(TestTransaction::Event::Initialized));
+    EXPECT_CALL(mock, Verify(testing::_)).WillOnce(Return(success));
+    core::Status status = coord.Schedule(&txn);
+    ASSERT_TRUE(txn.IsQueued());
+    ASSERT_STATUS_EQ(status, core::Result::Success, core::Cause::State);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().accepted);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().rejected);
+
+    status = coord.Schedule(&txn);
+    ASSERT_STATUS_EQ(status, core::Result::NotInitialized, core::Cause::Parameter);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().accepted);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().rejected);
+}
+
+TEST_F(CoordinatorTest, VerifyFailureDoesNotConsumeQueueSlot) {
+    TestTransaction txn2{timer};
+    EXPECT_TRUE(txn.Inform(TestTransaction::Event::Initialized));
+    EXPECT_TRUE(txn2.Inform(TestTransaction::Event::Initialized));
+
+    EXPECT_CALL(mock, Verify(testing::_)).WillOnce(Return(verify_failed));
+    core::Status status = coord.Schedule(&txn);
+    ASSERT_FALSE(txn.IsQueued());
+    ASSERT_FALSE(txn.IsComplete());
+    ASSERT_TRUE(txn.IsInitialized());
+    ASSERT_STATUS_EQ(status, core::Result::NotSupported, core::Cause::Hardware);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().accepted);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().rejected);
+
+    EXPECT_CALL(mock, Verify(testing::_)).WillOnce(Return(success));
+    status = coord.Schedule(&txn2);
+    ASSERT_TRUE(txn2.IsQueued());
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().accepted);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().rejected);
+    ASSERT_STATUS_EQ(status, core::Result::Success, core::Cause::State);
 }
 
 TEST_F(CoordinatorTest, Full) {
-    TestTransaction txn2{timer};
-    txn.Inform(TestTransaction::Event::Initialized);
-    txn2.Inform(TestTransaction::Event::Initialized);
+    EXPECT_TRUE(txn.Inform(TestTransaction::Event::Initialized));
     for (std::size_t i = 0; i < Depth; i++) {
         EXPECT_CALL(mock, Verify(testing::_)).WillOnce(Return(success));
-        ASSERT_EQ(success, coord.Schedule(&txn));
+        core::Status status = coord.Schedule(&txn);
+        ASSERT_STATUS_EQ(status, core::Result::Success, core::Cause::State);
+        ASSERT_TRUE(txn.IsQueued());
+        ASSERT_EQ(i + 1, coord.GetCoordinatorStatistics().accepted);
+        ASSERT_EQ(0, coord.GetCoordinatorStatistics().rejected);
     }
-    ASSERT_EQ(full, coord.Schedule(&txn2));
+    // ===
+    TestTransaction txn2{timer};
+    EXPECT_TRUE(txn2.Inform(TestTransaction::Event::Initialized));
+    core::Status status = coord.Schedule(&txn2);
+    ASSERT_STATUS_EQ(status, core::Result::ExceededLimit, core::Cause::Resource);
+    ASSERT_FALSE(txn2.IsQueued());
+    ASSERT_FALSE(txn2.IsComplete());
+    ASSERT_TRUE(txn2.IsInitialized());
+    ASSERT_EQ(Depth, coord.GetCoordinatorStatistics().accepted);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().rejected);
+}
+
+TEST_F(CoordinatorTest, CouldNotStart) {
+    EXPECT_TRUE(txn.Inform(TestTransaction::Event::Initialized));
+    EXPECT_CALL(mock, Verify(testing::_)).WillOnce(Return(success));
+    core::Status status = coord.Schedule(&txn);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().accepted);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().rejected);
+    ASSERT_STATUS_EQ(status, core::Result::Success, core::Cause::State);
+    EXPECT_CALL(mock, Start(testing::_)).WillOnce(Return(unavailable_hardware));
+    coord.Execute();
+    status = txn.GetStatus();
+    ASSERT_TRUE(txn.IsComplete());
+    ASSERT_STATUS_EQ(status, core::Result::NotAvailable, core::Cause::Hardware);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().stalled);
 }
 
 TEST_F(CoordinatorTest, OnePass) {
-    txn.Inform(TestTransaction::Event::Initialized);
+    EXPECT_TRUE(txn.Inform(TestTransaction::Event::Initialized));
     EXPECT_CALL(mock, Verify(testing::_)).WillOnce(Return(success));
-    ASSERT_EQ(success, coord.Schedule(&txn));
+    core::Status status = coord.Schedule(&txn);
+    ASSERT_STATUS_EQ(status, core::Result::Success, core::Cause::State);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().accepted);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().rejected);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().started);
+
     EXPECT_CALL(mock, Start(testing::_)).WillOnce(Return(success));
     EXPECT_CALL(mock, Check(testing::_)).WillOnce(Return(busy));
     coord.Execute();
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().started);
     EXPECT_CALL(mock, Check(testing::_)).WillOnce(Return(success));
     coord.Execute();
-    ASSERT_EQ(success, txn.GetStatus());
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().completed);
+    status = txn.GetStatus();
+    ASSERT_TRUE(txn.IsComplete());
+    ASSERT_STATUS_EQ(status, core::Result::Success, core::Cause::State);
 }
 
 TEST_F(CoordinatorTest, Deadline) {
-    txn.Inform(TestTransaction::Event::Initialized);
+    EXPECT_TRUE(txn.Inform(TestTransaction::Event::Initialized));
     txn.SetDeadline(timer.GetMicroseconds() + 100_usec);
     EXPECT_CALL(mock, Verify(testing::_)).WillOnce(Return(success));
-    ASSERT_EQ(success, coord.Schedule(&txn));
-    timer.Jump(200_usec);
+    core::Status status = coord.Schedule(&txn);
+    ASSERT_STATUS_EQ(status, core::Result::Success, core::Cause::State);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().accepted);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().rejected);
+
+    // ===
+    ASSERT_TRUE(txn.IsQueued());
+    timer.Jump(25_usec);
+    EXPECT_CALL(mock, Start(testing::_)).WillOnce(Return(success));
+    EXPECT_CALL(mock, Check(testing::_)).WillOnce(Return(busy));
     coord.Execute();
-    ASSERT_EQ(timeout, txn.GetStatus());
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().started);
+    status = txn.GetStatus();
+    EXPECT_STATUS_EQ(status, core::Result::Busy, core::Cause::State);
+    ASSERT_FALSE(txn.IsComplete());
+    ::testing::Mock::VerifyAndClearExpectations(&mock);
+    // ===
+    timer.Jump(25_usec);
+    EXPECT_CALL(mock, Check(testing::_)).WillOnce(Return(busy));
+    coord.Execute();
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().started);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().failed);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().deadline);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().completed);
+    status = txn.GetStatus();
+    EXPECT_STATUS_EQ(status, core::Result::Busy, core::Cause::State);
+    ASSERT_FALSE(txn.IsComplete());
+    ::testing::Mock::VerifyAndClearExpectations(&mock);
+    // ===
+    timer.Jump(25_usec);
+    EXPECT_CALL(mock, Check(testing::_)).WillOnce(Return(busy));
+    coord.Execute();
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().started);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().failed);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().deadline);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().completed);
+    status = txn.GetStatus();
+    ASSERT_LT(timer.GetMicroseconds().value(), txn.GetDeadline().value());
+    EXPECT_STATUS_EQ(status, core::Result::Busy, core::Cause::State);
+    EXPECT_FALSE(txn.IsComplete());
+    ::testing::Mock::VerifyAndClearExpectations(&mock);
+    // ===
+    timer.Jump(26_usec);
+    EXPECT_CALL(mock, Check(testing::_)).WillOnce(Return(busy));
+    EXPECT_CALL(mock, Cancel(testing::_)).WillOnce(Return(success));
+    coord.Execute();
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().started);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().failed);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().deadline);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().completed);
+    status = txn.GetStatus();
+    EXPECT_TRUE(txn.IsComplete());
+    ASSERT_GE(timer.GetMicroseconds(), txn.GetDeadline());
+    EXPECT_STATUS_EQ(status, core::Result::Timeout, core::Cause::State);
+    ::testing::Mock::VerifyAndClearExpectations(&mock);
+}
+
+TEST_F(CoordinatorTest, RetryExhaustedHardwareUnavailable) {
+    EXPECT_TRUE(txn.Inform(TestTransaction::Event::Initialized));
+    EXPECT_CALL(mock, Verify(testing::_)).WillOnce(Return(success));
+    core::Status status = coord.Schedule(&txn);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().accepted);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().rejected);
+    ASSERT_TRUE(txn.IsQueued());
+    ASSERT_STATUS_EQ(status, core::Result::Success, core::Cause::State);
+    ::testing::Mock::VerifyAndClearExpectations(&mock);
+    // ===
+    EXPECT_CALL(mock, Start(testing::_)).WillOnce(Return(success));
+    EXPECT_CALL(mock, Check(testing::_)).WillOnce(Return(unavailable_hardware));
+    coord.Execute();
+    status = txn.GetStatus();
+    EXPECT_STATUS_EQ(status, core::Result::Busy, core::Cause::State);
+    EXPECT_FALSE(txn.IsComplete());
+    EXPECT_TRUE(txn.IsQueued());
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().started);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().failed);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().deadline);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().completed);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().retried);
+    ::testing::Mock::VerifyAndClearExpectations(&mock);
+    // ===
+    EXPECT_CALL(mock, Start(testing::_)).WillOnce(Return(success));
+    EXPECT_CALL(mock, Check(testing::_)).WillOnce(Return(unavailable_hardware));
+    coord.Execute();
+    ASSERT_EQ(2, coord.GetCoordinatorStatistics().started);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().failed);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().deadline);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().completed);
+    ASSERT_EQ(2, coord.GetCoordinatorStatistics().retried);
+    status = txn.GetStatus();
+    EXPECT_STATUS_EQ(status, core::Result::Busy, core::Cause::State);
+    EXPECT_FALSE(txn.IsComplete());
+    EXPECT_TRUE(txn.IsQueued());
+    ::testing::Mock::VerifyAndClearExpectations(&mock);
+    // ===
+    EXPECT_CALL(mock, Start(testing::_)).WillOnce(Return(success));
+    EXPECT_CALL(mock, Check(testing::_)).WillOnce(Return(unavailable_hardware));
+    EXPECT_CALL(mock, Cancel(testing::_)).WillOnce(Return(success));
+    coord.Execute();
+    ASSERT_EQ(3, coord.GetCoordinatorStatistics().started);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().failed);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().deadline);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().completed);
+    ASSERT_EQ(2, coord.GetCoordinatorStatistics().retried);
+    status = txn.GetStatus();
+    EXPECT_TRUE(txn.IsComplete());
+    EXPECT_STATUS_EQ(status, core::Result::NotAvailable, core::Cause::Hardware);
+    ::testing::Mock::VerifyAndClearExpectations(&mock);
 }
 
 }    // namespace jarnax

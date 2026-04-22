@@ -24,7 +24,13 @@ bool CountDown::IsExpired() {
 }
 
 void CountDown::Reset() {
-    limit_ = timer_.GetIotas() + duration_ - delta_late_;
+    if (delta_late_ >= duration_) {
+        // if we're more late than the duration, just reset to now + duration to avoid overflow
+        limit_ = timer_.GetIotas() + duration_;
+    } else {
+        // otherwise, account for the lateness in the next period
+        limit_ = timer_.GetIotas() + duration_ - delta_late_;
+    }
     delta_late_ = 0_iota;
 }
 
@@ -34,4 +40,4 @@ void CountDown::Restart(core::units::Iota new_duration) {
     delta_late_ = 0_iota;
 }
 
-}  // namespace jarnax
+}    // namespace jarnax

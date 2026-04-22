@@ -49,21 +49,27 @@ public:
     /// @return core::Result::Failure, core::Cause::Parameter if the transaction was not successfully scheduled
     core::Status Schedule(TransactionType* transaction) {
         if (transaction == nullptr) {
+            stats_.rejected++;
             return core::Status{core::Result::InvalidValue, core::Cause::Parameter};
         }
         if (not transaction->IsInitialized()) {
+            stats_.rejected++;
             return core::Status{core::Result::NotInitialized, core::Cause::Parameter};
         }
-        // Prevent duplicate enqueue of the same transaction instance.
+        // Prevent duplicate enqueue of the same transaction instance
         if (active_ == transaction) {
-            return core::Status{core::Result::Busy, core::Cause::State};
+            // but the that means the active_ is also somehow just initialized and not queued. this is SERIOUS developer state bug!
+            stats_.rejected++;
+            return core::Status{core::Result::NotExpected, core::Cause::State};
         }
         for (std::size_t i = 0U; i < transactions_.Count(); ++i) {
             if (transactions_[i] == transaction) {
-                return core::Status{core::Result::Busy, core::Cause::State};
+                stats_.rejected++;
+                return core::Status{core::Result::NotExpected, core::Cause::State};
             }
         }
         if (transactions_.IsFull()) {
+            stats_.rejected++;
             return core::Status{core::Result::ExceededLimit, core::Cause::Resource};
         }
         auto status = driver_.Verify(*transaction);
@@ -111,10 +117,17 @@ public:
                     active_->Inform(TransactionType::Event::Completed, status);
                 }
             } else {
-                // the transaction is not running
+                // the transaction is not running, like due to a deadline or retry
                 stats_.deadline++;
-                stats_.completed++;
-                // internally the transaction will be marked as complete
+                if (active_->IsComplete()) {
+                    stats_.completed++;
+                    // internally the transaction will be marked as complete? how?
+                    // active_->Inform(TransactionType::Event::Completed, status);
+                } else {
+                    // FAULT
+                    active_->Inform(TransactionType::Event::Completed, core::Status{core::Result::Timeout, core::Cause::State});
+                    stats_.completed++;
+                }
             }
         }
         // check the state of the active transaction
@@ -131,6 +144,7 @@ public:
                 if (active_->IsComplete()) {
                     stats_.completed++;
                     stats_.failed++;
+                    stats_.deadline++;
                     (void)driver_.Cancel(*active_);
                 }
             } else {

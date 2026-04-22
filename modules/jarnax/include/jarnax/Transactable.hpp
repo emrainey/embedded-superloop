@@ -132,6 +132,9 @@ public:
     /// Sets the deadline for the transaction to a non-infinite value.
     void SetDeadline(core::units::MicroSeconds deadline) { deadline_ = deadline; }
 
+    /// Returns the deadline for the transaction. This is only valid after the transaction has been initialized.
+    core::units::MicroSeconds GetDeadline() const { return deadline_; }
+
     /// Resets the machine back to an Entered state if it was already final
     /// @return True if the machine is final, false otherwise
     bool Reset() {
