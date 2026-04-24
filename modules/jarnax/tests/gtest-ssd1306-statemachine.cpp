@@ -68,39 +68,43 @@ protected:
         state_machine_.Enter();
         ASSERT_TRUE(state_machine_.Is(State::Idle));
         // verify expectations in the setup sequence
-        ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
+        EXPECT_TRUE(::testing::Mock::VerifyAndClearExpectations(&mock_client_));
     }
 
-    void TearDown() override { ::testing::Mock::VerifyAndClearExpectations(&mock_client_); }
+    void TearDown() override { EXPECT_TRUE(::testing::Mock::VerifyAndClearExpectations(&mock_client_)); }
 
     void BeginPowerOn() {
+        EXPECT_CALL(mock_client_, OnEvent(Event::None, core::Status{core::Result::Busy, core::Cause::State}));
         state_machine_.Process(Event::PowerOn);
         ASSERT_TRUE(state_machine_.Is(State::PoweringOn));
-        ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
+        EXPECT_TRUE(::testing::Mock::VerifyAndClearExpectations(&mock_client_));
     }
 
     void BeginUpdate() {
+        EXPECT_CALL(mock_client_, OnEvent(Event::None, core::Status{core::Result::Busy, core::Cause::State}));
         state_machine_.Process(Event::Update);
         // the SM will enter Updating but won't do it yet.
         ASSERT_TRUE(state_machine_.Is(State::Updating));
-        ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
+        EXPECT_TRUE(::testing::Mock::VerifyAndClearExpectations(&mock_client_));
     }
 
     void BeginPowerOff() {
+        EXPECT_CALL(mock_client_, OnEvent(Event::None, core::Status{core::Result::Busy, core::Cause::State}));
         state_machine_.Process(Event::PowerOff);
         ASSERT_TRUE(state_machine_.Is(State::PoweringOff));
-        ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
+        EXPECT_TRUE(::testing::Mock::VerifyAndClearExpectations(&mock_client_));
     }
 
     void CompleteAwaiting(Event event, core::Status status) {
-        EXPECT_CALL(mock_client_, CompleteCommand(::testing::_)).WillOnce(DoAll(SetArgReferee<0>(status), Return(true)));
+        EXPECT_CALL(mock_client_, IsComplete()).WillOnce(Return(true));
+        EXPECT_CALL(mock_client_, Reclaim(::testing::_)).WillOnce(DoAll(SetArgReferee<0>(status), Return(true)));
         EXPECT_CALL(mock_client_, IsReadyForPreparation()).WillOnce(Return(true));
         EXPECT_CALL(mock_client_, OnEvent(event, status));
 
         state_machine_.Process(Event::None);
 
         ASSERT_TRUE(state_machine_.Is(State::Idle));
-        ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
+        EXPECT_TRUE(::testing::Mock::VerifyAndClearExpectations(&mock_client_));
     }
 
     StrictMock<MockClient> mock_client_;
@@ -127,11 +131,12 @@ TEST_F(SSD1306StateMachineTest, PowerOnCompletesOnlyAfterPreparationBecomesReady
     state_machine_.Process(Event::None);
     ASSERT_TRUE(state_machine_.Is(State::Awaiting));
 
-    EXPECT_CALL(mock_client_, CompleteCommand(::testing::_)).WillOnce(Return(false));
+    EXPECT_CALL(mock_client_, IsComplete()).WillOnce(Return(false));
     state_machine_.Process(Event::None);
     EXPECT_TRUE(state_machine_.Is(State::Awaiting));
 
-    EXPECT_CALL(mock_client_, CompleteCommand(::testing::_)).WillOnce(DoAll(SetArgReferee<0>(kSuccess), Return(true)));
+    EXPECT_CALL(mock_client_, IsComplete()).WillOnce(Return(true));
+    EXPECT_CALL(mock_client_, Reclaim(::testing::_)).WillOnce(DoAll(SetArgReferee<0>(kSuccess), Return(true)));
     EXPECT_CALL(mock_client_, IsReadyForPreparation()).WillOnce(Return(false));
     state_machine_.Process(Event::None);
     EXPECT_TRUE(state_machine_.Is(State::Awaiting));
@@ -150,6 +155,36 @@ TEST_F(SSD1306StateMachineTest, UpdateUsesRenderSequenceAndCompletes) {
     CompleteAwaiting(Event::Update, core::Status{core::Result::Success, core::Cause::State});
 }
 
+TEST_F(SSD1306StateMachineTest, UpdateReclaimFailureRetriesUpdatingState) {
+    BeginUpdate();
+
+    // First update attempt reaches Awaiting.
+    EXPECT_CALL(mock_client_, PrepareRender(::testing::_)).WillOnce(Invoke(VerifyRenderSequence));
+    EXPECT_CALL(mock_client_, Issue()).WillOnce(Return(kSuccess));
+    state_machine_.Process(Event::None);
+    ASSERT_TRUE(state_machine_.Is(State::Awaiting));
+    EXPECT_TRUE(::testing::Mock::VerifyAndClearExpectations(&mock_client_));
+
+    // Reclaim reports a transaction failure after completion, so the state machine retries Updating.
+    EXPECT_CALL(mock_client_, IsComplete()).WillOnce(Return(true));
+    EXPECT_CALL(mock_client_, Reclaim(::testing::_)).WillOnce(DoAll(SetArgReferee<0>(kFailure), Return(true)));
+    EXPECT_CALL(mock_client_, IsReadyForPreparation()).WillOnce(Return(true));
+    EXPECT_CALL(mock_client_, OnEvent(Event::Update, kFailure));
+    state_machine_.Process(Event::None);
+    ASSERT_TRUE(state_machine_.Is(State::Updating));
+    EXPECT_TRUE(::testing::Mock::VerifyAndClearExpectations(&mock_client_));
+
+    // Retry of the previous state should issue again and then complete normally.
+    EXPECT_CALL(mock_client_, PrepareRender(::testing::_)).WillOnce(Invoke(VerifyRenderSequence));
+    EXPECT_CALL(mock_client_, Issue()).WillOnce(Return(kSuccess));
+    state_machine_.Process(Event::None);
+    ASSERT_TRUE(state_machine_.Is(State::Awaiting));
+    EXPECT_TRUE(::testing::Mock::VerifyAndClearExpectations(&mock_client_));
+
+    // last_event_ was cleared when retrying out of Awaiting, so completion callback uses Event::None.
+    CompleteAwaiting(Event::None, core::Status{core::Result::Success, core::Cause::State});
+}
+
 TEST_F(SSD1306StateMachineTest, DeferredUpdateWhileAwaitingRunsAfterFirstTransactionRecycles) {
     // Phase 1: expect transition into Updating.
     BeginUpdate();
@@ -159,28 +194,29 @@ TEST_F(SSD1306StateMachineTest, DeferredUpdateWhileAwaitingRunsAfterFirstTransac
     EXPECT_CALL(mock_client_, Issue()).WillOnce(Return(core::Status{core::Result::Success, core::Cause::State}));
     state_machine_.Process(Event::None);
     ASSERT_TRUE(state_machine_.Is(State::Awaiting));
-    ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
+    EXPECT_TRUE(::testing::Mock::VerifyAndClearExpectations(&mock_client_));
 
     // Phase 3: while awaiting, expect in-flight completion check and queue a deferred update.
-    EXPECT_CALL(mock_client_, CompleteCommand(::testing::_)).WillOnce(Return(false));
+    EXPECT_CALL(mock_client_, IsComplete()).WillOnce(Return(false));
     state_machine_.Process(Event::Update);
     ASSERT_TRUE(state_machine_.Is(State::Awaiting));
-    ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
+    EXPECT_TRUE(::testing::Mock::VerifyAndClearExpectations(&mock_client_));
 
     // Phase 4: expect first update completion callback and return to Idle.
     CompleteAwaiting(Event::Update, core::Status{core::Result::Success, core::Cause::State});
 
     // Phase 5: expect deferred update to be consumed from Idle on the next cycle.
+    EXPECT_CALL(mock_client_, OnEvent(Event::None, core::Status{core::Result::Busy, core::Cause::State}));
     state_machine_.Process(Event::None);
     ASSERT_TRUE(state_machine_.Is(State::Updating));
-    ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
+    EXPECT_TRUE(::testing::Mock::VerifyAndClearExpectations(&mock_client_));
 
     // Phase 6: expect deferred update to issue and then await completion.
     EXPECT_CALL(mock_client_, PrepareRender(::testing::_)).WillOnce(Invoke(VerifyRenderSequence));
     EXPECT_CALL(mock_client_, Issue()).WillOnce(Return(core::Status{core::Result::Success, core::Cause::State}));
     state_machine_.Process(Event::None);
     ASSERT_TRUE(state_machine_.Is(State::Awaiting));
-    ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
+    EXPECT_TRUE(::testing::Mock::VerifyAndClearExpectations(&mock_client_));
 
     // Phase 7: expect deferred update completion callback.
     CompleteAwaiting(Event::Update, core::Status{core::Result::Success, core::Cause::State});
@@ -208,6 +244,7 @@ TEST_F(SSD1306StateMachineTest, PowerOnPrepareFailureSignalsErrorThenReturnsIdle
     ASSERT_TRUE(state_machine_.Is(State::Error));
     ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
 
+    EXPECT_CALL(mock_client_, Reclaim(::testing::_)).WillOnce(Return(true));
     state_machine_.Process(Event::None);
     EXPECT_TRUE(state_machine_.Is(State::Idle));
     ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
@@ -224,6 +261,7 @@ TEST_F(SSD1306StateMachineTest, PowerOnIssueFailureSignalsErrorThenReturnsIdle) 
     ASSERT_TRUE(state_machine_.Is(State::Error));
     ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
 
+    EXPECT_CALL(mock_client_, Reclaim(::testing::_)).WillOnce(Return(true));
     state_machine_.Process(Event::None);
     EXPECT_TRUE(state_machine_.Is(State::Idle));
     ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
@@ -238,6 +276,7 @@ TEST_F(SSD1306StateMachineTest, UpdatePrepareFailureSignalsErrorThenReturnsIdle)
     ASSERT_TRUE(state_machine_.Is(State::Error));
     ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
 
+    EXPECT_CALL(mock_client_, Reclaim(::testing::_)).WillOnce(Return(true));
     state_machine_.Process(Event::None);
     EXPECT_TRUE(state_machine_.Is(State::Idle));
     ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
@@ -253,6 +292,7 @@ TEST_F(SSD1306StateMachineTest, UpdateIssueFailureSignalsErrorThenReturnsIdle) {
     ASSERT_TRUE(state_machine_.Is(State::Error));
     ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
 
+    EXPECT_CALL(mock_client_, Reclaim(::testing::_)).WillOnce(Return(true));
     state_machine_.Process(Event::None);
     EXPECT_TRUE(state_machine_.Is(State::Idle));
     ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
@@ -268,6 +308,7 @@ TEST_F(SSD1306StateMachineTest, PowerOffIssueFailureSignalsErrorThenReturnsIdle)
     ASSERT_TRUE(state_machine_.Is(State::Error));
     ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
 
+    EXPECT_CALL(mock_client_, Reclaim(::testing::_)).WillOnce(Return(true));
     state_machine_.Process(Event::None);
     EXPECT_TRUE(state_machine_.Is(State::Idle));
     ::testing::Mock::VerifyAndClearExpectations(&mock_client_);

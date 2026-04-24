@@ -88,45 +88,52 @@ public:
 
     bool Execute() override {
         core::Status status;
-        if (active_ == nullptr) {
+        while (active_ == nullptr) {
             if (transactions_.IsEmpty()) {
                 // no transactions to process, but we need to keep the loop active
                 // so we will be called again later
                 return true;
             }
             // get the top transaction
-            if (not transactions_.Pop(active_)) {
-                // could not pop for some reason
+            if (not transactions_.Pop(active_)) {    // [[unlikely]]
+                // could not pop for some reason (should only be when it's empty)
                 active_ = nullptr;
                 // but we need to keep the loop active
                 return true;
+            }
+            // If the active_ is not Queued, then it may have already timed out and internally completed
+            if (not active_->IsQueued()) {
+                stats_.deadline++;
+                active_ = nullptr;
+                // pull the next off
+                continue;
             }
         }
 
         // check the state of the active_ transaction
         if (active_->IsQueued()) {
             // ask it to Start, this will internally check to see if the dead line has been passed.
-            active_->Inform(TransactionType::Event::Start, core::Status{core::Result::Success, core::Cause::State});
-            if (active_->IsRunning()) {
-                status = driver_.Start(*active_);
-                if (status.IsSuccess()) {
-                    stats_.started++;
+            if (active_->Inform(TransactionType::Event::Start, core::Status{core::Result::Success, core::Cause::State})) {
+                if (active_->IsRunning()) {
+                    status = driver_.Start(*active_);
+                    if (status.IsSuccess()) {
+                        stats_.started++;
+                    } else {
+                        stats_.stalled++;
+                        stats_.completed++;
+                        active_->Inform(TransactionType::Event::Completed, status);
+                    }
                 } else {
-                    stats_.stalled++;
-                    stats_.completed++;
-                    active_->Inform(TransactionType::Event::Completed, status);
-                }
-            } else {
-                // the transaction is not running, like due to a deadline or retry
-                stats_.deadline++;
-                if (active_->IsComplete()) {
-                    stats_.completed++;
-                    // internally the transaction will be marked as complete? how?
-                    // active_->Inform(TransactionType::Event::Completed, status);
-                } else {
-                    // FAULT
-                    active_->Inform(TransactionType::Event::Completed, core::Status{core::Result::Timeout, core::Cause::State});
-                    stats_.completed++;
+                    // the transaction is not running, like due to a deadline or retry
+                    stats_.deadline++;
+                    if (active_->IsComplete()) {
+                        stats_.completed++;
+                        // internally the transaction will be marked as complete due to timeout
+                    } else {    // FAULT
+                        if (active_->Inform(TransactionType::Event::Completed, core::Status{core::Result::Timeout, core::Cause::State})) {
+                            stats_.completed++;
+                        }
+                    }
                 }
             }
         }

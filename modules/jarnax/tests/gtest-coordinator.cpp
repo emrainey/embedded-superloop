@@ -137,6 +137,22 @@ TEST_F(CoordinatorTest, VerifyFailureDoesNotConsumeQueueSlot) {
     ASSERT_STATUS_EQ(status, core::Result::Success, core::Cause::State);
 }
 
+TEST_F(CoordinatorTest, ScheduleRejectsInitializedTransactionThatTimedOutOnItsOwn) {
+    EXPECT_TRUE(txn.Inform(TestTransaction::Event::Initialized));
+    txn.SetDeadline(timer.GetMicroseconds() + 100_usec);
+    timer.Jump(150_usec);
+
+    // Progress the transaction without coordinator scheduling.
+    EXPECT_TRUE(txn.Inform(TestTransaction::Event::None));
+    ASSERT_TRUE(txn.IsComplete());
+    ASSERT_STATUS_EQ(txn.GetStatus(), core::Result::Timeout, core::Cause::State);
+
+    core::Status status = coord.Schedule(&txn);
+    ASSERT_STATUS_EQ(status, core::Result::NotInitialized, core::Cause::Parameter);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().accepted);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().rejected);
+}
+
 TEST_F(CoordinatorTest, Full) {
     EXPECT_TRUE(txn.Inform(TestTransaction::Event::Initialized));
     for (std::size_t i = 0; i < Depth; i++) {
@@ -254,6 +270,33 @@ TEST_F(CoordinatorTest, Deadline) {
     ASSERT_GE(timer.GetMicroseconds(), txn.GetDeadline());
     EXPECT_STATUS_EQ(status, core::Result::Timeout, core::Cause::State);
     ::testing::Mock::VerifyAndClearExpectations(&mock);
+}
+
+TEST_F(CoordinatorTest, QueuedTransactionCanTimeoutWithoutDriverStartingIt) {
+    EXPECT_TRUE(txn.Inform(TestTransaction::Event::Initialized));
+    txn.SetDeadline(timer.GetMicroseconds() + 100_usec);
+    EXPECT_CALL(mock, Verify(testing::_)).WillOnce(Return(success));
+
+    core::Status status = coord.Schedule(&txn);
+    ASSERT_STATUS_EQ(status, core::Result::Success, core::Cause::State);
+    ASSERT_TRUE(txn.IsQueued());
+
+    // Let the queued transaction miss its deadline before Execute tries to start it.
+    timer.Jump(150_usec);
+
+    EXPECT_CALL(mock, Start(testing::_)).Times(0);
+    EXPECT_CALL(mock, Check(testing::_)).Times(0);
+    EXPECT_CALL(mock, Cancel(testing::_)).Times(0);
+    coord.Execute();
+
+    ASSERT_TRUE(txn.IsComplete());
+    ASSERT_STATUS_EQ(txn.GetStatus(), core::Result::Timeout, core::Cause::State);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().accepted);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().rejected);
+    ASSERT_EQ(0, coord.GetCoordinatorStatistics().started);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().deadline);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().completed);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().forgotten);
 }
 
 TEST_F(CoordinatorTest, RetryExhaustedHardwareUnavailable) {

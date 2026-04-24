@@ -123,7 +123,7 @@ enum class MaskType : StorageType {
     Warning = (1ULL << 2),    ///< Indicates a warning.
     Info = (1ULL << 3),       ///< Indicates informational messages.
     Verbose = (1ULL << 4),    ///< Indicates verbose messages.
-    // reserved          = 1ULL << 5,
+    Debug = (1ULL << 5),      ///< Indicates debug messages.
     // reserved          = 1ULL << 6,
     // reserved          = 1ULL << 7,
     //===BYTE 1===
@@ -160,7 +160,7 @@ enum class MaskType : StorageType {
     Coordinator = (1ULL << 35),    ///< Indicates that the message has to do with the coordinator.
     Timers = (1ULL << 36),         ///< Indicates that the message has to do with timers.
     Ticks = (1ULL << 37),          ///< Indicates that the message has to do with ticks.
-    // reserved          = (1ULL << 38),
+    Events = (1ULL << 38),         ///< Indicates that the message has to do with events.
     // reserved          = (1ULL << 39),
     //===BYTE 5=== (Services)
     Temperature = (1ULL << 40),    ///< Indicates that the message has to do with temperature.
@@ -220,7 +220,7 @@ constexpr MaskType operator|(MaskType lhs, MaskType rhs) {
 #if not defined(DEBUG_MASK)
 /// @brief The mask used to determine which debug messages are enabled. This should be defined by the user before including this header.
 /// The default value does not enable all messages.
-#define DEBUG_MASK static_cast<StorageType>(0x0000'0002'0000'0007ULL)
+#define DEBUG_MASK static_cast<StorageType>(0x0000'0000'0000'0007ULL)
 #endif
 
 constexpr static bool Fatal{DEBUG_MASK & MaskType::Fatal};
@@ -251,6 +251,7 @@ constexpr static bool Monitor{DEBUG_MASK & MaskType::Monitor};
 constexpr static bool Transactor{DEBUG_MASK & MaskType::Transactor};
 constexpr static bool Coordinator{DEBUG_MASK & MaskType::Coordinator};
 constexpr static bool Temperature{DEBUG_MASK & MaskType::Temperature};
+constexpr static bool Display{DEBUG_MASK & MaskType::Display};
 
 constexpr static bool Inform{DEBUG_MASK & MaskType::Info and DEBUG_MASK & MaskType::States};
 constexpr static bool Duration{DEBUG_MASK & MaskType::Timers and DEBUG_MASK & MaskType::Info};

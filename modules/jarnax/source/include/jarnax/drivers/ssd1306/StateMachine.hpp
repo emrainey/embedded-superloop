@@ -35,15 +35,21 @@ enum class Event {
 using Sequence = core::Span<std::uint8_t const>;
 
 /// @brief To be implemented by the user of the SSD1306StateMachine (i.e. the Driver)
+/// This is the interface through which the StateMachine will interact with the Driver to perform operations on the SSD1306 display.
 class Client {
 public:
     /// @brief Checks if the SSD1306 display is present and can be communicated with
+    /// Called first in order to ensure that a Display is even present. It is expected that the system has some way to determine this.
     virtual bool IsPresent(void) const = 0;
 
-    /// @brief Prepares a sequence of commands to be sent to the SSD1306 display.
+    /// @brief Checks if the client is ready for preparation of a new command sequence
+    /// This is called before preparing a new command sequence to ensure the client is ready.
+    virtual bool IsReadyForPreparation(void) const = 0;
+
+    /// @brief Prepares a sequence of commands to be sent to the SSD1306 display which may affect the display state.
     virtual core::Status PrepareCommand(Sequence sequence) = 0;
 
-    /// @brief Prepares a sequence of commands or data to be sent to the SSD1306 display for rendering.
+    /// @brief Prepares a sequence of commands or data to be sent to the SSD1306 display for rendering. Additionally clears the transfer buffer.
     virtual core::Status PrepareRender(Sequence sequence) = 0;
 
     /// @brief Issues the prepared commands or data to the SSD1306 display.
@@ -52,14 +58,11 @@ public:
     /// @brief Returns true if the issued commands or data have been completed by the SSD1306 display.
     virtual bool IsComplete() const = 0;
 
-    /// @brief Checks if the issued commands have been completed by the SSD1306 display
-    virtual bool CompleteCommand(core::Status& status) = 0;
+    /// @brief If the sequence has been completed, reclaims any resources and returns the status of the operation.
+    virtual bool Reclaim(core::Status& status) = 0;
 
     /// @brief Callback for when an event occurs in the state machine
     virtual void OnEvent(Event event, core::Status status) = 0;
-
-    /// @brief Checks if the client is ready for preparation of a new command sequence
-    virtual bool IsReadyForPreparation(void) const = 0;
 
 protected:
     /// Do not allow destruction through the interface

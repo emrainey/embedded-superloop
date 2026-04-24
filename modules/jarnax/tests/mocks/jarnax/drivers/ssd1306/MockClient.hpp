@@ -15,7 +15,7 @@ public:
     MOCK_METHOD(core::Status, PrepareRender, (Sequence sequence), (override));
     MOCK_METHOD(core::Status, Issue, (), (override));
     MOCK_METHOD(bool, IsComplete, (), (const, override));
-    MOCK_METHOD(bool, CompleteCommand, (core::Status & status), (override));
+    MOCK_METHOD(bool, Reclaim, (core::Status & status), (override));
     MOCK_METHOD(void, OnEvent, (Event event, core::Status status), (override));
     MOCK_METHOD(bool, IsReadyForPreparation, (), (const, override));
     virtual ~MockClient() = default;

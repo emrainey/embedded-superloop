@@ -37,17 +37,13 @@ public:
 
     /// @brief Jumps the timer forward by the specified iotas
     /// @param iotas The number of iotas to jump forward
-    void Jump(Iota iotas) {
-        current_ = current_ + iotas;
-        return;
-    }
+    void Jump(Iota iotas) { current_ = current_ + iotas; }
 
     /// @brief Jumps the timer forward by the specified microseconds
     /// @param microseconds The number of microseconds to jump forward
     void Jump(MicroSeconds microseconds) {
         // 1 iota == 1 usec
         current_ = current_ + Iota{microseconds.value()};
-        return;
     }
 
 protected:

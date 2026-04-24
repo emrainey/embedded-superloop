@@ -2,6 +2,7 @@
 /// The SSD1306 Driver implementation
 
 #include "jarnax/drivers/ssd1306/Driver.hpp"
+#include "core/Status.hpp"
 #include "memory.hpp"
 
 namespace jarnax {
@@ -46,7 +47,7 @@ core::Status Driver::GetStatus(void) const {
         // Return the terminal status from the I2C transaction
         return i2c_transaction_.GetStatus();
     }
-    return status_;    // Preserve the last OnEvent status given to us
+    return status_;    // Preserve the last OnEvent status given to us from the last OnEvent
 }
 
 jarnax::ssd1306::Image128x32& Driver::GetImage(void) {
@@ -58,8 +59,12 @@ jarnax::ssd1306::Screen128x32& Driver::GetScreen(void) {
 }
 
 void Driver::Update(void) {
-    updated_ = false;               // Reset the updated state
-    next_event_ = Event::Update;    // Set the next event to Update
+    // Reset the updated state
+    updated_ = false;
+    // Set the next event to Update
+    next_event_ = Event::Update;
+    // Set the status to busy while processing the update
+    status_ = core::Status{core::Result::Busy, core::Cause::State};
 }
 
 bool Driver::IsReadyForPreparation(void) const {
@@ -71,9 +76,14 @@ bool Driver::IsUpdated(void) const {
 }
 
 bool Driver::Execute() {
-    state_machine_.Process(next_event_);    // Process the state machine with no events
-    next_event_ = Event::None;              // Reset the next event after processing
-    return true;                            // Always return true to indicate the loop should continue
+    // Reset the status to success at the beginning of each execution
+    status_ = core::Status{core::Result::Success, core::Cause::State};
+    // Process the state machine with no events
+    state_machine_.Process(next_event_);
+    // Reset the next event after processing
+    next_event_ = Event::None;
+    // Always return true to indicate the loop should continue
+    return true;
 }
 
 bool Driver::IsPresent(void) const {
@@ -149,24 +159,34 @@ core::Status Driver::Issue(void) {
 bool Driver::IsComplete() const {
     // Check if the commands issued to the SSD1306 are complete
     bool result = i2c_transaction_.IsComplete();
-    if (not result) {
-        // print how long the transaction has been running if it is not complete, to help with debugging
-        auto elapsed = i2c_transaction_.GetDuration();
-        jarnax::print("SSD1306 Driver: IsComplete called but transaction is not complete\r\n");
-        jarnax::print("SSD1306 Driver: Transaction has been running for %" PRIu64 " microseconds\r\n", elapsed.value());
+    if constexpr (debug::Display) {
+        if (not result) {
+            // print how long the transaction has been running if it is not complete, to help with debugging
+            auto elapsed = i2c_transaction_.GetDuration();
+            jarnax::print("SSD1306 Driver: IsComplete called but transaction is not complete\r\n");
+            jarnax::print("SSD1306 Driver: Transaction has been running for %" PRIu64 " microseconds\r\n", elapsed.value());
+        }
     }
     return result;
 }
 
-bool Driver::CompleteCommand(core::Status& status) {
-    // ensure they are complete
-    if (not IsComplete()) {
-        return false;
+bool Driver::Reclaim(core::Status& status) {
+    // the transaction may not be in the right state, but we want to reclaim it anyway to ensure the driver can continue to operate. If the
+    // transaction is not complete, then we know something went wrong and we should log it and try to recover.
+    if (not i2c_transaction_.IsComplete()) {
+        jarnax::print("SSD1306 Driver: Reclaim called but transaction is not complete\r\n");
     }
 
     statistics_.completed++;
-    i2c_buffer_ = i2c_transaction_.Relinquish();    // Get the buffer from the completed transaction
-    status = i2c_transaction_.GetStatus();          // Get the status of the transaction
+    if (i2c_buffer_.IsEmpty()) {
+        i2c_buffer_ = i2c_transaction_.Relinquish();    // Get the buffer from the completed transaction
+    } else {
+        // If the buffer is not empty, this means the buffer was not properly relinquished by the transaction
+        // Increment the buffer invalid count
+        statistics_.buffer_invalid++;
+        jarnax::print("SSD1306 Driver: Reclaim called but buffer was not empty\r\n");
+    }
+    status = i2c_transaction_.GetStatus();    // Get the status of the transaction
     jarnax::print(
         "Transaction took %" PRIu64 " microseconds\r\n", i2c_transaction_.GetDuration().value()
     );                                                           // Log the elapsed time of the transaction
@@ -179,15 +199,16 @@ bool Driver::CompleteCommand(core::Status& status) {
         }
     }
     // Inform the transaction that it has been recycled
-    i2c_transaction_.Inform(jarnax::i2c::Transaction::Event::Recycle, core::Status{core::Result::Success, core::Cause::State});
-    return true;
+    return i2c_transaction_.Inform(jarnax::i2c::Transaction::Event::Recycle, core::Status{core::Result::Success, core::Cause::State});
 }
 
 void Driver::OnEvent(Event event, core::Status status) {
     // Handle events from the state machine
-    jarnax::print("SSD1306 Event: %d\r\n", static_cast<int>(event));
+    if constexpr (debug::Display) {
+        jarnax::print("SSD1306 Event: %d\r\n", static_cast<int>(event));
+    }
     status_ = status;
-    if (status.IsFailure()) {
+    if (status.IsFailure() and not status.IsBusy()) {
         jarnax::print("SSD1306 Event Failure: ", status);    // Log the failure status if the event failed
     }
     if (event == Event::PowerOn) {

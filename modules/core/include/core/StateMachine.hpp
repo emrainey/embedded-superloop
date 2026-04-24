@@ -70,6 +70,10 @@ public:
     }
 
     /// @param state The state to query for
+    /// @return True if the machine was in the given state before the current state, false otherwise
+    bool Was(StateType state) const { return last_state_ == state; }
+
+    /// @param state The state to query for
     /// @return True if the machine is in the given state
     bool Is(StateType state) const { return current_state_ == state; }
 

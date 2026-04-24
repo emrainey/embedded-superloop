@@ -210,12 +210,23 @@ State StateMachine::OnCycle(State state) {
             state = State::Error;
         }
     } else if (state == State::Awaiting) {
-        if (client_.CompleteCommand(status_)) {
+        if (client_.IsComplete() and client_.Reclaim(status_)) {
             // If commands are complete, recycle the transaction and wait for it to be uninitialized
-            // Do NOT transition to Idle yet - we need to give the transaction time to fully recycle
             if (client_.IsReadyForPreparation()) {
-                // Transaction has fully recycled, safe to move to Idle
-                state = State::Idle;
+                // Transaction has fully recycled, safe to move to Idle on Success and back to previous state on failures
+                if (status_.IsFailure()) {
+                    jarnax::print("SSD1306 SM Transaction Failure: ", status_);
+                    if (Was(State::PoweringOn)) {
+                        state = State::PoweringOn;
+                    } else if (Was(State::PoweringOff)) {
+                        state = State::PoweringOff;
+                    } else if (Was(State::Updating)) {
+                        state = State::Updating;
+                    }
+                } else {
+                    // no problem, go back to idle
+                    state = State::Idle;
+                }
             }
             // Otherwise, stay in Awaiting and wait for next cycle
         } else {
@@ -252,16 +263,24 @@ State StateMachine::OnCycle(State state) {
             }
         }
     } else if (state == State::Error) {
-        // Handle error state?
-        state = State::Idle;    // Placeholder, implement actual logic
+        jarnax::print("SSD1306 SM Error: ", status_);    // Log the error status
+        // the client did not complete, but we do need to reclaim the transaction. If we don't reclaim, then the transaction will never be recycled
+        // and the driver will be stuck in an unrecoverable state.
+        if (client_.Reclaim(status_)) {
+            jarnax::print("SSD1306 SM Reclaimed transaction after error: ", status_);
+            state = State::Idle;
+        } else {
+            jarnax::print("SSD1306 SM Failed to reclaim transaction after error");
+            // stay here, as we're stuck!
+        }
     }
-    return state;               // Stay in the same state if no conditions matched
+    return state;    // Stay in the same state if no conditions matched
 }
 
 void StateMachine::OnExit(State state) {
     // This is called when exiting a state
     if (state == State::Idle) {
-        // nothing
+        client_.OnEvent(Event::None, core::Status{core::Result::Busy, core::Cause::State});    // Notify the client that we are leaving Idle state
     } else if (state == State::PoweringOn) {
         //
     } else if (state == State::Awaiting) {

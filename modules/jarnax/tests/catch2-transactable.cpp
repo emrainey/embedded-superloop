@@ -1,8 +1,8 @@
 // #define CATCH_CONFIG_MAIN
 #include <catch2/catch_test_macros.hpp>
 #include "jarnax/Context.hpp"
-#include "jarnax/Transactable.hpp"
 #include "jarnax/JumpTimer.hpp"
+#include "jarnax/Transactable.hpp"
 
 #include <cstdio>
 
@@ -120,6 +120,31 @@ TEST_CASE("Transactable") {
         REQUIRE(dummy.GetStatus() == core::Status{core::Result::ExceededLimit, core::Cause::State});
         REQUIRE(dummy.GetAttemptsRemaining() == 0);
     }
+    SECTION("RecycleWhileInitialized") {
+        dummy.Initialize(11);
+        REQUIRE(dummy.IsInitialized());
+        REQUIRE(dummy.GetStatus() == core::Status{core::Result::NotReady, core::Cause::State});
+
+        dummy.Inform(DummyTransaction::Event::Recycle);
+
+        REQUIRE(dummy.IsUninitialized());
+        REQUIRE(dummy.GetStatus() == core::Status{core::Result::NotInitialized, core::Cause::State});
+        REQUIRE(dummy.GetAttemptsRemaining() == Attempts);
+        REQUIRE(dummy.id_ == 0U);
+    }
+    SECTION("RecycleWhileQueued") {
+        dummy.Initialize(12);
+        REQUIRE(dummy.IsInitialized());
+        dummy.Inform(DummyTransaction::Event::Scheduled);
+        REQUIRE(dummy.IsQueued());
+
+        dummy.Inform(DummyTransaction::Event::Recycle);
+
+        REQUIRE(dummy.IsUninitialized());
+        REQUIRE(dummy.GetStatus() == core::Status{core::Result::NotInitialized, core::Cause::State});
+        REQUIRE(dummy.GetAttemptsRemaining() == Attempts);
+        REQUIRE(dummy.id_ == 0U);
+    }
     SECTION("Deadline") {
         dummy.Initialize(3);
         dummy.SetDeadline(timer.GetMicroseconds() + 100_usec);
@@ -130,6 +155,33 @@ TEST_CASE("Transactable") {
         // time passes (over the amount)
         timer.Jump(timer.GetMicroseconds() + 200_usec);
         dummy.Inform(DummyTransaction::Event::Start);
+        REQUIRE(dummy.IsComplete());
+        REQUIRE(dummy.GetStatus() == core::Status{core::Result::Timeout, core::Cause::State});
+    }
+    SECTION("DeadlineWhileInitialized") {
+        dummy.Initialize(4);
+        dummy.SetDeadline(timer.GetMicroseconds() + 100_usec);
+        REQUIRE(dummy.IsInitialized());
+
+        // Let time pass without scheduling; the state machine should self-timeout.
+        timer.Jump(150_usec);
+        dummy.Inform(DummyTransaction::Event::None);
+
+        REQUIRE(dummy.IsComplete());
+        REQUIRE(dummy.GetStatus() == core::Status{core::Result::Timeout, core::Cause::State});
+    }
+    SECTION("DeadlineWhileQueuedWithoutStart") {
+        dummy.Initialize(5);
+        dummy.SetDeadline(timer.GetMicroseconds() + 100_usec);
+        REQUIRE(dummy.IsInitialized());
+
+        dummy.Inform(DummyTransaction::Event::Scheduled);
+        REQUIRE(dummy.IsQueued());
+
+        // Let time pass while queued and allow the state machine to progress.
+        timer.Jump(150_usec);
+        dummy.Inform(DummyTransaction::Event::None);
+
         REQUIRE(dummy.IsComplete());
         REQUIRE(dummy.GetStatus() == core::Status{core::Result::Timeout, core::Cause::State});
     }

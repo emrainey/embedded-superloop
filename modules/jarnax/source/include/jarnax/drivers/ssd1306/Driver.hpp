@@ -66,7 +66,7 @@ protected:
     core::Status PrepareRender(Sequence sequence) override;
     core::Status Issue(void) override;
     bool IsComplete() const override;
-    bool CompleteCommand(core::Status& status) override;
+    bool Reclaim(core::Status& status) override;
     void OnEvent(Event event, core::Status status) override;
     bool IsReadyForPreparation(void) const override;
 

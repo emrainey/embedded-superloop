@@ -20,15 +20,14 @@ using jarnax::Ticks;
 
 enum class AppState : std::uint8_t {
     Undefined = 0U,
-    Waiting,             ///< Waits for the display to be ready
-    DisplayPoweredOn,    ///< Displays Power On message
+    Waiting,    ///< Waits for the display to be ready
     Pattern1,
     Pattern2,
     Pattern3,
     Pattern4,
     Pattern5,
-    Pattern6,             ///< Displays a pattern on the screen
-    DisplayPoweredOff,    ///< Displays Power Off message
+    Pattern6,        ///< Displays a pattern on the screen
+    ClearDisplay,    ///< Clears the display
     Error,
 };
 
@@ -56,6 +55,7 @@ protected:
     core::units::Iota change_duration_iota_;
     jarnax::CountDown countdown_;    ///< Countdown timer for state transitions
     core::StateMachine<AppState> state_machine_;
+    bool has_updated_;
 };
 
 #endif    // TEST_I2C_HPP

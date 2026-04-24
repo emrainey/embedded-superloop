@@ -204,6 +204,14 @@ protected:
         } else if (state == TransactionState::Initialized) {
             if (event_ == Event::Scheduled) {
                 return TransactionState::Queued;
+            } else if (event_ == Event::Recycle) {
+                // could have hit some external problem and have to restart
+                return TransactionState::Uninitialized;
+            }
+            // make sure we haven't missed the deadline!
+            if (timer_.GetMicroseconds() >= deadline_) {
+                status_ = core::Status{core::Result::Timeout, core::Cause::State};
+                return TransactionState::Complete;
             }
         } else if (state == TransactionState::Queued) {
             if (event_ == Event::Start) {
@@ -216,6 +224,14 @@ protected:
             } else if (event_ == Event::Completed) {
                 // failed to start
                 status_ = completion_status_;
+                return TransactionState::Complete;
+            } else if (event_ == Event::Recycle) {
+                // could have hit some external problem and have to restart
+                return TransactionState::Uninitialized;
+            }
+            // make sure we haven't missed the deadline!
+            if (timer_.GetMicroseconds() >= deadline_) {
+                status_ = core::Status{core::Result::Timeout, core::Cause::State};
                 return TransactionState::Complete;
             }
         } else if (state == TransactionState::Running) {
