@@ -14,7 +14,10 @@ Driver::Driver(jarnax::Timer const& timer, core::units::Iota duration, jarnax::s
     , transaction_{timer}
     , last_pressure_{::lps35hw::MinimumPressure}
     , last_temperature_{::lps35hw::MinimumTemperature}
-    , state_machine_{timer, duration, *this} {}
+    , completion_handed_off_{false}
+    , state_machine_{timer, duration, *this} {
+    transaction_.SetCompletionListener(this);
+}
 
 core::Status Driver::Initialize() {
     if (buffer_.IsEmpty()) {
@@ -61,6 +64,12 @@ core::Status Driver::StartRegisterWrite(uint8_t address, uint8_t count, uint8_t 
 core::Status Driver::GetRegisterValue(uint8_t address, uint8_t count, uint8_t value[]) {
     core::Status status;
     if (transaction_.IsComplete()) {
+        // Check if the coordinator still owns the transaction
+        if (not completion_handed_off_ and spi_.IsOwned(&transaction_)) {
+            // Coordinator still owns it, wait for the completion callback
+            return core::Status{core::Result::NotReady, core::Cause::State};
+        }
+
         buffer_ = transaction_.Relinquish();
         // the read section will start at the offset, but will have space for the address and some padding
         size_t preface = sizeof(address) + data_padding_;
@@ -90,7 +99,10 @@ core::Status Driver::GetRegisterValue(uint8_t address, uint8_t count, uint8_t va
             );
             status = core::Status{core::Result::NotExpected, core::Cause::State};
         }
+
+        // Now that we have ownership, recycle the transaction
         transaction_.Inform(jarnax::spi::Transaction::Event::Recycle);
+        completion_handed_off_ = false;    // Reset the flag after recycling
     } else {
         status = core::Status{core::Result::NotReady, core::Cause::State};
     }
@@ -165,6 +177,12 @@ core::Status Driver::InitializeTransaction(bool is_read, uint8_t address, uint8_
         return core::Status{};
     }
     return core::Status{core::Result::NotReady, core::Cause::State};
+}
+
+void Driver::OnTransactionCompleted(jarnax::spi::Transaction& transaction) {
+    if (&transaction == &transaction_) {
+        completion_handed_off_ = true;
+    }
 }
 
 }    // namespace lps35hw

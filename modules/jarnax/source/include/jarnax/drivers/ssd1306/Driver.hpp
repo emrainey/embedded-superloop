@@ -16,7 +16,10 @@ namespace ssd1306 {
 
 /// The SSD1306 Driver Implementation which extends the Application's Interface for the SSD1306 Driver as well as
 /// the client to the State Machine to support operations to the SSD1306 OLED display.
-class Driver : public jarnax::ssd1306::Driver, public jarnax::Loopable, protected jarnax::drivers::ssd1306::Client {
+class Driver : public jarnax::ssd1306::Driver,
+               public jarnax::Loopable,
+               protected jarnax::drivers::ssd1306::Client,
+               protected jarnax::i2c::Transaction::CompletionListener {
 public:
     /// @brief Constructs the SSD1306 Driver.
     /// @param timer The system timer to use for transactions.
@@ -70,6 +73,11 @@ protected:
     void OnEvent(Event event, core::Status status) override;
     bool IsReadyForPreparation(void) const override;
 
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    // jarnax::i2c::Transaction::CompletionListener interface
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    void OnTransactionCompleted(jarnax::i2c::Transaction& transaction) override;
+
     jarnax::Timer const& timer_;                        ///< The System Timer to use for transactions
     jarnax::i2c::Driver& i2c_driver_;                   ///< The I2C Driver to use
     core::Buffer<jarnax::i2c::DataUnit> i2c_buffer_;    ///< The I2C Buffer to use for transactions
@@ -82,6 +90,7 @@ protected:
     Event next_event_;                                  ///< The next event to process in the state machine
     bool powered_;                                      ///< Is the SSD1306 powered on?
     bool updated_;                                      ///< Has the SSD1306 been updated?
+    bool completion_handed_off_;                        ///< True when coordinator has handed completed transaction ownership back.
     Statistics statistics_;                             ///< The statistics of the last operation
     core::Status status_;                               ///< The status of the last operation
 };

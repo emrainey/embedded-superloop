@@ -267,8 +267,10 @@ State StateMachine::OnCycle(State state) {
         // the client did not complete, but we do need to reclaim the transaction. If we don't reclaim, then the transaction will never be recycled
         // and the driver will be stuck in an unrecoverable state.
         if (client_.Reclaim(status_)) {
-            jarnax::print("SSD1306 SM Reclaimed transaction after error: ", status_);
-            state = State::Idle;
+            if (client_.IsReadyForPreparation()) {
+                jarnax::print("SSD1306 SM Reclaimed transaction after error: ", status_);
+                state = State::Idle;
+            }
         } else {
             jarnax::print("SSD1306 SM Failed to reclaim transaction after error");
             // stay here, as we're stuck!

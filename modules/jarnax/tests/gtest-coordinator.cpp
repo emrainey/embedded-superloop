@@ -19,6 +19,22 @@ using namespace core::units;
 
 class TestTransaction : public Transactable<TestTransaction, 3> {
 public:
+    class Listener : public CompletionListener {
+    public:
+        explicit Listener(bool& called)
+            : called_{called} {}
+
+        virtual ~Listener() = default;
+
+        void OnTransactionCompleted(TestTransaction& transaction) override {
+            static_cast<void>(transaction);
+            called_ = true;
+        }
+
+    private:
+        bool& called_;
+    };
+
     TestTransaction(Timer& timer)
         : Transactable{timer} {}
     void Clear() { return; }
@@ -350,6 +366,44 @@ TEST_F(CoordinatorTest, RetryExhaustedHardwareUnavailable) {
     EXPECT_TRUE(txn.IsComplete());
     EXPECT_STATUS_EQ(status, core::Result::NotAvailable, core::Cause::Hardware);
     ::testing::Mock::VerifyAndClearExpectations(&mock);
+}
+
+TEST_F(CoordinatorTest, CompletionListenerGetsOwnershipHandoff) {
+    bool callback_called{false};
+    TestTransaction::Listener listener{callback_called};
+    txn.SetCompletionListener(&listener);
+
+    EXPECT_TRUE(txn.Inform(TestTransaction::Event::Initialized));
+    EXPECT_CALL(mock, Verify(testing::_)).WillOnce(Return(success));
+    core::Status status = coord.Schedule(&txn);
+    ASSERT_STATUS_EQ(status, core::Result::Success, core::Cause::State);
+    ASSERT_TRUE(txn.IsQueued());
+
+    EXPECT_CALL(mock, Start(testing::_)).WillOnce(Return(success));
+    EXPECT_CALL(mock, Check(testing::_)).WillOnce(Return(success));
+    coord.Execute();
+
+    EXPECT_TRUE(callback_called);
+    EXPECT_TRUE(txn.IsComplete());
+    EXPECT_STATUS_EQ(txn.GetStatus(), core::Result::Success, core::Cause::State);
+    ASSERT_EQ(1, coord.GetCoordinatorStatistics().forgotten);
+}
+
+TEST_F(CoordinatorTest, CoordinatorDoesNotRecycleAfterCompletion) {
+    EXPECT_TRUE(txn.Inform(TestTransaction::Event::Initialized));
+    EXPECT_CALL(mock, Verify(testing::_)).WillOnce(Return(success));
+    core::Status schedule_status = coord.Schedule(&txn);
+    ASSERT_STATUS_EQ(schedule_status, core::Result::Success, core::Cause::State);
+
+    EXPECT_CALL(mock, Start(testing::_)).WillOnce(Return(success));
+    EXPECT_CALL(mock, Check(testing::_)).WillOnce(Return(success));
+    coord.Execute();
+
+    EXPECT_TRUE(txn.IsComplete());
+    EXPECT_STATUS_EQ(txn.GetStatus(), core::Result::Success, core::Cause::State);
+
+    EXPECT_TRUE(txn.Inform(TestTransaction::Event::Recycle));
+    EXPECT_TRUE(txn.IsUninitialized());
 }
 
 }    // namespace jarnax

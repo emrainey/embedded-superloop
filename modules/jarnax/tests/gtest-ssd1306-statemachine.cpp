@@ -245,6 +245,7 @@ TEST_F(SSD1306StateMachineTest, PowerOnPrepareFailureSignalsErrorThenReturnsIdle
     ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
 
     EXPECT_CALL(mock_client_, Reclaim(::testing::_)).WillOnce(Return(true));
+    EXPECT_CALL(mock_client_, IsReadyForPreparation()).WillOnce(Return(true));
     state_machine_.Process(Event::None);
     EXPECT_TRUE(state_machine_.Is(State::Idle));
     ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
@@ -262,6 +263,7 @@ TEST_F(SSD1306StateMachineTest, PowerOnIssueFailureSignalsErrorThenReturnsIdle) 
     ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
 
     EXPECT_CALL(mock_client_, Reclaim(::testing::_)).WillOnce(Return(true));
+    EXPECT_CALL(mock_client_, IsReadyForPreparation()).WillOnce(Return(true));
     state_machine_.Process(Event::None);
     EXPECT_TRUE(state_machine_.Is(State::Idle));
     ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
@@ -277,6 +279,7 @@ TEST_F(SSD1306StateMachineTest, UpdatePrepareFailureSignalsErrorThenReturnsIdle)
     ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
 
     EXPECT_CALL(mock_client_, Reclaim(::testing::_)).WillOnce(Return(true));
+    EXPECT_CALL(mock_client_, IsReadyForPreparation()).WillOnce(Return(true));
     state_machine_.Process(Event::None);
     EXPECT_TRUE(state_machine_.Is(State::Idle));
     ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
@@ -293,6 +296,7 @@ TEST_F(SSD1306StateMachineTest, UpdateIssueFailureSignalsErrorThenReturnsIdle) {
     ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
 
     EXPECT_CALL(mock_client_, Reclaim(::testing::_)).WillOnce(Return(true));
+    EXPECT_CALL(mock_client_, IsReadyForPreparation()).WillOnce(Return(true));
     state_machine_.Process(Event::None);
     EXPECT_TRUE(state_machine_.Is(State::Idle));
     ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
@@ -309,6 +313,7 @@ TEST_F(SSD1306StateMachineTest, PowerOffIssueFailureSignalsErrorThenReturnsIdle)
     ::testing::Mock::VerifyAndClearExpectations(&mock_client_);
 
     EXPECT_CALL(mock_client_, Reclaim(::testing::_)).WillOnce(Return(true));
+    EXPECT_CALL(mock_client_, IsReadyForPreparation()).WillOnce(Return(true));
     state_machine_.Process(Event::None);
     EXPECT_TRUE(state_machine_.Is(State::Idle));
     ::testing::Mock::VerifyAndClearExpectations(&mock_client_);

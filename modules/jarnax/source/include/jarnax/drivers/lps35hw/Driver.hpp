@@ -15,7 +15,7 @@ namespace jarnax {
 namespace drivers {
 namespace lps35hw {
 
-class Driver final : public jarnax::lps35hw::Driver, protected Callback {
+class Driver final : public jarnax::lps35hw::Driver, protected Callback, protected jarnax::spi::Transaction::CompletionListener {
 public:
     /// @brief Constructor for the LPS35HW Driver
     /// @param timer The Timer to use for the state machine.
@@ -50,6 +50,11 @@ protected:
     void OnReading(::lps35hw::RawPressure pressure, ::lps35hw::RawTemperature temperature) override;
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // jarnax::spi::Transaction::CompletionListener interface
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    void OnTransactionCompleted(jarnax::spi::Transaction& transaction) override;
+
     core::Status InitializeTransaction(bool is_read, uint8_t address, uint8_t count, uint8_t data[]);
 
 private:
@@ -58,6 +63,7 @@ private:
     jarnax::spi::Transaction transaction_;                    ///< The SPI transaction to use for communication.
     core::units::Pressure last_pressure_;                     ///< The last pressure reading
     core::units::Temperature last_temperature_;               ///< The last temperature reading
+    bool completion_handed_off_;                              ///< True when coordinator has handed completed transaction ownership back.
     jarnax::drivers::lps35hw::StateMachine state_machine_;    ///< The state machine for the LPS35HW driver
     jarnax::drivers::lps35hw::Event event_;                   ///< The current event to process
     size_t const data_padding_{0U};                           ///< The data padding size for the SPI transaction

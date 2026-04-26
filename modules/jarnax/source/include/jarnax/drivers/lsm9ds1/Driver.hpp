@@ -23,7 +23,10 @@ struct Statistics {
 };
 
 /// The LSM9DS1 driver interface
-class Driver final : public jarnax::lsm9ds1::Driver, public core::Statistician<Statistics>, protected Callback {
+class Driver final : public jarnax::lsm9ds1::Driver,
+                     public core::Statistician<Statistics>,
+                     protected Callback,
+                     protected jarnax::spi::Transaction::CompletionListener {
 public:
     Driver(
         jarnax::Timer const& timer, core::units::Iota duration, jarnax::spi::Driver& driver, core::Allocator& allocator, jarnax::gpio::Output* cs_ag,
@@ -54,6 +57,11 @@ protected:
     void OnReadingTemperature(::lsm9ds1::temperature::Raw temperature) override;
     void OnReadingFlux(::lsm9ds1::magnetic_field::Raw x, ::lsm9ds1::magnetic_field::Raw y, ::lsm9ds1::magnetic_field::Raw z) override;
 
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // jarnax::spi::Transaction::CompletionListener interface
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    void OnTransactionCompleted(jarnax::spi::Transaction& transaction) override;
+
     core::Status InitializeTransaction(bool is_read, uint8_t address, uint8_t count, uint8_t data[]);
 
     jarnax::Timer const& timer_;                            ///< The timer to use for timing operations
@@ -66,6 +74,7 @@ protected:
     jarnax::lsm9ds1::Twist last_gyroscope_;                 ///< The last set of gyroscope readings
     jarnax::lsm9ds1::Temp last_temperature_;                ///< The last temperature reading
     jarnax::lsm9ds1::Flux last_flux_;                       ///< The last magnetic field reading
+    bool completion_handed_off_;                            ///< True when coordinator has handed completed transaction ownership back.
     jarnax::drivers::lsm9ds1::StateChart state_machine_;    ///< The state machine for the LSM9DS1 driver
     jarnax::drivers::lsm9ds1::Event event_;                 ///< The current event to process
     size_t const data_padding_{0U};                         ///< The data padding size for the SPI transaction

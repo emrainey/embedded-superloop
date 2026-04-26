@@ -35,6 +35,15 @@ public:
     /// @brief The type of the Derived Class
     using DerivedType = DERIVED_CLASS;
 
+    /// @brief Listener notified when the coordinator observes transaction completion.
+    class CompletionListener {
+    public:
+        virtual void OnTransactionCompleted(DerivedType& transaction) = 0;
+
+    protected:
+        ~CompletionListener() = default;
+    };
+
     /// @brief Parameterized constructor
     /// @param timer The reference to the timer
     Transactable(Timer const& timer)
@@ -134,6 +143,18 @@ public:
 
     /// Returns the deadline for the transaction. This is only valid after the transaction has been initialized.
     core::units::MicroSeconds GetDeadline() const { return deadline_; }
+
+    /// Registers the completion listener for coordinator completion hand-off.
+    void SetCompletionListener(CompletionListener* listener) { completion_listener_ = listener; }
+
+    /// Notifies completion listener if present.
+    bool NotifyCompletionListener() {
+        if (completion_listener_ == nullptr) {
+            return false;
+        }
+        completion_listener_->OnTransactionCompleted(derived_);
+        return true;
+    }
 
     /// Resets the machine back to an Entered state if it was already final
     /// @return True if the machine is final, false otherwise
@@ -287,16 +308,17 @@ protected:
         }
     }
 
-    DerivedType& derived_;                  ///< The reference to the derived class
-    Timer const& timer_;                    ///< The reference to the timer
-    bool done_;                             ///< The flag to indicate if the transaction is done (i.e. has onCycled Completed)
-    Event event_;                           ///< The current event
-    core::Status status_;                   ///< The current status
-    core::Status completion_status_;        ///< The completion status
-    std::size_t try_count_;                 ///< The number of attempts remaining
-    core::units::MicroSeconds start_;       ///< The start time of the transaction
-    core::units::MicroSeconds duration_;    ///< The duration of the transaction
-    core::units::MicroSeconds deadline_;    ///< The deadline for the transaction
+    DerivedType& derived_;                                ///< The reference to the derived class
+    Timer const& timer_;                                  ///< The reference to the timer
+    bool done_;                                           ///< The flag to indicate if the transaction is done (i.e. has onCycled Completed)
+    Event event_;                                         ///< The current event
+    core::Status status_;                                 ///< The current status
+    core::Status completion_status_;                      ///< The completion status
+    std::size_t try_count_;                               ///< The number of attempts remaining
+    core::units::MicroSeconds start_;                     ///< The start time of the transaction
+    core::units::MicroSeconds duration_;                  ///< The duration of the transaction
+    core::units::MicroSeconds deadline_;                  ///< The deadline for the transaction
+    CompletionListener* completion_listener_{nullptr};    ///< Optional completion callback for hand-off ownership.
 };
 
 }    // namespace jarnax

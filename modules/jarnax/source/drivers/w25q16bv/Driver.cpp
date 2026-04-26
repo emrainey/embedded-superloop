@@ -67,10 +67,13 @@ Driver::Driver(Timer& timer, spi::Driver& driver, gpio::Output& chip_select, cor
     , transaction_{timer_}
     , buffer_{buffer_size_, dma_allocator}
     , startup_countdown_{timer_, core::units::Iota{30U}}    // 30 microseconds
+    , completion_handed_off_{false}
     , state_machine_{*this, *this}
     , powered_{false}
     , last_instruction_{Instruction::None}
-    , next_event_{Event::None} {}
+    , next_event_{Event::None} {
+    transaction_.SetCompletionListener(this);
+}
 
 Driver::~Driver() {
     buffer_.Release();
@@ -196,6 +199,12 @@ bool Driver::IsCommandComplete(void) const {
 core::Status Driver::GetStatusAndData(void) {
     core::Status status = transaction_.GetStatus();
     if (status.IsSuccess()) {
+        // Check if the coordinator still owns the transaction
+        if (not completion_handed_off_ and driver_.IsOwned(&transaction_)) {
+            // Coordinator still owns it, wait for the completion callback
+            return core::Status{core::Result::NotReady, core::Cause::State};
+        }
+
         auto span = transaction_.buffer.as_span<uint8_t>();
         // get the sent instruction
         w25q16bv::Instruction instruction = last_instruction_;
@@ -234,6 +243,7 @@ core::Status Driver::GetStatusAndData(void) {
         }
         // we've gotten the data out of the transaction, so we can recycle it
         transaction_.Inform(jarnax::spi::Transaction::Event::Recycle, status);
+        completion_handed_off_ = false;    // Reset the flag after recycling
     }
     return status;
 }
@@ -257,6 +267,12 @@ void Driver::OnEvent(Event event, core::Status status) {
     }
     printer_("OnEvent passed %x\r\n", polyfill::to_underlying(event));
     printer_("OnEvent had status ", status);
+}
+
+void Driver::OnTransactionCompleted(jarnax::spi::Transaction& transaction) {
+    if (&transaction == &transaction_) {
+        completion_handed_off_ = true;
+    }
 }
 
 }    // namespace w25q16bv

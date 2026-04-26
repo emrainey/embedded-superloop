@@ -46,6 +46,12 @@ Make sure that the cross builds are not broken either by building them:
 - `cmake --workflow --preset on-target-cortex-m4-gcc-arm-none-eabi`
 - `cmake --workflow --preset on-target-cortex-m7-gcc-arm-none-eabi`
 
+## Before Committing
+
+- Run all unit tests on all local compilers. They must all pass. No exceptions. If any test fails, investigate and fix the issue before committing.
+- Ensure that the commit will build against the github workflow. Use `act` to trigger the workflow(s) locally if needed. If the workflow fails, investigate and fix the issue before committing.
+- Ensure that the commit message clearly states what work was done by the AI and what work was done by a human. For example, "AI generated unit tests for the `Foo` class, while a human wrote the commit message and reviewed the tests." This helps maintain transparency and accountability in the project.
+
 ## Project Structure
 
 - `projects/` - Each subfolder is a semi-independent module which should be testable to some degree in isolation.

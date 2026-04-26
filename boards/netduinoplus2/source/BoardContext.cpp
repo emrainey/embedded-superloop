@@ -183,13 +183,13 @@ core::Status BoardContext::Initialize(void) {
     jarnax::print(
         "Feature Clock is%" PRIu32
         "\r\n"
-        "APB1 Timer Clock is%" PRIu32
+        "APB1 Timer Clock is %" PRIu32
         "\r\n"
-        "APB2 Timer Clock is%" PRIu32
+        "APB2 Timer Clock is %" PRIu32
         "\r\n"
-        "APB1 Clock is%" PRIu32
+        "APB1 Clock is %" PRIu32
         "\r\n"
-        "APB2 Clock is%" PRIu32 "\r\n",
+        "APB2 Clock is %" PRIu32 "\r\n",
         stm32::GetClockTree().fclk.value(),
         stm32::GetClockTree().apb1_timer_clk.value(),
         stm32::GetClockTree().apb2_timer_clk.value(),

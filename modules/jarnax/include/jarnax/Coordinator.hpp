@@ -171,10 +171,30 @@ public:
         }
         // if it's completed, forget the active transaction
         if (active_->IsComplete()) {
+            // Hand off ownership to the originator when completion is observed.
+            // The originator is responsible for reclaim/recycle once notified.
+            (void)active_->NotifyCompletionListener();
             stats_.forgotten++;
             active_ = nullptr;
         }
         return true;
+    }
+
+    /// @brief Returns true if the transaction is currently owned by this coordinator
+    /// either as the active transaction or queued for processing.
+    bool IsOwned(TransactionType const* transaction) const {
+        if (transaction == nullptr) {
+            return false;
+        }
+        if (active_ == transaction) {
+            return true;
+        }
+        for (std::size_t i = 0U; i < transactions_.Count(); ++i) {
+            if (transactions_[i] == transaction) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /// @brief  The Coordinator Statistics

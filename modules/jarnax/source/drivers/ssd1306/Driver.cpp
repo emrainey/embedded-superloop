@@ -23,8 +23,11 @@ Driver::Driver(jarnax::Timer const& timer, jarnax::i2c::Driver& i2c_driver, core
     , next_event_{Event::None}
     , powered_{false}
     , updated_{false}
+    , completion_handed_off_{false}
     , statistics_{}
-    , status_{core::Result::NotReady, core::Cause::State} {}
+    , status_{core::Result::NotReady, core::Cause::State} {
+    i2c_transaction_.SetCompletionListener(this);
+}
 
 core::Status Driver::Initialize(jarnax::i2c::Address address) {
     address_ = address;                                                // Set the I2C address for the SSD1306 display
@@ -171,22 +174,26 @@ bool Driver::IsComplete() const {
 }
 
 bool Driver::Reclaim(core::Status& status) {
-    // the transaction may not be in the right state, but we want to reclaim it anyway to ensure the driver can continue to operate. If the
-    // transaction is not complete, then we know something went wrong and we should log it and try to recover.
+    if (not completion_handed_off_) {
+        // If schedule/issue failed before coordinator ownership, allow local recycle.
+        if (not i2c_driver_.IsOwned(&i2c_transaction_) and not i2c_transaction_.IsUninitialized()) {
+            status = i2c_transaction_.GetStatus();
+            return i2c_transaction_.Inform(jarnax::i2c::Transaction::Event::Recycle, core::Status{core::Result::Success, core::Cause::State});
+        }
+        return false;
+    }
+
     if (not i2c_transaction_.IsComplete()) {
-        jarnax::print("SSD1306 Driver: Reclaim called but transaction is not complete\r\n");
+        // If callback handoff was observed but completion is not visible yet,
+        // keep waiting in the error/await state machine path.
+        return false;
     }
 
     statistics_.completed++;
     if (i2c_buffer_.IsEmpty()) {
         i2c_buffer_ = i2c_transaction_.Relinquish();    // Get the buffer from the completed transaction
-    } else {
-        // If the buffer is not empty, this means the buffer was not properly relinquished by the transaction
-        // Increment the buffer invalid count
-        statistics_.buffer_invalid++;
-        jarnax::print("SSD1306 Driver: Reclaim called but buffer was not empty\r\n");
     }
-    status = i2c_transaction_.GetStatus();    // Get the status of the transaction
+    status = i2c_transaction_.GetStatus();              // Get the status of the transaction
     jarnax::print(
         "Transaction took %" PRIu64 " microseconds\r\n", i2c_transaction_.GetDuration().value()
     );                                                           // Log the elapsed time of the transaction
@@ -198,8 +205,18 @@ bool Driver::Reclaim(core::Status& status) {
             jarnax::print("SSD1306 Transaction Success: ", status);    // Log the success if the transaction succeeded
         }
     }
-    // Inform the transaction that it has been recycled
-    return i2c_transaction_.Inform(jarnax::i2c::Transaction::Event::Recycle, core::Status{core::Result::Success, core::Cause::State});
+
+    bool recycled = i2c_transaction_.Inform(jarnax::i2c::Transaction::Event::Recycle, core::Status{core::Result::Success, core::Cause::State});
+    if (recycled) {
+        completion_handed_off_ = false;
+    }
+    return recycled;
+}
+
+void Driver::OnTransactionCompleted(jarnax::i2c::Transaction& transaction) {
+    if (&transaction == &i2c_transaction_) {
+        completion_handed_off_ = true;
+    }
 }
 
 void Driver::OnEvent(Event event, core::Status status) {

@@ -30,7 +30,7 @@ protected:
 };
 
 /// @brief The Winbond Flash Driver over SPI
-class Driver : public jarnax::w25q16bv::Driver, protected Listener, protected Executor {
+class Driver : public jarnax::w25q16bv::Driver, protected Listener, protected Executor, protected jarnax::spi::Transaction::CompletionListener {
 public:
     /// @brief Parameterized constructor
     Driver(Timer& timer, spi::Driver& driver, gpio::Output& chip_select, core::Allocator& dma_allocator);
@@ -67,6 +67,11 @@ protected:
     void OnEvent(Event event, core::Status status) override;
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // jarnax::spi::Transaction::CompletionListener interface
+    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    void OnTransactionCompleted(jarnax::spi::Transaction& transaction) override;
+
     /// @brief The reference to the local printer
     core::Printer& printer_;
     /// @brief The reference to the timer
@@ -85,6 +90,8 @@ protected:
     core::Buffer<spi::DataUnit> buffer_;
     /// @brief The countdown for the startup time
     jarnax::CountDown startup_countdown_;
+    /// @brief True when coordinator has handed completed transaction ownership back.
+    bool completion_handed_off_;
     /// @brief The StateMachine for the W25Q16BV driver
     jarnax::drivers::w25q16bv::StateMachine state_machine_;
     /// @brief Shortcut to know if the chip is powered
