@@ -18,7 +18,8 @@ if(BUILD_UNIT_TESTS)
     enable_testing()
 endif()
 
-add_subdirectory(external) # This is where we find Catch2, GoogleTest, etc.
+add_subdirectory(third-party) # This is where we find Catch2, GoogleTest, FakeIt, etc.
+add_subdirectory(external) # This is where we find staterator, Python venv, etc.
 
 set(BANNER
     "\n"

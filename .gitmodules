@@ -1,3 +1,12 @@
 [submodule "third-party/doxygen-awesome-css"]
 	path = third-party/doxygen-awesome-css
 	url = https://github.com/jothepro/doxygen-awesome-css.git
+[submodule "third-party/Catch2"]
+	path = third-party/Catch2
+	url = https://github.com/catchorg/Catch2.git
+[submodule "third-party/googletest"]
+	path = third-party/googletest
+	url = https://github.com/google/googletest.git
+[submodule "third-party/FakeIt"]
+	path = third-party/FakeIt
+	url = https://github.com/eranpeer/FakeIt.git

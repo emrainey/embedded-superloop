@@ -79,6 +79,24 @@ Renode is a (not nearly complete enough) emulation of the Cortex M series and it
 
 Visual Studio Code should be able to run this and identify the presets configuration.
 
+### Cloning and Initializing Submodules
+
+This repository uses git submodules for third-party dependencies (Catch2, googletest, FakeIt, doxygen-awesome-css). After cloning, initialize them with:
+
+```bash
+# Clone and initialize all submodules in one step
+$ git clone --recurse-submodules <repo-url>
+
+# Or, if you already cloned without submodules
+$ git submodule update --init --recursive
+```
+
+After pulling updates that add or change submodule pins, run:
+
+```bash
+git submodule update --recursive
+```
+
 Be sure to configure the CMake Environment variables to point to your arm-none-eabi-gcc toolchain. If you installed the Arm GNU Toolchain via the Mac PKG, the path should be `/Applications/ArmGNUToolchain/13.2.rel1/arm-none-eabi/bin` but it may be different if you installed it differently or on a different OS.
 
 ### Command Line
