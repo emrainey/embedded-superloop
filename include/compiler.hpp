@@ -54,7 +54,8 @@
 #else
 #define USED
 #endif
-#if __has_attribute(alias)
+// The alias attribute is not supported on Darwin, even though it defines __has_attribute(alias) as true
+#if __has_attribute(alias) and not(defined(__APPLE__) or defined(__MACH__))
 #define ALIAS(x) ATTRIBUTE((weak, alias(#x)))
 #else
 #define ALIAS(x) ATTRIBUTE((weak))

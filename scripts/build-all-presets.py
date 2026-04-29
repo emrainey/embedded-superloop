@@ -63,6 +63,11 @@ def main(argv: List[str]) -> int:
         help="User preset file to use (default: %(default)s)",
         default="CMakeUserPresets.json",
     )
+    parser.add_argument(
+        "--with-ci",
+        action="store_true",
+        help="Keeps any targets with -ci in the name (default: %(default)s)",
+    )
     args = parser.parse_args(argv)
 
     presets = get_workflow_presets(
@@ -75,6 +80,10 @@ def main(argv: List[str]) -> int:
             f"No workflow presets found in {args.preset_file} or {args.user_preset_file}"
         )
         sys.exit(1)
+
+    # Remove the presets with -ci in the name unless --with-ci is specified
+    if not args.with_ci:
+        presets = [preset for preset in presets if "-ci" not in preset]
 
     print(f"Found {len(presets)} workflow presets: {', '.join(presets)}")
     failed_presets: List[Dict[str, Any]] = list()
@@ -95,19 +104,3 @@ def main(argv: List[str]) -> int:
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
-
-# I just kept hitting tab....
-# vim: set ts=4 sw=4 et:
-# vim: set filetype=python:
-# vim: set expandtab:
-# vim: set autoindent:
-# vim: set smartindent:
-# vim: set fileencoding=utf-8:
-# vim: set syntax=python:
-# vim: set foldmethod=marker:
-# vim: set foldlevel=99:
-# vim: set foldenable:
-# vim: set colorcolumn=80:
-# vim: set nowrap:
-# vim: set showcmd:
-# vim: set nospell:

@@ -2,8 +2,8 @@
 
 #include <cinttypes>
 
+#include "core/Conversions.hpp"
 #include "core/Status.hpp"
-#include "core/conversions.hpp"
 
 #include "jarnax/JumpTimer.hpp"
 #include "jarnax/Monitor.hpp"

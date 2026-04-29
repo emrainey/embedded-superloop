@@ -177,7 +177,7 @@ function(add_firmware)
 
                 # Generate a debug file for the Ozone debugger for this firmware
                 get_target_property(LOCAL_BOARD_OZONE ${TARGET_BOARD} OZONE_TEMPLATE)
-                set(JDEBUG_FILE ${CMAKE_SOURCE_DIR}/${LOCAL_TARGET}.jdebug)
+                set(JDEBUG_FILE ${CMAKE_SOURCE_DIR}/testing/${LOCAL_TARGET}.jdebug)
                 configure_file(${LOCAL_BOARD_OZONE} ${JDEBUG_FILE} @ONLY)
                 get_target_property(LOCAL_BOARD_GDB_CLIENT ${TARGET_BOARD} GDB_CLIENT_TEMPLATE)
                 set(GDB_FILE ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.gdb)

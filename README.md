@@ -75,45 +75,97 @@ Renode is a (not nearly complete enough) emulation of the Cortex M series and it
 * <https://interrupt.memfault.com/blog/intro-to-renode>
 * <https://zephyr-dashboard.renode.io/renodepedia/boards/segger_trb_stm32f407/?view=hardware&demo=Hello_World>
 
-## QEMU
-
-TBD
-
 ## Building
 
-Visual Studio Code should be able to run this and identify the presets configuration. However you can also use the command line.
+Visual Studio Code should be able to run this and identify the presets configuration.
+
+Be sure to configure the CMake Environment variables to point to your arm-none-eabi-gcc toolchain. If you installed the Arm GNU Toolchain via the Mac PKG, the path should be `/Applications/ArmGNUToolchain/13.2.rel1/arm-none-eabi/bin` but it may be different if you installed it differently or on a different OS.
+
+### Command Line
+
+However you can also use the command line.
 
 ```bash
 # After installing arm-none-eabi-gcc via mac pkg
-$ export PATH=$PATH:/Application/ARM/bin
+$ export PATH=${PATH}:/Applications/ArmGNUToolchain/13.2.rel1/arm-none-eabi/bin
 $ cmake --list-presets
 Available configure presets:
 
-  "cortex-gcc-arm-none-eabi-10" - GCC ARM None EABI 10 for Cortex-M
-  "cortex-gcc-arm-none-eabi-11" - GCC ARM None EABI 11 for Cortex-M
-  "cortex-gcc-arm-none-eabi-12" - GCC ARM None EABI 12 for Cortex-M
-  "cortex-gcc-arm-none-eabi-13" - GCC ARM None EABI 13 for Cortex-M
-  "native-gcc-11"               - Homebrew GCC 11
-  "native-gcc-12"               - Homebrew GCC 12
-  "native-gcc-13"               - Homebrew GCC 13
-  "native-llvm-19"              - LLVM 19.1.7_1
-  "native-clang"                - Native Clang Toolchain
-$ cmake --preset cortex-gcc-arm-none-eabi-13 -B build/stm32-gcc-arm-none-eabi-13 -S .
-$ cmake --build build/cortex-gcc-arm-none-eabi-13
+  "on-host"                        - Host Build
+  "cortex-m4-gcc-arm-none-eabi"    - cortex-m4
+  "cortex-m7-gcc-arm-none-eabi"    - cortex-m7
+  "cortex-m4-gcc-arm-none-eabi-ci" - cortex-m4 (ci)
+  "cortex-m7-gcc-arm-none-eabi-ci" - cortex-m7 (ci)
+  "native-gcc"                     - Native GCC Toolchain
+  "native-clang"                   - Native Clang Toolchain
+  "native-llvm"                    - Native LLVM Toolchain (Homebrew LLVM potentially)
+$ cmake --preset cortex-m4-gcc-arm-none-eabi
+$ cmake --build --preset build-cortex-m4-gcc-arm-none-eabi
 # Or Run the Whole Workflow
 $ cmake --workflow --list-presets
 Available workflow presets:
 
-  "on-target-gcc-10"
-  "on-target-gcc-11"
-  "on-target-gcc-12"
-  "on-target-gcc-13"
-  "unit-tests-gcc-11"
-  "unit-tests-gcc-12"
-  "unit-tests-gcc-13"
-  "unit-tests-llvm-19"
-  "unit-tests-clang"
-$ cmake --workflow --preset unit-tests-clang"
+  "on-target-cortex-m4-gcc-arm-none-eabi"
+  "on-target-cortex-m7-gcc-arm-none-eabi"
+  "on-target-cortex-m4-gcc-arm-none-eabi-ci"
+  "on-target-cortex-m7-gcc-arm-none-eabi-ci"
+  "on-host-native-gcc"
+  "on-host-native-clang"
+  "on-host-native-llvm"
+$ cmake --workflow --preset on-host-native-clang
+```
+
+### Distributed Builds (distcc)
+
+The on-target presets (`cortex-m4-gcc-arm-none-eabi`, `cortex-m7-gcc-arm-none-eabi`) inherit the `distcc` hidden preset which accelerates cross-compilation by distributing work to a remote build server running the `distcc-bare-metal-builder` Docker image (which provides `arm-none-eabi-gcc` 13.x).
+
+Key environment variables set by the preset:
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `DISTCC_VERBOSE` | `0` | Set to `1` for verbose distcc output |
+| `DISTCC_FALLBACK` | `1` | Fall back to local compilation if the server is unreachable |
+| `DISTCC_SKIP_LOCAL_RETRY` | `0` | Retry locally on remote failure |
+| `DISTCC_DIR` | `/tmp/distcc` | distcc state directory |
+| `PATH` | prepends Arm toolchain | Ensures `arm-none-eabi-gcc` is found |
+
+To use distcc, start the build server container and point `DISTCC_HOSTS` at it:
+
+```bash
+# On the build server (or locally in Docker)
+docker run --rm -p 3632:3632 ghcr.io/emrainey/distcc-bare-metal-builder:latest
+
+# On your Mac, then run the workflow normally
+export DISTCC_HOSTS="localhost/8"
+cmake --workflow --preset on-target-cortex-m4-gcc-arm-none-eabi
+```
+
+If distcc is not available or the server is unreachable, `DISTCC_FALLBACK=1` ensures the build falls back to local compilation automatically.
+
+The CI presets (`cortex-m4-gcc-arm-none-eabi-ci`, `cortex-m7-gcc-arm-none-eabi-ci`) deliberately omit the `distcc` preset — they build locally inside the CI container where distcc is not available.
+
+### Running CI Jobs Locally with act
+
+If you want to run all CI jobs from `.github/workflows/ci.yml` locally using `act`, create a Python venv and install `PyYAML` (the script uses YAML parsing):
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+pip install pyyaml
+# We'll also need jinja2 for builds, but the cmake will install that itself
+```
+
+Then `build-all-ci-jobs.py` can run all CI jobs in sequence and report the results. This requires `act` to be installed and configured to run GitHub Actions locally. (Homebrew has `act` available).
+
+```bash
+python3 scripts/build-all-ci-jobs.py
+```
+
+You can also run all local CMake workflow presets with `build-all-presets.py`.
+
+```bash
+python3 scripts/build-all-presets.py
 ```
 
 ## Debug
@@ -125,25 +177,26 @@ $ cmake --workflow --preset unit-tests-clang"
 ./scripts/debug.sh server
 
 # in another terminal
-# modify ./scripts/stm32f407ve.gdb for commands as needed
 # and launch the GDB client.
 ./scripts/debug.sh client
 ```
 
 ### Debug with QEMU
 
+**WARNING**: This is a work in progress and may be disabled or removed at any time as the support for qemu is currently very rough and incomplete. It is only intended to be used as a tool for testing the on-target unit tests in a more "realistic" environment than the native unit tests, but it is not intended to be a full emulation of the hardware or a replacement for Renode or other emulators.
+
 The netduino+2 board can be run on qemu, however, ClockTree, I2C and DMA do not work.
 
 I'm using the arm cross-GDB, CGDB and QEMU from Homebrew.
 
 ```bash
-qemu-system-arm -M netduinoplus2 -kernel build/cortex-gcc-arm-none-eabi/applications/unittests/ontarget-tests-stm32-qemu-netduinoplus2.bin -s -S
+qemu-system-arm -M netduinoplus2 -kernel build/cortex-m4-gcc-arm-none-eabi/applications/unittests/ontarget-tests-stm32-qemu-netduinoplus2.bin -s -S
 ```
 
 This starts the emulator then waits for the debugger to attach.
 
 ```bash
-cgdb -d `which arm-none-eabi-gdb` build/cortex-gcc-arm-none-eabi/applications/unittests/ontarget-tests-stm32-qemu-netduinoplus2.elf
+cgdb -d `which arm-none-eabi-gdb` build/cortex-m4-gcc-arm-none-eabi/applications/unittests/ontarget-tests-stm32-qemu-netduinoplus2.elf
 ```
 
 This will start GDB in Curses UI with the arm cross GDB as the backend.

@@ -75,14 +75,15 @@ endif()
 # Found on https://discourse.cmake.org/t/possible-to-create-a-python-virtual-env-from-cmake-and-then-find-it-with-findpython3/1132/2
 # Find just the interpreter first
 find_package(Python3 REQUIRED Interpreter)
+set(PYTHON_VENV "${CMAKE_SOURCE_DIR}/venv")
 # Print the version and create the virtual environment
 execute_process (
     COMMAND_ECHO STDOUT
     COMMAND ${Python3_EXECUTABLE} --version
-    COMMAND ${Python3_EXECUTABLE} -m venv ${CMAKE_BINARY_DIR}/venv
+    COMMAND ${Python3_EXECUTABLE} -m venv ${PYTHON_VENV}
 )
 # This mimics the activation of the venv
-set(ENV{VIRTUAL_ENV} "${CMAKE_BINARY_DIR}/venv")
+set(ENV{VIRTUAL_ENV} "${PYTHON_VENV}")
 # changes the context of the search
 set(Python3_FIND_VIRTUALENV FIRST)
 # gets rid of the previous find

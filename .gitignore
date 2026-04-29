@@ -34,6 +34,10 @@
 # Ignore Build Output
 build/
 
+# Ignore Python virtual environments
+venv/
+.venv/
+
 $ Ignore Mac OSX Files
 .DS_Store
 ._.DS_Store
