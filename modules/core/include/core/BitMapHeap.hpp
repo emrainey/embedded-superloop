@@ -49,11 +49,25 @@ public:
         if (size_ < (BlockSize * BlockCount)) {
             buffer_ = nullptr;
             size_ = 0U;
+            // ASSERT here since this is a misconfiguration of the heap that must be fixed by the developer
+            GetPrinter()(
+                "FATAL: [%p] Buffer for BitMapHeap is too small (size=%" PRIz " bytes, required size=%" PRIz " bytes)\r\n",
+                reinterpret_cast<void*>(this),
+                size_,
+                BlockSize * BlockCount
+            );
         }
         uintptr_t base = reinterpret_cast<uintptr_t>(buffer);
         if (base & (MaxAlignment - 1)) {
             buffer_ = nullptr;
             size_ = 0U;
+            // ASSERT here since this is a misconfiguration of the heap that must be fixed by the developer
+            GetPrinter()(
+                "FATAL: [%p] Buffer for BitMapHeap is not properly aligned (alignment=%" PRIz " bytes, required alignment=%" PRIz " bytes)\r\n",
+                reinterpret_cast<void*>(this),
+                base & (MaxAlignment - 1),
+                MaxAlignment
+            );
         }
         stats_.size_bytes = BlockSize * BlockCount;
         stats_.free_blocks = stats_.size_bytes / BlockSize;

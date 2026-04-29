@@ -72,10 +72,26 @@
             }
         },
         {
-            "name": "on-host",
+            "name": "on-target-ci",
+            "hidden": true,
             "inherits": [
                 "common",
                 "graph_preset"
+            ],
+            "displayName": "On Target Build (CI)",
+            "description": "Builds the project on the target device in CI without distcc",
+            "cacheVariables": {
+                "BUILD_SHARED_LIBS": "OFF",
+                "BUILD_UNIT_TESTS": "OFF",
+                "BUILD_DOCUMENTATION": "ON",
+                "BUILD_COVERAGE": "OFF",
+                "BUILD_CROSS_TARGET": "ON"
+            }
+        },
+        {
+            "name": "on-host",
+            "inherits": [
+                "common"
             ],
             "displayName": "Host Build",
             "description": "Builds the project on the host machine, using the toolchain file",
@@ -115,6 +131,22 @@
             "displayName": "cortex-m7",
             "inherits": "on-target",
             "description": "Configuration for Cortex M7",
+            "toolchainFile": "${sourceDir}/build-support/lib/cmake/bare-gcc-cortex-m7.cmake"
+        },
+        {
+            "name": "cortex-m4-gcc-arm-none-eabi-ci",
+            "hidden": false,
+            "displayName": "cortex-m4 (ci)",
+            "inherits": "on-target-ci",
+            "description": "CI configuration for Cortex M4 without distcc",
+            "toolchainFile": "${sourceDir}/build-support/lib/cmake/bare-gcc-cortex-m4.cmake"
+        },
+        {
+            "name": "cortex-m7-gcc-arm-none-eabi-ci",
+            "hidden": false,
+            "displayName": "cortex-m7 (ci)",
+            "inherits": "on-target-ci",
+            "description": "CI configuration for Cortex M7 without distcc",
             "toolchainFile": "${sourceDir}/build-support/lib/cmake/bare-gcc-cortex-m7.cmake"
         },
         {
@@ -162,6 +194,18 @@
             "inherits": "build-common",
             "targets": "all",
             "configurePreset": "cortex-m7-gcc-arm-none-eabi"
+        },
+        {
+            "name": "build-cortex-m4-gcc-arm-none-eabi-ci",
+            "inherits": "build-common",
+            "targets": "all",
+            "configurePreset": "cortex-m4-gcc-arm-none-eabi-ci"
+        },
+        {
+            "name": "build-cortex-m7-gcc-arm-none-eabi-ci",
+            "inherits": "build-common",
+            "targets": "all",
+            "configurePreset": "cortex-m7-gcc-arm-none-eabi-ci"
         },
         {
             "name": "build-native-gcc",
@@ -245,6 +289,32 @@
                 {
                     "type": "build",
                     "name": "build-cortex-m7-gcc-arm-none-eabi"
+                }
+            ]
+        },
+        {
+            "name": "on-target-cortex-m4-gcc-arm-none-eabi-ci",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "cortex-m4-gcc-arm-none-eabi-ci"
+                },
+                {
+                    "type": "build",
+                    "name": "build-cortex-m4-gcc-arm-none-eabi-ci"
+                }
+            ]
+        },
+        {
+            "name": "on-target-cortex-m7-gcc-arm-none-eabi-ci",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "cortex-m7-gcc-arm-none-eabi-ci"
+                },
+                {
+                    "type": "build",
+                    "name": "build-cortex-m7-gcc-arm-none-eabi-ci"
                 }
             ]
         },

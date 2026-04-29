@@ -4,6 +4,7 @@
 /// @file
 /// The exported symbols from the linker script and associated types
 
+#include <core/Intervals.hpp>
 #include <cortex/types.hpp>
 
 #if defined(UNITTEST)
@@ -208,5 +209,13 @@ LINKER_TYPED_SYMBOL(__zero_table_start, ZeroEntry);
 
 /// Linker Symbols for the Zero Initialization Table, Limit
 LINKER_TYPED_SYMBOL(__zero_table_limit, ZeroEntry);
+
+namespace cortex {
+/// The Cortex Microcontroller processor memory regions
+LINKER_TYPED_SYMBOL(sorted_memory_regions, core::Interval const);
+
+/// Points to a LONG of the number of regions as defined in the linker scripts.
+LINKER_TYPED_SYMBOL(sorted_region_count, std::uint32_t const);
+}    // namespace cortex
 
 #endif    // CORTEX_LINKER_HPP_

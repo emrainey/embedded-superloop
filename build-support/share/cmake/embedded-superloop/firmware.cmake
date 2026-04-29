@@ -47,11 +47,14 @@ function(add_firmware)
             message("Adding ${LOCAL_TARGET}.elf for ${cfg} ${board}")
             add_executable(${LOCAL_TARGET}.elf)
             target_sources(${LOCAL_TARGET}.elf PRIVATE ${ARG_SOURCES})
+            # Track linked targets in declaration order so supported linkers can rescan archives.
+            set(TARGET_LIBRARIES)
             # Link to the Configuration and the Board
             target_link_libraries(${LOCAL_TARGET}.elf PUBLIC ${TARGET_CONFIG})
+            list(APPEND TARGET_LIBRARIES ${TARGET_CONFIG})
             message(STATUS "Linking ${LOCAL_TARGET}.elf to ${TARGET_CONFIG}")
-            # set(TARGET_LIBRARIES ${TARGET_BOARD})
             target_link_libraries(${LOCAL_TARGET}.elf PUBLIC ${TARGET_BOARD})
+            list(APPEND TARGET_LIBRARIES ${TARGET_BOARD})
             message(STATUS "Linking ${LOCAL_TARGET}.elf to ${TARGET_BOARD}")
 
             inherit_target_properties(CHILD ${LOCAL_TARGET}.elf PARENT ${TARGET_BOARD} PROPERTIES
@@ -67,6 +70,7 @@ function(add_firmware)
 
             foreach(lib IN LISTS ARG_LIBRARIES)
                 target_link_libraries(${LOCAL_TARGET}.elf PRIVATE ${lib})
+                list(APPEND TARGET_LIBRARIES ${lib})
                 message(STATUS "Linking ${LOCAL_TARGET}.elf to ${lib}")
             endforeach()
 
@@ -77,24 +81,28 @@ function(add_firmware)
             foreach(module IN LISTS ARG_GENERIC_MODULES)
                 set_module_name(MODULE_TARGET ${module} none all)
                 target_link_libraries(${LOCAL_TARGET}.elf PRIVATE ${MODULE_TARGET})
+                list(APPEND TARGET_LIBRARIES ${MODULE_TARGET})
                 message(STATUS "Linking ${LOCAL_TARGET}.elf to ${MODULE_TARGET}")
             endforeach()
 
             foreach(module IN LISTS ARG_CHIP_MODULES)
                 set_module_name(MODULE_TARGET ${module} none ${chip})
                 target_link_libraries(${LOCAL_TARGET}.elf PRIVATE ${MODULE_TARGET})
+                list(APPEND TARGET_LIBRARIES ${MODULE_TARGET})
                 message(STATUS "Linking ${LOCAL_TARGET}.elf to ${MODULE_TARGET}")
             endforeach()
 
             foreach(module IN LISTS ARG_SYSTEM_MODULES)
                 set_module_name(MODULE_TARGET ${module} ${cfg} all)
                 target_link_libraries(${LOCAL_TARGET}.elf PRIVATE ${MODULE_TARGET})
+                list(APPEND TARGET_LIBRARIES ${MODULE_TARGET})
                 message(STATUS "Linking ${LOCAL_TARGET}.elf to ${MODULE_TARGET}")
             endforeach()
 
             foreach(module IN LISTS ARG_MODULES)
                 set_module_name(MODULE_TARGET ${module} ${cfg} ${chip})
                 target_link_libraries(${LOCAL_TARGET}.elf PRIVATE ${MODULE_TARGET})
+                list(APPEND TARGET_LIBRARIES ${MODULE_TARGET})
                 message(STATUS "Linking ${LOCAL_TARGET}.elf to ${MODULE_TARGET}")
             endforeach()
 
@@ -105,12 +113,14 @@ function(add_firmware)
             if(DEFINED COMPILER_MATH_LIBS AND NOT COMPILER_MATH_LIBS STREQUAL "")
                 message(STATUS "Linking with math libraries ${COMPILER_MATH_LIBS}")
                 target_link_libraries(${LOCAL_TARGET}.elf PUBLIC ${COMPILER_MATH_LIBS})
+                list(APPEND TARGET_LIBRARIES ${COMPILER_MATH_LIBS})
             endif()
 
-            # message(STATUS "Final link libraries for ${LOCAL_TARGET}: ${TARGET_LIBRARIES}")
-            # target_link_libraries(${LOCAL_TARGET}.elf PRIVATE
-            #     $<LINK_GROUP:RESCAN,${TARGET_LIBRARIES}>
-            # )
+            if(CMAKE_CXX_LINK_GROUP_USING_RESCAN_SUPPORTED AND TARGET_LIBRARIES)
+                target_link_libraries(${LOCAL_TARGET}.elf PRIVATE
+                    "$<LINK_GROUP:RESCAN,${TARGET_LIBRARIES}>"
+                )
+            endif()
 
             if(BUILD_CROSS_TARGET)
                 get_target_property(ARCH_LINKERSCRIPTS ${LOCAL_TARGET}.elf ARCH_LINKERSCRIPTS)

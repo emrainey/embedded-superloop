@@ -4,6 +4,9 @@
 /// @file
 /// Jump Timer for Time-Based Testing
 
+#include <cstdio>
+#include <iostream>
+
 #include "jarnax/Timer.hpp"
 
 namespace jarnax {
@@ -37,13 +40,17 @@ public:
 
     /// @brief Jumps the timer forward by the specified iotas
     /// @param iotas The number of iotas to jump forward
-    void Jump(Iota iotas) { current_ = current_ + iotas; }
+    void Jump(Iota iotas) {
+        // jump forward by the specified number of iotas
+        std::cout << "Jumping by " << iotas << std::endl;
+        current_ = current_ + iotas;
+    }
 
     /// @brief Jumps the timer forward by the specified microseconds
     /// @param microseconds The number of microseconds to jump forward
     void Jump(MicroSeconds microseconds) {
-        // 1 iota == 1 usec
-        current_ = current_ + Iota{microseconds.value()};
+        // the configured conversion ratio of the system should work for us here
+        Jump(Iota{microseconds.value()});
     }
 
 protected:

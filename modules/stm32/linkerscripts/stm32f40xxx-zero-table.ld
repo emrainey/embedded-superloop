@@ -36,5 +36,5 @@
     __intervals_limit = . ;
 } >FLASH
 
-PROVIDE(_ZN6cortex2m421sorted_memory_regionsE = __intervals_start);
-PROVIDE(_ZN6cortex2m419sorted_region_countE = __intervals_count);
+PROVIDE(_ZN6cortex21sorted_memory_regionsE = __intervals_start);
+PROVIDE(_ZN6cortex19sorted_region_countE = __intervals_count);

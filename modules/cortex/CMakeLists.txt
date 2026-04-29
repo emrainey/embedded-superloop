@@ -8,7 +8,6 @@ add_architecture(NAME cortex
         ${CMAKE_CURRENT_SOURCE_DIR}/source/swo.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/nvic.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/mpu.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/memory.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/spinhalt.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/bist.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/ticks.cpp
@@ -39,7 +38,7 @@ add_architecture(NAME cortex
         ${CMAKE_CURRENT_SOURCE_DIR}/source/supervisor/escalate.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/supervisor/query.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/supervisor/restore.cpp
-        # Unit Testing
+        # Unit Testing / Host
         $<IF:$<BOOL:${BUILD_UNIT_TESTS}>,${CMAKE_CURRENT_SOURCE_DIR}/source/symbols.cpp,>
         $<IF:$<BOOL:${BUILD_UNIT_TESTS}>,${CMAKE_CURRENT_SOURCE_DIR}/source/peripherals.cpp,>
     INCLUDES

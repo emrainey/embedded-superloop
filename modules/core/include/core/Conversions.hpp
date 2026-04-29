@@ -11,6 +11,10 @@
 namespace core {
 namespace units {
 
+/// @brief Configures the conversion ratios for iotas based on the provided iotas per second. This should be called before using any of the conversion
+/// functions.
+void ConfigureIotas(std::uint32_t iotas_per_second);
+
 /// @brief Converts Iota to MicroSeconds
 /// @param value The iota value to convert
 /// @return The MicroSeconds value

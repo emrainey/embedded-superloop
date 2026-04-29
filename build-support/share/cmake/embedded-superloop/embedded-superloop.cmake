@@ -269,6 +269,34 @@ function(print_target_properties)
 
 endfunction()
 
+# Links each library in the list to TARGET using --whole-archive / --no-whole-archive so
+# that every object file in each archive is unconditionally included.  This is required
+# when a library's inline code (e.g. inlined destructors that reference vtables) pulls in
+# symbols that live in sibling archives which the linker would otherwise skip.
+#
+# On linkers that support the CMake WHOLE_ARCHIVE link-library feature (CMake >= 3.24,
+# GNU ld, lld) the generator-expression form is used.  On others the raw
+# -Wl,--whole-archive / -Wl,--no-whole-archive flags are emitted directly.
+#
+# Usage:
+#   target_link_whole_libraries(<target> <lib1> [<lib2> ...])
+function(target_link_whole_libraries TARGET)
+    if(CMAKE_CXX_LINK_LIBRARY_USING_WHOLE_ARCHIVE_SUPPORTED)
+        foreach(lib IN LISTS ARGN)
+            target_link_libraries(${TARGET} PRIVATE "$<LINK_LIBRARY:WHOLE_ARCHIVE,${lib}>")
+            message(STATUS "Whole-archive linking ${TARGET} to ${lib}")
+        endforeach()
+    else()
+        # Fallback: emit raw linker flags around each archive individually.
+        foreach(lib IN LISTS ARGN)
+            target_link_libraries(${TARGET} PRIVATE
+                "-Wl,--whole-archive" "${lib}" "-Wl,--no-whole-archive"
+            )
+            message(STATUS "Whole-archive (raw flags) linking ${TARGET} to ${lib}")
+        endforeach()
+    endif()
+endfunction()
+
 include(${CMAKE_CURRENT_LIST_DIR}/configuration.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/family.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/chip.cmake)

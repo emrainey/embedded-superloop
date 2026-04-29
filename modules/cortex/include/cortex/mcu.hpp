@@ -11,11 +11,11 @@
 #include "debug.hpp"
 // =============================================================
 // Core Includes
+#include "core/BoundsChecker.hpp"
 #include "core/Intervals.hpp"
 #include "core/Split.hpp"
 // =============================================================
 // Cortex API Includes
-#include "cortex/addresses.hpp"
 #include "cortex/bist.hpp"
 #include "cortex/cache.hpp"
 #include "cortex/clocks.hpp"

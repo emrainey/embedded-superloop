@@ -1,20 +1,14 @@
 #include <catch2/catch_test_macros.hpp>
 
+#include <cinttypes>
+
 #include "core/Status.hpp"
+#include "core/conversions.hpp"
+
 #include "jarnax/JumpTimer.hpp"
 #include "jarnax/Monitor.hpp"
 
 using namespace core::units;
-
-// Define the timer iota conversion rates for the test environment
-// Using 1 MHz timer: 1 iota = 1 microsecond
-namespace core {
-namespace units {
-std::uint32_t timer2_iotas_per_second = 1'000'000;
-std::uint32_t timer2_iotas_per_millisecond = 1'000;
-std::uint32_t timer2_iotas_per_microsecond = 1;
-}    // namespace units
-}    // namespace core
 
 namespace {
 
@@ -69,6 +63,7 @@ TEST_CASE("Monitor Construction", "[Monitor]") {
     jarnax::JumpTimer timer;
     TestIndicator status_indicator;
     TestIndicator error_indicator;
+    ConfigureIotas(1'000'000);    // 1 iota = 1 microsecond for testing
 
     jarnax::Monitor monitor(timer, status_indicator, error_indicator);
 
@@ -81,28 +76,43 @@ TEST_CASE("Monitor Construction", "[Monitor]") {
 }
 
 TEST_CASE("Monitor Status Blink", "[Monitor]") {
+    ConfigureIotas(1'000'000);    // 1 iota = 1 microsecond for testing
+    const Iota half_period_iotas{core::units::ConvertToIota(jarnax::Monitor::HalfPeriodStatusBlink)};
+
     jarnax::JumpTimer timer;
     TestIndicator status_indicator;
     TestIndicator error_indicator;
 
     jarnax::Monitor monitor(timer, status_indicator, error_indicator);
 
+    SECTION("Initial State") {
+        // Indicators should not be touched until Execute is called
+        REQUIRE(status_indicator.GetToggleCount() == 0);
+        REQUIRE(error_indicator.GetActiveCount() == 0);
+        REQUIRE(error_indicator.GetInactiveCount() == 0);
+    }
+
     SECTION("Simple Timing Test") {
         // Timer starts at 0, Monitor sets countdown limit to 500'000
+        REQUIRE(timer.GetIotas() == 0_iota);
+        monitor.Execute();
+        monitor.Execute();
+        monitor.Execute();
+        monitor.Execute();
         REQUIRE(timer.GetIotas() == 0_iota);
         REQUIRE(status_indicator.GetToggleCount() == 0);
 
         // Jump to 1 before expiration
-        timer.Jump(499'999_iota);
-        REQUIRE(timer.GetIotas() == 499'999_iota);
+        timer.Jump(half_period_iotas - 1_iota);
+        REQUIRE(timer.GetIotas() == (half_period_iotas - 1_iota));
 
-        // Execute - should NOT toggle yet
+        // Execute - should NOT toggle yet?
         monitor.Execute();
         REQUIRE(status_indicator.GetToggleCount() == 0);
 
         // Jump past expiration
         timer.Jump(1_iota);
-        REQUIRE(timer.GetIotas() == 500'000_iota);
+        REQUIRE(timer.GetIotas() == half_period_iotas);
 
         // Execute - should toggle now
         monitor.Execute();
@@ -110,10 +120,6 @@ TEST_CASE("Monitor Status Blink", "[Monitor]") {
     }
 
     SECTION("Status Toggles After HalfPeriod") {
-        // HalfPeriodStatusBlink is 500'000 microseconds = 500'000 iotas (1:1 in JumpTimer)
-        constexpr auto half_period = jarnax::Monitor::HalfPeriodStatusBlink;
-        constexpr Iota half_period_iotas{half_period.value()};
-
         // Jump to just before expiration
         timer.Jump(half_period_iotas - 1_iota);
         monitor.Execute();
@@ -131,9 +137,6 @@ TEST_CASE("Monitor Status Blink", "[Monitor]") {
     }
 
     SECTION("Multiple Status Toggles") {
-        constexpr auto half_period = jarnax::Monitor::HalfPeriodStatusBlink;
-        constexpr Iota half_period_iotas{half_period.value()};
-
         // Simulate multiple blink cycles
         for (std::size_t i = 1; i <= 5; ++i) {
             timer.Jump(half_period_iotas);
@@ -144,6 +147,7 @@ TEST_CASE("Monitor Status Blink", "[Monitor]") {
 }
 
 TEST_CASE("Monitor Error Reporting", "[Monitor]") {
+    ConfigureIotas(1'000'000);    // 1 iota = 1 microsecond for testing
     jarnax::JumpTimer timer;
     TestIndicator status_indicator;
     TestIndicator error_indicator;
@@ -208,6 +212,10 @@ TEST_CASE("Monitor Error Reporting", "[Monitor]") {
 }
 
 TEST_CASE("Monitor Combined Behavior", "[Monitor]") {
+    constexpr auto half_period = jarnax::Monitor::HalfPeriodStatusBlink;
+    constexpr Iota half_period_iotas{half_period.value()};
+    ConfigureIotas(1'000'000);    // 1 iota = 1 microsecond for testing
+
     jarnax::JumpTimer timer;
     TestIndicator status_indicator;
     TestIndicator error_indicator;
@@ -215,9 +223,6 @@ TEST_CASE("Monitor Combined Behavior", "[Monitor]") {
     jarnax::Monitor monitor(timer, status_indicator, error_indicator);
 
     SECTION("Status Blink and Error Reporting Together") {
-        constexpr auto half_period = jarnax::Monitor::HalfPeriodStatusBlink;
-        constexpr Iota half_period_iotas{half_period.value()};
-
         // Report success and execute
         monitor.Report(core::Status{core::Result::Success, core::Cause::Unknown});
         monitor.Execute();

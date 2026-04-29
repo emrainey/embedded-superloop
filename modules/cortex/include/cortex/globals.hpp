@@ -4,6 +4,7 @@
 /// @file
 /// Declarations fo the Cortex Global Variables
 
+#include <core/BoundsChecker.hpp>
 #include "cortex/bist.hpp"
 #include "cortex/tick.hpp"
 
@@ -28,6 +29,9 @@ extern Hertz system_clock_frequency;
 
 /// @brief The flag indicating if the system passed the built in self test
 extern bool is_bist_successful;
+
+/// @brief The system memory checker instance
+extern core::BoundsChecker const bounds_checker;
 
 }    // namespace cortex
 

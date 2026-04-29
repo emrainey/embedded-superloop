@@ -7,8 +7,10 @@ host_unit_test(NAME jarnax-catch
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-transactable.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-ssd1306.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-monitor.cpp
+        ${CMAKE_SOURCE_DIR}/modules/core/tests/source/conversions.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/modules/core/tests/include/
     LIBRARIES
         strict
         jarnax-interfaces

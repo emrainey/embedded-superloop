@@ -122,7 +122,7 @@ ZeroEntry *__zero_table_limit = &zero_table[dimof(zero_table)];
 
 namespace cortex {
 
-core::Interval const sorted_memory_regions[] = {
+core::Interval const sorted_memory_regions_array[] = {
 #if defined(CORTEX_HAS_ITCM) and (CORTEX_HAS_ITCM == 1)
     {reinterpret_cast<std::uintptr_t>(&itcm[0]), reinterpret_cast<std::uintptr_t>(&itcm[sizeof(itcm)] - 1)},
 #endif
@@ -138,7 +138,9 @@ core::Interval const sorted_memory_regions[] = {
 #endif
 };
 
-std::uint32_t const sorted_memory_region_count = dimof(sorted_memory_regions);
+std::uint32_t const sorted_memory_region_count = dimof(sorted_memory_regions_array);
+
+core::Interval const *sorted_memory_regions = &sorted_memory_regions_array[0];
 std::uint32_t const *sorted_region_count = &sorted_memory_region_count;
 
 }    // namespace cortex

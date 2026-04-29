@@ -10,9 +10,9 @@
 namespace core {
 namespace units {
 // Holds the global values for the Conversion to and From Iotas
-std::uint32_t timer2_iotas_per_second{0U};
-std::uint32_t timer2_iotas_per_millisecond{0U};
-std::uint32_t timer2_iotas_per_microsecond{0U};
+std::uint32_t time_source_iotas_per_second{0U};
+std::uint32_t time_source_iotas_per_millisecond{0U};
+std::uint32_t time_source_iotas_per_microsecond{0U};
 }    // namespace units
 }    // namespace core
 
@@ -61,9 +61,9 @@ core::Status Timer::Initialize(core::units::Hertz internal_clock, core::units::H
     timer_.prescalar = prescalar;
     reload_value_ = desired_timer_frequency.value();    // number of counts per second
     timer_.auto_reload = reload_value_;
-    core::units::timer2_iotas_per_second = desired_timer_frequency.value() / (1U * iso::prefix::none);
-    core::units::timer2_iotas_per_millisecond = desired_timer_frequency.value() / (1U * iso::prefix::kilo);
-    core::units::timer2_iotas_per_microsecond = desired_timer_frequency.value() / (1U * iso::prefix::mega);
+    core::units::time_source_iotas_per_second = desired_timer_frequency.value() / (1U * iso::prefix::none);
+    core::units::time_source_iotas_per_millisecond = desired_timer_frequency.value() / (1U * iso::prefix::kilo);
+    core::units::time_source_iotas_per_microsecond = desired_timer_frequency.value() / (1U * iso::prefix::mega);
     jarnax::print(
         "Timer::Initialize: CLK: %" PRIu32 " Hz, Desired: %" PRIu32 " Hz => Prescalar is %" PRIu32 ". Auto Reload is %" PRIu32 " (Sec: %" PRIu32
         ", Millis: %" PRIu32 ", Micro: %" PRIu32 ")\r\n",
@@ -71,9 +71,9 @@ core::Status Timer::Initialize(core::units::Hertz internal_clock, core::units::H
         desired_timer_frequency.value(),
         prescalar + 1U,
         timer_.auto_reload.whole,
-        core::units::timer2_iotas_per_second,
-        core::units::timer2_iotas_per_millisecond,
-        core::units::timer2_iotas_per_microsecond
+        core::units::time_source_iotas_per_second,
+        core::units::time_source_iotas_per_millisecond,
+        core::units::time_source_iotas_per_microsecond
     );
 
     // enable the update event

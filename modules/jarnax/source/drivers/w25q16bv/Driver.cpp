@@ -209,7 +209,7 @@ core::Status Driver::GetStatusAndData(void) {
         // get the sent instruction
         w25q16bv::Instruction instruction = last_instruction_;
         auto read_span = span.subspan(transaction_.receive_offset, transaction_.send_size + transaction_.receive_size);
-        printer_("SPI Transaction Read Span = %p:%" PRIz "\r\n", read_span.data(), read_span.count());
+        printer_("SPI Transaction Read Span = %p:%" PRIz "\r\n", static_cast<void*>(read_span.data()), read_span.count());
         jarnax::print("SPI Transaction Read Span", read_span);
         if (instruction == w25q16bv::Instruction::ReleasePowerDown) {
             uint8_t device_id = read_span[0U];

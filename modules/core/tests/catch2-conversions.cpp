@@ -13,9 +13,9 @@ namespace core {
 namespace units {
 // Define the platform-specific iota conversion rates for testing
 // These would normally be defined by the platform/timer configuration
-std::uint32_t timer2_iotas_per_second = 1'000'000U;     // 1 MHz timer
-std::uint32_t timer2_iotas_per_millisecond = 1'000U;    // 1000 iotas per ms
-std::uint32_t timer2_iotas_per_microsecond = 1U;        // 1 iota per μs
+std::uint32_t time_source_iotas_per_second = 1'000'000U;     // 1 MHz timer
+std::uint32_t time_source_iotas_per_millisecond = 1'000U;    // 1000 iotas per ms
+std::uint32_t time_source_iotas_per_microsecond = 1U;        // 1 iota per μs
 }    // namespace units
 }    // namespace core
 
@@ -326,7 +326,7 @@ TEST_CASE("Conversions - Edge cases") {
     SECTION("Very small non-zero iota values") {
         Iota iotas{1U};    // Single iota
         MicroSeconds us = ConvertToMicroSeconds(iotas);
-        REQUIRE(us.value() == core::units::timer2_iotas_per_microsecond);
+        REQUIRE(us.value() == core::units::time_source_iotas_per_microsecond);
     }
 
     SECTION("Truncation in millisecond conversion") {

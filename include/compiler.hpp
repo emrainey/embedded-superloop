@@ -33,20 +33,32 @@
 
 #define LINKER_SECTION(x)
 #define NAKED
-#define USED __attribute__((used))
 #define ALWAYS_INLINE
 #define ISR
+// ELse if using GCC/Clang for ARM, define the attributes for the target
 #elif (defined(__GNUC__) or defined(__clang__)) and defined(__arm__)
 
 // On GCC/Clang for ARM, define the attributes for the target
 
 #define LINKER_SECTION(x) ATTRIBUTE((used, section(x)))
 #define NAKED ATTRIBUTE((used, naked))
-#define USED ATTRIBUTE((used))
 #define ALWAYS_INLINE ATTRIBUTE((always_inline))
-#define ISR ATTRIBUTE((used, naked, nothrow, noreturn, weak, alias("dummy_isr")))
+#define ISR ATTRIBUTE((used, naked, nothrow, noreturn))
 #else
 #error "Unsupported compiler, please define the attributes for your compiler."
+#endif
+
+#if defined(__has_attribute)
+#if __has_attribute(used)
+#define USED ATTRIBUTE((used))
+#else
+#define USED
+#endif
+#if __has_attribute(alias)
+#define ALIAS(x) ATTRIBUTE((weak, alias(#x)))
+#else
+#define ALIAS(x) ATTRIBUTE((weak))
+#endif
 #endif
 
 #include <cinttypes>

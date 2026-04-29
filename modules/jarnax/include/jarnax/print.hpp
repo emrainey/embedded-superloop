@@ -6,15 +6,26 @@
 
 #include <cinttypes>
 #include <cstdarg>
+#include <cstdint>
+
 #include "compiler.hpp"
+#include "debug.hpp"
+
 #include "core/Printer.hpp"
 #include "core/Span.hpp"
-#include "debug.hpp"
 
 #ifndef PRIz
 /// The format specifier for size_t
 /// @note This is a workaround for the fact that size_t is not defined in the C++ standard library
 #define PRIz "zu"
+#endif
+
+#if not defined(PRIu64)
+#define PRIu64 "llu"
+#endif
+
+#if not defined(PRIx64)
+#define PRIx64 "llx"
 #endif
 
 /// The namespace of the system level functions
@@ -62,7 +73,7 @@ unsigned long vsnprint(char buffer[], size_t buffer_size, const char* format, va
 /// @param span The span of data to print
 template <typename T>
 void print(char const* const prefix, core::Span<T> const& span) {
-    print("%s span: %p:%" PRIz "\r\n", prefix, span.data(), span.count());
+    print("%s span: %p:%" PRIz "\r\n", prefix, static_cast<void const*>(span.data()), span.count());
     for (size_t i = 0U; i < span.count(); i++) {
         bool is_first = ((i % 8U) == 0U);
         if (is_first) {

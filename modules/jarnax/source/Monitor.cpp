@@ -5,6 +5,8 @@
 
 namespace jarnax {
 
+static_assert(Monitor::HalfPeriodStatusBlink.value() > 0, "HalfPeriodStatusBlink must be greater than 0");
+
 Monitor::Monitor(jarnax::Timer const& timer, jarnax::Indicator& status_indicator, jarnax::Indicator& error_indicator)
     : timer_{timer}
     , status_indicator_{status_indicator}
@@ -17,6 +19,7 @@ void Monitor::Report(core::Status status) {
 
 bool Monitor::Execute() {
     if (countdown_.IsExpired()) {
+        // jarnax::print("Monitor: Status Blink Toggle, half is %" PRIu64 "\r\n", core::units::ConvertToIota(HalfPeriodStatusBlink).value());
         status_indicator_.Toggle();
         countdown_.Reset();
     }

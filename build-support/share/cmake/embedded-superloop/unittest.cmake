@@ -45,11 +45,26 @@ function(host_unit_test)
                 message("Adding ${LOCAL_TARGET} for ${cfg} ${board}")
                 add_executable(${LOCAL_TARGET})
                 target_sources(${LOCAL_TARGET} PRIVATE ${ARG_SOURCES})
+                # Track only local/project library targets for whole-archive linking.
+                # External test framework libraries (GTest, Catch2, etc.) are linked normally.
+                set(TARGET_LOCAL_LIBRARIES)
+                # Whole-archive is intentionally narrow: only board archives are forced in.
+                # Applying whole-archive broadly to core/jarnax/stm32 causes duplicate
+                # symbols in tests that provide local overrides/mocks.
+                set(TARGET_WHOLE_LIBRARIES)
                 # Link to the Configuration and the Board
                 target_link_libraries(${LOCAL_TARGET} PUBLIC ${TARGET_CONFIG})
+                list(APPEND TARGET_LOCAL_LIBRARIES ${TARGET_CONFIG})
                 message(STATUS "Linking ${LOCAL_TARGET} to ${TARGET_CONFIG}")
                 target_link_libraries(${LOCAL_TARGET} PUBLIC ${TARGET_BOARD})
+                list(APPEND TARGET_LOCAL_LIBRARIES ${TARGET_BOARD})
                 message(STATUS "Linking ${LOCAL_TARGET} to ${TARGET_BOARD}")
+                if(TARGET ${TARGET_BOARD})
+                    get_target_property(_BOARD_TARGET_TYPE ${TARGET_BOARD} TYPE)
+                    if(_BOARD_TARGET_TYPE STREQUAL "STATIC_LIBRARY" OR _BOARD_TARGET_TYPE STREQUAL "OBJECT_LIBRARY")
+                        list(APPEND TARGET_WHOLE_LIBRARIES ${TARGET_BOARD})
+                    endif()
+                endif()
                 if (TARGET ${TARGET_BOARD})
                     inherit_target_properties(CHILD ${LOCAL_TARGET} PARENT ${TARGET_BOARD} PROPERTIES
                             FAMILY VENDOR CORTEX_M ARCHITECTURE
@@ -67,6 +82,7 @@ function(host_unit_test)
 
                 foreach(lib IN LISTS ARG_LIBRARIES)
                     target_link_libraries(${LOCAL_TARGET} PUBLIC ${lib})
+                    list(APPEND TARGET_LOCAL_LIBRARIES ${lib})
                     message(STATUS "Linking ${LOCAL_TARGET} to ${lib}")
                 endforeach()
 
@@ -77,40 +93,51 @@ function(host_unit_test)
                 foreach(module IN LISTS ARG_GENERIC_MODULES)
                     set_module_name(MODULE_TARGET ${module} none all)
                     target_link_libraries(${LOCAL_TARGET} PRIVATE ${MODULE_TARGET})
+                    list(APPEND TARGET_LOCAL_LIBRARIES ${MODULE_TARGET})
                     message(STATUS "Linking ${LOCAL_TARGET} to ${MODULE_TARGET}")
                 endforeach()
 
                 foreach(module IN LISTS ARG_CHIP_MODULES)
                     set_module_name(MODULE_TARGET ${module} none ${chip})
                     target_link_libraries(${LOCAL_TARGET} PRIVATE ${MODULE_TARGET})
+                    list(APPEND TARGET_LOCAL_LIBRARIES ${MODULE_TARGET})
                     message(STATUS "Linking ${LOCAL_TARGET} to ${MODULE_TARGET}")
                 endforeach()
 
                 foreach(module IN LISTS ARG_SYSTEM_MODULES)
                     set_module_name(MODULE_TARGET ${module} ${cfg} all)
                     target_link_libraries(${LOCAL_TARGET} PRIVATE ${MODULE_TARGET})
+                    list(APPEND TARGET_LOCAL_LIBRARIES ${MODULE_TARGET})
                     message(STATUS "Linking ${LOCAL_TARGET} to ${MODULE_TARGET}")
                 endforeach()
 
                 foreach(module IN LISTS ARG_MODULES)
                     set_module_name(MODULE_TARGET ${module} ${cfg} ${chip})
                     target_link_libraries(${LOCAL_TARGET} PRIVATE ${MODULE_TARGET})
+                    list(APPEND TARGET_LOCAL_LIBRARIES ${MODULE_TARGET})
                     message(STATUS "Linking ${LOCAL_TARGET} to ${MODULE_TARGET}")
                 endforeach()
 
                 if(ARG_CATCH2)
                     target_compile_definitions(${LOCAL_TARGET} PRIVATE CATCH2)
+                    # External — linked normally, not whole-archived
                     target_link_libraries(${LOCAL_TARGET} PUBLIC Catch2::Catch2WithMain)
                 endif()
 
                 if(ARG_FAKEIT)
                     target_compile_definitions(${LOCAL_TARGET} PRIVATE FAKEIT)
+                    # External — linked normally, not whole-archived
                     target_link_libraries(${LOCAL_TARGET} PRIVATE Catch2FakeIt)
                 endif()
 
                 if(ARG_GOOGLETEST)
                     target_compile_definitions(${LOCAL_TARGET} PRIVATE GOOGLETEST)
+                    # External — linked normally, not whole-archived
                     target_link_libraries(${LOCAL_TARGET} PUBLIC GTest::gtest GTest::gmock GTest::gtest_main)
+                endif()
+
+                if(TARGET_WHOLE_LIBRARIES)
+                    target_link_whole_libraries(${LOCAL_TARGET} ${TARGET_WHOLE_LIBRARIES})
                 endif()
 
                 print_target_properties(TARGET ${LOCAL_TARGET})

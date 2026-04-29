@@ -85,3 +85,19 @@ host_unit_test(NAME generated-statechart
     NO_CONFIGURATIONS
     NO_BOARDS
 )
+
+# This is hard-coded for now, but we should make it more flexible in the future
+host_unit_test(NAME bounds-checker
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/catch2-boundschecker.cpp
+        ${CMAKE_SOURCE_DIR}/modules/core/source/BoundsChecker.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+    LIBRARIES
+        strict
+    GENERIC_MODULES
+        core
+    CATCH2
+    NO_CONFIGURATIONS
+    NO_BOARDS
+)
