@@ -52,7 +52,7 @@
         . = ORIGIN(APB1) + 0x7000;
         /* reserved */
         . = ORIGIN(APB1) + 0x7400;
-        _stm32_dac = . ;
+        _stm32_dac1 = . ;
         . = ORIGIN(APB1) + 0x7800;
         _stm32_uart7 = . ;
         . = ORIGIN(APB1) + 0x7C00;
@@ -107,32 +107,28 @@
         _stm32_usart1 = . ;
         . = ORIGIN(APB2) + 0x1400;
         _stm32_usart6 = . ;
-        . = ORIGIN(APB2) + 0x2000;
-        _stm32_adc1 = . ;
-        . = ORIGIN(APB2) + 0x2C00;
-        _stm32_sdio = . ;
         . = ORIGIN(APB2) + 0x3000;
         _stm32_spi1 = . ;
         . = ORIGIN(APB2) + 0x3400;
         _stm32_spi4 = . ;
-        . = ORIGIN(APB2) + 0x3800;
-        _stm32_syscfg = . ;
-        . = ORIGIN(APB2) + 0x3C00;
-        _stm32_exti = . ;
         . = ORIGIN(APB2) + 0x4000;
-        _stm32_tim9 = . ;
+        _stm32_tim15 = . ;
         . = ORIGIN(APB2) + 0x4400;
-        _stm32_tim10 = . ;
+        _stm32_tim16 = . ;
         . = ORIGIN(APB2) + 0x4800;
-        _stm32_tim11 = . ;
+        _stm32_tim17 = . ;
         . = ORIGIN(APB2) + 0x5000;
         _stm32_spi5 = . ;
-        . = ORIGIN(APB2) + 0x5400;
-        _stm32_spi6 = . ;
         . = ORIGIN(APB2) + 0x5800;
         _stm32_sai1 = . ;
-        . = ORIGIN(APB2) + 0x6800;
-        _stm32_lcd = . ;
+        . = ORIGIN(APB2) + 0x5C00;
+        _stm32_sai2 = . ;
+        . = ORIGIN(APB2) + 0x6000;
+        _stm32_sai3 = . ;
+        . = ORIGIN(APB2) + 0x7000;
+        _stm32_dfsdm1 = . ;
+        . = ORIGIN(APB2) + 0x7400;
+        _stm32_hrtim1 = . ;
     } > APB2
 
     PROVIDE(_ZN5stm3211peripherals6timer1E = _stm32_tim1);
@@ -146,26 +142,36 @@
     /* Arm High Performance Bus 1 */
     .ahb1 (NOLOAD) : {
         . = ORIGIN(AHB1) + 0x0000;
-        _stm32_gpio = . ;
-        . = ORIGIN(AHB1) + 0x3000;
-        _stm32_crc = . ;
-        . = ORIGIN(AHB1) + 0x3800;
-        _stm32_reset_and_clock_control = . ;
-        . = ORIGIN(AHB1) + 0x3C00;
-        _stm32_flash_control = . ;
-        . = ORIGIN(AHB1) + 0x4000;
+        _stm32_dma1 = . ;
+        . = ORIGIN(AHB1) + 0x0400;
+        _stm32_dma2 = . ;
+        . = ORIGIN(AHB1) + 0x0800;
+        _stm32_dmamux1 = . ;
+        . = ORIGIN(AHB1) + 0x2000;
+        _stm32_adc1 = . ;
+        . = ORIGIN(AHB1) + 0x2200;
+        _stm32_adc2 = . ;
+        . = ORIGIN(AHB1) + 0x2800;
+        _stm32_ethernet = . ;
+    } > AHB1
+
+    /* USB On-The-Go Full Speed */
+    .usb_otg_fs (NOLOAD) : {
+        . = ORIGIN(USB_OTG_FS) + 0x0000;
+        _stm32_usb_otg_fs_device = . ;
+    } > USB_OTG_FS
+
+    /* USB On-The-Go High Speed */
+    .usb_otg_hs (NOLOAD) : {
+        . = ORIGIN(USB_OTG_HS) + 0x0000;
+        _stm32_usb_otg_hs_device = . ;
+    } > USB_OTG_HS
+
+    .bkup_sram (NOLOAD) : {
         _stm32_bkpsram_start = . ;
         KEEP(*(.bkpsram))
         _stm32_bkpsram_end = .;
-        . = ORIGIN(AHB1) + 0x6000;
-        _stm32_dma1 = . ;
-        . = ORIGIN(AHB1) + 0x6400;
-        _stm32_dma2 = . ;
-        . = ORIGIN(AHB1) + 0x8000;
-        _stm32_ethernet = . ;
-        . = ORIGIN(AHB1) + 0xB000;
-        _stm32_dma2d = . ;
-    } > AHB1
+    } > BKUP
 
     /* Provide as the base for an array of peripherals */
     PROVIDE(_ZN5stm3211peripherals28general_purpose_input_outputE = _stm32_gpio);
@@ -188,48 +194,106 @@
     .ahb2 (NOLOAD) : {
         . = ORIGIN(AHB2) + 0x00000;
         _stm32_dcmi = . ;
-        . = ORIGIN(AHB2) + 0x10000;
+        . = ORIGIN(AHB2) + 0x1000;
         _stm32_crypto = . ;
-        . = ORIGIN(AHB2) + 0x10400;
+        . = ORIGIN(AHB2) + 0x1040;
         _stm32_hash = . ;
-        . = ORIGIN(AHB2) + 0x10800;
+        . = ORIGIN(AHB2) + 0x1080;
         _stm32_rng = . ;
+        . = ORIGIN(AHB2) + 0x2400;
+        _stm32_sdmmc2 = . ;
+        . = ORIGIN(AHB2) + 0x3000;
+        _stm32_ramecc2 = . ;
     } > AHB2
 
     PROVIDE_HIDDEN(_ZN5stm3211peripherals23random_number_generatorE = _stm32_rng);
 
-    /* USB On-The-Go High Speed */
-    .usb_otg_hs (NOLOAD) : {
-        . = ORIGIN(USB_OTG_HS) + 0x0000;
-        _stm32_usb_otg_hs_device = . ;
-    } > USB_OTG_HS
 
-
-    /* USB On-The-Go Full Speed */
-    .usb_otg_fs (NOLOAD) : {
-        . = ORIGIN(USB_OTG_FS) + 0x0000;
-        _stm32_usb_otg_fs_device = . ;
-    } > USB_OTG_FS
+    /* Arm Private Bus 3 */
+    .apb3 (NOLOAD) : {
+        . = ORIGIN(APB3) + 0x0000;
+        _stm32_ltdc = . ;
+        . = ORIGIN(APB3) + 0x3000;
+        _stm32_wwdg1 = . ;
+    } > APB3
 
     /* Arm High Performance Bus 3 */
     .ahb3 (NOLOAD) : {
         . = ORIGIN(AHB3) + 0x00000000;
-        _stm32_fsmc_bank_1 = . ;
-        . = ORIGIN(AHB3) + 0x10000000;
-        _stm32_fsmc_bank_2 = . ;
-        . = ORIGIN(AHB3) + 0x20000000;
-        _stm32_fsmc_bank_3 = . ;
-        . = ORIGIN(AHB3) + 0x30000000;
-        _stm32_fsmc_bank_4 = . ;
-        . = ORIGIN(AHB3) + 0x40000000;
-        _stm32_fsmc_control_block = . ;
+        _stm32_gpv = . ;
+        . = ORIGIN(AHB3) + 0x01000000;
+        _stm32_mdma = . ;
+        . = ORIGIN(AHB3) + 0x01001000;
+        _stm32_dma2d = . ;
+        . = ORIGIN(AHB3) + 0x01002000;
+        _stm32_flash_control = . ;
+        . = ORIGIN(AHB3) + 0x01003000;
+        _stm32_jpeg = . ;
+        . = ORIGIN(AHB3) + 0x01004000;
+        _stm32_fmc = . ;
+        . = ORIGIN(AHB3) + 0x01005000;
+        _stm32_quadspi = . ;
+        . = ORIGIN(AHB3) + 0x01007000;
+        _stm32_sdmmc1 = . ;
+        . = ORIGIN(AHB3) + 0x01009000;
+        _stm32_ramecc1 = . ;
     } > AHB3
 
-    /* These are used to zero initialize memory */
-    __ccm_start = ORIGIN(CCM);
-    __ccm_limit = ORIGIN(CCM) + LENGTH(CCM);
-    __sram_start = ORIGIN(SRAM);
-    __sram_limit = ORIGIN(SRAM) + LENGTH(SRAM);
+    /* Arm Peripheral Bus 4 */
+    .apb4 (NOLOAD) : {
+        . = ORIGIN(APB4) + 0x0000;
+        _stm32_etxi = . ;
+        . = ORIGIN(APB4) + 0x0400;
+        _stm32_syscfg = . ;
+        . = ORIGIN(APB4) + 0x0C00;
+        _stm32_lpuart1 = . ;
+        . = ORIGIN(APB4) + 0x1400;
+        _stm32_spi6 = . ;
+        . = ORIGIN(APB4) + 0x1C00;
+        _stm32_i2c4 = . ;
+        . = ORIGIN(APB4) + 0x2400;
+        _stm32_lptimer2 = . ;
+        . = ORIGIN(APB4) + 0x2800;
+        _stm32_lptimer3 = . ;
+        . = ORIGIN(APB4) + 0x2C00;
+        _stm32_lptimer4 = . ;
+        . = ORIGIN(APB4) + 0x3000;
+        _stm32_lptimer5 = . ;
+        . = ORIGIN(APB4) + 0x3800;
+        _stm32_comp1 = . ;
+        . = ORIGIN(APB4) + 0x3A00;
+        _stm32_comp2 = . ;
+        . = ORIGIN(APB4) + 0x3C00;
+        _stm32_vref = . ;
+        . = ORIGIN(APB4) + 0x4000;
+        _stm32_rtc = . ;
+        . = ORIGIN(APB4) + 0x4800;
+        _stm32_iwdg1 = . ;
+        . = ORIGIN(APB4) + 0x5400;
+        _stm32_sai4 = . ;
+    } > APB4
+
+    /* Arm High Performance Bus 4 */
+    .ahb4 (NOLOAD) : {
+        . = ORIGIN(AHB4) + 0x0000;
+        _stm32_gpio = . ;
+        . = ORIGIN(AHB4) + 0x4400;
+        _stm32_reset_and_clock_control = . ;
+        . = ORIGIN(AHB4) + 0x4800;
+        _stm32_power_control = . ;
+        . = ORIGIN(AHB4) + 0x4C00;
+        _stm32_crc = . ;
+        . = ORIGIN(AHB4) + 0x5400;
+        _stm32_bdma = . ;
+        . = ORIGIN(AHB4) + 0x5800;
+        _stm32_dmamux2 = . ;
+        . = ORIGIN(AHB4) + 0x6000;
+        _stm32_adc3 = . ;
+        . = ORIGIN(AHB4) + 0x6400;
+        _stm32_hsem = . ;
+        . = ORIGIN(AHB4) + 0x7000;
+        _stm32_ramecc3 = . ;
+    } > AHB4
 
     /* Private Peripheral Block for Cortex M */
     .ppb (NOLOAD) : {

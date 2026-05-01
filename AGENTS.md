@@ -68,5 +68,6 @@ Make sure that the cross builds are not broken either by building them:
 - ✅ **Always do** When summarizing work for commit message mention what work was done by the AI and what work was done by a human. For example, "AI generated unit tests for the `Foo` class, while a human wrote the commit message and reviewed the tests."
 - ✅ **Allowed** to delete files under the build folder (and recursively therein) (`rm -rf build/*`) for the purposes of cleaning the build, but **NEVER** delete files under any other folder without explicit permission from a human.
 - ✅ **Always do** clean the build artifacts from outside any container you are using. Permissions inside the container may not allow it.
+- ✅ **Always do** check the local PDFs in `documentation/pdfs` for relevant vendor specific documentation before searching the internet.
 - ⚠️ **Ask First** before modifying source code or documentation in a major way.
 - 🚫 **NEVER** modify the git repository or the .git folder.

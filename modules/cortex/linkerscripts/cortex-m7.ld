@@ -7,13 +7,13 @@
 
 MEMORY {
     /* The architecture reference manual breaks the default Cortex M space down like this: */
-    CODE          (rx) : ORIGIN = 0x00000000, LENGTH = 0x20000000
-    SRAM          (rw) : ORIGIN = 0x20000000, LENGTH = 0x20000000
+    ITCM         (rwx) : ORIGIN = 0x00000000, LENGTH = ITCM_SIZE
+    FLASH         (rx) : ORIGIN = 0x08000000, LENGTH = FLASH_SIZE
+    DTCM          (rw) : ORIGIN = 0x20000000, LENGTH = DTCM_SIZE
+    SRAM          (rw) : ORIGIN = 0x20400000, LENGTH = SRAM_SIZE
     PERIPH        (rw) : ORIGIN = 0x40000000, LENGTH = 0x20000000
-    RAM1          (rw) : ORIGIN = 0x60000000, LENGTH = 0x20000000
-    RAM2          (rw) : ORIGIN = 0x80000000, LENGTH = 0x20000000
-    DEVICE1       (rw) : ORIGIN = 0xA0000000, LENGTH = 0x20000000
-    DEVICE2       (rw) : ORIGIN = 0xC0000000, LENGTH = 0x20000000
+    EXTRAM        (rw) : ORIGIN = 0x60000000, LENGTH = 0x40000000
+    DEVICE        (rw) : ORIGIN = 0xA0000000, LENGTH = 0x40000000
     PPB           (rw) : ORIGIN = 0xE0000000, LENGTH = 1M
     VENDOR        (rw) : ORIGIN = 0xE0100000, LENGTH = 0x1FF00000
 }
@@ -25,6 +25,8 @@ REGION_ALIAS("REGION_BSS",     SRAM);
 REGION_ALIAS("REGION_STACK",   DTCM);
 REGION_ALIAS("REGION_SYSTEM",  PPB);
 REGION_ALIAS("REGION_HEAP",    SRAM);
+
+/* DMA CAN NOT BE LOCATED IN ITCM or DTCM! */
 
 __cortex_flash_start = ORIGIN(FLASH);
 __cortex_flash_limit = ORIGIN(FLASH) + LENGTH(FLASH);
@@ -42,8 +44,8 @@ __cortex_sram_size = LENGTH(SRAM);
 __cortex_sram_pow2  = LOG2CEIL(__cortex_sram_size);
 
 /* APB1 is the lowest peripheral address */
-__cortex_peripheral_start = ORIGIN(DEVICE1);
-__cortex_peripheral_limit = ORIGIN(DEVICE2) + LENGTH(DEVICE2);
+__cortex_peripheral_start = ORIGIN(DEVICE);
+__cortex_peripheral_limit = ORIGIN(DEVICE) + LENGTH(DEVICE);
 __cortex_peripheral_size = __cortex_peripheral_limit - __cortex_peripheral_start;
 __cortex_peripheral_pow2  = LOG2CEIL(__cortex_peripheral_size);
 

@@ -61,63 +61,37 @@ public:
     /// Returns the Timing Indicator
     jarnax::Indicator& GetTimingIndicator();
 
-    /// Returns the Wakeup Pin
-    jarnax::Button& GetWakeupButton();
-
-    /// Returns the Key0 Button
-    jarnax::Button& GetButton0();
-
-    /// Returns the Key1 Button
-    jarnax::Button& GetButton1();
+    /// Returns the User Button
+    jarnax::Button& GetUserButton();
 
     /// Returns the Copier
     jarnax::Copier& GetCopier();
 
     /// Returns the I2C Driver
-    jarnax::i2c::Driver& GetI2cDriver();
+    jarnax::i2c::Driver& GetI2cA();
+
+    /// Returns the I2C Driver
+    jarnax::i2c::Driver& GetI2cB();
 
     /// Returns the SPI Driver
-    jarnax::spi::Driver& GetSpiDriver();
+    jarnax::spi::Driver& GetSpiA();
 
-    /// Returns the SPI Driver
-    jarnax::spi::Driver& GetSpi2Driver();
-
-    /// Returns the debug USART Driver
-    jarnax::usart::Driver& GetCameraUsart();
-
-    /// Returns the Flash Chip Select
-    jarnax::gpio::Output& GetFlashChipSelect();
+    /// Returns the debug USARTB Driver
+    jarnax::usart::Driver& GetUsartB();
 
     /// Returns the DMA Allocator
     core::Allocator& GetDmaAllocator();
 
-    /// Returns the w25q16bv Driver
-    jarnax::w25q16bv::Driver& GetW25q16bvDriver();
-
     /// Return the Console Service
     jarnax::console::Service& GetConsole();
-
-    /// Returns the LPS35HW Driver
-    jarnax::lps35hw::Driver& GetLps35hwDriver();
-
-    /// Returns the Chip Select for the LSM9DS1 Accel/Gyro
-    jarnax::gpio::Output& GetLsm9ds1CsAg();
-
-    /// Returns the Chip Select for the LSM9DS1 Magnetometer
-    jarnax::gpio::Output& GetLsm9ds1CsM();
-
-    /// Returns the LSM9DS1 Driver
-    jarnax::lsm9ds1::Driver& GetLsm9ds1Driver();
 
 protected:
     stm32::Timer timer_;
     /// The Random Number Generator
     stm32::RandomNumberGenerator random_number_generator_;
-    stm32::gpio::Pin wakeup_pin_;         ///< The Wakeup Button Pin
     stm32::gpio::Pin mco1_pin_;           ///< Clock output
     stm32::gpio::Pin mco2_pin_;           ///< Clock output
-    stm32::gpio::Pin key0_pin_;           ///< The Key0 Pin
-    stm32::gpio::Pin key1_pin_;           ///< The Key1 Pin
+    stm32::gpio::Pin user_button_pin_;    ///< The User Button Pin
     stm32::gpio::Pin error_pin_;          ///< The Error Pin
     stm32::gpio::Pin status_pin_;         ///< The Status Pin
     stm32::gpio::Pin performance_pin_;    ///< The Performance Pin
@@ -130,34 +104,8 @@ protected:
     stm32::Indicator performance_indicator_;
     /// The timing indicator
     stm32::Indicator timing_indicator_;
-    /// @brief The Wakeup Button
-    stm32::Button wakeup_button_;
-    /// @brief The Key0 Button
-    stm32::Button key0_button_;
-    /// @brief The Key1 Button
-    stm32::Button key1_button_;
-    /// The SPI1 Leader Out Follower In (MOSI)
-    stm32::gpio::Pin spi1_mosi_;
-    /// The SPI1 Master In Slave Out (MISO)
-    stm32::gpio::Pin spi1_miso_;
-    /// The SPI1 Serial Clock (SCLK)
-    stm32::gpio::Pin spi1_sclk_;
-    /// The Flash Chip Select (CS)
-    stm32::gpio::Pin flash_cs_;
-    /// Near Field Chip Select
-    stm32::gpio::Pin nrf_cs_;
-    /// Near Field Chip Enable
-    stm32::gpio::Pin nrf_ce_;
-    /// Near Field Interrupt Line
-    stm32::gpio::Pin nrf_irq_;
-    /// The SPI1 Leader Out Follower In (SPI2_MOSI -> T_MOSI)
-    stm32::gpio::Pin spi2_mosi_;
-    /// The SPI1 Master In Slave Out (SPI2_MISO -> T_MISO)
-    stm32::gpio::Pin spi2_miso_;
-    /// The SPI1 Serial Clock (SPI2_SCLK -> T_SCK)
-    stm32::gpio::Pin spi2_sclk_;
-    /// The TFT Screen Chip Select (T_CS)
-    stm32::gpio::Pin spi2_nss_;
+    /// @brief The User Button
+    stm32::Button user_button_;
     /// The DMA Manager
     stm32::dma::Manager dma_manager_;
     /// The I2C Clock (SCL)
@@ -166,28 +114,50 @@ protected:
     stm32::gpio::Pin i2c1_sda_;
     /// The I2C Driver
     stm32::i2c::Driver i2c1_driver_;
+    /// The I2C Clock (SCL)
+    stm32::gpio::Pin i2c2_scl_;
+    /// The I2C Data (SDA)
+    stm32::gpio::Pin i2c2_sda_;
+    // The I2C SMBus Alert (SMBA)
+    stm32::gpio::Pin i2c2_smba_;
+    /// The I2C Driver
+    stm32::i2c::Driver i2c2_driver_;
+    /// The SPI1 Leader Out Follower In (MOSI)
+    stm32::gpio::Pin spi1_mosi_;
+    /// The SPI1 Master In Slave Out (MISO)
+    stm32::gpio::Pin spi1_miso_;
+    /// The SPI1 Serial Clock (SCLK)
+    stm32::gpio::Pin spi1_sclk_;
+    /// The Flash Chip Select (CS)
+    stm32::gpio::Pin spi1_cs_;
     /// The SPI1 Driver
     stm32::spi::Driver spi1_driver_;
-    /// The SPI2 Driver
-    stm32::spi::Driver spi2_driver_;
-    /// The W25Q16BV Driver
-    jarnax::drivers::w25q16bv::Driver w25q16bv_driver_;
-    /// USART1 Transmit Pin
-    stm32::gpio::Pin usart1_tx_;
-    /// USART1 Receive Pin
-    stm32::gpio::Pin usart1_rx_;
-    /// USART1 Driver
-    stm32::usart::Driver usart1_driver_;
+    /// USART3 Transmit Pin
+    stm32::gpio::Pin usart3_tx_;
+    /// USART3 Receive Pin
+    stm32::gpio::Pin usart3_rx_;
+    /// USART3 Driver
+    stm32::usart::Driver usart3_driver_;
     /// Console Driver
     jarnax::console::UsartConsole usart_console_;
-    /// The LPS35HW Driver
-    jarnax::drivers::lps35hw::Driver lps35hw_driver_;
-    /// The LSM9DS1 Magnetometer Chip Select
-    stm32::gpio::Pin lsm9ds1_csm_;
-    /// The LSM9DS1 Accel/Gyro Chip Select
-    stm32::gpio::Pin lsm9ds1_csag_;
-    /// The LSM9DS1 Driver
-    jarnax::drivers::lsm9ds1::Driver lsm9ds1_driver_;
+    /// ETH RMII Reference Clock (PA1, AF11)
+    stm32::gpio::Pin eth_ref_clk_;
+    /// ETH RMII MDIO (PA2, AF11) — JP6 must be ON
+    stm32::gpio::Pin eth_mdio_;
+    /// ETH RMII CRS_DV (PA7, AF11)
+    stm32::gpio::Pin eth_crs_dv_;
+    /// ETH RMII TXD1 (PB13, AF11) — JP7 must be ON
+    stm32::gpio::Pin eth_txd1_;
+    /// ETH RMII MDC (PC1, AF11)
+    stm32::gpio::Pin eth_mdc_;
+    /// ETH RMII RXD0 (PC4, AF11)
+    stm32::gpio::Pin eth_rxd0_;
+    /// ETH RMII RXD1 (PC5, AF11)
+    stm32::gpio::Pin eth_rxd1_;
+    /// ETH RMII TX_EN (PG11, AF11)
+    stm32::gpio::Pin eth_tx_en_;
+    /// ETH RMII TXD0 (PG13, AF11)
+    stm32::gpio::Pin eth_txd0_;
 };
 
 /// Gets the reference to the BoardContext

@@ -22,7 +22,7 @@ add_module(NAME stm32
     ARCH
         cortex
     CHIPS
-        stm32f405rg stm32f407ve
+        stm32f405rg stm32f407ve stm32h753zi
     CONFIGURATIONS
         ${TARGET_CONFIGURATIONS}
 )
@@ -39,7 +39,7 @@ add_module(NAME stm32-spi-driver
     ARCH
         cortex
     CHIPS
-        stm32f405rg stm32f407ve
+        stm32f405rg stm32f407ve stm32h753zi
     CONFIGURATIONS
         ${TARGET_CONFIGURATIONS}
 )
@@ -56,7 +56,7 @@ add_module(NAME stm32-i2c-driver
     ARCH
         cortex
     CHIPS
-        stm32f405rg stm32f407ve
+        stm32f405rg stm32f407ve stm32h753zi
     CONFIGURATIONS
         ${TARGET_CONFIGURATIONS}
 )
@@ -73,7 +73,7 @@ add_module(NAME stm32-uart-driver
     ARCH
         cortex
     CHIPS
-        stm32f405rg stm32f407ve
+        stm32f405rg stm32f407ve stm32h753zi
     CONFIGURATIONS
         ${TARGET_CONFIGURATIONS}
 )
@@ -90,7 +90,7 @@ add_module(NAME stm32-usart-driver
     ARCH
         cortex
     CHIPS
-        stm32f405rg stm32f407ve
+        stm32f405rg stm32f407ve stm32h753zi
     CONFIGURATIONS
         ${TARGET_CONFIGURATIONS}
 )

@@ -51,6 +51,19 @@ uint32_t *__cortex_stack_pow2 = reinterpret_cast<std::uint32_t *>(polyfill::log2
 alignas(8) uint8_t dtcm[128 * 1024];
 uint32_t *__dtcm_start = reinterpret_cast<std::uint32_t *>(&dtcm[0]);
 uint32_t *__dtcm_limit = reinterpret_cast<std::uint32_t *>(&dtcm[dimof(dtcm)]);
+uint32_t *__main_stack_bottom = reinterpret_cast<std::uint32_t *>(&dtcm[sizeof(dtcm) / 2]);
+uint32_t *__main_stack_top = reinterpret_cast<std::uint32_t *>(&dtcm[sizeof(dtcm)]);
+uint32_t *__main_stack_ceiling = reinterpret_cast<std::uint32_t *>(&dtcm[sizeof(dtcm)]);
+uint32_t *__main_stack_size = reinterpret_cast<std::uint32_t *>(ptrdiff_t(__main_stack_top - __main_stack_bottom));
+uint32_t *__process_stack_bottom = reinterpret_cast<std::uint32_t *>(&dtcm[0]);
+uint32_t *__process_stack_top = reinterpret_cast<std::uint32_t *>(&dtcm[sizeof(dtcm) / 2]);
+uint32_t *__process_stack_ceiling = reinterpret_cast<std::uint32_t *>(&dtcm[sizeof(dtcm) / 2]);
+
+uint32_t *__cortex_stack_start = __dtcm_start;
+uint32_t *__cortex_stack_limit = __dtcm_limit;
+uint32_t *__cortex_stack_used = nullptr;
+uint32_t *__cortex_stack_size = reinterpret_cast<std::uint32_t *>(ptrdiff_t(__cortex_stack_limit - __cortex_stack_start));
+uint32_t *__cortex_stack_pow2 = reinterpret_cast<std::uint32_t *>(polyfill::log2(ptrdiff_t(__cortex_stack_limit - __cortex_stack_start)));
 #endif
 #if defined(CORTEX_HAS_SRAM) and (CORTEX_HAS_SRAM == 1)
 // Fake System RAM
