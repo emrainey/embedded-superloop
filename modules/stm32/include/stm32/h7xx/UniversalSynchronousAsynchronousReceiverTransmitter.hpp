@@ -1,9 +1,9 @@
 
-#ifndef STM32_PERIPHERALS_DEBUG__HPP_
-#define STM32_PERIPHERALS_DEBUG__HPP_
+#ifndef STM32_H7XX_UNIVERSALSYNCHRONOUSASYNCHRONOUSRECEIVERTRANSMITTER__HPP_
+#define STM32_H7XX_UNIVERSALSYNCHRONOUSASYNCHRONOUSRECEIVERTRANSMITTER__HPP_
 
 /// @file
-/// Auto Generated Structure Definitions for Debug from the Peripheralyzer.
+/// Auto Generated Structure Definitions for UniversalSynchronousAsynchronousReceiverTransmitter from the Peripheralyzer.
 /// @copyright
 
 #include <cstddef>
@@ -11,40 +11,56 @@
 #include <type_traits>
 
 namespace stm32 {
-namespace peripherals {
+namespace h7xx {
 
-/// Debug support (DBG)
-struct Debug final {
-    /// IDCODE (DBGMCU_IDCODE)
-    struct DebugMcu_Identity final {
+/// Universal synchronous asynchronous receiver transmitter
+struct UniversalSynchronousAsynchronousReceiverTransmitter final {
+    /// Status register (SR)
+    struct Status final {
         /// Default Constructor
-        DebugMcu_Identity()
+        Status()
             : whole{0u} {}
         /// Copy Constructor from volatile
-        DebugMcu_Identity(DebugMcu_Identity volatile const& other)
+        Status(Status volatile const& other)
             : whole{other.whole} {}
         /// Copy Construction from nonvolatile
-        DebugMcu_Identity(DebugMcu_Identity const& other)
+        Status(Status const& other)
             : whole{other.whole} {}
         /// Move Constructor is deleted
-        DebugMcu_Identity(DebugMcu_Identity&&) = delete;
+        Status(Status&&) = delete;
         /// Parameterized Constructor for constant references
-        explicit DebugMcu_Identity(uint32_t const& value)
+        explicit Status(uint32_t const& value)
             : whole{value} {}
         /// Parameterized Constructor for volatile references
-        explicit DebugMcu_Identity(uint32_t volatile& value)
+        explicit Status(uint32_t volatile& value)
             : whole{value} {}
         /// Destructor is empty
-        ~DebugMcu_Identity() = default;
+        ~Status() = default;
 
         /// The internal bitfield for the register
         struct Fields final {
-            /// DEV_ID (DEV_ID)
-            uint32_t device_id   : 12;    // bits 0:11
+            /// Parity error (PE)
+            uint32_t parity_error                              : 1;    // bit 0
+            /// Framing error (FE)
+            uint32_t framing_error                             : 1;    // bit 1
+            /// Noise detected flag (NF)
+            uint32_t noise_flag                                : 1;    // bit 2
+            /// Overrun error (ORE)
+            uint32_t overrun_error                             : 1;    // bit 3
+            /// IDLE line detected (IDLE)
+            uint32_t idle                                      : 1;    // bit 4
+            /// Read data register not empty (RXNE)
+            uint32_t receive_buffer_not_empty                  : 1;    // bit 5
+            /// Transmission complete (TC)
+            uint32_t transmit_complete                         : 1;    // bit 6
+            /// Transmit data register empty (TXE)
+            uint32_t transmit_buffer_empty                     : 1;    // bit 7
+            /// LIN break detection flag (LBD)
+            uint32_t local_interconnect_network_break_detected : 1;    // bit 8
+            /// CTS flag (CTS)
+            uint32_t clear_to_send                             : 1;    // bit 9
             /// (reserved)
-            uint32_t             : 4;    // bits 12:15
-            /// REV_ID (REV_ID)
-            uint32_t revision_id : 16;    // bits 16:31
+            uint32_t                                           : 22;    // bits 10:31
         };
         //+=MEMORY======================================+
         union {
@@ -53,13 +69,13 @@ struct Debug final {
         };
         //+=MEMORY======================================+
         /// Move Assignment is deleted
-        DebugMcu_Identity& operator=(DebugMcu_Identity&&) = delete;
+        Status& operator=(Status&&) = delete;
         /// Assignment from a volatile to a non volatile copy of the register.
         /// @note Does not return a reference
-        inline void operator=(DebugMcu_Identity volatile& other) { whole = other.whole; }
+        inline void operator=(Status volatile& other) { whole = other.whole; }
         /// Assignment from a non volatile to a volatile register
         /// @note Does not return a reference
-        inline void operator=(DebugMcu_Identity const& other) volatile { whole = other.whole; }
+        inline void operator=(Status const& other) volatile { whole = other.whole; }
         /// Copy Assign a complete value from the base type uint32_t into a volatile version
         /// This allows you to assign the whole register to a literal value or a known constant of the same type.
         /// @note Does not return a reference
@@ -72,59 +88,37 @@ struct Debug final {
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
-    static_assert(std::is_standard_layout<DebugMcu_Identity>::value, "Must be standard layout");
+    static_assert(std::is_standard_layout<Status>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(sizeof(DebugMcu_Identity) == 4UL, "Must be this exact size");
-    /// Control Register (DBGMCU_CR)
-    struct DebugMcu_Control final {
+    static_assert(sizeof(Status) == 4UL, "Must be this exact size");
+    /// Data register (DR)
+    struct Data final {
         /// Default Constructor
-        DebugMcu_Control()
+        Data()
             : whole{0u} {}
         /// Copy Constructor from volatile
-        DebugMcu_Control(DebugMcu_Control volatile const& other)
+        Data(Data volatile const& other)
             : whole{other.whole} {}
         /// Copy Construction from nonvolatile
-        DebugMcu_Control(DebugMcu_Control const& other)
+        Data(Data const& other)
             : whole{other.whole} {}
         /// Move Constructor is deleted
-        DebugMcu_Control(DebugMcu_Control&&) = delete;
+        Data(Data&&) = delete;
         /// Parameterized Constructor for constant references
-        explicit DebugMcu_Control(uint32_t const& value)
+        explicit Data(uint32_t const& value)
             : whole{value} {}
         /// Parameterized Constructor for volatile references
-        explicit DebugMcu_Control(uint32_t volatile& value)
+        explicit Data(uint32_t volatile& value)
             : whole{value} {}
         /// Destructor is empty
-        ~DebugMcu_Control() = default;
+        ~Data() = default;
 
         /// The internal bitfield for the register
         struct Fields final {
-            /// DBG_SLEEP (DBG_SLEEP)
-            uint32_t dbg_sleep              : 1;    // bit 0
-            /// DBG_STOP (DBG_STOP)
-            uint32_t dbg_stop               : 1;    // bit 1
-            /// DBG_STANDBY (DBG_STANDBY)
-            uint32_t dbg_standby            : 1;    // bit 2
+            /// Data value (DR)
+            uint32_t data : 9;    // bits 0:8
             /// (reserved)
-            uint32_t                        : 2;    // bits 3:4
-            /// TRACE_IOEN (TRACE_IOEN)
-            uint32_t trace_ioen             : 1;    // bit 5
-            /// TRACE_MODE (TRACE_MODE)
-            uint32_t trace_mode             : 2;    // bits 6:7
-            /// (reserved)
-            uint32_t                        : 8;    // bits 8:15
-            /// DBG_I2C2_SMBUS_TIMEOUT (DBG_I2C2_SMBUS_TIMEOUT)
-            uint32_t dbg_i2c2_smbus_timeout : 1;    // bit 16
-            /// DBG_TIM8_STOP (DBG_TIM8_STOP)
-            uint32_t dbg_tim8_stop          : 1;    // bit 17
-            /// DBG_TIM5_STOP (DBG_TIM5_STOP)
-            uint32_t dbg_tim5_stop          : 1;    // bit 18
-            /// DBG_TIM6_STOP (DBG_TIM6_STOP)
-            uint32_t dbg_tim6_stop          : 1;    // bit 19
-            /// DBG_TIM7_STOP (DBG_TIM7_STOP)
-            uint32_t dbg_tim7_stop          : 1;    // bit 20
-            /// (reserved)
-            uint32_t                        : 11;    // bits 21:31
+            uint32_t      : 23;    // bits 9:31
         };
         //+=MEMORY======================================+
         union {
@@ -133,13 +127,13 @@ struct Debug final {
         };
         //+=MEMORY======================================+
         /// Move Assignment is deleted
-        DebugMcu_Control& operator=(DebugMcu_Control&&) = delete;
+        Data& operator=(Data&&) = delete;
         /// Assignment from a volatile to a non volatile copy of the register.
         /// @note Does not return a reference
-        inline void operator=(DebugMcu_Control volatile& other) { whole = other.whole; }
+        inline void operator=(Data volatile& other) { whole = other.whole; }
         /// Assignment from a non volatile to a volatile register
         /// @note Does not return a reference
-        inline void operator=(DebugMcu_Control const& other) volatile { whole = other.whole; }
+        inline void operator=(Data const& other) volatile { whole = other.whole; }
         /// Copy Assign a complete value from the base type uint32_t into a volatile version
         /// This allows you to assign the whole register to a literal value or a known constant of the same type.
         /// @note Does not return a reference
@@ -152,73 +146,39 @@ struct Debug final {
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
-    static_assert(std::is_standard_layout<DebugMcu_Control>::value, "Must be standard layout");
+    static_assert(std::is_standard_layout<Data>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(sizeof(DebugMcu_Control) == 4UL, "Must be this exact size");
-    /// Debug MCU APB1 Freeze registe (DBGMCU_APB1_FZ)
-    struct DebugMcu_APB1_Freeze final {
+    static_assert(sizeof(Data) == 4UL, "Must be this exact size");
+    /// Baud rate register (BRR)
+    struct BaudRate final {
         /// Default Constructor
-        DebugMcu_APB1_Freeze()
+        BaudRate()
             : whole{0u} {}
         /// Copy Constructor from volatile
-        DebugMcu_APB1_Freeze(DebugMcu_APB1_Freeze volatile const& other)
+        BaudRate(BaudRate volatile const& other)
             : whole{other.whole} {}
         /// Copy Construction from nonvolatile
-        DebugMcu_APB1_Freeze(DebugMcu_APB1_Freeze const& other)
+        BaudRate(BaudRate const& other)
             : whole{other.whole} {}
         /// Move Constructor is deleted
-        DebugMcu_APB1_Freeze(DebugMcu_APB1_Freeze&&) = delete;
+        BaudRate(BaudRate&&) = delete;
         /// Parameterized Constructor for constant references
-        explicit DebugMcu_APB1_Freeze(uint32_t const& value)
+        explicit BaudRate(uint32_t const& value)
             : whole{value} {}
         /// Parameterized Constructor for volatile references
-        explicit DebugMcu_APB1_Freeze(uint32_t volatile& value)
+        explicit BaudRate(uint32_t volatile& value)
             : whole{value} {}
         /// Destructor is empty
-        ~DebugMcu_APB1_Freeze() = default;
+        ~BaudRate() = default;
 
         /// The internal bitfield for the register
         struct Fields final {
-            /// DBG_TIM2_STOP (DBG_TIM2_STOP)
-            uint32_t dbg_tim2_stop          : 1;    // bit 0
-            /// DBG_TIM3 _STOP (DBG_TIM3_STOP)
-            uint32_t dbg_tim3_stop          : 1;    // bit 1
-            /// DBG_TIM4_STOP (DBG_TIM4_STOP)
-            uint32_t dbg_tim4_stop          : 1;    // bit 2
-            /// DBG_TIM5_STOP (DBG_TIM5_STOP)
-            uint32_t dbg_tim5_stop          : 1;    // bit 3
-            /// DBG_TIM6_STOP (DBG_TIM6_STOP)
-            uint32_t dbg_tim6_stop          : 1;    // bit 4
-            /// DBG_TIM7_STOP (DBG_TIM7_STOP)
-            uint32_t dbg_tim7_stop          : 1;    // bit 5
-            /// DBG_TIM12_STOP (DBG_TIM12_STOP)
-            uint32_t dbg_tim12_stop         : 1;    // bit 6
-            /// DBG_TIM13_STOP (DBG_TIM13_STOP)
-            uint32_t dbg_tim13_stop         : 1;    // bit 7
-            /// DBG_TIM14_STOP (DBG_TIM14_STOP)
-            uint32_t dbg_tim14_stop         : 1;    // bit 8
+            /// fraction of USARTDIV (DIV_Fraction)
+            uint32_t div_fraction : 4;    // bits 0:3
+            /// mantissa of USARTDIV (DIV_Mantissa)
+            uint32_t div_mantissa : 12;    // bits 4:15
             /// (reserved)
-            uint32_t                        : 2;    // bits 9:10
-            /// DBG_WWDG_STOP (DBG_WWDG_STOP)
-            uint32_t dbg_wwdg_stop          : 1;    // bit 11
-            /// DBG_IWDEG_STOP (DBG_IWDEG_STOP)
-            uint32_t dbg_iwdeg_stop         : 1;    // bit 12
-            /// (reserved)
-            uint32_t                        : 8;    // bits 13:20
-            /// DBG_J2C1_SMBUS_TIMEOUT (DBG_J2C1_SMBUS_TIMEOUT)
-            uint32_t dbg_j2c1_smbus_timeout : 1;    // bit 21
-            /// DBG_J2C2_SMBUS_TIMEOUT (DBG_J2C2_SMBUS_TIMEOUT)
-            uint32_t dbg_j2c2_smbus_timeout : 1;    // bit 22
-            /// DBG_J2C3SMBUS_TIMEOUT (DBG_J2C3SMBUS_TIMEOUT)
-            uint32_t dbg_j2c3smbus_timeout  : 1;    // bit 23
-            /// (reserved)
-            uint32_t                        : 1;    // bit 24
-            /// DBG_CAN1_STOP (DBG_CAN1_STOP)
-            uint32_t dbg_can1_stop          : 1;    // bit 25
-            /// DBG_CAN2_STOP (DBG_CAN2_STOP)
-            uint32_t dbg_can2_stop          : 1;    // bit 26
-            /// (reserved)
-            uint32_t                        : 5;    // bits 27:31
+            uint32_t              : 16;    // bits 16:31
         };
         //+=MEMORY======================================+
         union {
@@ -227,13 +187,13 @@ struct Debug final {
         };
         //+=MEMORY======================================+
         /// Move Assignment is deleted
-        DebugMcu_APB1_Freeze& operator=(DebugMcu_APB1_Freeze&&) = delete;
+        BaudRate& operator=(BaudRate&&) = delete;
         /// Assignment from a volatile to a non volatile copy of the register.
         /// @note Does not return a reference
-        inline void operator=(DebugMcu_APB1_Freeze volatile& other) { whole = other.whole; }
+        inline void operator=(BaudRate volatile& other) { whole = other.whole; }
         /// Assignment from a non volatile to a volatile register
         /// @note Does not return a reference
-        inline void operator=(DebugMcu_APB1_Freeze const& other) volatile { whole = other.whole; }
+        inline void operator=(BaudRate const& other) volatile { whole = other.whole; }
         /// Copy Assign a complete value from the base type uint32_t into a volatile version
         /// This allows you to assign the whole register to a literal value or a known constant of the same type.
         /// @note Does not return a reference
@@ -246,47 +206,67 @@ struct Debug final {
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
-    static_assert(std::is_standard_layout<DebugMcu_APB1_Freeze>::value, "Must be standard layout");
+    static_assert(std::is_standard_layout<BaudRate>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(sizeof(DebugMcu_APB1_Freeze) == 4UL, "Must be this exact size");
-    /// Debug MCU APB2 Freeze registe (DBGMCU_APB2_FZ)
-    struct DebugMcu_APB2_Freeze final {
+    static_assert(sizeof(BaudRate) == 4UL, "Must be this exact size");
+    /// Control register 1 (CR1)
+    struct Control1 final {
         /// Default Constructor
-        DebugMcu_APB2_Freeze()
+        Control1()
             : whole{0u} {}
         /// Copy Constructor from volatile
-        DebugMcu_APB2_Freeze(DebugMcu_APB2_Freeze volatile const& other)
+        Control1(Control1 volatile const& other)
             : whole{other.whole} {}
         /// Copy Construction from nonvolatile
-        DebugMcu_APB2_Freeze(DebugMcu_APB2_Freeze const& other)
+        Control1(Control1 const& other)
             : whole{other.whole} {}
         /// Move Constructor is deleted
-        DebugMcu_APB2_Freeze(DebugMcu_APB2_Freeze&&) = delete;
+        Control1(Control1&&) = delete;
         /// Parameterized Constructor for constant references
-        explicit DebugMcu_APB2_Freeze(uint32_t const& value)
+        explicit Control1(uint32_t const& value)
             : whole{value} {}
         /// Parameterized Constructor for volatile references
-        explicit DebugMcu_APB2_Freeze(uint32_t volatile& value)
+        explicit Control1(uint32_t volatile& value)
             : whole{value} {}
         /// Destructor is empty
-        ~DebugMcu_APB2_Freeze() = default;
+        ~Control1() = default;
 
         /// The internal bitfield for the register
         struct Fields final {
-            /// TIM1 counter stopped when core is halted (DBG_TIM1_STOP)
-            uint32_t dbg_tim1_stop  : 1;    // bit 0
-            /// TIM8 counter stopped when core is halted (DBG_TIM8_STOP)
-            uint32_t dbg_tim8_stop  : 1;    // bit 1
+            /// Send break (SBK)
+            uint32_t send_break                         : 1;    // bit 0
+            /// Receiver wakeup (RWU)
+            uint32_t receive_wakeup                     : 1;    // bit 1
+            /// Receiver enable (RE)
+            uint32_t receiver_enable                    : 1;    // bit 2
+            /// Transmitter enable (TE)
+            uint32_t transmitter_enable                 : 1;    // bit 3
+            /// IDLE interrupt enable (IDLEIE)
+            uint32_t idle_interrupt_enable              : 1;    // bit 4
+            /// RXNE interrupt enable (RXNEIE)
+            uint32_t receive_not_empty_interrupt_enable : 1;    // bit 5
+            /// Transmission complete interrupt enable (TCIE)
+            uint32_t transfer_complete_interrupt_enable : 1;    // bit 6
+            /// TXE interrupt enable (TXEIE)
+            uint32_t transmit_empty_interrupt_enable    : 1;    // bit 7
+            /// PE interrupt enable (PEIE)
+            uint32_t parity_error_interrupt_enable      : 1;    // bit 8
+            /// Parity selection (PS)
+            uint32_t parity_select                      : 1;    // bit 9
+            /// Parity control enable (PCE)
+            uint32_t parity_control_enable              : 1;    // bit 10
+            /// Wakeup method (WAKE)
+            uint32_t wake                               : 1;    // bit 11
+            /// Word length (M)
+            uint32_t word_length                        : 1;    // bit 12
+            /// USART enable (UE)
+            uint32_t uxart_enable                       : 1;    // bit 13
             /// (reserved)
-            uint32_t                : 14;    // bits 2:15
-            /// TIM9 counter stopped when core is halted (DBG_TIM9_STOP)
-            uint32_t dbg_tim9_stop  : 1;    // bit 16
-            /// TIM10 counter stopped when core is halted (DBG_TIM10_STOP)
-            uint32_t dbg_tim10_stop : 1;    // bit 17
-            /// TIM11 counter stopped when core is halted (DBG_TIM11_STOP)
-            uint32_t dbg_tim11_stop : 1;    // bit 18
+            uint32_t                                    : 1;    // bit 14
+            /// Oversampling mode (OVER8)
+            uint32_t oversampling_mode                  : 1;    // bit 15
             /// (reserved)
-            uint32_t                : 13;    // bits 19:31
+            uint32_t                                    : 16;    // bits 16:31
         };
         //+=MEMORY======================================+
         union {
@@ -295,13 +275,13 @@ struct Debug final {
         };
         //+=MEMORY======================================+
         /// Move Assignment is deleted
-        DebugMcu_APB2_Freeze& operator=(DebugMcu_APB2_Freeze&&) = delete;
+        Control1& operator=(Control1&&) = delete;
         /// Assignment from a volatile to a non volatile copy of the register.
         /// @note Does not return a reference
-        inline void operator=(DebugMcu_APB2_Freeze volatile& other) { whole = other.whole; }
+        inline void operator=(Control1 volatile& other) { whole = other.whole; }
         /// Assignment from a non volatile to a volatile register
         /// @note Does not return a reference
-        inline void operator=(DebugMcu_APB2_Freeze const& other) volatile { whole = other.whole; }
+        inline void operator=(Control1 const& other) volatile { whole = other.whole; }
         /// Copy Assign a complete value from the base type uint32_t into a volatile version
         /// This allows you to assign the whole register to a literal value or a known constant of the same type.
         /// @note Does not return a reference
@@ -314,22 +294,243 @@ struct Debug final {
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
-    static_assert(std::is_standard_layout<DebugMcu_APB2_Freeze>::value, "Must be standard layout");
+    static_assert(std::is_standard_layout<Control1>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(sizeof(DebugMcu_APB2_Freeze) == 4UL, "Must be this exact size");
+    static_assert(sizeof(Control1) == 4UL, "Must be this exact size");
+    /// Control register 2 (CR2)
+    struct Control2 final {
+        /// Default Constructor
+        Control2()
+            : whole{0u} {}
+        /// Copy Constructor from volatile
+        Control2(Control2 volatile const& other)
+            : whole{other.whole} {}
+        /// Copy Construction from nonvolatile
+        Control2(Control2 const& other)
+            : whole{other.whole} {}
+        /// Move Constructor is deleted
+        Control2(Control2&&) = delete;
+        /// Parameterized Constructor for constant references
+        explicit Control2(uint32_t const& value)
+            : whole{value} {}
+        /// Parameterized Constructor for volatile references
+        explicit Control2(uint32_t volatile& value)
+            : whole{value} {}
+        /// Destructor is empty
+        ~Control2() = default;
+
+        /// The internal bitfield for the register
+        struct Fields final {
+            /// Address of the USART node (ADD)
+            uint32_t address                                                          : 4;    // bits 0:3
+            /// (reserved)
+            uint32_t                                                                  : 1;    // bit 4
+            /// lin break detection length (LBDL)
+            uint32_t local_interconnect_network_line_break_detection_length           : 1;    // bit 5
+            /// LIN break detection interrupt enable (LBDIE)
+            uint32_t local_interconnect_network_line_break_detection_interrupt_enable : 1;    // bit 6
+            /// (reserved)
+            uint32_t                                                                  : 1;    // bit 7
+            /// Last bit clock pulse (LBCL)
+            uint32_t last_bit_clock_pulse                                             : 1;    // bit 8
+            /// Clock phase (CPHA)
+            uint32_t clock_phase                                                      : 1;    // bit 9
+            /// Clock polarity (CPOL)
+            uint32_t clock_polarity                                                   : 1;    // bit 10
+            /// Clock enable (CLKEN)
+            uint32_t clock_enable                                                     : 1;    // bit 11
+            /// STOP bits (STOP)
+            uint32_t stop                                                             : 2;    // bits 12:13
+            /// LIN mode enable (LINEN)
+            uint32_t local_interconnect_network_enable                                : 1;    // bit 14
+            /// (reserved)
+            uint32_t                                                                  : 17;    // bits 15:31
+        };
+        //+=MEMORY======================================+
+        union {
+            Fields bits;
+            uint32_t whole;
+        };
+        //+=MEMORY======================================+
+        /// Move Assignment is deleted
+        Control2& operator=(Control2&&) = delete;
+        /// Assignment from a volatile to a non volatile copy of the register.
+        /// @note Does not return a reference
+        inline void operator=(Control2 volatile& other) { whole = other.whole; }
+        /// Assignment from a non volatile to a volatile register
+        /// @note Does not return a reference
+        inline void operator=(Control2 const& other) volatile { whole = other.whole; }
+        /// Copy Assign a complete value from the base type uint32_t into a volatile version
+        /// This allows you to assign the whole register to a literal value or a known constant of the same type.
+        /// @note Does not return a reference
+        inline void operator=(uint32_t const& value) volatile { whole = value; }
+        /// Returns a copy of the register as an uint32_t.
+        inline explicit operator uint32_t(void) const { return whole; }
+        /// Returns a copy of the volatile register as an uint32_t
+        inline explicit operator uint32_t(void) volatile { return whole; }
+        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular instance
+        static bool validate(void);
+    };
+    // Ensure the register is in standard layout format
+    static_assert(std::is_standard_layout<Control2>::value, "Must be standard layout");
+    // Ensure the sizeof the entire register is correct.
+    static_assert(sizeof(Control2) == 4UL, "Must be this exact size");
+    /// Control register 3 (CR3)
+    struct Control3 final {
+        /// Default Constructor
+        Control3()
+            : whole{0u} {}
+        /// Copy Constructor from volatile
+        Control3(Control3 volatile const& other)
+            : whole{other.whole} {}
+        /// Copy Construction from nonvolatile
+        Control3(Control3 const& other)
+            : whole{other.whole} {}
+        /// Move Constructor is deleted
+        Control3(Control3&&) = delete;
+        /// Parameterized Constructor for constant references
+        explicit Control3(uint32_t const& value)
+            : whole{value} {}
+        /// Parameterized Constructor for volatile references
+        explicit Control3(uint32_t volatile& value)
+            : whole{value} {}
+        /// Destructor is empty
+        ~Control3() = default;
+
+        /// The internal bitfield for the register
+        struct Fields final {
+            /// Error interrupt enable (EIE)
+            uint32_t error_interrupt_enable              : 1;    // bit 0
+            /// IrDA mode enable (IREN)
+            uint32_t infrared_data_association_enable    : 1;    // bit 1
+            /// IrDA low-power (IRLP)
+            uint32_t infrared_data_association_low_power : 1;    // bit 2
+            /// Half-duplex selection (HDSEL)
+            uint32_t half_duplex_selection               : 1;    // bit 3
+            /// Smartcard NACK enable (NACK)
+            uint32_t smart_card_negative_acknowledge     : 1;    // bit 4
+            /// Smartcard mode enable (SCEN)
+            uint32_t smart_card_mode_enable              : 1;    // bit 5
+            /// DMA enable receiver (DMAR)
+            uint32_t direct_memory_access_receiver       : 1;    // bit 6
+            /// DMA enable transmitter (DMAT)
+            uint32_t direct_memory_access_transmitter    : 1;    // bit 7
+            /// RTS enable (RTSE)
+            uint32_t ready_to_send_enable                : 1;    // bit 8
+            /// CTS enable (CTSE)
+            uint32_t clear_to_send_enable                : 1;    // bit 9
+            /// CTS interrupt enable (CTSIE)
+            uint32_t clear_to_send_interrupt_enable      : 1;    // bit 10
+            /// One sample bit method enable (ONEBIT)
+            uint32_t onebit                              : 1;    // bit 11
+            /// (reserved)
+            uint32_t                                     : 20;    // bits 12:31
+        };
+        //+=MEMORY======================================+
+        union {
+            Fields bits;
+            uint32_t whole;
+        };
+        //+=MEMORY======================================+
+        /// Move Assignment is deleted
+        Control3& operator=(Control3&&) = delete;
+        /// Assignment from a volatile to a non volatile copy of the register.
+        /// @note Does not return a reference
+        inline void operator=(Control3 volatile& other) { whole = other.whole; }
+        /// Assignment from a non volatile to a volatile register
+        /// @note Does not return a reference
+        inline void operator=(Control3 const& other) volatile { whole = other.whole; }
+        /// Copy Assign a complete value from the base type uint32_t into a volatile version
+        /// This allows you to assign the whole register to a literal value or a known constant of the same type.
+        /// @note Does not return a reference
+        inline void operator=(uint32_t const& value) volatile { whole = value; }
+        /// Returns a copy of the register as an uint32_t.
+        inline explicit operator uint32_t(void) const { return whole; }
+        /// Returns a copy of the volatile register as an uint32_t
+        inline explicit operator uint32_t(void) volatile { return whole; }
+        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular instance
+        static bool validate(void);
+    };
+    // Ensure the register is in standard layout format
+    static_assert(std::is_standard_layout<Control3>::value, "Must be standard layout");
+    // Ensure the sizeof the entire register is correct.
+    static_assert(sizeof(Control3) == 4UL, "Must be this exact size");
+    /// Guard time and prescaler register (GTPR)
+    struct GuardTimePrescaler final {
+        /// Default Constructor
+        GuardTimePrescaler()
+            : whole{0u} {}
+        /// Copy Constructor from volatile
+        GuardTimePrescaler(GuardTimePrescaler volatile const& other)
+            : whole{other.whole} {}
+        /// Copy Construction from nonvolatile
+        GuardTimePrescaler(GuardTimePrescaler const& other)
+            : whole{other.whole} {}
+        /// Move Constructor is deleted
+        GuardTimePrescaler(GuardTimePrescaler&&) = delete;
+        /// Parameterized Constructor for constant references
+        explicit GuardTimePrescaler(uint32_t const& value)
+            : whole{value} {}
+        /// Parameterized Constructor for volatile references
+        explicit GuardTimePrescaler(uint32_t volatile& value)
+            : whole{value} {}
+        /// Destructor is empty
+        ~GuardTimePrescaler() = default;
+
+        /// The internal bitfield for the register
+        struct Fields final {
+            /// Prescaler value (PSC)
+            uint32_t prescaler  : 8;    // bits 0:7
+            /// Guard time value (GT)
+            uint32_t guard_time : 8;    // bits 8:15
+            /// (reserved)
+            uint32_t            : 16;    // bits 16:31
+        };
+        //+=MEMORY======================================+
+        union {
+            Fields bits;
+            uint32_t whole;
+        };
+        //+=MEMORY======================================+
+        /// Move Assignment is deleted
+        GuardTimePrescaler& operator=(GuardTimePrescaler&&) = delete;
+        /// Assignment from a volatile to a non volatile copy of the register.
+        /// @note Does not return a reference
+        inline void operator=(GuardTimePrescaler volatile& other) { whole = other.whole; }
+        /// Assignment from a non volatile to a volatile register
+        /// @note Does not return a reference
+        inline void operator=(GuardTimePrescaler const& other) volatile { whole = other.whole; }
+        /// Copy Assign a complete value from the base type uint32_t into a volatile version
+        /// This allows you to assign the whole register to a literal value or a known constant of the same type.
+        /// @note Does not return a reference
+        inline void operator=(uint32_t const& value) volatile { whole = value; }
+        /// Returns a copy of the register as an uint32_t.
+        inline explicit operator uint32_t(void) const { return whole; }
+        /// Returns a copy of the volatile register as an uint32_t
+        inline explicit operator uint32_t(void) volatile { return whole; }
+        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular instance
+        static bool validate(void);
+    };
+    // Ensure the register is in standard layout format
+    static_assert(std::is_standard_layout<GuardTimePrescaler>::value, "Must be standard layout");
+    // Ensure the sizeof the entire register is correct.
+    static_assert(sizeof(GuardTimePrescaler) == 4UL, "Must be this exact size");
 
     //+=MEMORY======================================+
-    /// IDCODE (DBGMCU_IDCODE)
-    DebugMcu_Identity dbgmcu_identity;    // offset 0x0UL
-    /// Control Register (DBGMCU_CR)
-    DebugMcu_Control dbgmcu_control;    // offset 0x4UL
-    /// Debug MCU APB1 Freeze registe (DBGMCU_APB1_FZ)
-    DebugMcu_APB1_Freeze dbgmcu_apb1_freeze;    // offset 0x8UL
-    /// Debug MCU APB2 Freeze registe (DBGMCU_APB2_FZ)
-    DebugMcu_APB2_Freeze dbgmcu_apb2_freeze;    // offset 0xcUL
-    uint32_t : 32;                              // offset 0x10UL
-    uint32_t : 32;                              // offset 0x14UL
-    uint32_t : 32;                              // offset 0x18UL
+    /// Status register (SR)
+    Status status;    // offset 0x0UL
+    /// Data register (DR)
+    Data data;    // offset 0x4UL
+    /// Baud rate register (BRR)
+    BaudRate baud_rate;    // offset 0x8UL
+    /// Control register 1 (CR1)
+    Control1 control1;    // offset 0xcUL
+    /// Control register 2 (CR2)
+    Control2 control2;    // offset 0x10UL
+    /// Control register 3 (CR3)
+    Control3 control3;    // offset 0x14UL
+    /// Guard time and prescaler register (GTPR)
+    GuardTimePrescaler guard_time_prescaler;    // offset 0x18UL
     uint32_t : 32;                              // offset 0x1cUL
     uint32_t : 32;                              // offset 0x20UL
     uint32_t : 32;                              // offset 0x24UL
@@ -582,19 +783,35 @@ struct Debug final {
     //+=MEMORY======================================+
 };
 // Ensure the structure is in standard layout format
-static_assert(std::is_standard_layout<Debug>::value, "Must be standard layout");
+static_assert(std::is_standard_layout<UniversalSynchronousAsynchronousReceiverTransmitter>::value, "Must be standard layout");
 // Ensure the offsets are all correct
-static_assert(offsetof(Debug, dbgmcu_identity) == 0x0UL, "Must be located at this offset");
-static_assert(offsetof(Debug, dbgmcu_control) == 0x4UL, "Must be located at this offset");
-static_assert(offsetof(Debug, dbgmcu_apb1_freeze) == 0x8UL, "Must be located at this offset");
-static_assert(offsetof(Debug, dbgmcu_apb2_freeze) == 0xcUL, "Must be located at this offset");
+static_assert(offsetof(UniversalSynchronousAsynchronousReceiverTransmitter, status) == 0x0UL, "Must be located at this offset");
+static_assert(offsetof(UniversalSynchronousAsynchronousReceiverTransmitter, data) == 0x4UL, "Must be located at this offset");
+static_assert(offsetof(UniversalSynchronousAsynchronousReceiverTransmitter, baud_rate) == 0x8UL, "Must be located at this offset");
+static_assert(offsetof(UniversalSynchronousAsynchronousReceiverTransmitter, control1) == 0xcUL, "Must be located at this offset");
+static_assert(offsetof(UniversalSynchronousAsynchronousReceiverTransmitter, control2) == 0x10UL, "Must be located at this offset");
+static_assert(offsetof(UniversalSynchronousAsynchronousReceiverTransmitter, control3) == 0x14UL, "Must be located at this offset");
+static_assert(offsetof(UniversalSynchronousAsynchronousReceiverTransmitter, guard_time_prescaler) == 0x18UL, "Must be located at this offset");
 
 // Ensure the sizeof the entire structure is correct.
-static_assert(sizeof(Debug) == 0x400UL, "Must be this exact size");
+static_assert(sizeof(UniversalSynchronousAsynchronousReceiverTransmitter) == 0x400UL, "Must be this exact size");
 
-/// The external volatile debug which is a memory mapped register or peripheral.
+/// The external volatile USART which is a memory mapped register or peripheral.
 /// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern Debug volatile debug;
-}    // namespace peripherals
+extern UniversalSynchronousAsynchronousReceiverTransmitter volatile usart1;
+
+/// The external volatile USART which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern UniversalSynchronousAsynchronousReceiverTransmitter volatile usart2;
+
+/// The external volatile USART which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern UniversalSynchronousAsynchronousReceiverTransmitter volatile usart3;
+
+/// The external volatile USART which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern UniversalSynchronousAsynchronousReceiverTransmitter volatile usart6;
+
+}    // namespace h7xx
 }    // namespace stm32
-#endif    // STM32_PERIPHERALS_DEBUG__HPP_
+#endif    // STM32_H7XX_UNIVERSALSYNCHRONOUSASYNCHRONOUSRECEIVERTRANSMITTER__HPP_

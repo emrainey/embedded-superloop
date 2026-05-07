@@ -8,7 +8,7 @@
 #include "core/Units.hpp"
 #include "jarnax/i2c/Driver.hpp"
 #include "stm32/dma/Manager.hpp"
-#include "stm32/peripherals/InterIntegratedCircuit.hpp"
+#include "stm32/peripherals.hpp"
 
 namespace stm32 {
 namespace i2c {

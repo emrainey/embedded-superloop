@@ -13,8 +13,8 @@ extern exceptions::VectorTable const vector_table;
 
 /// The layout of the vendor portion of the extended vector table
 struct ExtendedVectors final {
-    /// The external interrupt handlers (full possible size)
-    cortex::exceptions::HandlerFunction handlers[variant::max_extended_vectors];
+    /// The external interrupt handlers for this specific chip
+    cortex::exceptions::HandlerFunction handlers[variant::number_of_extended_vectors];
 };
 
 /// The read-only chip specific external interrupts table
@@ -42,7 +42,7 @@ extern VectorTableStatistics vector_table_statistics;
 /// Counts the number of times each interrupt has been called
 /// @note This is used to track the number of times each vector table entry has been called
 struct ExtendedVectorStatistics final {
-    std::size_t count[variant::max_extended_vectors]{0U};    ///< Incremented by the interrupt handler per interrupt
+    std::size_t count[variant::number_of_extended_vectors]{0U};    ///< Incremented by the interrupt handler per interrupt
 };
 
 /// @brief Each Driver interrupt increments their own count

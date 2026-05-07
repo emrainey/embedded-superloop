@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<device schemaVersion="1.1"
-xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"
-xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
+<device xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="1.1" xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
   <name>STM32F407</name>
   <version>1.2</version>
   <description>STM32F407</description>
@@ -14,7 +12,7 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
     <fpuPresent>false</fpuPresent>
     <nvicPrioBits>3</nvicPrioBits>
     <vendorSystickConfig>false</vendorSystickConfig>
-  </cpu>   
+  </cpu>
   <!--Bus Interface Properties-->
   <!--Cortex-M4 is byte addressable-->
   <addressUnitBits>8</addressUnitBits>
@@ -5157,36 +5155,10 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
           <resetValue>0x24003010</resetValue>
           <fields>
             <field>
-              <name>PLLQ3</name>
-              <description>Main PLL (PLL) division factor for USB
-              OTG FS, SDIO and random number generator
-              clocks</description>
-              <bitOffset>27</bitOffset>
-              <bitWidth>1</bitWidth>
-            </field>
-            <field>
-              <name>PLLQ2</name>
-              <description>Main PLL (PLL) division factor for USB
-              OTG FS, SDIO and random number generator
-              clocks</description>
-              <bitOffset>26</bitOffset>
-              <bitWidth>1</bitWidth>
-            </field>
-            <field>
-              <name>PLLQ1</name>
-              <description>Main PLL (PLL) division factor for USB
-              OTG FS, SDIO and random number generator
-              clocks</description>
-              <bitOffset>25</bitOffset>
-              <bitWidth>1</bitWidth>
-            </field>
-            <field>
-              <name>PLLQ0</name>
-              <description>Main PLL (PLL) division factor for USB
-              OTG FS, SDIO and random number generator
-              clocks</description>
+              <name>PLLQ</name>
+              <description>Main PLL (PLL) division factor for USB OTG FS, SDIO and random number generator clocks</description>
               <bitOffset>24</bitOffset>
-              <bitWidth>1</bitWidth>
+              <bitWidth>4</bitWidth>
             </field>
             <field>
               <name>PLLSRC</name>
@@ -5194,125 +5166,35 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
               entry clock source</description>
               <bitOffset>22</bitOffset>
               <bitWidth>1</bitWidth>
+              <enumeratedValues>
+                <name>PLLSRC_CLOCK</name>
+                <enumeratedValue>
+                  <name>HSI_CLOCK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>HSE_CLOCK</name>
+                  <value>1</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
-              <name>PLLP1</name>
-              <description>Main PLL (PLL) division factor for main
-              system clock</description>
-              <bitOffset>17</bitOffset>
-              <bitWidth>1</bitWidth>
-            </field>
-            <field>
-              <name>PLLP0</name>
-              <description>Main PLL (PLL) division factor for main
-              system clock</description>
+              <name>PLLP</name>
+              <description>Main PLL (PLL) division factor for main system clock</description>
               <bitOffset>16</bitOffset>
-              <bitWidth>1</bitWidth>
+              <bitWidth>2</bitWidth>
             </field>
             <field>
-              <name>PLLN8</name>
-              <description>Main PLL (PLL) multiplication factor for
-              VCO</description>
-              <bitOffset>14</bitOffset>
-              <bitWidth>1</bitWidth>
-            </field>
-            <field>
-              <name>PLLN7</name>
-              <description>Main PLL (PLL) multiplication factor for
-              VCO</description>
-              <bitOffset>13</bitOffset>
-              <bitWidth>1</bitWidth>
-            </field>
-            <field>
-              <name>PLLN6</name>
-              <description>Main PLL (PLL) multiplication factor for
-              VCO</description>
-              <bitOffset>12</bitOffset>
-              <bitWidth>1</bitWidth>
-            </field>
-            <field>
-              <name>PLLN5</name>
-              <description>Main PLL (PLL) multiplication factor for
-              VCO</description>
-              <bitOffset>11</bitOffset>
-              <bitWidth>1</bitWidth>
-            </field>
-            <field>
-              <name>PLLN4</name>
-              <description>Main PLL (PLL) multiplication factor for
-              VCO</description>
-              <bitOffset>10</bitOffset>
-              <bitWidth>1</bitWidth>
-            </field>
-            <field>
-              <name>PLLN3</name>
-              <description>Main PLL (PLL) multiplication factor for
-              VCO</description>
-              <bitOffset>9</bitOffset>
-              <bitWidth>1</bitWidth>
-            </field>
-            <field>
-              <name>PLLN2</name>
-              <description>Main PLL (PLL) multiplication factor for
-              VCO</description>
-              <bitOffset>8</bitOffset>
-              <bitWidth>1</bitWidth>
-            </field>
-            <field>
-              <name>PLLN1</name>
-              <description>Main PLL (PLL) multiplication factor for
-              VCO</description>
-              <bitOffset>7</bitOffset>
-              <bitWidth>1</bitWidth>
-            </field>
-            <field>
-              <name>PLLN0</name>
-              <description>Main PLL (PLL) multiplication factor for
-              VCO</description>
+              <name>PLLN</name>
+              <description>Main PLL (PLL) multiplication factor for VCO</description>
               <bitOffset>6</bitOffset>
-              <bitWidth>1</bitWidth>
+              <bitWidth>9</bitWidth>
             </field>
             <field>
-              <name>PLLM5</name>
-              <description>Division factor for the main PLL (PLL)
-              and audio PLL (PLLI2S) input clock</description>
-              <bitOffset>5</bitOffset>
-              <bitWidth>1</bitWidth>
-            </field>
-            <field>
-              <name>PLLM4</name>
-              <description>Division factor for the main PLL (PLL)
-              and audio PLL (PLLI2S) input clock</description>
-              <bitOffset>4</bitOffset>
-              <bitWidth>1</bitWidth>
-            </field>
-            <field>
-              <name>PLLM3</name>
-              <description>Division factor for the main PLL (PLL)
-              and audio PLL (PLLI2S) input clock</description>
-              <bitOffset>3</bitOffset>
-              <bitWidth>1</bitWidth>
-            </field>
-            <field>
-              <name>PLLM2</name>
-              <description>Division factor for the main PLL (PLL)
-              and audio PLL (PLLI2S) input clock</description>
-              <bitOffset>2</bitOffset>
-              <bitWidth>1</bitWidth>
-            </field>
-            <field>
-              <name>PLLM1</name>
-              <description>Division factor for the main PLL (PLL)
-              and audio PLL (PLLI2S) input clock</description>
-              <bitOffset>1</bitOffset>
-              <bitWidth>1</bitWidth>
-            </field>
-            <field>
-              <name>PLLM0</name>
-              <description>Division factor for the main PLL (PLL)
-              and audio PLL (PLLI2S) input clock</description>
+              <name>PLLM</name>
+              <description>Division factor for the main PLL (PLL) and audio PLL (PLLI2S) input clock</description>
               <bitOffset>0</bitOffset>
-              <bitWidth>1</bitWidth>
+              <bitWidth>6</bitWidth>
             </field>
           </fields>
         </register>
@@ -5331,6 +5213,24 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
               <bitOffset>30</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>SYS_CLOCK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>PLL_I2S_CLOCK</name>
+                  <value>1</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>HSE_CLOCK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>PLL_CLOCK</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>MCO2PRE</name>
@@ -5355,11 +5255,28 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
             </field>
             <field>
               <name>MCO1</name>
-              <description>Microcontroller clock output
-              1</description>
+              <description>Microcontroller clock output 1</description>
               <bitOffset>21</bitOffset>
               <bitWidth>2</bitWidth>
               <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>HSI_CLOCK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>LSE_CLOCK</name>
+                  <value>1</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>HSE_CLOCK</name>
+                  <value>2</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>PLL_CLOCK</name>
+                  <value>3</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
             <field>
               <name>RTCPRE</name>
@@ -5393,32 +5310,32 @@ xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
               <access>read-write</access>
             </field>
             <field>
-              <name>SWS1</name>
-              <description>System clock switch status</description>
-              <bitOffset>3</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>read-only</access>
-            </field>
-            <field>
-              <name>SWS0</name>
+              <name>SWS</name>
               <description>System clock switch status</description>
               <bitOffset>2</bitOffset>
-              <bitWidth>1</bitWidth>
+              <bitWidth>2</bitWidth>
               <access>read-only</access>
             </field>
             <field>
-              <name>SW1</name>
-              <description>System clock switch</description>
-              <bitOffset>1</bitOffset>
-              <bitWidth>1</bitWidth>
-              <access>read-write</access>
-            </field>
-            <field>
-              <name>SW0</name>
+              <name>SW</name>
               <description>System clock switch</description>
               <bitOffset>0</bitOffset>
-              <bitWidth>1</bitWidth>
+              <bitWidth>2</bitWidth>
               <access>read-write</access>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>HSI_CLOCK</name>
+                  <value>0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>HSE_CLOCK</name>
+                  <value>1</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>PLL_CLOCK</name>
+                  <value>2</value>
+                </enumeratedValue>
+              </enumeratedValues>
             </field>
           </fields>
         </register>

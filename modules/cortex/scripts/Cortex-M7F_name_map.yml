@@ -1,0 +1,1331 @@
+ACTIVE:
+  as_type: ACTIVE
+  as_variable: active
+  context:
+    - NVIC.IABR0
+    - NVIC.IABR1
+    - NVIC.IABR2
+ADDR:
+  as_type: ADDR
+  as_variable: base_address
+  context:
+    - MPU.MPU_RBAR
+ADDRESS:
+  as_type: ADDRESS
+  as_variable: address
+  context:
+    - FPU.FPCAR
+AFSR:
+  as_type: AuxiliaryFaultStatus
+  as_variable: auxiliary_fault_status
+  context:
+    - SCB
+AHP:
+  as_type: AHP
+  as_variable: alternative_half_precision
+  context:
+    - FPU.FPSCR
+AIRCR:
+  as_type: ApplicationInterruptResetControl
+  as_variable: application_interrupt_reset_control
+  context:
+    - SCB
+AP:
+  as_type: AP
+  as_variable: access_permissions
+  context:
+    - MPU.MPU_RASR
+ASPEN:
+  as_type: bool
+  as_variable: floating_point_context_save
+  context:
+    - FPU.FPCCR
+B:
+  as_type: bool
+  as_variable: buffereable
+  context:
+    - MPU.MPU_RASR
+BFAR:
+  as_type: BusFaultAddress
+  as_variable: bus_fault_address
+  context:
+    - SCB
+    - SCB.BFAR
+BFARVALID:
+  as_type: bool
+  as_variable: bus_fault_address_valid
+  context:
+    - SCB.CFSR_UFSR_BFSR_MMFSR
+BFHFNMIGN:
+  as_type: BFHFNMIGN
+  as_variable: bus_hard_nmi_fault_ignore
+  context:
+    - SCB.CCR
+BFRDY:
+  as_type: bool
+  as_variable: bus_fault_pendable
+  context:
+    - FPU.FPCCR
+BKPT:
+  as_type: BKPT
+  as_variable: breakpoint
+  context:
+    - SCB.DFSR
+BUSFAULTACT:
+  as_type: bool
+  as_variable: bus_fault_active
+  context:
+    - SCB.SHCRS
+BUSFAULTENA:
+  as_type: BUSFAULTENA
+  as_variable: bus_fault_enable
+  context:
+    - SCB.SHCRS
+BUSFAULTPENDED:
+  as_type: BUSFAULTPENDED
+  as_variable: bus_fault_pending
+  context:
+    - SCB.SHCRS
+C:
+  as_type: bool
+  as_variable: c
+  context:
+    - FPU.FPSCR
+    - MPU.MPU_RASR
+CALIB:
+  as_type: Calibration
+  as_variable: calibration
+  context:
+    - STK
+CCR:
+  as_type: ConfigurationControl
+  as_variable: configuration_control
+  context:
+    - SCB
+CFSR_UFSR_BFSR_MMFSR:
+  as_type: ConfigurableFaultStatus
+  as_variable: configurable_fault_status
+  context:
+    - SCB
+CLKSOURCE:
+  as_type: ClockSource
+  as_variable: clock_source
+  context:
+    - STK.CTRL
+CLRENA:
+  as_type: bool
+  as_variable: clear_enable
+  context:
+    - NVIC.ICER0
+    - NVIC.ICER1
+    - NVIC.ICER2
+CLRPEND:
+  as_type: bool
+  as_variable: clear_pending
+  context:
+    - NVIC.ICPR0
+    - NVIC.ICPR1
+    - NVIC.ICPR2
+COUNTFLAG:
+  as_type: COUNTFLAG
+  as_variable: counter_zero_flag
+  context:
+    - STK.CTRL
+CP0:
+  as_type: Access
+  as_variable: cp0
+  context:
+    - SCB.CPACR
+CP1:
+  as_type: Access
+  as_variable: cp1
+  context:
+    - SCB.CPACR
+CP10:
+  as_type: CP10
+  as_variable: cp10
+  context:
+    - SCB.CPACR
+CP11:
+  as_type: CP11
+  as_variable: cp11
+  context:
+    - SCB.CPACR
+CP2:
+  as_type: CP2
+  as_variable: cp2
+  context:
+    - SCB.CPACR
+CP3:
+  as_type: CP3
+  as_variable: cp3
+  context:
+    - SCB.CPACR
+CP4:
+  as_type: CP4
+  as_variable: cp4
+  context:
+    - SCB.CPACR
+CP5:
+  as_type: CP5
+  as_variable: cp5
+  context:
+    - SCB.CPACR
+CP6:
+  as_type: CP6
+  as_variable: cp6
+  context:
+    - SCB.CPACR
+CP7:
+  as_type: CP7
+  as_variable: cp7
+  context:
+    - SCB.CPACR
+CPACR:
+  as_type: CoProcessorAccessControl
+  as_variable: coprocessor_access_control
+  context:
+    - SCB
+CPUID:
+  as_type: BaseCpuID
+  as_variable: base_cpu_identifier
+  context:
+    - SCB
+CTRL:
+  as_type: Control
+  as_variable: control
+  context:
+    - STK
+CURRENT:
+  as_type: CURRENT
+  as_variable: current
+  context:
+    - STK.VAL
+Constant:
+  as_type: Constant
+  as_variable: constant
+  context:
+    - SCB.CPUID
+DBG:
+  as_type: DebugWatch
+  as_variable: dbg
+  context:
+    - null
+DBGMCU_APB1_FZ:
+  as_type: DBGMCU_APB1_FZ
+  as_variable: dbgmcu_apb1_fz
+  context:
+    - DBG
+DBGMCU_APB2_FZ:
+  as_type: DBGMCU_APB2_FZ
+  as_variable: dbgmcu_apb2_fz
+  context:
+    - DBG
+DBGMCU_CR:
+  as_type: DBGMCU_CR
+  as_variable: dbgmcu_cr
+  context:
+    - DBG
+DBGMCU_IDCODE:
+  as_type: DBGMCU_IDCODE
+  as_variable: dbgmcu_idcode
+  context:
+    - DBG
+DBG_CAN1_STOP:
+  as_type: DBG_CAN1_STOP
+  as_variable: dbg_can1_stop
+  context:
+    - DBG.DBGMCU_APB1_FZ
+DBG_CAN2_STOP:
+  as_type: DBG_CAN2_STOP
+  as_variable: dbg_can2_stop
+  context:
+    - DBG.DBGMCU_APB1_FZ
+DBG_I2C2_SMBUS_TIMEOUT:
+  as_type: DBG_I2C2_SMBUS_TIMEOUT
+  as_variable: dbg_i2c2_smbus_timeout
+  context:
+    - DBG.DBGMCU_CR
+DBG_IWDEG_STOP:
+  as_type: DBG_IWDEG_STOP
+  as_variable: dbg_iwdeg_stop
+  context:
+    - DBG.DBGMCU_APB1_FZ
+DBG_J2C1_SMBUS_TIMEOUT:
+  as_type: DBG_J2C1_SMBUS_TIMEOUT
+  as_variable: dbg_j2c1_smbus_timeout
+  context:
+    - DBG.DBGMCU_APB1_FZ
+DBG_J2C2_SMBUS_TIMEOUT:
+  as_type: DBG_J2C2_SMBUS_TIMEOUT
+  as_variable: dbg_j2c2_smbus_timeout
+  context:
+    - DBG.DBGMCU_APB1_FZ
+DBG_J2C3SMBUS_TIMEOUT:
+  as_type: DBG_J2C3SMBUS_TIMEOUT
+  as_variable: dbg_j2c3smbus_timeout
+  context:
+    - DBG.DBGMCU_APB1_FZ
+DBG_SLEEP:
+  as_type: DBG_SLEEP
+  as_variable: dbg_sleep
+  context:
+    - DBG.DBGMCU_CR
+DBG_STANDBY:
+  as_type: DBG_STANDBY
+  as_variable: dbg_standby
+  context:
+    - DBG.DBGMCU_CR
+DBG_STOP:
+  as_type: DBG_STOP
+  as_variable: dbg_stop
+  context:
+    - DBG.DBGMCU_CR
+DBG_TIM10_STOP:
+  as_type: DBG_TIM10_STOP
+  as_variable: dbg_tim10_stop
+  context:
+    - DBG.DBGMCU_APB2_FZ
+DBG_TIM11_STOP:
+  as_type: DBG_TIM11_STOP
+  as_variable: dbg_tim11_stop
+  context:
+    - DBG.DBGMCU_APB2_FZ
+DBG_TIM12_STOP:
+  as_type: DBG_TIM12_STOP
+  as_variable: dbg_tim12_stop
+  context:
+    - DBG.DBGMCU_APB1_FZ
+DBG_TIM13_STOP:
+  as_type: DBG_TIM13_STOP
+  as_variable: dbg_tim13_stop
+  context:
+    - DBG.DBGMCU_APB1_FZ
+DBG_TIM14_STOP:
+  as_type: DBG_TIM14_STOP
+  as_variable: dbg_tim14_stop
+  context:
+    - DBG.DBGMCU_APB1_FZ
+DBG_TIM1_STOP:
+  as_type: DBG_TIM1_STOP
+  as_variable: dbg_tim1_stop
+  context:
+    - DBG.DBGMCU_APB2_FZ
+DBG_TIM2_STOP:
+  as_type: DBG_TIM2_STOP
+  as_variable: dbg_tim2_stop
+  context:
+    - DBG.DBGMCU_APB1_FZ
+DBG_TIM3_STOP:
+  as_type: DBG_TIM3_STOP
+  as_variable: dbg_tim3_stop
+  context:
+    - DBG.DBGMCU_APB1_FZ
+DBG_TIM4_STOP:
+  as_type: DBG_TIM4_STOP
+  as_variable: dbg_tim4_stop
+  context:
+    - DBG.DBGMCU_APB1_FZ
+DBG_TIM5_STOP:
+  as_type: DBG_TIM5_STOP
+  as_variable: dbg_tim5_stop
+  context:
+    - DBG.DBGMCU_CR
+    - DBG.DBGMCU_APB1_FZ
+DBG_TIM6_STOP:
+  as_type: DBG_TIM6_STOP
+  as_variable: dbg_tim6_stop
+  context:
+    - DBG.DBGMCU_CR
+    - DBG.DBGMCU_APB1_FZ
+DBG_TIM7_STOP:
+  as_type: DBG_TIM7_STOP
+  as_variable: dbg_tim7_stop
+  context:
+    - DBG.DBGMCU_CR
+    - DBG.DBGMCU_APB1_FZ
+DBG_TIM8_STOP:
+  as_type: DBG_TIM8_STOP
+  as_variable: dbg_tim8_stop
+  context:
+    - DBG.DBGMCU_CR
+    - DBG.DBGMCU_APB2_FZ
+DBG_TIM9_STOP:
+  as_type: DBG_TIM9_STOP
+  as_variable: dbg_tim9_stop
+  context:
+    - DBG.DBGMCU_APB2_FZ
+DBG_WWDG_STOP:
+  as_type: DBG_WWDG_STOP
+  as_variable: dbg_wwdg_stop
+  context:
+    - DBG.DBGMCU_APB1_FZ
+DEBUG_VT:
+  as_type: DEBUG_VT
+  as_variable: debug_event
+  context:
+    - SCB.HFSR
+DEV_ID:
+  as_type: DEV_ID
+  as_variable: dev_id
+  context:
+    - DBG.DBGMCU_IDCODE
+DFSR:
+  as_type: DebugFaultStatus
+  as_variable: debug_fault_status
+  context:
+    - SCB
+DIVBYZERO:
+  as_type: DIVBYZERO
+  as_variable: divide_by_zero
+  context:
+    - SCB.CFSR_UFSR_BFSR_MMFSR
+DIV_0_TRP:
+  as_type: DIV_0_TRP
+  as_variable: div_0_trp
+  context:
+    - SCB.CCR
+DN:
+  as_type: DN
+  as_variable: default_nan_mode
+  context:
+    - FPU.FPSCR
+DREGION:
+  as_type: DREGION
+  as_variable: data_region_count
+  context:
+    - MPU.MPU_TYPER
+DWTTRAP:
+  as_type: DWTTRAP
+  as_variable: debug_event_trap
+  context:
+    - SCB.DFSR
+DZC:
+  as_type: DZC
+  as_variable: dzc
+  context:
+    - FPU.FPSCR
+ENABLE:
+  as_type: bool
+  as_variable: enable
+  context:
+    - MPU.MPU_CTRL
+    - MPU.MPU_RASR
+    - STK.CTRL
+ENDIANESS:
+  as_type: ENDIANESS
+  as_variable: endianess
+  context:
+    - SCB.AIRCR
+EXTERNAL:
+  as_type: EXTERNAL
+  as_variable: external
+  context:
+    - SCB.DFSR
+FORCED:
+  as_type: FORCED
+  as_variable: forced
+  context:
+    - SCB.HFSR
+FPCAR:
+  as_type: ContextAddess
+  as_variable: context_address
+  context:
+    - FPU
+FPCCR:
+  as_type: ContextControl
+  as_variable: context_control
+  context:
+    - FPU
+FPSCR:
+  as_type: StatusAndControl
+  as_variable: status_and_control
+  context:
+    - FPU
+FPU:
+  as_type: FloatingPointUnit
+  as_variable: floating_point_unit
+  context:
+    - null
+FZ:
+  as_type: FZ
+  as_variable: flush_to_zero
+  context:
+    - FPU.FPSCR
+HALTED:
+  as_type: HALTED
+  as_variable: halted
+  context:
+    - SCB.DFSR
+HFNMIENA:
+  as_type: HFNMIENA
+  as_variable: hard_and_nmi_faults_use_mpu
+  context:
+    - MPU.MPU_CTRL
+HFRDY:
+  as_type: HFRDY
+  as_variable: hard_fault_pendable
+  context:
+    - FPU.FPCCR
+HFSR:
+  as_type: HardFaultStatus
+  as_variable: hard_fault_status
+  context:
+    - SCB
+IABR0:
+  as_type: IABR0
+  as_variable: interrupt_active_bit_0
+  context:
+    - NVIC
+IABR1:
+  as_type: IABR1
+  as_variable: interrupt_active_bit_1
+  context:
+    - NVIC
+IABR2:
+  as_type: IABR2
+  as_variable: interrupt_active_bit_2
+  context:
+    - NVIC
+IACCVIOL:
+  as_type: IACCVIOL
+  as_variable: instruction_access_violation
+  context:
+    - SCB.CFSR_UFSR_BFSR_MMFSR
+IBUSERR:
+  as_type: IBUSERR
+  as_variable: instruction_prefetch
+  context:
+    - SCB.CFSR_UFSR_BFSR_MMFSR
+ICER0:
+  as_type: ICER0
+  as_variable: icer0
+  context:
+    - NVIC
+ICER1:
+  as_type: ICER1
+  as_variable: icer1
+  context:
+    - NVIC
+ICER2:
+  as_type: ICER2
+  as_variable: icer2
+  context:
+    - NVIC
+ICPR0:
+  as_type: ICPR0
+  as_variable: icpr0
+  context:
+    - NVIC
+ICPR1:
+  as_type: ICPR1
+  as_variable: icpr1
+  context:
+    - NVIC
+ICPR2:
+  as_type: ICPR2
+  as_variable: icpr2
+  context:
+    - NVIC
+ICSR:
+  as_type: InterruptControlState
+  as_variable: interrupt_control_state
+  context:
+    - SCB
+IDC:
+  as_type: IDC
+  as_variable: input_denormal_cummulative
+  context:
+    - FPU.FPSCR
+IMPDEF:
+  as_type: IMPDEF
+  as_variable: impdef
+  context:
+    - SCB.AFSR
+IMPRECISERR:
+  as_type: IMPRECISERR
+  as_variable: imprecise_data_access
+  context:
+    - SCB.CFSR_UFSR_BFSR_MMFSR
+INVPC:
+  as_type: INVPC
+  as_variable: integrity_check_on_exc_return
+  context:
+    - SCB.CFSR_UFSR_BFSR_MMFSR
+INVSTATE:
+  as_type: INVSTATE
+  as_variable: invalid_epsr_bits
+  context:
+    - SCB.CFSR_UFSR_BFSR_MMFSR
+IOC:
+  as_type: IOC
+  as_variable: ioc
+  context:
+    - FPU.FPSCR
+IPR0:
+  as_type: IPR0
+  as_variable: ipr0
+  context:
+    - NVIC
+IPR1:
+  as_type: IPR1
+  as_variable: ipr1
+  context:
+    - NVIC
+IPR10:
+  as_type: IPR10
+  as_variable: ipr10
+  context:
+    - NVIC
+IPR11:
+  as_type: IPR11
+  as_variable: ipr11
+  context:
+    - NVIC
+IPR12:
+  as_type: IPR12
+  as_variable: ipr12
+  context:
+    - NVIC
+IPR13:
+  as_type: IPR13
+  as_variable: ipr13
+  context:
+    - NVIC
+IPR14:
+  as_type: IPR14
+  as_variable: ipr14
+  context:
+    - NVIC
+IPR15:
+  as_type: IPR15
+  as_variable: ipr15
+  context:
+    - NVIC
+IPR16:
+  as_type: IPR16
+  as_variable: ipr16
+  context:
+    - NVIC
+IPR17:
+  as_type: IPR17
+  as_variable: ipr17
+  context:
+    - NVIC
+IPR18:
+  as_type: IPR18
+  as_variable: ipr18
+  context:
+    - NVIC
+IPR19:
+  as_type: IPR19
+  as_variable: ipr19
+  context:
+    - NVIC
+IPR2:
+  as_type: IPR2
+  as_variable: ipr2
+  context:
+    - NVIC
+IPR3:
+  as_type: IPR3
+  as_variable: ipr3
+  context:
+    - NVIC
+IPR4:
+  as_type: IPR4
+  as_variable: ipr4
+  context:
+    - NVIC
+IPR5:
+  as_type: IPR5
+  as_variable: ipr5
+  context:
+    - NVIC
+IPR6:
+  as_type: IPR6
+  as_variable: ipr6
+  context:
+    - NVIC
+IPR7:
+  as_type: IPR7
+  as_variable: ipr7
+  context:
+    - NVIC
+IPR8:
+  as_type: IPR8
+  as_variable: ipr8
+  context:
+    - NVIC
+IPR9:
+  as_type: IPR9
+  as_variable: ipr9
+  context:
+    - NVIC
+IPR_N0:
+  as_type: IPR_N0
+  as_variable: ipr_n0
+  context:
+    - NVIC.IPR0
+    - NVIC.IPR1
+    - NVIC.IPR2
+    - NVIC.IPR3
+    - NVIC.IPR4
+    - NVIC.IPR5
+    - NVIC.IPR6
+    - NVIC.IPR7
+    - NVIC.IPR8
+    - NVIC.IPR9
+    - NVIC.IPR10
+    - NVIC.IPR11
+    - NVIC.IPR12
+    - NVIC.IPR13
+    - NVIC.IPR14
+    - NVIC.IPR15
+    - NVIC.IPR16
+    - NVIC.IPR17
+    - NVIC.IPR18
+    - NVIC.IPR19
+IPR_N1:
+  as_type: IPR_N1
+  as_variable: ipr_n1
+  context:
+    - NVIC.IPR0
+    - NVIC.IPR1
+    - NVIC.IPR2
+    - NVIC.IPR3
+    - NVIC.IPR4
+    - NVIC.IPR5
+    - NVIC.IPR6
+    - NVIC.IPR7
+    - NVIC.IPR8
+    - NVIC.IPR9
+    - NVIC.IPR10
+    - NVIC.IPR11
+    - NVIC.IPR12
+    - NVIC.IPR13
+    - NVIC.IPR14
+    - NVIC.IPR15
+    - NVIC.IPR16
+    - NVIC.IPR17
+    - NVIC.IPR18
+    - NVIC.IPR19
+IPR_N2:
+  as_type: IPR_N2
+  as_variable: ipr_n2
+  context:
+    - NVIC.IPR0
+    - NVIC.IPR1
+    - NVIC.IPR2
+    - NVIC.IPR3
+    - NVIC.IPR4
+    - NVIC.IPR5
+    - NVIC.IPR6
+    - NVIC.IPR7
+    - NVIC.IPR8
+    - NVIC.IPR9
+    - NVIC.IPR10
+    - NVIC.IPR11
+    - NVIC.IPR12
+    - NVIC.IPR13
+    - NVIC.IPR14
+    - NVIC.IPR15
+    - NVIC.IPR16
+    - NVIC.IPR17
+    - NVIC.IPR18
+    - NVIC.IPR19
+IPR_N3:
+  as_type: IPR_N3
+  as_variable: ipr_n3
+  context:
+    - NVIC.IPR0
+    - NVIC.IPR1
+    - NVIC.IPR2
+    - NVIC.IPR3
+    - NVIC.IPR4
+    - NVIC.IPR5
+    - NVIC.IPR6
+    - NVIC.IPR7
+    - NVIC.IPR8
+    - NVIC.IPR9
+    - NVIC.IPR10
+    - NVIC.IPR11
+    - NVIC.IPR12
+    - NVIC.IPR13
+    - NVIC.IPR14
+    - NVIC.IPR15
+    - NVIC.IPR16
+    - NVIC.IPR17
+    - NVIC.IPR18
+    - NVIC.IPR19
+IREGION:
+  as_type: IREGION
+  as_variable: instruction_region_count
+  context:
+    - MPU.MPU_TYPER
+ISER0:
+  as_type: ISER0
+  as_variable: iser0
+  context:
+    - NVIC
+ISER1:
+  as_type: ISER1
+  as_variable: iser1
+  context:
+    - NVIC
+ISER2:
+  as_type: ISER2
+  as_variable: iser2
+  context:
+    - NVIC
+ISPR0:
+  as_type: ISPR0
+  as_variable: ispr0
+  context:
+    - NVIC
+ISPR1:
+  as_type: ISPR1
+  as_variable: ispr1
+  context:
+    - NVIC
+ISPR2:
+  as_type: ISPR2
+  as_variable: ispr2
+  context:
+    - NVIC
+ISRPENDING:
+  as_type: ISRPENDING
+  as_variable: isrpending
+  context:
+    - SCB.ICSR
+IXC:
+  as_type: IXC
+  as_variable: inexact_cummulative
+  context:
+    - FPU.FPSCR
+Implementer:
+  as_type: Implementer
+  as_variable: implementer
+  context:
+    - SCB.CPUID
+LOAD:
+  as_type: Load
+  as_variable: load
+  context:
+    - STK
+LSPACT:
+  as_type: LSPACT
+  as_variable: lspact
+  context:
+    - FPU.FPCCR
+LSPEN:
+  as_type: LSPEN
+  as_variable: lazy_context_save_enable
+  context:
+    - FPU.FPCCR
+LSPERR:
+  as_type: LSPERR
+  as_variable: lazy_context_save_error
+  context:
+    - SCB.CFSR_UFSR_BFSR_MMFSR
+MEMFAULTACT:
+  as_type: MEMFAULTACT
+  as_variable: memfaultact
+  context:
+    - SCB.SHCRS
+MEMFAULTENA:
+  as_type: MEMFAULTENA
+  as_variable: memfaultena
+  context:
+    - SCB.SHCRS
+MEMFAULTPENDED:
+  as_type: MEMFAULTPENDED
+  as_variable: memfaultpended
+  context:
+    - SCB.SHCRS
+MLSPERR:
+  as_type: MLSPERR
+  as_variable: memory_management_fault_during_lazy_fp_state_preservation
+  context:
+    - SCB.CFSR_UFSR_BFSR_MMFSR
+MMARVALID:
+  as_type: MMARVALID
+  as_variable: memory_management_fault_address_valid
+  context:
+    - SCB.CFSR_UFSR_BFSR_MMFSR
+MMFAR:
+  as_type: MemoryManagementFaultAddress
+  as_variable: memory_management_fault_address
+  context:
+    - SCB
+    - SCB.MMFAR
+MMRDY:
+  as_type: MMRDY
+  as_variable: memory_management_fault_pendable
+  context:
+    - FPU.FPCCR
+MONITORACT:
+  as_type: MONITORACT
+  as_variable: monitoract
+  context:
+    - SCB.SHCRS
+MONRDY:
+  as_type: MONRDY
+  as_variable: debug_monitor_pendable
+  context:
+    - FPU.FPCCR
+MPU:
+  as_type: MemoryProtectionUnit
+  as_variable: memory_protection_unit
+  context:
+    - null
+MPU_CTRL:
+  as_type: Control
+  as_variable: control
+  context:
+    - MPU
+MPU_RASR:
+  as_type: MPU_RASR
+  as_variable: access
+  context:
+    - MPU
+MPU_RBAR:
+  as_type: MPU_RBAR
+  as_variable: base_address
+  context:
+    - MPU
+MPU_RNR:
+  as_type: Region
+  as_variable: region
+  context:
+    - MPU
+MPU_TYPER:
+  as_type: Type
+  as_variable: type
+  context:
+    - MPU
+MSTKERR:
+  as_type: MSTKERR
+  as_variable: memory_management_stack_error
+  context:
+    - SCB.CFSR_UFSR_BFSR_MMFSR
+MUNSTKERR:
+  as_type: MUNSTKERR
+  as_variable: memory_management_fault_on_unstack_error
+  context:
+    - SCB.CFSR_UFSR_BFSR_MMFSR
+N:
+  as_type: N
+  as_variable: n
+  context:
+    - FPU.FPSCR
+NMIPENDSET:
+  as_type: NMIPENDSET
+  as_variable: nmipendset
+  context:
+    - SCB.ICSR
+NOCP:
+  as_type: NOCP
+  as_variable: coprocessor_access_error
+  context:
+    - SCB.CFSR_UFSR_BFSR_MMFSR
+NONBASETHRDENA:
+  as_type: NONBASETHRDENA
+  as_variable: nonbasethrdena
+  context:
+    - SCB.CCR
+NOREF:
+  as_type: NOREF
+  as_variable: no_reference
+  context:
+    - STK.CALIB
+NVIC:
+  as_type: NestedVectoredInterruptController
+  as_variable: nested_vectored_interupt_controller
+  context:
+    - null
+OFC:
+  as_type: OFC
+  as_variable: ofc
+  context:
+    - FPU.FPSCR
+PENDSTCLR:
+  as_type: PENDSTCLR
+  as_variable: pendstclr
+  context:
+    - SCB.ICSR
+PENDSTSET:
+  as_type: PENDSTSET
+  as_variable: pendstset
+  context:
+    - SCB.ICSR
+PENDSVACT:
+  as_type: PENDSVACT
+  as_variable: pendsvact
+  context:
+    - SCB.SHCRS
+PENDSVCLR:
+  as_type: PENDSVCLR
+  as_variable: pendsvclr
+  context:
+    - SCB.ICSR
+PENDSVSET:
+  as_type: PENDSVSET
+  as_variable: pendsvset
+  context:
+    - SCB.ICSR
+PRECISERR:
+  as_type: PRECISERR
+  as_variable: precise_data_access
+  context:
+    - SCB.CFSR_UFSR_BFSR_MMFSR
+PRIGROUP:
+  as_type: PRIGROUP
+  as_variable: prigroup
+  context:
+    - SCB.AIRCR
+PRIVDEFENA:
+  as_type: PRIVDEFENA
+  as_variable: privileged_access_uses_default_mpu
+  context:
+    - MPU.MPU_CTRL
+PRI_11:
+  as_type: PRI_11
+  as_variable: pri_11
+  context:
+    - SCB.SHPR2
+PRI_14:
+  as_type: PRI_14
+  as_variable: pri_14
+  context:
+    - SCB.SHPR3
+PRI_15:
+  as_type: PRI_15
+  as_variable: pri_15
+  context:
+    - SCB.SHPR3
+PRI_4:
+  as_type: PRI_4
+  as_variable: pri_4
+  context:
+    - SCB.SHPR1
+PRI_5:
+  as_type: PRI_5
+  as_variable: pri_5
+  context:
+    - SCB.SHPR1
+PRI_6:
+  as_type: PRI_6
+  as_variable: pri_6
+  context:
+    - SCB.SHPR1
+PartNo:
+  as_type: PartNo
+  as_variable: part_number
+  context:
+    - SCB.CPUID
+REGION:
+  as_type: REGION
+  as_variable: region
+  context:
+    - MPU.MPU_RNR
+    - MPU.MPU_RBAR
+RELOAD:
+  as_type: RELOAD
+  as_variable: reload
+  context:
+    - STK.LOAD
+RETTOBASE:
+  as_type: RETTOBASE
+  as_variable: rettobase
+  context:
+    - SCB.ICSR
+REV_ID:
+  as_type: REV_ID
+  as_variable: rev_id
+  context:
+    - DBG.DBGMCU_IDCODE
+RMode:
+  as_type: RoundingMode
+  as_variable: rounding_mode
+  context:
+    - FPU.FPSCR
+Revision:
+  as_type: Revision
+  as_variable: revision
+  context:
+    - SCB.CPUID
+S:
+  as_type: S
+  as_variable: shareable
+  context:
+    - MPU.MPU_RASR
+SCB:
+  as_type: SystemControlBlock
+  as_variable: system_control_block
+  context:
+    - null
+SCR:
+  as_type: SystemControl
+  as_variable: system_control
+  context:
+    - SCB
+SEPARATE:
+  as_type: SEPARATE
+  as_variable: separate
+  context:
+    - MPU.MPU_TYPER
+SETENA:
+  as_type: SETENA
+  as_variable: setena
+  context:
+    - NVIC.ISER0
+    - NVIC.ISER1
+    - NVIC.ISER2
+SETPEND:
+  as_type: SETPEND
+  as_variable: set_pending
+  context:
+    - NVIC.ISPR0
+    - NVIC.ISPR1
+    - NVIC.ISPR2
+SEVEONPEND:
+  as_type: SEVEONPEND
+  as_variable: seve_on_pending
+  context:
+    - SCB.SCR
+SHCRS:
+  as_type: SystemHandlerControlState
+  as_variable: system_handler_control_state
+  context:
+    - SCB
+SHPR1:
+  as_type: SystemHandlerPriority1
+  as_variable: handlers1
+  context:
+    - SCB
+SHPR2:
+  as_type: SystemHandlerPriority2
+  as_variable: handlers2
+  context:
+    - SCB
+SHPR3:
+  as_type: SystemHandlerPriority3
+  as_variable: handler3
+  context:
+    - SCB
+SIZE:
+  as_type: SIZE
+  as_variable: power2_size
+  context:
+    - MPU.MPU_RASR
+SKEW:
+  as_type: SKEW
+  as_variable: skew
+  context:
+    - STK.CALIB
+SLEEPDEEP:
+  as_type: SLEEPDEEP
+  as_variable: sleepdeep
+  context:
+    - SCB.SCR
+SLEEPONEXIT:
+  as_type: SLEEPONEXIT
+  as_variable: sleep_on_exit
+  context:
+    - SCB.SCR
+SRD:
+  as_type: SRD
+  as_variable: subregion_disable_mask
+  context:
+    - MPU.MPU_RASR
+STK:
+  as_type: SystemTick
+  as_variable: system_tick
+  context:
+    - null
+STKALIGN:
+  as_type: STKALIGN
+  as_variable: stack_alignment
+  context:
+    - SCB.CCR
+STKERR:
+  as_type: STKERR
+  as_variable: stack_error
+  context:
+    - SCB.CFSR_UFSR_BFSR_MMFSR
+SVCALLACT:
+  as_type: SVCALLACT
+  as_variable: sv_call_active
+  context:
+    - SCB.SHCRS
+SVCALLPENDED:
+  as_type: SVCALLPENDED
+  as_variable: sv_call_pended
+  context:
+    - SCB.SHCRS
+SYSRESETREQ:
+  as_type: SYSRESETREQ
+  as_variable: system_reset_requested
+  context:
+    - SCB.AIRCR
+SYSTICKACT:
+  as_type: SYSTICKACT
+  as_variable: system_tick_active
+  context:
+    - SCB.SHCRS
+TBLOFF:
+  as_type: TBLOFF
+  as_variable: table_offset
+  context:
+    - SCB.VTOR
+TENMS:
+  as_type: TENMS
+  as_variable: ten_millisecond_count
+  context:
+    - STK.CALIB
+TEX:
+  as_type: TEX
+  as_variable: tex
+  context:
+    - MPU.MPU_RASR
+THREAD:
+  as_type: THREAD
+  as_variable: thread
+  context:
+    - FPU.FPCCR
+TICKINT:
+  as_type: TICKINT
+  as_variable: zero_tick_exception_pendable
+  context:
+    - STK.CTRL
+TRACE_IOEN:
+  as_type: TRACE_IOEN
+  as_variable: trace_ioen
+  context:
+    - DBG.DBGMCU_CR
+TRACE_MODE:
+  as_type: TRACE_MODE
+  as_variable: trace_mode
+  context:
+    - DBG.DBGMCU_CR
+UFC:
+  as_type: UFC
+  as_variable: ufc
+  context:
+    - FPU.FPSCR
+UNALIGNED:
+  as_type: UNALIGNED
+  as_variable: unaligned_access
+  context:
+    - SCB.CFSR_UFSR_BFSR_MMFSR
+UNALIGN__TRP:
+  as_type: UNALIGN__TRP
+  as_variable: unaligned_trap
+  context:
+    - SCB.CCR
+UNDEFINSTR:
+  as_type: UNDEFINSTR
+  as_variable: undefined_instruction
+  context:
+    - SCB.CFSR_UFSR_BFSR_MMFSR
+UNSTKERR:
+  as_type: UNSTKERR
+  as_variable: unstacking_error
+  context:
+    - SCB.CFSR_UFSR_BFSR_MMFSR
+USER:
+  as_type: USER
+  as_variable: user
+  context:
+    - FPU.FPCCR
+USERSETMPEND:
+  as_type: USERSETMPEND
+  as_variable: user_mode_access_stir
+  context:
+    - SCB.CCR
+USGFAULTACT:
+  as_type: USGFAULTACT
+  as_variable: usage_fault_active
+  context:
+    - SCB.SHCRS
+USGFAULTENA:
+  as_type: USGFAULTENA
+  as_variable: usage_fault_enable
+  context:
+    - SCB.SHCRS
+USGFAULTPENDED:
+  as_type: USGFAULTPENDED
+  as_variable: usage_fault_pending
+  context:
+    - SCB.SHCRS
+V:
+  as_type: bool
+  as_variable: overflow
+  context:
+    - FPU.FPSCR
+VAL:
+  as_type: Value
+  as_variable: value
+  context:
+    - STK
+VALID:
+  as_type: VALID
+  as_variable: valid
+  context:
+    - MPU.MPU_RBAR
+VCATCH:
+  as_type: VCATCH
+  as_variable: vector_catch
+  context:
+    - SCB.DFSR
+VECTACTIVE:
+  as_type: VECTACTIVE
+  as_variable: vector_active
+  context:
+    - SCB.ICSR
+VECTCLRACTIVE:
+  as_type: VECTCLRACTIVE
+  as_variable: vector_clear_active
+  context:
+    - SCB.AIRCR
+VECTKEYSTAT:
+  as_type: VECTKEYSTAT
+  as_variable: vector_key_stat
+  context:
+    - SCB.AIRCR
+VECTPENDING:
+  as_type: VECTPENDING
+  as_variable: vector_pending
+  context:
+    - SCB.ICSR
+VECTRESET:
+  as_type: VECTRESET
+  as_variable: vector_reset
+  context:
+    - SCB.AIRCR
+VECTTBL:
+  as_type: VECTTBL
+  as_variable: vector_table_read_fault
+  context:
+    - SCB.HFSR
+VTOR:
+  as_type: VectorTableOffset
+  as_variable: vector_table_offset
+  context:
+    - SCB
+Variant:
+  as_type: Variant
+  as_variable: variant
+  context:
+    - SCB.CPUID
+XN:
+  as_type: bool
+  as_variable: execute_never
+  context:
+    - MPU.MPU_RASR
+Z:
+  as_type: bool
+  as_variable: zero
+  context:
+    - FPU.FPSCR

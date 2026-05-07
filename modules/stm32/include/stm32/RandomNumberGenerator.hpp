@@ -8,12 +8,14 @@
 #include "jarnax/Initializable.hpp"
 #include "jarnax/RandomNumberGenerator.hpp"
 
+#include "stm32/peripherals.hpp"
+
 namespace stm32 {
 /// The random number generator driver for STM32
 class RandomNumberGenerator : public jarnax::RandomNumberGenerator, public jarnax::Initializable {
 public:
     /// Default Constructor
-    RandomNumberGenerator() = default;
+    RandomNumberGenerator(stm32::peripherals::RandomNumberGenerator volatile& peripheral);
     /// Default Destructor
     virtual ~RandomNumberGenerator() = default;
 
@@ -23,9 +25,10 @@ public:
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 protected:
-    constexpr static std::size_t kInitializeLimit{1000U};    ///< Don't let the object initialize forever.
-    std::uint32_t first_{0U};                                ///< The first value read to check for an active generation
-    bool initialized_{false};                                ///< True when the object has been initialized.
+    constexpr static std::size_t kInitializeLimit{1000U};               ///< Don't let the object initialize forever.
+    stm32::peripherals::RandomNumberGenerator volatile& peripheral_;    ///< The reference to the peripheral registers
+    std::uint32_t first_;                                               ///< The first value read to check for an active generation
+    bool initialized_;                                                  ///< True when the object has been initialized.
 };
 }    // namespace stm32
 

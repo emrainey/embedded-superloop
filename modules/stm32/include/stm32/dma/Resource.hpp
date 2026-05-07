@@ -6,7 +6,8 @@
 
 #include "cortex/partnumber.hpp"    // Pulls in Chip definition!
 #include "jarnax/dma/Resource.hpp"
-#include "stm32/peripherals/DirectMemoryAccess.hpp"
+
+#include "stm32/peripherals.hpp"
 
 namespace stm32 {
 namespace dma {

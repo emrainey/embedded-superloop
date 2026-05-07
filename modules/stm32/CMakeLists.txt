@@ -1,7 +1,7 @@
 add_module(NAME stm32
     SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/vectors.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/clocks.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32f4xx/vectors.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32f4xx/clocks.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gpio/Pin.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Conversions.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Indicator.cpp
@@ -10,7 +10,7 @@ add_module(NAME stm32
         ${CMAKE_CURRENT_SOURCE_DIR}/source/dma/Manager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/dma/Resource.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Timer2.cpp
-        $<IF:$<BOOL:${BUILD_UNIT_TESTS}>,${CMAKE_CURRENT_SOURCE_DIR}/source/peripherals.cpp,>
+        $<IF:$<BOOL:${BUILD_UNIT_TESTS}>,${CMAKE_CURRENT_SOURCE_DIR}/source/stm32f4xx/peripherals.cpp,>
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         # Add the tests/mocks/ folder if the build is for unit testing
@@ -22,10 +22,40 @@ add_module(NAME stm32
     ARCH
         cortex
     CHIPS
-        stm32f405rg stm32f407ve stm32h753zi
+        stm32f405rg stm32f407ve
     CONFIGURATIONS
         ${TARGET_CONFIGURATIONS}
 )
+
+add_module(NAME stm32
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32h7xx/vectors.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32h7xx/clocks.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/gpio/Pin.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/Conversions.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/Indicator.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/Button.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/RandomNumberGenerator.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/dma/Manager.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/dma/Resource.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/Timer2.cpp
+        $<IF:$<BOOL:${BUILD_UNIT_TESTS}>,${CMAKE_CURRENT_SOURCE_DIR}/source/stm32h7xx/peripherals.cpp,>
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        # Add the tests/mocks/ folder if the build is for unit testing
+        $<IF:$<BOOL:${BUILD_UNIT_TESTS}>,${CMAKE_CURRENT_SOURCE_DIR}/tests/mocks,>
+    LIBRARIES
+        jarnax-interfaces
+    GENERIC_MODULES
+        core
+    ARCH
+        cortex
+    CHIPS
+        stm32h753zi
+    CONFIGURATIONS
+        ${TARGET_CONFIGURATIONS}
+)
+
 
 add_module(NAME stm32-spi-driver
     SOURCES

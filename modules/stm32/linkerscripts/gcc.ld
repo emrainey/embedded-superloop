@@ -11,13 +11,21 @@ ENTRY(reset_entry)
 /* This linker script does not support Heaps, C++ Exceptions or C++ RTTI */
 /* +===================================================================+ */
 SECTIONS {
-    /* Vector Table(s) */
+    /* Explicitly place the location counter at the start of the text region */
+    . = ORIGIN(REGION_TEXT);
+
+    /* Vector Table(s) - must be aligned to 1KB and fit within 1KB */
+    /* (16 system + 240 max external) * 4 bytes = 1024 bytes exactly */
     .tables : {
         __vector_table_start = .;
         KEEP(*(.vectors))
         KEEP(*(.extended_vectors))
         __vector_table_limit = .;
     } >REGION_TEXT
+    ASSERT((__vector_table_limit - __vector_table_start) <= 1024,
+           "Vector table exceeds 1024 bytes (16 + 240 max vectors * 4 bytes)")
+    ASSERT((__vector_table_start & 0x3FF) == 0,
+           "Vector table start address must be 1024-byte aligned (VTOR uses base | offset)")
 
     /* Program Code (aligned at next 1KB) */
     .text ALIGN(1024) : {

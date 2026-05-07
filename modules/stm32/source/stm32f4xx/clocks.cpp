@@ -4,6 +4,8 @@
 #include "cortex/vectors.hpp"
 #include "stm32/Initialize.hpp"
 
+#include "stm32/peripherals.hpp"
+
 namespace stm32 {
 
 /// Holds the clock tree values
@@ -104,7 +106,7 @@ void clocks(ClockConfiguration const& clkcfg) {
     using namespace core::units;
 
     if (reset_and_clock_control.configuration.bits.system_clock_switch_status ==
-        ResetAndClockControl::Configuration::SystemClockSwitch::PhaseLockLoop) {
+        ResetAndClockControl::Configuration::SystemClockSwitch::PhaseLockLoopClock) {
         // we're already using the PLL, so don't change anything
         return;
     }
@@ -146,20 +148,19 @@ void clocks(ClockConfiguration const& clkcfg) {
             high_speed_stabilization_counter++;
         } while (control.bits.high_speed_external_ready == 0);
     }
-    config.bits.system_clock_switch =
-        stm32::peripherals::ResetAndClockControl::Configuration::SystemClockSwitch::PhaseLockLoop;    // switch to the PLL
-    config.bits.ahb_divider = clkcfg.ahb_divider;
-    config.bits.apb_low_speed_divider = clkcfg.apb1_low_speed_divider;
-    config.bits.apb_high_speed_divider = clkcfg.apb2_high_speed_divider;
+    config.bits.system_clock_switch = ResetAndClockControl::Configuration::SystemClockSwitch::PhaseLockLoopClock;    // switch to the PLL
+    config.bits.ahb_prescaler = clkcfg.ahb_divider;
+    config.bits.apb1_prescaler = clkcfg.apb1_low_speed_divider;
+    config.bits.apb2_prescaler = clkcfg.apb2_high_speed_divider;
     if (clkcfg.use_internal) {
-        config.bits.micro_controller_clock_1_source = ResetAndClockControl::Configuration::Clock1Source::HighSpeedInternal;
+        config.bits.clock1_source = ResetAndClockControl::Configuration::Clock1Source::HighSpeedInternalClock;
     } else {
-        config.bits.micro_controller_clock_1_source = ResetAndClockControl::Configuration::Clock1Source::HighSpeedExternal;
+        config.bits.clock1_source = ResetAndClockControl::Configuration::Clock1Source::HighSpeedExternalClock;
     }
-    config.bits.micro_controller_clock_1_divider = clkcfg.mcu_clock1_divider;
-    config.bits.micro_controller_clock_2_source = ResetAndClockControl::Configuration::Clock2Source::SystemClock;
-    config.bits.micro_controller_clock_2_divider = clkcfg.mcu_clock2_divider;
-    config.bits.rtc_divider = clkcfg.rtc_divider;
+    config.bits.mco1_prescaler = clkcfg.mcu_clock1_divider;
+    config.bits.clock2_source = ResetAndClockControl::Configuration::Clock2Source::SystemClock;
+    config.bits.mco2_prescaler = clkcfg.mcu_clock2_divider;
+    config.bits.real_time_clock_prescaler = clkcfg.rtc_divider;
 
     // Set the PLL Configuration
     ResetAndClockControl::PhaseLockLoopConfiguration pll_config;
@@ -169,9 +170,9 @@ void clocks(ClockConfiguration const& clkcfg) {
     pll_config.bits.main_pll_divider = clkcfg.pll_p;
     pll_config.bits.main_pll_divider2 = clkcfg.pll_q;
     if (clkcfg.use_internal) {
-        pll_config.bits.main_pll_source = ResetAndClockControl::PhaseLockLoopConfiguration::MainPLLSource::HighSpeedInternal;
+        pll_config.bits.main_pll_source = ResetAndClockControl::PhaseLockLoopConfiguration::MainPLLSource::HighSpeedInternalClock;
     } else {
-        pll_config.bits.main_pll_source = ResetAndClockControl::PhaseLockLoopConfiguration::MainPLLSource::HighSpeedExternal;
+        pll_config.bits.main_pll_source = ResetAndClockControl::PhaseLockLoopConfiguration::MainPLLSource::HighSpeedExternalClock;
     }
     reset_and_clock_control.pll_configuration = pll_config;    // save value
 
@@ -190,12 +191,12 @@ void clocks(ClockConfiguration const& clkcfg) {
 
     // Choose the PLL as the system clock
     config = reset_and_clock_control.configuration;        // read
-    config.bits.system_clock_switch = ResetAndClockControl::Configuration::SystemClockSwitch::PhaseLockLoop;
+    config.bits.system_clock_switch = ResetAndClockControl::Configuration::SystemClockSwitch::PhaseLockLoopClock;
     reset_and_clock_control.configuration = config;        // write
     do {
         config = reset_and_clock_control.configuration;    // read
         system_clock_switch_counter++;
-    } while (config.bits.system_clock_switch_status != ResetAndClockControl::Configuration::SystemClockSwitch::PhaseLockLoop);
+    } while (config.bits.system_clock_switch_status != ResetAndClockControl::Configuration::SystemClockSwitch::PhaseLockLoopClock);
 
     // Compute the Clock Tree values from what we just set
     clock_tree.low_speed_internal = low_speed_internal_oscillator_frequency;

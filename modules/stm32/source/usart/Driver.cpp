@@ -101,7 +101,7 @@ void Driver::ComputeBaudRate(uint32_t baud_rate) const {
     uint32_t fraction = static_cast<uint32_t>(std::round(fract * over8f));
     brr.bits.div_mantissa = mantissa & 0xFFF;
     brr.bits.div_fraction = fraction & 0x0F;
-    usart_.baudrate = brr;    // write
+    usart_.baud_rate = brr;    // write
     if constexpr (debug::Usart) {
         jarnax::print(
             "USART divider: %lf mantissa:%" PRIu32 " fraction:%" PRIu32 "\r\n",
@@ -114,7 +114,7 @@ void Driver::ComputeBaudRate(uint32_t baud_rate) const {
 
 uint32_t Driver::GetBaudRate(void) const {
     stm32::peripherals::UniversalSynchronousAsynchronousReceiverTransmitter::Control1 control1 = usart_.control1;    // read
-    stm32::peripherals::UniversalSynchronousAsynchronousReceiverTransmitter::BaudRate brr = usart_.baudrate;         // read
+    stm32::peripherals::UniversalSynchronousAsynchronousReceiverTransmitter::BaudRate brr = usart_.baud_rate;        // read
     // uint32_t over8u = control1.bits.oversampling_mode == 1 ? 8 : 16;
     float over8f = control1.bits.oversampling_mode ? 8.0f : 16.0f;
     float divider = (static_cast<float>(brr.bits.div_mantissa) + (static_cast<float>(brr.bits.div_fraction) / over8f));

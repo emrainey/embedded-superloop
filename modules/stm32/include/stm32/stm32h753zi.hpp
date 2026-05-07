@@ -12,7 +12,7 @@
 /// Indicates this chip has Digital Camera Memory Interface
 #define STM32_HAS_CAMERA 1
 
-#include "stm32/stm32h7xxxx.hpp"
+#include "stm32/stm32h7xx.hpp"
 
 /// The ST Micro 32 Namespace
 namespace stm32 {

@@ -1,3 +1,4 @@
+#include "stm32/peripherals.hpp"
 #include <cortex/mcu.hpp>
 #include <stm32/stm32.hpp>
 #include "cortex/peripherals/NestedVectorInterruptController.hpp"
@@ -8,7 +9,7 @@
 /// We over-define the peripherals here so that unit tests can link properly.
 
 namespace stm32 {
-namespace peripherals {
+namespace h7xx {
 GeneralPurposeInputOutput volatile general_purpose_input_output[NumberOfGeneralPurposeInputOutputInstances];
 ResetAndClockControl volatile reset_and_clock_control;
 RandomNumberGenerator volatile random_number_generator;
@@ -33,7 +34,7 @@ UniversalAsynchronousReceiverTransmitter volatile uart8;
 InterIntegratedCircuit volatile i2c1;
 InterIntegratedCircuit volatile i2c2;
 InterIntegratedCircuit volatile i2c3;
-}    // namespace peripherals
+}    // namespace h7xx
 }    // namespace stm32
 
 #endif    // UNITTEST

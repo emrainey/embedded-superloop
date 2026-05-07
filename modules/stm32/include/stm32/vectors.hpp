@@ -43,10 +43,12 @@ ISR void spi3_isr(void);
 ISR void uart4_isr(void);
 /// UART5 ISR Handlers
 ISR void uart5_isr(void);
+#if defined(STM32H7)
 /// UART7 ISR Handlers
 ISR void uart7_isr(void);
 /// UART8 ISR Handlers
 ISR void uart8_isr(void);
+#endif
 
 /// USART1 ISR Handler
 ISR void usart1_isr(void);

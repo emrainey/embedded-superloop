@@ -22,7 +22,7 @@ public:
     I2CDriverTest()
         : timer_{}
         , mock_dma_manager_{}
-        , i2c_driver_{stm32::peripherals::i2c1, mock_dma_manager_, I2C1_TX, I2C1_RX}
+        , i2c_driver_{stm32::f4xx::i2c1, mock_dma_manager_, I2C1_TX, I2C1_RX}
         , txn_{timer_}
         , buffer_{BufferSize, core::GetDefaultAllocator()} {
         // Constructor code, if needed
@@ -40,11 +40,11 @@ public:
         core::Status status = i2c_driver_.Initialize(42_MHz, 400_KHz);
         ASSERT_STATUS_EQ(status, core::Result::Success, core::Cause::State);
         // assert some things about the I2C1 peripheral device
-        stm32::peripherals::InterIntegratedCircuit::Control1 control1;
-        control1 = stm32::peripherals::i2c1.control1;
+        stm32::f4xx::InterIntegratedCircuit::Control1 control1;
+        control1 = stm32::f4xx::i2c1.control1;
         ASSERT_EQ(0x0001U, control1.whole);
-        stm32::peripherals::InterIntegratedCircuit::Control2 control2;
-        control2 = stm32::peripherals::i2c1.control2;
+        stm32::f4xx::InterIntegratedCircuit::Control2 control2;
+        control2 = stm32::f4xx::i2c1.control2;
         if constexpr (stm32::configure::use_i2c_as == stm32::configure::Mode::Dma) {
             ASSERT_EQ(1U, control2.bits.error_interrupt_enable);
             ASSERT_EQ(1U, control2.bits.event_interrupt_enable);
@@ -87,65 +87,65 @@ protected:
     void SimulateDataTransfer(core::Span<std::uint8_t> injected) {
         if constexpr (stm32::configure::use_i2c_as != stm32::configure::Mode::Dma) {
             // simulate the address phase going well
-            stm32::peripherals::InterIntegratedCircuit::Control1 control1;
-            stm32::peripherals::InterIntegratedCircuit::Control2 control2;
-            stm32::peripherals::InterIntegratedCircuit::Status1 status1;
-            stm32::peripherals::InterIntegratedCircuit::Status2 status2;
-            status1 = stm32::peripherals::i2c1.status1;    // read
-            status2 = stm32::peripherals::i2c1.status2;    // read
-            status1.bits.address = 1;                      // set address match
-            status2.bits.busy = 1;                         // set busy
-            stm32::peripherals::i2c1.status1 = status1;    // write
-            stm32::peripherals::i2c1.status2 = status2;    // write
+            stm32::f4xx::InterIntegratedCircuit::Control1 control1;
+            stm32::f4xx::InterIntegratedCircuit::Control2 control2;
+            stm32::f4xx::InterIntegratedCircuit::Status1 status1;
+            stm32::f4xx::InterIntegratedCircuit::Status2 status2;
+            status1 = stm32::f4xx::i2c1.status1;    // read
+            status2 = stm32::f4xx::i2c1.status2;    // read
+            status1.bits.address = 1;               // set address match
+            status2.bits.busy = 1;                  // set busy
+            stm32::f4xx::i2c1.status1 = status1;    // write
+            stm32::f4xx::i2c1.status2 = status2;    // write
 
-            stm32::i2c1_event_isr();                       // call the ISR to handle the data
+            stm32::i2c1_event_isr();                // call the ISR to handle the data
             // ASSERT_EQ(1U, i2c_driver_.GetStatistics().address_match);
-            status1.bits.address = 0;                      // set address match
-            stm32::peripherals::i2c1.status1 = status1;    // write
+            status1.bits.address = 0;               // set address match
+            stm32::f4xx::i2c1.status1 = status1;    // write
 
             if (txn_.address.small.read) {
                 // Simulate the data transfer by calling the ISR directly
                 for (size_t i = 0; i < injected.count(); ++i) {
-                    stm32::peripherals::InterIntegratedCircuit::Data data;
-                    status1.bits.receive_not_empty = 1;            // set transmit empty
-                    stm32::peripherals::i2c1.status1 = status1;    // write
-                    data.bits.data = injected[i];                  // write the data out
-                    stm32::peripherals::i2c1.data = data;          // write back
-                    stm32::i2c1_event_isr();                       // call the ISR to handle the data
+                    stm32::f4xx::InterIntegratedCircuit::Data data;
+                    status1.bits.receive_not_empty = 1;     // set transmit empty
+                    stm32::f4xx::i2c1.status1 = status1;    // write
+                    data.bits.data = injected[i];           // write the data out
+                    stm32::f4xx::i2c1.data = data;          // write back
+                    stm32::i2c1_event_isr();                // call the ISR to handle the data
                     // ASSERT_EQ(i + 1, i2c_driver_.GetStatistics().bytes_received);
-                    status1.bits.receive_not_empty = 0;            // set transmit empty
-                    stm32::peripherals::i2c1.status1 = status1;    // write
+                    status1.bits.receive_not_empty = 0;     // set transmit empty
+                    stm32::f4xx::i2c1.status1 = status1;    // write
                 }
-            } else {                                               // write
+            } else {                                        // write
                 // Simulate the data transfer by calling the ISR directly
                 for (size_t i = 0; i < injected.count(); ++i) {
-                    stm32::peripherals::InterIntegratedCircuit::Data data;
+                    stm32::f4xx::InterIntegratedCircuit::Data data;
                     status1.bits.transmit_empty = 1;                // set transmit empty
                     if (i + 1U == injected.count()) {
                         status1.bits.byte_transfer_finished = 1;    // present BTF during the final TXE ISR
                     }
-                    stm32::peripherals::i2c1.status1 = status1;     // write
+                    stm32::f4xx::i2c1.status1 = status1;            // write
                     stm32::i2c1_event_isr();                        // call the ISR to handle the data
                     // ASSERT_EQ(i + 1, i2c_driver_.GetStatistics().bytes_transmitted);
-                    data = stm32::peripherals::i2c1.data;          // read the data register
-                    ASSERT_EQ(injected[i], data.bits.data);        // check the data
-                    status1.bits.transmit_empty = 0;               // clear transmit empty
-                    stm32::peripherals::i2c1.status1 = status1;    // write
+                    data = stm32::f4xx::i2c1.data;             // read the data register
+                    ASSERT_EQ(injected[i], data.bits.data);    // check the data
+                    status1.bits.transmit_empty = 0;           // clear transmit empty
+                    stm32::f4xx::i2c1.status1 = status1;       // write
                 }
-                control1 = stm32::peripherals::i2c1.control1;      // read
-                ASSERT_EQ(1U, control1.bits.stop);                 // check for stop condition
-                control1.bits.stop = 0;                            // clear stop condition
-                stm32::peripherals::i2c1.control1 = control1;      // write
+                control1 = stm32::f4xx::i2c1.control1;         // read
+                ASSERT_EQ(1U, control1.bits.stop);             // check for stop condition
+                control1.bits.stop = 0;                        // clear stop condition
+                stm32::f4xx::i2c1.control1 = control1;         // write
                 // ASSERT_EQ(i + 1, i2c_driver_.GetStatistics().transmitted);
             }
             if (txn_.address.small.read) {
                 // For reads we still model BTF as a later interrupt after the final byte arrives.
-                status1 = stm32::peripherals::i2c1.status1;    // read
-                status1.bits.byte_transfer_finished = 1;       // modify the status
-                stm32::peripherals::i2c1.status1 = status1;    // write
-                stm32::i2c1_event_isr();                       // call the ISR to handle the data
-                status1.bits.byte_transfer_finished = 0;       // modify the status
-                stm32::peripherals::i2c1.status1 = status1;    // write
+                status1 = stm32::f4xx::i2c1.status1;        // read
+                status1.bits.byte_transfer_finished = 1;    // modify the status
+                stm32::f4xx::i2c1.status1 = status1;        // write
+                stm32::i2c1_event_isr();                    // call the ISR to handle the data
+                status1.bits.byte_transfer_finished = 0;    // modify the status
+                stm32::f4xx::i2c1.status1 = status1;        // write
             }
         } else {
             ASSERT_TRUE(false) << "DMA for I2C not implemented in this test";

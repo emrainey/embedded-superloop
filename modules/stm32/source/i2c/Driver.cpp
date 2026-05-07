@@ -3,6 +3,8 @@
 #include "jarnax/print.hpp"
 #include "stm32/configure.hpp"
 
+#include "stm32/chip.hpp"
+
 namespace stm32 {
 /// Array of pointers to active I2C driver instances (I2C1-3)
 i2c::Driver* i2c_instances[3] = {nullptr, nullptr, nullptr};

@@ -8,7 +8,7 @@
 #include "core/Status.hpp"
 #include "core/Units.hpp"
 #include "jarnax/Timer.hpp"
-#include "stm32/peripherals/Timer2.hpp"
+#include "stm32/peripherals.hpp"
 
 namespace stm32 {
 

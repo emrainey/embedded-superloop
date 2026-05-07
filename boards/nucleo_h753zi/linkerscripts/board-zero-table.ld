@@ -1,1 +1,1 @@
-INCLUDE stm32h7xxxx-zero-table.ld
+INCLUDE stm32h7xx-zero-table.ld

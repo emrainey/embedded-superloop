@@ -1,22 +1,22 @@
-#ifndef STM32H7xXXX_HPP_
-#define STM32H7xXXX_HPP_
+#ifndef STM32H7XX_HPP_
+#define STM32H7XX_HPP_
 
 /// @file
 /// STM32H7 Series Peripheral Definitions
 
 #include "stm32/stm32.hpp"
 ///=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-#include "stm32/peripherals/Debug.hpp"
-#include "stm32/peripherals/DirectMemoryAccess.hpp"
-#include "stm32/peripherals/FlashControl.hpp"
-#include "stm32/peripherals/GeneralPurposeInputOutput.hpp"
-#include "stm32/peripherals/InterIntegratedCircuit.hpp"
-#include "stm32/peripherals/RandomNumberGenerator.hpp"
-#include "stm32/peripherals/ResetAndClockControl.hpp"
-#include "stm32/peripherals/SerialPeripheralInterface.hpp"
-#include "stm32/peripherals/Timer2.hpp"
-#include "stm32/peripherals/UniversalAsynchronousReceiverTransmitter.hpp"
-#include "stm32/peripherals/UniversalSynchronousAsynchronousReceiverTransmitter.hpp"
+#include "stm32/h7xx/Debug.hpp"
+#include "stm32/h7xx/DirectMemoryAccess.hpp"
+#include "stm32/h7xx/FlashControl.hpp"
+#include "stm32/h7xx/GeneralPurposeInputOutput.hpp"
+#include "stm32/h7xx/InterIntegratedCircuit.hpp"
+#include "stm32/h7xx/RandomNumberGenerator.hpp"
+#include "stm32/h7xx/ResetAndClockControl.hpp"
+#include "stm32/h7xx/SerialPeripheralInterface.hpp"
+#include "stm32/h7xx/Timer2.hpp"
+#include "stm32/h7xx/UniversalAsynchronousReceiverTransmitter.hpp"
+#include "stm32/h7xx/UniversalSynchronousAsynchronousReceiverTransmitter.hpp"
 
 namespace stm32 {
 
@@ -402,4 +402,4 @@ void clocks(ClockConfiguration const& clkcfg);
 
 }    // namespace stm32
 
-#endif    // STM32H7XXXX_HPP_
+#endif    // STM32H7XX_HPP_

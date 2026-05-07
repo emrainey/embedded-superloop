@@ -142,6 +142,12 @@ using AuxiliaryFaultStatus = cortex::m7::AuxiliaryBusFaultStatus;
 /// The maximum number of external interrupts supported by the M7 Architecture
 constexpr static size_t max_extended_vectors{240U};
 
+/// The actual number of external interrupts for the specific chip (set via CORTEX_INTERRUPT_CHANNELS)
+#if not defined(CORTEX_INTERRUPT_CHANNELS)
+#define CORTEX_INTERRUPT_CHANNELS max_extended_vectors
+#endif
+constexpr static size_t number_of_extended_vectors{CORTEX_INTERRUPT_CHANNELS};
+
 /// @brief The default number of MPU regions allowed on a Cortex Microcontroller processor
 constexpr static size_t DefaultRegionLimit{16U};
 

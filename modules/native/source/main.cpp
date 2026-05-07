@@ -60,7 +60,7 @@ void signal_handler(int sig) {
             }
         } else {
             std::uint32_t index = polyfill::to_underlying(isr) - polyfill::to_underlying(cortex::exceptions::InterruptServiceRoutine::BaseExternal);
-            if (index < cortex::variant::max_extended_vectors) {
+            if (index < cortex::variant::number_of_extended_vectors) {
                 cortex::extended_vectors.handlers[index]();
             }
         }

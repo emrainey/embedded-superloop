@@ -1,6 +1,6 @@
 
-#ifndef STM32_PERIPHERALS_UNIVERSALASYNCHRONOUSRECEIVERTRANSMITTER4__HPP_
-#define STM32_PERIPHERALS_UNIVERSALASYNCHRONOUSRECEIVERTRANSMITTER4__HPP_
+#ifndef STM32_F4XX_UNIVERSALASYNCHRONOUSRECEIVERTRANSMITTER__HPP_
+#define STM32_F4XX_UNIVERSALASYNCHRONOUSRECEIVERTRANSMITTER__HPP_
 
 /// @file
 /// Auto Generated Structure Definitions for UniversalAsynchronousReceiverTransmitter from the Peripheralyzer.
@@ -11,9 +11,9 @@
 #include <type_traits>
 
 namespace stm32 {
-namespace peripherals {
+namespace f4xx {
 
-/// Universal synchronous asynchronous receiver transmitter (UART4)
+/// Universal synchronous asynchronous receiver transmitter
 struct UniversalAsynchronousReceiverTransmitter final {
     /// Status register (SR)
     struct Status final {
@@ -40,25 +40,25 @@ struct UniversalAsynchronousReceiverTransmitter final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Parity error (PE)
-            uint32_t parity_error             : 1;    // bit 0
+            uint32_t parity_error                              : 1;    // bit 0
             /// Framing error (FE)
-            uint32_t framing_error            : 1;    // bit 1
+            uint32_t framing_error                             : 1;    // bit 1
             /// Noise detected flag (NF)
-            uint32_t noise_flag               : 1;    // bit 2
+            uint32_t noise_flag                                : 1;    // bit 2
             /// Overrun error (ORE)
-            uint32_t overrun_error            : 1;    // bit 3
+            uint32_t overrun_error                             : 1;    // bit 3
             /// IDLE line detected (IDLE)
-            uint32_t idle                     : 1;    // bit 4
+            uint32_t idle                                      : 1;    // bit 4
             /// Read data register not empty (RXNE)
-            uint32_t receive_buffer_not_empty : 1;    // bit 5
+            uint32_t receive_buffer_not_empty                  : 1;    // bit 5
             /// Transmission complete (TC)
-            uint32_t transmit_complete        : 1;    // bit 6
+            uint32_t transmit_complete                         : 1;    // bit 6
             /// Transmit data register empty (TXE)
-            uint32_t transmit_buffer_empty    : 1;    // bit 7
+            uint32_t transmit_buffer_empty                     : 1;    // bit 7
             /// LIN break detection flag (LBD)
-            uint32_t line_break_detection     : 1;    // bit 8
+            uint32_t local_interconnect_network_break_detected : 1;    // bit 8
             /// (reserved)
-            uint32_t                          : 23;    // bits 9:31
+            uint32_t                                           : 23;    // bits 9:31
         };
         //+=MEMORY======================================+
         union {
@@ -320,21 +320,21 @@ struct UniversalAsynchronousReceiverTransmitter final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Address of the USART node (ADD)
-            uint32_t address                               : 4;    // bits 0:3
+            uint32_t address                                                          : 4;    // bits 0:3
             /// (reserved)
-            uint32_t                                       : 1;    // bit 4
+            uint32_t                                                                  : 1;    // bit 4
             /// lin break detection length (LBDL)
-            uint32_t line_break_detection_length           : 1;    // bit 5
+            uint32_t local_interconnect_network_line_break_detection_length           : 1;    // bit 5
             /// LIN break detection interrupt enable (LBDIE)
-            uint32_t line_break_detection_interrupt_enable : 1;    // bit 6
+            uint32_t local_interconnect_network_line_break_detection_interrupt_enable : 1;    // bit 6
             /// (reserved)
-            uint32_t                                       : 5;    // bits 7:11
+            uint32_t                                                                  : 5;    // bits 7:11
             /// STOP bits (STOP)
-            uint32_t stop                                  : 2;    // bits 12:13
+            uint32_t stop                                                             : 2;    // bits 12:13
             /// LIN mode enable (LINEN)
-            uint32_t local_interconnect_network_enable     : 1;    // bit 14
+            uint32_t local_interconnect_network_enable                                : 1;    // bit 14
             /// (reserved)
-            uint32_t                                       : 17;    // bits 15:31
+            uint32_t                                                                  : 17;    // bits 15:31
         };
         //+=MEMORY======================================+
         union {
@@ -446,7 +446,7 @@ struct UniversalAsynchronousReceiverTransmitter final {
     /// Data register (DR)
     Data data;    // offset 0x4UL
     /// Baud rate register (BRR)
-    BaudRate baudrate;    // offset 0x8UL
+    BaudRate baud_rate;    // offset 0x8UL
     /// Control register 1 (CR1)
     Control1 control1;    // offset 0xcUL
     /// Control register 2 (CR2)
@@ -710,7 +710,7 @@ static_assert(std::is_standard_layout<UniversalAsynchronousReceiverTransmitter>:
 // Ensure the offsets are all correct
 static_assert(offsetof(UniversalAsynchronousReceiverTransmitter, status) == 0x0UL, "Must be located at this offset");
 static_assert(offsetof(UniversalAsynchronousReceiverTransmitter, data) == 0x4UL, "Must be located at this offset");
-static_assert(offsetof(UniversalAsynchronousReceiverTransmitter, baudrate) == 0x8UL, "Must be located at this offset");
+static_assert(offsetof(UniversalAsynchronousReceiverTransmitter, baud_rate) == 0x8UL, "Must be located at this offset");
 static_assert(offsetof(UniversalAsynchronousReceiverTransmitter, control1) == 0xcUL, "Must be located at this offset");
 static_assert(offsetof(UniversalAsynchronousReceiverTransmitter, control2) == 0x10UL, "Must be located at this offset");
 static_assert(offsetof(UniversalAsynchronousReceiverTransmitter, control3) == 0x14UL, "Must be located at this offset");
@@ -734,6 +734,6 @@ extern UniversalAsynchronousReceiverTransmitter volatile uart7;
 /// @note The address of the peripheral is set either by the linkerscript or by a unit test.
 extern UniversalAsynchronousReceiverTransmitter volatile uart8;
 
-}    // namespace peripherals
+}    // namespace f4xx
 }    // namespace stm32
-#endif    // STM32_PERIPHERALS_UNIVERSALASYNCHRONOUSRECEIVERTRANSMITTER4__HPP_
+#endif    // STM32_F4XX_UNIVERSALASYNCHRONOUSRECEIVERTRANSMITTER__HPP_

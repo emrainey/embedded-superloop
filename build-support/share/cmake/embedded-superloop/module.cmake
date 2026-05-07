@@ -80,7 +80,7 @@ function(add_module)
                 target_link_libraries(${LOCAL_TARGET} PUBLIC ${TARGET_ARCH})
                 message(STATUS "Linking ${LOCAL_TARGET} to ${TARGET_ARCH}")
                 inherit_target_properties(CHILD ${LOCAL_TARGET} PARENT ${TARGET_ARCH} PROPERTIES
-                    FAMILY VENDOR CORTEX_M ARCHITECTURE
+                    FAMILY FAMILY_NAMESPACE VENDOR CORTEX_M ARCHITECTURE
                     CHIP DEVICE PACKAGE CONFIGURATION
                 )
             endif()

@@ -8,7 +8,7 @@
 #undef STM32_HAS_ETHERNET
 #undef STM32_HAS_CAMERA
 
-#include "stm32/stm32f40xxx.hpp"
+#include "stm32/stm32f4xx.hpp"
 
 /// The ST Micro 32 Namespace
 namespace stm32 {

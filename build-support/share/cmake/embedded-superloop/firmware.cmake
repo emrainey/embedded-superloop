@@ -58,7 +58,7 @@ function(add_firmware)
             message(STATUS "Linking ${LOCAL_TARGET}.elf to ${TARGET_BOARD}")
 
             inherit_target_properties(CHILD ${LOCAL_TARGET}.elf PARENT ${TARGET_BOARD} PROPERTIES
-                FAMILY VENDOR CORTEX_M ARCHITECTURE VENDOR_LINKERSCRIPT VENDOR_LINKERSCRIPTS
+                FAMILY FAMILY_NAMESPACE VENDOR CORTEX_M ARCHITECTURE VENDOR_LINKERSCRIPT VENDOR_LINKERSCRIPTS
                 CHIP DEVICE PACKAGE CONFIGURATION
                 ARCH_LINKERSCRIPTS BOARD_LINKERSCRIPTS
             )
@@ -180,7 +180,7 @@ function(add_firmware)
                 set(JDEBUG_FILE ${CMAKE_SOURCE_DIR}/testing/${LOCAL_TARGET}.jdebug)
                 configure_file(${LOCAL_BOARD_OZONE} ${JDEBUG_FILE} @ONLY)
                 get_target_property(LOCAL_BOARD_GDB_CLIENT ${TARGET_BOARD} GDB_CLIENT_TEMPLATE)
-                set(GDB_FILE ${CMAKE_CURRENT_BINARY_DIR}/${LOCAL_TARGET}.gdb)
+                set(GDB_FILE ${CMAKE_SOURCE_DIR}/testing/${LOCAL_TARGET}.gdb)
                 configure_file(${LOCAL_BOARD_GDB_CLIENT} ${GDB_FILE} @ONLY)
                 add_custom_target(ozone-${LOCAL_TARGET}
                     COMMAND /Applications/SEGGER/Ozone/Ozone.app/Contents/MacOS/Ozone ${JDEBUG_FILE}

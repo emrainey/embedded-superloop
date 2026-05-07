@@ -1,9 +1,13 @@
-#include "stm32/uart/Driver.hpp"
 #include <cmath>    // for std::floor
-#include <jarnax/print.hpp>
 #include <memory.hpp>
+
+#include <jarnax/print.hpp>
+
 #include "cortex/vectors.hpp"
+
 #include "stm32/configure.hpp"
+#include "stm32/peripherals.hpp"
+#include "stm32/uart/Driver.hpp"
 
 namespace stm32 {
 /// Array of UART Driver instances for interrupt handling
@@ -27,7 +31,7 @@ void uart5_isr(void) {
     }
 }
 
-#if defined(STM32H7XX)
+#if defined(STM32H7)
 /// Interrupt service routine for UART7
 void uart7_isr(void) {
     cortex::extended_vector_statistics.count[polyfill::to_underlying(stm32::InterruptRequest::UniversalAsynchronousReceiverTransmitter7)]++;
@@ -99,7 +103,7 @@ void Driver::ComputeBaudRate(uint32_t baud_rate) const {
     uint32_t fraction = static_cast<uint32_t>(std::round(fract * over8f));
     brr.bits.div_mantissa = mantissa & 0xFFF;
     brr.bits.div_fraction = fraction & 0x0F;
-    uart_.baudrate = brr;    // write
+    uart_.baud_rate = brr;    // write
     if constexpr (debug::Usart) {
         jarnax::print(
             "UART divider: %lf mantissa:%" PRIu32 " fraction:%" PRIu32 "\r\n",
@@ -112,7 +116,7 @@ void Driver::ComputeBaudRate(uint32_t baud_rate) const {
 
 uint32_t Driver::GetBaudRate(void) const {
     stm32::peripherals::UniversalAsynchronousReceiverTransmitter::Control1 control1 = uart_.control1;    // read
-    stm32::peripherals::UniversalAsynchronousReceiverTransmitter::BaudRate brr = uart_.baudrate;         // read
+    stm32::peripherals::UniversalAsynchronousReceiverTransmitter::BaudRate brr = uart_.baud_rate;        // read
     // uint32_t over8u = control1.bits.oversampling_mode == 1 ? 8 : 16;
     float over8f = control1.bits.oversampling_mode ? 8.0f : 16.0f;
     float divider = (static_cast<float>(brr.bits.div_mantissa) + (static_cast<float>(brr.bits.div_fraction) / over8f));

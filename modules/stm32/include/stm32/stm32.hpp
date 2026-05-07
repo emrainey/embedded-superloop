@@ -10,6 +10,8 @@
 #include "cortex/exceptions.hpp"
 #include "cortex/types.hpp"
 
+#include "stm32/chip.hpp"
+
 ///=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // API which the STM32 modules presents
 #include "stm32/Initialize.hpp"

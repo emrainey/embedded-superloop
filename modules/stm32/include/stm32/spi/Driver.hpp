@@ -8,7 +8,7 @@
 #include "core/Units.hpp"
 #include "jarnax/spi/Driver.hpp"
 #include "stm32/dma/Manager.hpp"
-#include "stm32/peripherals/SerialPeripheralInterface.hpp"
+#include "stm32/peripherals.hpp"
 
 namespace stm32 {
 namespace spi {

@@ -47,11 +47,11 @@ function(add_board)
         set_target_properties(${LOCAL_TARGET} PROPERTIES
             # put all the properties into the board now
             BOARD_LINKERSCRIPTS ${CMAKE_CURRENT_SOURCE_DIR}/linkerscripts
-            OZONE_TEMPLATE ${CMAKE_CURRENT_SOURCE_DIR}/scripts/Ozone.jdebug.in
-            GDB_CLIENT_TEMPLATE ${CMAKE_CURRENT_SOURCE_DIR}/scripts/client.gdb.in
+            OZONE_TEMPLATE ${CMAKE_CURRENT_SOURCE_DIR}/scripts/template.jdebug
+            GDB_CLIENT_TEMPLATE ${CMAKE_CURRENT_SOURCE_DIR}/scripts/template.gdb
         )
         inherit_target_properties(CHILD ${LOCAL_TARGET} PARENT ${TARGET_ARCH} PROPERTIES
-           FAMILY VENDOR CORTEX_M ARCHITECTURE VENDOR_LINKERSCRIPT VENDOR_LINKERSCRIPTS
+           FAMILY FAMILY_NAMESPACE VENDOR CORTEX_M ARCHITECTURE VENDOR_LINKERSCRIPT VENDOR_LINKERSCRIPTS
            CHIP DEVICE PACKAGE CONFIGURATION
            ARCH_LINKERSCRIPTS
         )

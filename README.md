@@ -228,6 +228,24 @@ target remote localhost:1234
 
 The superloop on-target unit test now builds against a configuration for qemu which disables some things (ClockTree) which aren't implemented and cause hangs.
 
+### Debugging with OpenOCD
+
+OpenOCD is an open source tool which can be used to debug on-target using a variety of hardware debuggers. It is a bit more complex to set up than the Segger JLink tools but it is free and open source.
+
+```bash
+# In a separate terminal, start the OpenOCD server with the appropriate configuration for your board and debugger (observe the port here is 2331, not 3333 which is the default for OpenOCD)
+openocd --file modules/stm32/scripts/stm32h753zi.cfg
+
+# then in another terminal, start the GDB client and connect to the OpenOCD server
+cgdb -d `which arm-none-eabi-gdb` -x testing/firmware-nucleo-demo-basic-nucleo_h753zi.gdb
+(gdb) target remote localhost:2331
+
+# Or just normal GDB
+arm-none-eabi-gdb -x testing/firmware-nucleo-demo-basic-nucleo_h753zi.gdb
+```
+
+Once you are inside, run `setup` and then `reset` to start the program. You should see the output in the OpenOCD terminal.
+
 ## Modules
 
 Components are separated into modules which are independent and require build support to interwork. This is done to prevent accidental inclusion in single `include/` folder systems for all components. After a dependency is formed in the build system, the appropriate include paths, defines, sources, etc. will be provided.
@@ -329,11 +347,11 @@ extern Timer2 volatile timer2;
 }    // namespace stm32
 ```
 
-Thus only the memory map in the linker needs to know it's real address. If it needs to be known in code, we simply refer to it naturally as `&stm32::peripherals::timer2`. This works seemlessly in unit test and on-target, where we simply define a structure out in a global location for each peripheral.
+Thus only the memory map in the linker needs to know it's real address. If it needs to be known in code, we simply refer to it naturally as `&stm32::f4xx::timer2`. This works seemlessly in unit test and on-target, where we simply define a structure out in a global location for each peripheral.
 
 ```c++
 // in peripherals.cpp for the board, used by unit tests
-stm32::peripherals::Timer2 volatile timer2;
+stm32::f4xx::Timer2 volatile timer2;
 ```
 
 These should be moved to the chip specific vendor area for per-mcu builds.

@@ -35,8 +35,8 @@ ClockConfiguration const default_clock_configuration = {
 namespace jarnax {
 
 BoardContext::BoardContext()
-    : timer_{stm32::peripherals::timer2}
-    , random_number_generator_{}
+    : timer_{stm32::f4xx::timer2}
+    , random_number_generator_{stm32::f4xx::random_number_generator}
     , wakeup_pin_{stm32::gpio::Port::A, 0}
     , mco1_pin_{stm32::gpio::Port::A, 8}
     , mco2_pin_{stm32::gpio::Port::C, 9}
@@ -61,12 +61,12 @@ BoardContext::BoardContext()
     , spi2_miso_{stm32::gpio::Port::B, 14}
     , spi2_sclk_{stm32::gpio::Port::B, 13}
     , spi2_nss_{stm32::gpio::Port::B, 12}
-    , dma_manager_{stm32::peripherals::direct_memory_access}
-    , spi1_driver_{stm32::peripherals::spi1, dma_manager_, stm32::SPI1_RX, stm32::SPI1_TX}
-    , spi2_driver_{stm32::peripherals::spi2, dma_manager_, stm32::SPI2_RX, stm32::SPI2_TX}
+    , dma_manager_{stm32::f4xx::direct_memory_access}
+    , spi1_driver_{stm32::f4xx::spi1, dma_manager_, stm32::SPI1_RX, stm32::SPI1_TX}
+    , spi2_driver_{stm32::f4xx::spi2, dma_manager_, stm32::SPI2_RX, stm32::SPI2_TX}
     , usart1_tx_{stm32::gpio::Port::A, 9}
     , usart1_rx_{stm32::gpio::Port::A, 10}
-    , usart1_driver_{stm32::peripherals::usart1, dma_manager_, stm32::USART1_RX, stm32::USART1_TX, GetDmaAllocator(), stm32::usart_dma_buffer_size}
+    , usart1_driver_{stm32::f4xx::usart1, dma_manager_, stm32::USART1_RX, stm32::USART1_TX, GetDmaAllocator(), stm32::usart_dma_buffer_size}
     , usart_console_{usart1_driver_} {
     // construct the driver objects as part of the constructor above.
 }
@@ -144,41 +144,41 @@ core::Status BoardContext::Initialize(void) {
         .SetOutputSpeed(stm32::gpio::Speed::High)
         .SetOutputType(stm32::gpio::OutputType::PushPull);
 
-    stm32::peripherals::ResetAndClockControl::AHB1PeripheralClockEnable ahb1_enable;
-    stm32::peripherals::ResetAndClockControl::AHB2PeripheralClockEnable ahb2_enable;
-    stm32::peripherals::ResetAndClockControl::APB1PeripheralClockEnable apb1_enable;
-    stm32::peripherals::ResetAndClockControl::APB2PeripheralClockEnable apb2_enable;
+    stm32::f4xx::ResetAndClockControl::AHB1PeripheralClockEnable ahb1_enable;
+    stm32::f4xx::ResetAndClockControl::AHB2PeripheralClockEnable ahb2_enable;
+    stm32::f4xx::ResetAndClockControl::APB1PeripheralClockEnable apb1_enable;
+    stm32::f4xx::ResetAndClockControl::APB2PeripheralClockEnable apb2_enable;
 
     // Enable the RNG in the AHB2 Periperhals
-    ahb2_enable = stm32::peripherals::reset_and_clock_control.ahb2_peripheral_clock_enable;    // read
+    ahb2_enable = stm32::f4xx::reset_and_clock_control.ahb2_peripheral_clock_enable;    // read
     ahb2_enable.bits.random_number_generator_enable = 1U;
-    stm32::peripherals::reset_and_clock_control.ahb2_peripheral_clock_enable = ahb2_enable;    // write
+    stm32::f4xx::reset_and_clock_control.ahb2_peripheral_clock_enable = ahb2_enable;    // write
 
     // Reset the RNG
-    stm32::peripherals::ResetAndClockControl::AHB2PeripheralReset reset;
-    reset = stm32::peripherals::reset_and_clock_control.ahb2_peripheral_reset;    // read
+    stm32::f4xx::ResetAndClockControl::AHB2PeripheralReset reset;
+    reset = stm32::f4xx::reset_and_clock_control.ahb2_peripheral_reset;    // read
     reset.bits.random_number_generator_reset = 1U;
-    stm32::peripherals::reset_and_clock_control.ahb2_peripheral_reset = reset;    // write
+    stm32::f4xx::reset_and_clock_control.ahb2_peripheral_reset = reset;    // write
     reset.bits.random_number_generator_reset = 0U;
-    stm32::peripherals::reset_and_clock_control.ahb2_peripheral_reset = reset;    // write
+    stm32::f4xx::reset_and_clock_control.ahb2_peripheral_reset = reset;    // write
 
     // enable the APB1 peripherals in the Reset and Clock Control register
-    apb1_enable = stm32::peripherals::reset_and_clock_control.apb1_peripheral_clock_enable;    // read
-    apb1_enable.bits.tim2en = 1U;                                                              // modify
-    apb1_enable.bits.spi2en = 1U;                                                              // modify
-    stm32::peripherals::reset_and_clock_control.apb1_peripheral_clock_enable = apb1_enable;    // write
+    apb1_enable = stm32::f4xx::reset_and_clock_control.apb1_peripheral_clock_enable;    // read
+    apb1_enable.bits.tim2en = 1U;                                                       // modify
+    apb1_enable.bits.spi2en = 1U;                                                       // modify
+    stm32::f4xx::reset_and_clock_control.apb1_peripheral_clock_enable = apb1_enable;    // write
 
     // enable the AHB1 peripherals in the Reset and Clock Control register
-    ahb1_enable = stm32::peripherals::reset_and_clock_control.ahb1_peripheral_clock_enable;    // read
-    ahb1_enable.bits.dma1en = 1;                                                               // modify
-    ahb1_enable.bits.dma2en = 1;                                                               // modify
-    stm32::peripherals::reset_and_clock_control.ahb1_peripheral_clock_enable = ahb1_enable;    // write
+    ahb1_enable = stm32::f4xx::reset_and_clock_control.ahb1_peripheral_clock_enable;    // read
+    ahb1_enable.bits.dma1en = 1;                                                        // modify
+    ahb1_enable.bits.dma2en = 1;                                                        // modify
+    stm32::f4xx::reset_and_clock_control.ahb1_peripheral_clock_enable = ahb1_enable;    // write
 
     // enable the ABP2 peripherals in the Reset and Clock Control register
-    apb2_enable = stm32::peripherals::reset_and_clock_control.apb2_peripheral_clock_enable;    // read
-    apb2_enable.bits.spi1en = 1;                                                               // modify
-    apb2_enable.bits.usart1en = 1;                                                             // modify
-    stm32::peripherals::reset_and_clock_control.apb2_peripheral_clock_enable = apb2_enable;    // write
+    apb2_enable = stm32::f4xx::reset_and_clock_control.apb2_peripheral_clock_enable;    // read
+    apb2_enable.bits.spi1en = 1;                                                        // modify
+    apb2_enable.bits.usart1en = 1;                                                      // modify
+    stm32::f4xx::reset_and_clock_control.apb2_peripheral_clock_enable = apb2_enable;    // write
 
     jarnax::print(
         "Feature Clock is%" PRIu32

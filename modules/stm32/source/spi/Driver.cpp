@@ -1,12 +1,11 @@
+#include "stm32/spi/Driver.hpp"
 #include "cortex/halt.hpp"
 #include "cortex/thumb.hpp"
 #include "cortex/vectors.hpp"
 #include "jarnax/Assertion.hpp"
 #include "jarnax/print.hpp"
 #include "stm32/configure.hpp"
-
-#include "stm32/peripherals/ResetAndClockControl.hpp"
-#include "stm32/spi/Driver.hpp"
+#include "stm32/peripherals.hpp"
 
 namespace stm32 {
 
@@ -123,22 +122,22 @@ core::Status Driver::Initialize(core::units::Hertz peripheral_frequency, core::u
 
     std::uint32_t setting = polyfill::to_underlying(FindClosestDivider(peripheral_frequency_, desired_spi_clock_frequency));
     // disable at first
-    control1 = spi_.control1;                              // read
-    control1.bits.clock_polarity = 0;                      // first clock transition is the first data capture edge
-    control1.bits.clock_phase = 0;                         // first clock transition is the first data capture edge
-    control1.bits.leader = 1;                              // master mode (MSTR)
-    control1.bits.baud_rate = (setting & 0x7U);            // set the baud rate divider
-    control1.bits.spi_enable = 0;                          // SPI disable (for now)
-    control1.bits.lsbfirst = 0;                            // MSB first
-    control1.bits.software_follower_management = 1;        // software slave management (NSS is controlled by us SW)
-    control1.bits.internal_follower_select = 1;            // internal slave select, 1 means de-selected
-    control1.bits.rxonly = 0;                              // full duplex
-    control1.bits.data_frame_format = 0;                   // 8-bit data frame format
-    control1.bits.crc_next = 0;                            // CRC next disabled
-    control1.bits.crc_enable = 0;                          // CRC calculation disabled
-    control1.bits.bidirectional_data_output_enable = 0;    // (ignored)
-    control1.bits.bidirectional_data_mode = 0;             // 2-line bidirectional
-    spi_.control1 = control1;                              // write
+    control1 = spi_.control1;                                   // read
+    control1.bits.clock_polarity = 0;                           // first clock transition is the first data capture edge
+    control1.bits.clock_phase = 0;                              // first clock transition is the first data capture edge
+    control1.bits.leader = 1;                                   // master mode (MSTR)
+    control1.bits.baud_rate = (setting & 0x7U);                 // set the baud rate divider
+    control1.bits.serial_peripheral_interface_enable = 0;       // SPI disable (for now)
+    control1.bits.least_significant_bit_first = 0;              // MSB first
+    control1.bits.software_follower_management = 1;             // software slave management (NSS is controlled by us SW)
+    control1.bits.internal_follower_select = 1;                 // internal slave select, 1 means de-selected
+    control1.bits.receive_only = 0;                             // full duplex
+    control1.bits.data_frame_format = 0;                        // 8-bit data frame format
+    control1.bits.cyclic_redundancy_check_transfer_next = 0;    // CRC next disabled
+    control1.bits.cyclic_redundancy_check_enable = 0;           // CRC calculation disabled
+    control1.bits.bidirectional_data_output_enable = 0;         // (ignored)
+    control1.bits.bidirectional_data_mode = 0;                  // 2-line bidirectional
+    spi_.control1 = control1;                                   // write
 
     auto divider = control1.baud_rate_divider();
     jarnax::print(
@@ -154,11 +153,11 @@ core::Status Driver::Initialize(core::units::Hertz peripheral_frequency, core::u
     spi_.control2 = control2;                    // write
 
     stm32::peripherals::SerialPeripheralInterface::InterIntegratedCircuitSoundConfiguration i2s_cfg = spi_.i2s_configuration;    // read
-    i2s_cfg.bits.i2smod = 0;                                                                                                     // disable the I2S
+    i2s_cfg.bits.i2s_mode = 0;                                                                                                   // disable the I2S
     spi_.i2s_configuration = i2s_cfg;                                                                                            // write
 
     control1 = spi_.control1;                                                                                                    // read
-    control1.bits.spi_enable = 0;                                                                                                // modify
+    control1.bits.serial_peripheral_interface_enable = 0;                                                                        // modify
     spi_.control1 = control1;                                                                                                    // write
 
     return core::Status{core::Result::Success, core::Cause::State};
@@ -211,9 +210,9 @@ core::Status Driver::Start(jarnax::spi::Transaction& transaction) {
 
     //=========================================
     // configure the transaction
-    control1 = spi_.control1;        // read
+    control1 = spi_.control1;                            // read
     control1.bits.data_frame_format = (transaction.use_data_as_bytes) ? 0 : 1;
-    control1.bits.crc_enable = 0;    // TODO not supported yet (transaction.use_hardware_crc) ? 1 : 0;
+    control1.bits.cyclic_redundancy_check_enable = 0;    // TODO not supported yet (transaction.use_hardware_crc) ? 1 : 0;
     control1.bits.clock_polarity = (transaction.polarity == jarnax::spi::ClockPolarity::IdleHigh) ? 1 : 0;
     control1.bits.clock_phase = (transaction.phase == jarnax::spi::ClockPhase::FirstAfterEdge) ? 1 : 0;
     spi_.control1 = control1;    // write
@@ -229,10 +228,10 @@ core::Status Driver::Start(jarnax::spi::Transaction& transaction) {
     control2 = spi_.control2;                    // read
     control2.bits.error_interrupt_enable = 1;    // interrupt on errors
     if constexpr (stm32::configure::use_spi_as == configure::Mode::Dma) {
-        control2.bits.transmit_dma_enable = (transaction.send_size > 0U);
-        control2.bits.receive_dma_enable = (transaction.receive_size > 0U);
-        control2.bits.transmit_buffer_empty_interrupt_enable = 0;       // no interrupt on TXE
-        control2.bits.receive_buffer_not_empty_interrupt_enable = 0;    // no interrupt on RXNE
+        control2.bits.transmit_direct_memory_access_enable = (transaction.send_size > 0U);
+        control2.bits.receive_direct_memory_access_enable = (transaction.receive_size > 0U);
+        control2.bits.transmit_empty_interrupt_enable = 0;       // no interrupt on TXE
+        control2.bits.receive_not_empty_interrupt_enable = 0;    // no interrupt on RXNE
         //=========================================
         // configure the DMA (TX then RX)
         if (transaction.send_size > 0U) {
@@ -246,10 +245,10 @@ core::Status Driver::Start(jarnax::spi::Transaction& transaction) {
             rx_dma_resource_->Enable();    // start the DMA stream, RXNE will cause the read to happen
         }
     } else {
-        control2.bits.transmit_dma_enable = 0;
-        control2.bits.receive_dma_enable = 0;
-        control2.bits.transmit_buffer_empty_interrupt_enable = (transaction.send_size > 0U);          // interrupt on TXE
-        control2.bits.receive_buffer_not_empty_interrupt_enable = (transaction.receive_size > 0U);    // interrupt on RXNE
+        control2.bits.transmit_direct_memory_access_enable = 0;
+        control2.bits.receive_direct_memory_access_enable = 0;
+        control2.bits.transmit_empty_interrupt_enable = (transaction.send_size > 0U);          // interrupt on TXE
+        control2.bits.receive_not_empty_interrupt_enable = (transaction.receive_size > 0U);    // interrupt on RXNE
         //=========================================
         if constexpr (stm32::trigger_isr_from_start) {
             if (transaction.send_size > 0U) {
@@ -322,9 +321,9 @@ core::Status Driver::Check(jarnax::spi::Transaction& transaction) {
 void Driver::Enable(void) {
     // enable the peripheral
     peripherals::SerialPeripheralInterface::Control1 control1;
-    control1 = spi_.control1;        // read
-    control1.bits.spi_enable = 1;    // modify
-    spi_.control1 = control1;        // write}
+    control1 = spi_.control1;                                // read
+    control1.bits.serial_peripheral_interface_enable = 1;    // modify
+    spi_.control1 = control1;                                // write}
 }
 
 void Driver::Select(jarnax::spi::Transaction& transaction) {
@@ -352,9 +351,9 @@ void Driver::Deselect(jarnax::spi::Transaction& transaction) {
 void Driver::Disable(void) {
     // disable the peripheral
     peripherals::SerialPeripheralInterface::Control1 control1;
-    control1 = spi_.control1;        // read
-    control1.bits.spi_enable = 0;    // modify
-    spi_.control1 = control1;        // write
+    control1 = spi_.control1;                                // read
+    control1.bits.serial_peripheral_interface_enable = 0;    // modify
+    spi_.control1 = control1;                                // write
 }
 
 core::Status Driver::Cancel(jarnax::spi::Transaction& transaction) {
@@ -368,8 +367,8 @@ core::Status Driver::Cancel(jarnax::spi::Transaction& transaction) {
     } else {
         // disable the interrupts
         peripherals::SerialPeripheralInterface::Control2 control2 = spi_.control2;    // read
-        control2.bits.transmit_buffer_empty_interrupt_enable = 0;                     // disable TXE interrupt
-        control2.bits.receive_buffer_not_empty_interrupt_enable = 0;                  // disable RXNE interrupt
+        control2.bits.transmit_empty_interrupt_enable = 0;                            // disable TXE interrupt
+        control2.bits.receive_not_empty_interrupt_enable = 0;                         // disable RXNE interrupt
         spi_.control2 = control2;                                                     // write
     }
 
@@ -394,7 +393,7 @@ void Driver::HandleInterrupt(void) {
             static_cast<uint32_t>(status.bits.overrun),
             static_cast<uint32_t>(status.bits.transmit_buffer_empty),
             static_cast<uint32_t>(status.bits.receive_buffer_not_empty),
-            static_cast<uint32_t>(status.bits.crc_error),
+            static_cast<uint32_t>(status.bits.cyclic_redundancy_check_error),
             static_cast<uint32_t>(status.bits.mode_fault),
             static_cast<uint32_t>(status.bits.busy)
         );
@@ -403,7 +402,7 @@ void Driver::HandleInterrupt(void) {
     thumb::nop();
     thumb::nop();
     thumb::nop();
-    if (control2.bits.receive_buffer_not_empty_interrupt_enable and status.bits.receive_buffer_not_empty) {
+    if (control2.bits.receive_not_empty_interrupt_enable and status.bits.receive_buffer_not_empty) {
         // reading from spi_.data will clear the RXNE flag
         statistics_.receive_buffer_not_empty++;
         if constexpr (configure::use_spi_as == configure::Mode::Interrupt) {
@@ -418,16 +417,16 @@ void Driver::HandleInterrupt(void) {
                 }
                 statistics_.bytes_received++;
                 if (transaction_->received_size == transaction_->receive_size) {
-                    control2 = spi_.control2;                                       // read
-                    control2.bits.receive_buffer_not_empty_interrupt_enable = 0;    // disable RXNE interrupt
-                    spi_.control2 = control2;                                       // write
+                    control2 = spi_.control2;                                // read
+                    control2.bits.receive_not_empty_interrupt_enable = 0;    // disable RXNE interrupt
+                    spi_.control2 = control2;                                // write
                     statistics_.transfers_received++;
                 }
             }
         }
     }
 
-    if (control2.bits.transmit_buffer_empty_interrupt_enable and status.bits.transmit_buffer_empty) {
+    if (control2.bits.transmit_empty_interrupt_enable and status.bits.transmit_buffer_empty) {
         // writing into spi_.data will clear the TXE flag
         statistics_.transmit_buffer_empty++;
         if constexpr (configure::use_spi_as == configure::Mode::Interrupt) {
@@ -439,9 +438,9 @@ void Driver::HandleInterrupt(void) {
                 //} else {
                 // we let this fire one more extra time so that we can disable the TXE interrupt and the transaction
                 if (transaction_->sent_size == transaction_->send_size) {
-                    control2 = spi_.control2;                                    // read
-                    control2.bits.transmit_buffer_empty_interrupt_enable = 0;    // disable TXE interrupt
-                    spi_.control2 = control2;                                    // write
+                    control2 = spi_.control2;                             // read
+                    control2.bits.transmit_empty_interrupt_enable = 0;    // disable TXE interrupt
+                    spi_.control2 = control2;                             // write
                     statistics_.transfers_sent++;
                 }
             }
@@ -467,7 +466,7 @@ void Driver::HandleInterrupt(void) {
     if (status.bits.underrun) {
         statistics_.underrun++;
     }
-    if (status.bits.crc_error) {
+    if (status.bits.cyclic_redundancy_check_error) {
         statistics_.crc_error++;
     }
     if (status.bits.mode_fault) {

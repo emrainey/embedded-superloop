@@ -1,9 +1,9 @@
 
-#ifndef STM32_PERIPHERALS_SPI_HPP_
-#define STM32_PERIPHERALS_SPI_HPP_
+#ifndef STM32_F4XX_SERIALPERIPHERALINTERFACE__HPP_
+#define STM32_F4XX_SERIALPERIPHERALINTERFACE__HPP_
 
 /// @file
-/// Auto Generated Structure Definitions for SPI1 from the Peripheralyzer.
+/// Auto Generated Structure Definitions for SerialPeripheralInterface from the Peripheralyzer.
 /// @copyright
 
 #include <cstddef>
@@ -11,9 +11,9 @@
 #include <type_traits>
 
 namespace stm32 {
-namespace peripherals {
+namespace f4xx {
 
-/// Serial peripheral interface (SPI1)
+/// Serial peripheral interface
 struct SerialPeripheralInterface final {
     /// control register 1 (CR1)
     struct Control1 final {
@@ -40,35 +40,35 @@ struct SerialPeripheralInterface final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Clock phase (CPHA)
-            uint32_t clock_phase                      : 1;    // bit 0
+            uint32_t clock_phase                           : 1;    // bit 0
             /// Clock polarity (CPOL)
-            uint32_t clock_polarity                   : 1;    // bit 1
+            uint32_t clock_polarity                        : 1;    // bit 1
             /// Master selection (MSTR)
-            uint32_t leader                           : 1;    // bit 2
+            uint32_t leader                                : 1;    // bit 2
             /// Baud rate control (BR)
-            uint32_t baud_rate                        : 3;    // bits 3:5
+            uint32_t baud_rate                             : 3;    // bits 3:5
             /// SPI enable (SPE)
-            uint32_t spi_enable                       : 1;    // bit 6
+            uint32_t serial_peripheral_interface_enable    : 1;    // bit 6
             /// Frame format (LSBFIRST)
-            uint32_t lsbfirst                         : 1;    // bit 7
+            uint32_t least_significant_bit_first           : 1;    // bit 7
             /// Internal slave select (SSI)
-            uint32_t internal_follower_select         : 1;    // bit 8
+            uint32_t internal_follower_select              : 1;    // bit 8
             /// Software slave management (SSM)
-            uint32_t software_follower_management     : 1;    // bit 9
+            uint32_t software_follower_management          : 1;    // bit 9
             /// Receive only (RXONLY)
-            uint32_t rxonly                           : 1;    // bit 10
+            uint32_t receive_only                          : 1;    // bit 10
             /// Data frame format (DFF)
-            uint32_t data_frame_format                : 1;    // bit 11
+            uint32_t data_frame_format                     : 1;    // bit 11
             /// CRC transfer next (CRCNEXT)
-            uint32_t crc_next                         : 1;    // bit 12
+            uint32_t cyclic_redundancy_check_transfer_next : 1;    // bit 12
             /// Hardware CRC calculation enable (CRCEN)
-            uint32_t crc_enable                       : 1;    // bit 13
+            uint32_t cyclic_redundancy_check_enable        : 1;    // bit 13
             /// Output enable in bidirectional mode (BIDIOE)
-            uint32_t bidirectional_data_output_enable : 1;    // bit 14
+            uint32_t bidirectional_data_output_enable      : 1;    // bit 14
             /// Bidirectional data mode enable (BIDIMODE)
-            uint32_t bidirectional_data_mode          : 1;    // bit 15
+            uint32_t bidirectional_data_mode               : 1;    // bit 15
             /// (reserved)
-            uint32_t                                  : 16;    // bits 16:31
+            uint32_t                                       : 16;    // bits 16:31
         };
         //+=MEMORY======================================+
         union {
@@ -137,23 +137,23 @@ struct SerialPeripheralInterface final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Rx buffer DMA enable (RXDMAEN)
-            uint32_t receive_dma_enable                        : 1;    // bit 0
+            uint32_t receive_direct_memory_access_enable  : 1;    // bit 0
             /// Tx buffer DMA enable (TXDMAEN)
-            uint32_t transmit_dma_enable                       : 1;    // bit 1
+            uint32_t transmit_direct_memory_access_enable : 1;    // bit 1
             /// SS output enable (SSOE)
-            uint32_t follower_output_enable                    : 1;    // bit 2
+            uint32_t follower_output_enable               : 1;    // bit 2
             /// (reserved)
-            uint32_t                                           : 1;    // bit 3
+            uint32_t                                      : 1;    // bit 3
             /// Frame format (FRF)
-            uint32_t frame_format                              : 1;    // bit 4
+            uint32_t frame_format                         : 1;    // bit 4
             /// Error interrupt enable (ERRIE)
-            uint32_t error_interrupt_enable                    : 1;    // bit 5
+            uint32_t error_interrupt_enable               : 1;    // bit 5
             /// RX buffer not empty interrupt enable (RXNEIE)
-            uint32_t receive_buffer_not_empty_interrupt_enable : 1;    // bit 6
+            uint32_t receive_not_empty_interrupt_enable   : 1;    // bit 6
             /// Tx buffer empty interrupt enable (TXEIE)
-            uint32_t transmit_buffer_empty_interrupt_enable    : 1;    // bit 7
+            uint32_t transmit_empty_interrupt_enable      : 1;    // bit 7
             /// (reserved)
-            uint32_t                                           : 24;    // bits 8:31
+            uint32_t                                      : 24;    // bits 8:31
         };
         //+=MEMORY======================================+
         union {
@@ -209,25 +209,25 @@ struct SerialPeripheralInterface final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Receive buffer not empty (RXNE)
-            uint32_t receive_buffer_not_empty    : 1;    // bit 0
+            uint32_t receive_buffer_not_empty      : 1;    // bit 0
             /// Transmit buffer empty (TXE)
-            uint32_t transmit_buffer_empty       : 1;    // bit 1
+            uint32_t transmit_buffer_empty         : 1;    // bit 1
             /// Channel side (CHSIDE)
-            uint32_t channel_side                : 1;    // bit 2
+            uint32_t channel_side                  : 1;    // bit 2
             /// Underrun flag (UDR)
-            uint32_t underrun                    : 1;    // bit 3
+            uint32_t underrun                      : 1;    // bit 3
             /// CRC error flag (CRCERR)
-            uint32_t crc_error                   : 1;    // bit 4
+            uint32_t cyclic_redundancy_check_error : 1;    // bit 4
             /// Mode fault (MODF)
-            uint32_t mode_fault                  : 1;    // bit 5
+            uint32_t mode_fault                    : 1;    // bit 5
             /// Overrun flag (OVR)
-            uint32_t overrun                     : 1;    // bit 6
+            uint32_t overrun                       : 1;    // bit 6
             /// Busy flag (BSY)
-            uint32_t busy                        : 1;    // bit 7
+            uint32_t busy                          : 1;    // bit 7
             /// TI frame format error (TIFRFE)
-            uint32_t transmit_frame_format_error : 1;    // bit 8
+            uint32_t transmit_frame_format_error   : 1;    // bit 8
             /// (reserved)
-            uint32_t                             : 23;    // bits 9:31
+            uint32_t                               : 23;    // bits 9:31
         };
         //+=MEMORY======================================+
         union {
@@ -317,26 +317,26 @@ struct SerialPeripheralInterface final {
     // Ensure the sizeof the entire register is correct.
     static_assert(sizeof(Data) == 4UL, "Must be this exact size");
     /// CRC polynomial register (CRCPR)
-    struct CrcPolynomial final {
+    struct CyclicRedundancyCheckPolynomial final {
         /// Default Constructor
-        CrcPolynomial()
+        CyclicRedundancyCheckPolynomial()
             : whole{0u} {}
         /// Copy Constructor from volatile
-        CrcPolynomial(CrcPolynomial volatile const& other)
+        CyclicRedundancyCheckPolynomial(CyclicRedundancyCheckPolynomial volatile const& other)
             : whole{other.whole} {}
         /// Copy Construction from nonvolatile
-        CrcPolynomial(CrcPolynomial const& other)
+        CyclicRedundancyCheckPolynomial(CyclicRedundancyCheckPolynomial const& other)
             : whole{other.whole} {}
         /// Move Constructor is deleted
-        CrcPolynomial(CrcPolynomial&&) = delete;
+        CyclicRedundancyCheckPolynomial(CyclicRedundancyCheckPolynomial&&) = delete;
         /// Parameterized Constructor for constant references
-        explicit CrcPolynomial(uint32_t const& value)
+        explicit CyclicRedundancyCheckPolynomial(uint32_t const& value)
             : whole{value} {}
         /// Parameterized Constructor for volatile references
-        explicit CrcPolynomial(uint32_t volatile& value)
+        explicit CyclicRedundancyCheckPolynomial(uint32_t volatile& value)
             : whole{value} {}
         /// Destructor is empty
-        ~CrcPolynomial() = default;
+        ~CyclicRedundancyCheckPolynomial() = default;
 
         /// The internal bitfield for the register
         struct Fields final {
@@ -352,13 +352,13 @@ struct SerialPeripheralInterface final {
         };
         //+=MEMORY======================================+
         /// Move Assignment is deleted
-        CrcPolynomial& operator=(CrcPolynomial&&) = delete;
+        CyclicRedundancyCheckPolynomial& operator=(CyclicRedundancyCheckPolynomial&&) = delete;
         /// Assignment from a volatile to a non volatile copy of the register.
         /// @note Does not return a reference
-        inline void operator=(CrcPolynomial volatile& other) { whole = other.whole; }
+        inline void operator=(CyclicRedundancyCheckPolynomial volatile& other) { whole = other.whole; }
         /// Assignment from a non volatile to a volatile register
         /// @note Does not return a reference
-        inline void operator=(CrcPolynomial const& other) volatile { whole = other.whole; }
+        inline void operator=(CyclicRedundancyCheckPolynomial const& other) volatile { whole = other.whole; }
         /// Copy Assign a complete value from the base type uint32_t into a volatile version
         /// This allows you to assign the whole register to a literal value or a known constant of the same type.
         /// @note Does not return a reference
@@ -371,37 +371,37 @@ struct SerialPeripheralInterface final {
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
-    static_assert(std::is_standard_layout<CrcPolynomial>::value, "Must be standard layout");
+    static_assert(std::is_standard_layout<CyclicRedundancyCheckPolynomial>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(sizeof(CrcPolynomial) == 4UL, "Must be this exact size");
+    static_assert(sizeof(CyclicRedundancyCheckPolynomial) == 4UL, "Must be this exact size");
     /// RX CRC register (RXCRCR)
-    struct ReceiveCRC final {
+    struct ReceiveCyclicRedundancyCheck final {
         /// Default Constructor
-        ReceiveCRC()
+        ReceiveCyclicRedundancyCheck()
             : whole{0u} {}
         /// Copy Constructor from volatile
-        ReceiveCRC(ReceiveCRC volatile const& other)
+        ReceiveCyclicRedundancyCheck(ReceiveCyclicRedundancyCheck volatile const& other)
             : whole{other.whole} {}
         /// Copy Construction from nonvolatile
-        ReceiveCRC(ReceiveCRC const& other)
+        ReceiveCyclicRedundancyCheck(ReceiveCyclicRedundancyCheck const& other)
             : whole{other.whole} {}
         /// Move Constructor is deleted
-        ReceiveCRC(ReceiveCRC&&) = delete;
+        ReceiveCyclicRedundancyCheck(ReceiveCyclicRedundancyCheck&&) = delete;
         /// Parameterized Constructor for constant references
-        explicit ReceiveCRC(uint32_t const& value)
+        explicit ReceiveCyclicRedundancyCheck(uint32_t const& value)
             : whole{value} {}
         /// Parameterized Constructor for volatile references
-        explicit ReceiveCRC(uint32_t volatile& value)
+        explicit ReceiveCyclicRedundancyCheck(uint32_t volatile& value)
             : whole{value} {}
         /// Destructor is empty
-        ~ReceiveCRC() = default;
+        ~ReceiveCyclicRedundancyCheck() = default;
 
         /// The internal bitfield for the register
         struct Fields final {
             /// Rx CRC register (RxCRC)
-            uint32_t crc_value : 16;    // bits 0:15
+            uint32_t receive_cyclic_redundancy_check : 16;    // bits 0:15
             /// (reserved)
-            uint32_t           : 16;    // bits 16:31
+            uint32_t                                 : 16;    // bits 16:31
         };
         //+=MEMORY======================================+
         union {
@@ -410,13 +410,13 @@ struct SerialPeripheralInterface final {
         };
         //+=MEMORY======================================+
         /// Move Assignment is deleted
-        ReceiveCRC& operator=(ReceiveCRC&&) = delete;
+        ReceiveCyclicRedundancyCheck& operator=(ReceiveCyclicRedundancyCheck&&) = delete;
         /// Assignment from a volatile to a non volatile copy of the register.
         /// @note Does not return a reference
-        inline void operator=(ReceiveCRC volatile& other) { whole = other.whole; }
+        inline void operator=(ReceiveCyclicRedundancyCheck volatile& other) { whole = other.whole; }
         /// Assignment from a non volatile to a volatile register
         /// @note Does not return a reference
-        inline void operator=(ReceiveCRC const& other) volatile { whole = other.whole; }
+        inline void operator=(ReceiveCyclicRedundancyCheck const& other) volatile { whole = other.whole; }
         /// Copy Assign a complete value from the base type uint32_t into a volatile version
         /// This allows you to assign the whole register to a literal value or a known constant of the same type.
         /// @note Does not return a reference
@@ -429,37 +429,37 @@ struct SerialPeripheralInterface final {
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
-    static_assert(std::is_standard_layout<ReceiveCRC>::value, "Must be standard layout");
+    static_assert(std::is_standard_layout<ReceiveCyclicRedundancyCheck>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(sizeof(ReceiveCRC) == 4UL, "Must be this exact size");
+    static_assert(sizeof(ReceiveCyclicRedundancyCheck) == 4UL, "Must be this exact size");
     /// TX CRC register (TXCRCR)
-    struct TransmitCRC final {
+    struct TransmitCyclicRedundancyCheck final {
         /// Default Constructor
-        TransmitCRC()
+        TransmitCyclicRedundancyCheck()
             : whole{0u} {}
         /// Copy Constructor from volatile
-        TransmitCRC(TransmitCRC volatile const& other)
+        TransmitCyclicRedundancyCheck(TransmitCyclicRedundancyCheck volatile const& other)
             : whole{other.whole} {}
         /// Copy Construction from nonvolatile
-        TransmitCRC(TransmitCRC const& other)
+        TransmitCyclicRedundancyCheck(TransmitCyclicRedundancyCheck const& other)
             : whole{other.whole} {}
         /// Move Constructor is deleted
-        TransmitCRC(TransmitCRC&&) = delete;
+        TransmitCyclicRedundancyCheck(TransmitCyclicRedundancyCheck&&) = delete;
         /// Parameterized Constructor for constant references
-        explicit TransmitCRC(uint32_t const& value)
+        explicit TransmitCyclicRedundancyCheck(uint32_t const& value)
             : whole{value} {}
         /// Parameterized Constructor for volatile references
-        explicit TransmitCRC(uint32_t volatile& value)
+        explicit TransmitCyclicRedundancyCheck(uint32_t volatile& value)
             : whole{value} {}
         /// Destructor is empty
-        ~TransmitCRC() = default;
+        ~TransmitCyclicRedundancyCheck() = default;
 
         /// The internal bitfield for the register
         struct Fields final {
             /// Tx CRC register (TxCRC)
-            uint32_t crc_value : 16;    // bits 0:15
+            uint32_t transmit_cyclic_redundancy_check : 16;    // bits 0:15
             /// (reserved)
-            uint32_t           : 16;    // bits 16:31
+            uint32_t                                  : 16;    // bits 16:31
         };
         //+=MEMORY======================================+
         union {
@@ -468,13 +468,13 @@ struct SerialPeripheralInterface final {
         };
         //+=MEMORY======================================+
         /// Move Assignment is deleted
-        TransmitCRC& operator=(TransmitCRC&&) = delete;
+        TransmitCyclicRedundancyCheck& operator=(TransmitCyclicRedundancyCheck&&) = delete;
         /// Assignment from a volatile to a non volatile copy of the register.
         /// @note Does not return a reference
-        inline void operator=(TransmitCRC volatile& other) { whole = other.whole; }
+        inline void operator=(TransmitCyclicRedundancyCheck volatile& other) { whole = other.whole; }
         /// Assignment from a non volatile to a volatile register
         /// @note Does not return a reference
-        inline void operator=(TransmitCRC const& other) volatile { whole = other.whole; }
+        inline void operator=(TransmitCyclicRedundancyCheck const& other) volatile { whole = other.whole; }
         /// Copy Assign a complete value from the base type uint32_t into a volatile version
         /// This allows you to assign the whole register to a literal value or a known constant of the same type.
         /// @note Does not return a reference
@@ -487,9 +487,9 @@ struct SerialPeripheralInterface final {
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
-    static_assert(std::is_standard_layout<TransmitCRC>::value, "Must be standard layout");
+    static_assert(std::is_standard_layout<TransmitCyclicRedundancyCheck>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(sizeof(TransmitCRC) == 4UL, "Must be this exact size");
+    static_assert(sizeof(TransmitCyclicRedundancyCheck) == 4UL, "Must be this exact size");
     /// I2S configuration register (I2SCFGR)
     struct InterIntegratedCircuitSoundConfiguration final {
         /// Default Constructor
@@ -515,25 +515,25 @@ struct SerialPeripheralInterface final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Channel length (number of bits per audio channel) (CHLEN)
-            uint32_t chlen      : 1;    // bit 0
+            uint32_t channel_length                              : 1;    // bit 0
             /// Data length to be transferred (DATLEN)
-            uint32_t datlen     : 2;    // bits 1:2
+            uint32_t data_length                                 : 2;    // bits 1:2
             /// Steady state clock polarity (CKPOL)
-            uint32_t ckpol      : 1;    // bit 3
+            uint32_t clock_polarity                              : 1;    // bit 3
             /// I2S standard selection (I2SSTD)
-            uint32_t i2sstd     : 2;    // bits 4:5
+            uint32_t i2s_standard_selection                      : 2;    // bits 4:5
             /// (reserved)
-            uint32_t            : 1;    // bit 6
+            uint32_t                                             : 1;    // bit 6
             /// PCM frame synchronization (PCMSYNC)
-            uint32_t pcmsync    : 1;    // bit 7
+            uint32_t pulse_code_modulation_frame_synchronization : 1;    // bit 7
             /// I2S configuration mode (I2SCFG)
-            uint32_t i2scfg     : 2;    // bits 8:9
+            uint32_t i2s_configuration_mode                      : 2;    // bits 8:9
             /// I2S Enable (I2SE)
-            uint32_t i2s_enable : 1;    // bit 10
+            uint32_t i2s_enable                                  : 1;    // bit 10
             /// I2S mode selection (I2SMOD)
-            uint32_t i2smod     : 1;    // bit 11
+            uint32_t i2s_mode                                    : 1;    // bit 11
             /// (reserved)
-            uint32_t            : 20;    // bits 12:31
+            uint32_t                                             : 20;    // bits 12:31
         };
         //+=MEMORY======================================+
         union {
@@ -637,11 +637,11 @@ struct SerialPeripheralInterface final {
     /// data register (DR)
     Data data;    // offset 0xcUL
     /// CRC polynomial register (CRCPR)
-    CrcPolynomial crc_polynomial;    // offset 0x10UL
+    CyclicRedundancyCheckPolynomial cyclic_redundancy_check_polynomial;    // offset 0x10UL
     /// RX CRC register (RXCRCR)
-    ReceiveCRC receive_crc;    // offset 0x14UL
+    ReceiveCyclicRedundancyCheck receive_cyclic_redundancy_check;    // offset 0x14UL
     /// TX CRC register (TXCRCR)
-    TransmitCRC transmit_crc;    // offset 0x18UL
+    TransmitCyclicRedundancyCheck transmit_cyclic_redundancy_check;    // offset 0x18UL
     /// I2S configuration register (I2SCFGR)
     InterIntegratedCircuitSoundConfiguration i2s_configuration;    // offset 0x1cUL
     /// I2S prescaler register (I2SPR)
@@ -902,9 +902,9 @@ static_assert(offsetof(SerialPeripheralInterface, control1) == 0x0UL, "Must be l
 static_assert(offsetof(SerialPeripheralInterface, control2) == 0x4UL, "Must be located at this offset");
 static_assert(offsetof(SerialPeripheralInterface, status) == 0x8UL, "Must be located at this offset");
 static_assert(offsetof(SerialPeripheralInterface, data) == 0xcUL, "Must be located at this offset");
-static_assert(offsetof(SerialPeripheralInterface, crc_polynomial) == 0x10UL, "Must be located at this offset");
-static_assert(offsetof(SerialPeripheralInterface, receive_crc) == 0x14UL, "Must be located at this offset");
-static_assert(offsetof(SerialPeripheralInterface, transmit_crc) == 0x18UL, "Must be located at this offset");
+static_assert(offsetof(SerialPeripheralInterface, cyclic_redundancy_check_polynomial) == 0x10UL, "Must be located at this offset");
+static_assert(offsetof(SerialPeripheralInterface, receive_cyclic_redundancy_check) == 0x14UL, "Must be located at this offset");
+static_assert(offsetof(SerialPeripheralInterface, transmit_cyclic_redundancy_check) == 0x18UL, "Must be located at this offset");
 static_assert(offsetof(SerialPeripheralInterface, i2s_configuration) == 0x1cUL, "Must be located at this offset");
 static_assert(offsetof(SerialPeripheralInterface, i2s_prescaler) == 0x20UL, "Must be located at this offset");
 
@@ -929,6 +929,6 @@ extern SerialPeripheralInterface volatile spi5;
 /// The external volatile spiX which is a memory mapped register or peripheral.
 /// @note The address of the peripheral is set either by the linkerscript or by a unit test.
 extern SerialPeripheralInterface volatile spi6;
-}    // namespace peripherals
+}    // namespace f4xx
 }    // namespace stm32
-#endif    // STM32_PERIPHERALS_SPI1__HPP_
+#endif    // STM32_F4XX_SERIALPERIPHERALINTERFACE__HPP_

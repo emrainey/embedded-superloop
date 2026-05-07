@@ -1,10 +1,9 @@
 
-#ifndef STM32_PERIPHERALS_TIMER2_HPP_
-#define STM32_PERIPHERALS_TIMER2_HPP_
+#ifndef STM32_F4XX_TIMER2__HPP_
+#define STM32_F4XX_TIMER2__HPP_
 
 /// @file
 /// Auto Generated Structure Definitions for Timer2 from the Peripheralyzer.
-/// But heavily modified for names
 /// @copyright
 
 #include <cstddef>
@@ -12,9 +11,9 @@
 #include <type_traits>
 
 namespace stm32 {
-namespace peripherals {
+namespace f4xx {
 
-/// General purpose timers (Timer2)
+/// General purpose timers (TIM2)
 struct Timer2 final {
     /// control register 1 (CR1)
     struct Control1 final {
@@ -41,7 +40,7 @@ struct Timer2 final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Counter enable (CEN)
-            uint32_t enable                     : 1;    // bit 0
+            uint32_t counter_enable             : 1;    // bit 0
             /// Update disable (UDIS)
             uint32_t update_disable             : 1;    // bit 1
             /// Update request source (URS)
@@ -49,7 +48,7 @@ struct Timer2 final {
             /// One-pulse mode (OPM)
             uint32_t one_pulse_mode             : 1;    // bit 3
             /// Direction (DIR)
-            uint32_t direction                  : 1;    // bit 4
+            uint32_t data_transfer_direction    : 1;    // bit 4
             /// Center-aligned mode selection (CMS)
             uint32_t center_aligned_mode        : 2;    // bits 5:6
             /// Auto-reload preload enable (ARPE)
@@ -81,8 +80,7 @@ struct Timer2 final {
         inline explicit operator uint32_t(void) const { return whole; }
         /// Returns a copy of the volatile register as an uint32_t
         inline explicit operator uint32_t(void) volatile { return whole; }
-        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular
-        /// instance
+        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular instance
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
@@ -146,15 +144,14 @@ struct Timer2 final {
         inline explicit operator uint32_t(void) const { return whole; }
         /// Returns a copy of the volatile register as an uint32_t
         inline explicit operator uint32_t(void) volatile { return whole; }
-        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular
-        /// instance
+        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular instance
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
     static_assert(std::is_standard_layout<Control2>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
     static_assert(sizeof(Control2) == 4UL, "Must be this exact size");
-    /// slave mode control register (FollowerMode)
+    /// slave mode control register (SMCR)
     struct FollowerMode final {
         /// Default Constructor
         FollowerMode()
@@ -191,9 +188,9 @@ struct Timer2 final {
             /// External trigger prescaler (ETPS)
             uint32_t external_trigger_prescaler : 2;    // bits 12:13
             /// External clock enable (ECE)
-            uint32_t external_clock_enable      : 1;    // bit 14
+            uint32_t external_clock_parity      : 1;    // bit 14
             /// External trigger polarity (ETP)
-            uint32_t external_trigger_polarity  : 1;    // bit 15
+            uint32_t external_trigger_parity    : 1;    // bit 15
             /// (reserved)
             uint32_t                            : 16;    // bits 16:31
         };
@@ -219,70 +216,69 @@ struct Timer2 final {
         inline explicit operator uint32_t(void) const { return whole; }
         /// Returns a copy of the volatile register as an uint32_t
         inline explicit operator uint32_t(void) volatile { return whole; }
-        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular
-        /// instance
+        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular instance
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
     static_assert(std::is_standard_layout<FollowerMode>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
     static_assert(sizeof(FollowerMode) == 4UL, "Must be this exact size");
-    /// DMA/Interrupt enable register (DmaInterruptEnable)
-    struct DmaInterruptEnable final {
+    /// DMA/Interrupt enable register (DIER)
+    struct DirectMemoryAccessInterruptEnable final {
         /// Default Constructor
-        DmaInterruptEnable()
+        DirectMemoryAccessInterruptEnable()
             : whole{0u} {}
         /// Copy Constructor from volatile
-        DmaInterruptEnable(DmaInterruptEnable volatile const& other)
+        DirectMemoryAccessInterruptEnable(DirectMemoryAccessInterruptEnable volatile const& other)
             : whole{other.whole} {}
         /// Copy Construction from nonvolatile
-        DmaInterruptEnable(DmaInterruptEnable const& other)
+        DirectMemoryAccessInterruptEnable(DirectMemoryAccessInterruptEnable const& other)
             : whole{other.whole} {}
         /// Move Constructor is deleted
-        DmaInterruptEnable(DmaInterruptEnable&&) = delete;
+        DirectMemoryAccessInterruptEnable(DirectMemoryAccessInterruptEnable&&) = delete;
         /// Parameterized Constructor for constant references
-        explicit DmaInterruptEnable(uint32_t const& value)
+        explicit DirectMemoryAccessInterruptEnable(uint32_t const& value)
             : whole{value} {}
         /// Parameterized Constructor for volatile references
-        explicit DmaInterruptEnable(uint32_t volatile& value)
+        explicit DirectMemoryAccessInterruptEnable(uint32_t volatile& value)
             : whole{value} {}
         /// Destructor is empty
-        ~DmaInterruptEnable() = default;
+        ~DirectMemoryAccessInterruptEnable() = default;
 
         /// The internal bitfield for the register
         struct Fields final {
             /// Update interrupt enable (UIE)
-            uint32_t update  : 1;    // bit 0
+            uint32_t update_interrupt_enable  : 1;    // bit 0
             /// Capture/Compare 1 interrupt enable (CC1IE)
-            uint32_t cc1ie   : 1;    // bit 1
+            uint32_t cc1ie                    : 1;    // bit 1
             /// Capture/Compare 2 interrupt enable (CC2IE)
-            uint32_t cc2ie   : 1;    // bit 2
+            uint32_t cc2ie                    : 1;    // bit 2
             /// Capture/Compare 3 interrupt enable (CC3IE)
-            uint32_t cc3ie   : 1;    // bit 3
+            uint32_t cc3ie                    : 1;    // bit 3
             /// Capture/Compare 4 interrupt enable (CC4IE)
-            uint32_t cc4ie   : 1;    // bit 4
+            uint32_t cc4ie                    : 1;    // bit 4
             /// (reserved)
-            uint32_t         : 1;    // bit 5
+            uint32_t                          : 1;    // bit 5
             /// Trigger interrupt enable (TIE)
-            uint32_t trigger : 1;    // bit 6
+            uint32_t trigger_interrupt_enable : 1;    // bit 6
             /// (reserved)
-            uint32_t         : 1;    // bit 7
+            uint32_t                          : 1;    // bit 7
             /// Update DMA request enable (UDE)
-            uint32_t ude     : 1;    // bit 8
+            uint32_t ude                      : 1;    // bit 8
             /// Capture/Compare 1 DMA request enable (CC1DE)
-            uint32_t cc1de   : 1;    // bit 9
+            uint32_t cc1de                    : 1;    // bit 9
             /// Capture/Compare 2 DMA request enable (CC2DE)
-            uint32_t cc2de   : 1;    // bit 10
+            uint32_t cc2de                    : 1;    // bit 10
             /// Capture/Compare 3 DMA request enable (CC3DE)
-            uint32_t cc3de   : 1;    // bit 11
+            uint32_t cc3de                    : 1;    // bit 11
             /// Capture/Compare 4 DMA request enable (CC4DE)
-            uint32_t cc4de   : 1;    // bit 12
+            uint32_t cc4de                    : 1;    // bit 12
             /// (reserved)
-            uint32_t         : 1;    // bit 13
+            uint32_t                          : 1;    // bit 13
             /// Trigger DMA request enable (TDE)
-            uint32_t tde     : 1;    // bit 14
+            uint32_t tde                      : 1;    // bit 14
             /// (reserved)
-            uint32_t         : 17;    // bits 15:31
+            uint32_t                          : 17;    // bits 15:31
         };
         //+=MEMORY======================================+
         union {
@@ -291,13 +287,13 @@ struct Timer2 final {
         };
         //+=MEMORY======================================+
         /// Move Assignment is deleted
-        DmaInterruptEnable& operator=(DmaInterruptEnable&&) = delete;
+        DirectMemoryAccessInterruptEnable& operator=(DirectMemoryAccessInterruptEnable&&) = delete;
         /// Assignment from a volatile to a non volatile copy of the register.
         /// @note Does not return a reference
-        inline void operator=(DmaInterruptEnable volatile& other) { whole = other.whole; }
+        inline void operator=(DirectMemoryAccessInterruptEnable volatile& other) { whole = other.whole; }
         /// Assignment from a non volatile to a volatile register
         /// @note Does not return a reference
-        inline void operator=(DmaInterruptEnable const& other) volatile { whole = other.whole; }
+        inline void operator=(DirectMemoryAccessInterruptEnable const& other) volatile { whole = other.whole; }
         /// Copy Assign a complete value from the base type uint32_t into a volatile version
         /// This allows you to assign the whole register to a literal value or a known constant of the same type.
         /// @note Does not return a reference
@@ -306,14 +302,13 @@ struct Timer2 final {
         inline explicit operator uint32_t(void) const { return whole; }
         /// Returns a copy of the volatile register as an uint32_t
         inline explicit operator uint32_t(void) volatile { return whole; }
-        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular
-        /// instance
+        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular instance
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
-    static_assert(std::is_standard_layout<DmaInterruptEnable>::value, "Must be standard layout");
+    static_assert(std::is_standard_layout<DirectMemoryAccessInterruptEnable>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(sizeof(DmaInterruptEnable) == 4UL, "Must be this exact size");
+    static_assert(sizeof(DirectMemoryAccessInterruptEnable) == 4UL, "Must be this exact size");
     /// status register (SR)
     struct Status final {
         /// Default Constructor
@@ -339,31 +334,31 @@ struct Timer2 final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Update interrupt flag (UIF)
-            uint32_t update_interrupt : 1;    // bit 0
+            uint32_t update_interrupt_flag : 1;    // bit 0
             /// Capture/compare 1 interrupt flag (CC1IF)
-            uint32_t cc1if            : 1;    // bit 1
+            uint32_t cc1if                 : 1;    // bit 1
             /// Capture/Compare 2 interrupt flag (CC2IF)
-            uint32_t cc2if            : 1;    // bit 2
+            uint32_t cc2if                 : 1;    // bit 2
             /// Capture/Compare 3 interrupt flag (CC3IF)
-            uint32_t cc3if            : 1;    // bit 3
+            uint32_t cc3if                 : 1;    // bit 3
             /// Capture/Compare 4 interrupt flag (CC4IF)
-            uint32_t cc4if            : 1;    // bit 4
+            uint32_t cc4if                 : 1;    // bit 4
             /// (reserved)
-            uint32_t                  : 1;    // bit 5
+            uint32_t                       : 1;    // bit 5
             /// Trigger interrupt flag (TIF)
-            uint32_t tif              : 1;    // bit 6
+            uint32_t tif                   : 1;    // bit 6
             /// (reserved)
-            uint32_t                  : 2;    // bits 7:8
+            uint32_t                       : 2;    // bits 7:8
             /// Capture/Compare 1 overcapture flag (CC1OF)
-            uint32_t cc1of            : 1;    // bit 9
+            uint32_t cc1of                 : 1;    // bit 9
             /// Capture/compare 2 overcapture flag (CC2OF)
-            uint32_t cc2of            : 1;    // bit 10
+            uint32_t cc2of                 : 1;    // bit 10
             /// Capture/Compare 3 overcapture flag (CC3OF)
-            uint32_t cc3of            : 1;    // bit 11
+            uint32_t cc3of                 : 1;    // bit 11
             /// Capture/Compare 4 overcapture flag (CC4OF)
-            uint32_t cc4of            : 1;    // bit 12
+            uint32_t cc4of                 : 1;    // bit 12
             /// (reserved)
-            uint32_t                  : 19;    // bits 13:31
+            uint32_t                       : 19;    // bits 13:31
         };
         //+=MEMORY======================================+
         union {
@@ -387,15 +382,14 @@ struct Timer2 final {
         inline explicit operator uint32_t(void) const { return whole; }
         /// Returns a copy of the volatile register as an uint32_t
         inline explicit operator uint32_t(void) volatile { return whole; }
-        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular
-        /// instance
+        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular instance
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
     static_assert(std::is_standard_layout<Status>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
     static_assert(sizeof(Status) == 4UL, "Must be this exact size");
-    /// event generation register (EventGeneration)
+    /// event generation register (EGR)
     struct EventGeneration final {
         /// Default Constructor
         EventGeneration()
@@ -458,8 +452,7 @@ struct Timer2 final {
         inline explicit operator uint32_t(void) const { return whole; }
         /// Returns a copy of the volatile register as an uint32_t
         inline explicit operator uint32_t(void) volatile { return whole; }
-        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular
-        /// instance
+        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular instance
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
@@ -490,45 +483,45 @@ struct Timer2 final {
 
         /// The internal bitfield for the register
         struct OutputFields final {
-            /// CC1S (CC1S)
-            uint32_t cc1s  : 2;    // bits 0:1
-            /// OC1FE (OC1FE)
-            uint32_t oc1fe : 1;    // bit 2
-            /// OC1PE (OC1PE)
-            uint32_t oc1pe : 1;    // bit 3
-            /// OC1M (OC1M)
-            uint32_t oc1m  : 3;    // bits 4:6
-            /// OC1CE (OC1CE)
-            uint32_t oc1ce : 1;    // bit 7
-            /// CC2S (CC2S)
-            uint32_t cc2s  : 2;    // bits 8:9
-            /// OC2FE (OC2FE)
-            uint32_t oc2fe : 1;    // bit 10
-            /// OC2PE (OC2PE)
-            uint32_t oc2pe : 1;    // bit 11
-            /// OC2M (OC2M)
-            uint32_t oc2m  : 3;    // bits 12:14
-            /// OC2CE (OC2CE)
-            uint32_t oc2ce : 1;    // bit 15
+            /// Capture/Compare 1 selection (CC1S)
+            uint32_t capture_compare_selection1     : 2;    // bits 0:1
+            /// Output Compare 1 Fast enable (OC1FE)
+            uint32_t output_compare_fast_enable1    : 1;    // bit 2
+            /// Output Compare 1 Preload enable (OC1PE)
+            uint32_t output_compare_preload_enable1 : 1;    // bit 3
+            /// Output Compare 1 Mode (OC1M)
+            uint32_t output_compare_mode1           : 3;    // bits 4:6
+            /// Output Compare 1 Clear Enable (OC1CE)
+            uint32_t output_compare_clear_enable1   : 1;    // bit 7
+            /// Capture/Compare 2 selection (CC2S)
+            uint32_t capture_compare_selection2     : 2;    // bits 8:9
+            /// Output Compare 2 Fast enable (OC2FE)
+            uint32_t output_compare_fast_enable2    : 1;    // bit 10
+            /// Output Compare 2 Preload enable (OC2PE)
+            uint32_t output_compare_preload_enable2 : 1;    // bit 11
+            /// Output Compare 2 Mode (OC2M)
+            uint32_t output_compare_mode2           : 3;    // bits 12:14
+            /// Output Compare 2 Clear Enable (OC2CE)
+            uint32_t output_compare_clear_enable2   : 1;    // bit 15
             /// (reserved)
-            uint32_t       : 16;    // bits 16:31
+            uint32_t                                : 16;    // bits 16:31
         };
         /// The internal bitfield for the register
         struct InputFields final {
             /// Capture/Compare 1 selection (CC1S)
-            uint32_t cc1s   : 2;    // bits 0:1
+            uint32_t capture_compare_selection1 : 2;    // bits 0:1
             /// Input capture 1 prescaler (ICPCS)
-            uint32_t icpcs  : 2;    // bits 2:3
+            uint32_t input_capture_prescaler1   : 2;    // bits 2:3
             /// Input capture 1 filter (IC1F)
-            uint32_t ic1f   : 4;    // bits 4:7
+            uint32_t input_capture_filter1      : 4;    // bits 4:7
             /// Capture/Compare 2 selection (CC2S)
-            uint32_t cc2s   : 2;    // bits 8:9
+            uint32_t capture_compare_selection2 : 2;    // bits 8:9
             /// Input capture 2 prescaler (IC2PCS)
-            uint32_t ic2pcs : 2;    // bits 10:11
+            uint32_t input_capture_prescaler2   : 2;    // bits 10:11
             /// Input capture 2 filter (IC2F)
-            uint32_t ic2f   : 4;    // bits 12:15
+            uint32_t input_capture_filter2      : 4;    // bits 12:15
             /// (reserved)
-            uint32_t        : 16;    // bits 16:31
+            uint32_t                            : 16;    // bits 16:31
         };
         //+=MEMORY======================================+
         union {
@@ -561,69 +554,69 @@ struct Timer2 final {
     static_assert(std::is_standard_layout<CaptureCompareMode1>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
     static_assert(sizeof(CaptureCompareMode1) == 4UL, "Must be this exact size");
-    /// capture/compare mode register 2 (output mode) (CaptureControlOutput2)
-    struct CaptureControlMode2 final {
+    /// capture/compare mode register 2 (output mode) (CaptureCompareOutput2)
+    struct CaptureCompareMode2 final {
         /// Default Constructor
-        CaptureControlMode2()
+        CaptureCompareMode2()
             : whole{0u} {}
         /// Copy Constructor from volatile
-        CaptureControlMode2(CaptureControlMode2 volatile const& other)
+        CaptureCompareMode2(CaptureCompareMode2 volatile const& other)
             : whole{other.whole} {}
         /// Copy Construction from nonvolatile
-        CaptureControlMode2(CaptureControlMode2 const& other)
+        CaptureCompareMode2(CaptureCompareMode2 const& other)
             : whole{other.whole} {}
         /// Move Constructor is deleted
-        CaptureControlMode2(CaptureControlMode2&&) = delete;
+        CaptureCompareMode2(CaptureCompareMode2&&) = delete;
         /// Parameterized Constructor for constant references
-        explicit CaptureControlMode2(uint32_t const& value)
+        explicit CaptureCompareMode2(uint32_t const& value)
             : whole{value} {}
         /// Parameterized Constructor for volatile references
-        explicit CaptureControlMode2(uint32_t volatile& value)
+        explicit CaptureCompareMode2(uint32_t volatile& value)
             : whole{value} {}
         /// Destructor is empty
-        ~CaptureControlMode2() = default;
+        ~CaptureCompareMode2() = default;
 
         /// The internal bitfield for the register
         struct OutputFields final {
-            /// CC3S (CC3S)
-            uint32_t cc3s  : 2;    // bits 0:1
-            /// OC3FE (OC3FE)
-            uint32_t oc3fe : 1;    // bit 2
-            /// OC3PE (OC3PE)
-            uint32_t oc3pe : 1;    // bit 3
-            /// OC3M (OC3M)
-            uint32_t oc3m  : 3;    // bits 4:6
-            /// OC3CE (OC3CE)
-            uint32_t oc3ce : 1;    // bit 7
-            /// CC4S (CC4S)
-            uint32_t cc4s  : 2;    // bits 8:9
-            /// OC4FE (OC4FE)
-            uint32_t oc4fe : 1;    // bit 10
-            /// OC4PE (OC4PE)
-            uint32_t oc4pe : 1;    // bit 11
-            /// OC4M (OC4M)
-            uint32_t oc4m  : 3;    // bits 12:14
-            /// O24CE (O24CE)
-            uint32_t o24ce : 1;    // bit 15
+            /// Capture/Compare 3 selection (CC3S)
+            uint32_t capture_compare_selection3     : 2;    // bits 0:1
+            /// Output Compare 3 Fast enable (OC3FE)
+            uint32_t output_compare_fast_enable3    : 1;    // bit 2
+            /// Output Compare 3 Preload enable (OC3PE)
+            uint32_t output_compare_preload_enable3 : 1;    // bit 3
+            /// Output Compare 3 Mode (OC3M)
+            uint32_t output_compare_mode3           : 3;    // bits 4:6
+            /// Output Compare 3 Clear Enable (OC3CE)
+            uint32_t output_compare_clear_enable3   : 1;    // bit 7
+            /// Capture/Compare 4 selection (CC4S)
+            uint32_t capture_compare_selection4     : 2;    // bits 8:9
+            /// Output Compare 4 Fast enable (OC4FE)
+            uint32_t output_compare_fast_enable4    : 1;    // bit 10
+            /// Output Compare 4 Preload enable (OC4PE)
+            uint32_t output_compare_preload_enable4 : 1;    // bit 11
+            /// Output Compare 4 Mode (OC4M)
+            uint32_t output_compare_mode4           : 3;    // bits 12:14
+            /// Output Compare 4 Clear Enable (OC4CE)
+            uint32_t output_compare_clear_enable4   : 1;    // bit 15
             /// (reserved)
-            uint32_t       : 16;    // bits 16:31
+            uint32_t                                : 16;    // bits 16:31
         };
         /// The internal bitfield for the register
         struct InputFields final {
             /// Capture/compare 3 selection (CC3S)
-            uint32_t cc3s   : 2;    // bits 0:1
-            /// Input capture 3 prescaler (IC3Prescalar)
-            uint32_t ic3psc : 2;    // bits 2:3
+            uint32_t capture_compare_selection3 : 2;    // bits 0:1
+            /// Input capture 3 prescaler (IC3PSC)
+            uint32_t input_capture_prescaler3   : 2;    // bits 2:3
             /// Input capture 3 filter (IC3F)
-            uint32_t ic3f   : 4;    // bits 4:7
+            uint32_t input_capture_filter3      : 4;    // bits 4:7
             /// Capture/Compare 4 selection (CC4S)
-            uint32_t cc4s   : 2;    // bits 8:9
-            /// Input capture 4 prescaler (IC4Prescalar)
-            uint32_t ic4psc : 2;    // bits 10:11
+            uint32_t capture_compare_selection4 : 2;    // bits 8:9
+            /// Input capture 4 prescaler (IC4PSC)
+            uint32_t input_capture_prescaler4   : 2;    // bits 10:11
             /// Input capture 4 filter (IC4F)
-            uint32_t ic4f   : 4;    // bits 12:15
+            uint32_t input_capture_filter4      : 4;    // bits 12:15
             /// (reserved)
-            uint32_t        : 16;    // bits 16:31
+            uint32_t                            : 16;    // bits 16:31
         };
         //+=MEMORY======================================+
         union {
@@ -633,13 +626,13 @@ struct Timer2 final {
         };
         //+=MEMORY======================================+
         /// Move Assignment is deleted
-        CaptureControlMode2& operator=(CaptureControlMode2&&) = delete;
+        CaptureCompareMode2& operator=(CaptureCompareMode2&&) = delete;
         /// Assignment from a volatile to a non volatile copy of the register.
         /// @note Does not return a reference
-        inline void operator=(CaptureControlMode2 volatile& other) { whole = other.whole; }
+        inline void operator=(CaptureCompareMode2 volatile& other) { whole = other.whole; }
         /// Assignment from a non volatile to a volatile register
         /// @note Does not return a reference
-        inline void operator=(CaptureControlMode2 const& other) volatile { whole = other.whole; }
+        inline void operator=(CaptureCompareMode2 const& other) volatile { whole = other.whole; }
         /// Copy Assign a complete value from the base type uint32_t into a volatile version
         /// This allows you to assign the whole register to a literal value or a known constant of the same type.
         /// @note Does not return a reference
@@ -653,30 +646,30 @@ struct Timer2 final {
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
-    static_assert(std::is_standard_layout<CaptureControlMode2>::value, "Must be standard layout");
+    static_assert(std::is_standard_layout<CaptureCompareMode2>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(sizeof(CaptureControlMode2) == 4UL, "Must be this exact size");
-    /// capture/compare enable register (CaptureControlEnable)
-    struct CaptureControlEnable final {
+    static_assert(sizeof(CaptureCompareMode2) == 4UL, "Must be this exact size");
+    /// capture/compare enable register (CCER)
+    struct CaptureCompareEnable final {
         /// Default Constructor
-        CaptureControlEnable()
+        CaptureCompareEnable()
             : whole{0u} {}
         /// Copy Constructor from volatile
-        CaptureControlEnable(CaptureControlEnable volatile const& other)
+        CaptureCompareEnable(CaptureCompareEnable volatile const& other)
             : whole{other.whole} {}
         /// Copy Construction from nonvolatile
-        CaptureControlEnable(CaptureControlEnable const& other)
+        CaptureCompareEnable(CaptureCompareEnable const& other)
             : whole{other.whole} {}
         /// Move Constructor is deleted
-        CaptureControlEnable(CaptureControlEnable&&) = delete;
+        CaptureCompareEnable(CaptureCompareEnable&&) = delete;
         /// Parameterized Constructor for constant references
-        explicit CaptureControlEnable(uint32_t const& value)
+        explicit CaptureCompareEnable(uint32_t const& value)
             : whole{value} {}
         /// Parameterized Constructor for volatile references
-        explicit CaptureControlEnable(uint32_t volatile& value)
+        explicit CaptureCompareEnable(uint32_t volatile& value)
             : whole{value} {}
         /// Destructor is empty
-        ~CaptureControlEnable() = default;
+        ~CaptureCompareEnable() = default;
 
         /// The internal bitfield for the register
         struct Fields final {
@@ -706,7 +699,7 @@ struct Timer2 final {
             uint32_t cc3np : 1;    // bit 11
             /// Capture/Compare 4 output enable (CC4E)
             uint32_t cc4e  : 1;    // bit 12
-            /// Capture/Compare 3 output Polarity (CC4P)
+            /// Capture/Compare 4 output Polarity (CC4P)
             uint32_t cc4p  : 1;    // bit 13
             /// (reserved)
             uint32_t       : 1;    // bit 14
@@ -722,13 +715,13 @@ struct Timer2 final {
         };
         //+=MEMORY======================================+
         /// Move Assignment is deleted
-        CaptureControlEnable& operator=(CaptureControlEnable&&) = delete;
+        CaptureCompareEnable& operator=(CaptureCompareEnable&&) = delete;
         /// Assignment from a volatile to a non volatile copy of the register.
         /// @note Does not return a reference
-        inline void operator=(CaptureControlEnable volatile& other) { whole = other.whole; }
+        inline void operator=(CaptureCompareEnable volatile& other) { whole = other.whole; }
         /// Assignment from a non volatile to a volatile register
         /// @note Does not return a reference
-        inline void operator=(CaptureControlEnable const& other) volatile { whole = other.whole; }
+        inline void operator=(CaptureCompareEnable const& other) volatile { whole = other.whole; }
         /// Copy Assign a complete value from the base type uint32_t into a volatile version
         /// This allows you to assign the whole register to a literal value or a known constant of the same type.
         /// @note Does not return a reference
@@ -737,14 +730,13 @@ struct Timer2 final {
         inline explicit operator uint32_t(void) const { return whole; }
         /// Returns a copy of the volatile register as an uint32_t
         inline explicit operator uint32_t(void) volatile { return whole; }
-        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular
-        /// instance
+        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular instance
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
-    static_assert(std::is_standard_layout<CaptureControlEnable>::value, "Must be standard layout");
+    static_assert(std::is_standard_layout<CaptureCompareEnable>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(sizeof(CaptureControlEnable) == 4UL, "Must be this exact size");
+    static_assert(sizeof(CaptureCompareEnable) == 4UL, "Must be this exact size");
     /// counter (CNT)
     struct Counter final {
         /// Default Constructor
@@ -770,9 +762,9 @@ struct Timer2 final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Low counter value (CNT_L)
-            uint32_t cnt_l : 16;    // bits 0:15
+            uint32_t counter_low  : 16;    // bits 0:15
             /// High counter value (CNT_H)
-            uint32_t cnt_h : 16;    // bits 16:31
+            uint32_t counter_high : 16;    // bits 16:31
         };
         //+=MEMORY======================================+
         union {
@@ -796,42 +788,41 @@ struct Timer2 final {
         inline explicit operator uint32_t(void) const { return whole; }
         /// Returns a copy of the volatile register as an uint32_t
         inline explicit operator uint32_t(void) volatile { return whole; }
-        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular
-        /// instance
+        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular instance
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
     static_assert(std::is_standard_layout<Counter>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
     static_assert(sizeof(Counter) == 4UL, "Must be this exact size");
-    /// prescaler (Prescalar)
-    struct Prescalar final {
+    /// prescaler (PSC)
+    struct Prescaler final {
         /// Default Constructor
-        Prescalar()
+        Prescaler()
             : whole{0u} {}
         /// Copy Constructor from volatile
-        Prescalar(Prescalar volatile const& other)
+        Prescaler(Prescaler volatile const& other)
             : whole{other.whole} {}
         /// Copy Construction from nonvolatile
-        Prescalar(Prescalar const& other)
+        Prescaler(Prescaler const& other)
             : whole{other.whole} {}
         /// Move Constructor is deleted
-        Prescalar(Prescalar&&) = delete;
+        Prescaler(Prescaler&&) = delete;
         /// Parameterized Constructor for constant references
-        explicit Prescalar(uint32_t const& value)
+        explicit Prescaler(uint32_t const& value)
             : whole{value} {}
         /// Parameterized Constructor for volatile references
-        explicit Prescalar(uint32_t volatile& value)
+        explicit Prescaler(uint32_t volatile& value)
             : whole{value} {}
         /// Destructor is empty
-        ~Prescalar() = default;
+        ~Prescaler() = default;
 
         /// The internal bitfield for the register
         struct Fields final {
-            /// Prescaler value (Prescalar)
-            uint32_t psc : 16;    // bits 0:15
+            /// Prescaler value (PSC)
+            uint32_t prescaler : 16;    // bits 0:15
             /// (reserved)
-            uint32_t     : 16;    // bits 16:31
+            uint32_t           : 16;    // bits 16:31
         };
         //+=MEMORY======================================+
         union {
@@ -840,13 +831,13 @@ struct Timer2 final {
         };
         //+=MEMORY======================================+
         /// Move Assignment is deleted
-        Prescalar& operator=(Prescalar&&) = delete;
+        Prescaler& operator=(Prescaler&&) = delete;
         /// Assignment from a volatile to a non volatile copy of the register.
         /// @note Does not return a reference
-        inline void operator=(Prescalar volatile& other) { whole = other.whole; }
+        inline void operator=(Prescaler volatile& other) { whole = other.whole; }
         /// Assignment from a non volatile to a volatile register
         /// @note Does not return a reference
-        inline void operator=(Prescalar const& other) volatile { whole = other.whole; }
+        inline void operator=(Prescaler const& other) volatile { whole = other.whole; }
         /// Copy Assign a complete value from the base type uint32_t into a volatile version
         /// This allows you to assign the whole register to a literal value or a known constant of the same type.
         /// @note Does not return a reference
@@ -855,42 +846,41 @@ struct Timer2 final {
         inline explicit operator uint32_t(void) const { return whole; }
         /// Returns a copy of the volatile register as an uint32_t
         inline explicit operator uint32_t(void) volatile { return whole; }
-        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular
-        /// instance
+        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular instance
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
-    static_assert(std::is_standard_layout<Prescalar>::value, "Must be standard layout");
+    static_assert(std::is_standard_layout<Prescaler>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(sizeof(Prescalar) == 4UL, "Must be this exact size");
+    static_assert(sizeof(Prescaler) == 4UL, "Must be this exact size");
     /// auto-reload register (ARR)
-    struct AutoReloadRegister final {
+    struct AutoReload final {
         /// Default Constructor
-        AutoReloadRegister()
+        AutoReload()
             : whole{0u} {}
         /// Copy Constructor from volatile
-        AutoReloadRegister(AutoReloadRegister volatile const& other)
+        AutoReload(AutoReload volatile const& other)
             : whole{other.whole} {}
         /// Copy Construction from nonvolatile
-        AutoReloadRegister(AutoReloadRegister const& other)
+        AutoReload(AutoReload const& other)
             : whole{other.whole} {}
         /// Move Constructor is deleted
-        AutoReloadRegister(AutoReloadRegister&&) = delete;
+        AutoReload(AutoReload&&) = delete;
         /// Parameterized Constructor for constant references
-        explicit AutoReloadRegister(uint32_t const& value)
+        explicit AutoReload(uint32_t const& value)
             : whole{value} {}
         /// Parameterized Constructor for volatile references
-        explicit AutoReloadRegister(uint32_t volatile& value)
+        explicit AutoReload(uint32_t volatile& value)
             : whole{value} {}
         /// Destructor is empty
-        ~AutoReloadRegister() = default;
+        ~AutoReload() = default;
 
         /// The internal bitfield for the register
         struct Fields final {
             /// Low Auto-reload value (ARR_L)
-            uint32_t arr_l : 16;    // bits 0:15
+            uint32_t auto_reload_low  : 16;    // bits 0:15
             /// High Auto-reload value (ARR_H)
-            uint32_t arr_h : 16;    // bits 16:31
+            uint32_t auto_reload_high : 16;    // bits 16:31
         };
         //+=MEMORY======================================+
         union {
@@ -899,13 +889,13 @@ struct Timer2 final {
         };
         //+=MEMORY======================================+
         /// Move Assignment is deleted
-        AutoReloadRegister& operator=(AutoReloadRegister&&) = delete;
+        AutoReload& operator=(AutoReload&&) = delete;
         /// Assignment from a volatile to a non volatile copy of the register.
         /// @note Does not return a reference
-        inline void operator=(AutoReloadRegister volatile& other) { whole = other.whole; }
+        inline void operator=(AutoReload volatile& other) { whole = other.whole; }
         /// Assignment from a non volatile to a volatile register
         /// @note Does not return a reference
-        inline void operator=(AutoReloadRegister const& other) volatile { whole = other.whole; }
+        inline void operator=(AutoReload const& other) volatile { whole = other.whole; }
         /// Copy Assign a complete value from the base type uint32_t into a volatile version
         /// This allows you to assign the whole register to a literal value or a known constant of the same type.
         /// @note Does not return a reference
@@ -914,15 +904,14 @@ struct Timer2 final {
         inline explicit operator uint32_t(void) const { return whole; }
         /// Returns a copy of the volatile register as an uint32_t
         inline explicit operator uint32_t(void) volatile { return whole; }
-        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular
-        /// instance
+        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular instance
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
-    static_assert(std::is_standard_layout<AutoReloadRegister>::value, "Must be standard layout");
+    static_assert(std::is_standard_layout<AutoReload>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(sizeof(AutoReloadRegister) == 4UL, "Must be this exact size");
-    /// capture/compare register 1 (CaptureCompare1)
+    static_assert(sizeof(AutoReload) == 4UL, "Must be this exact size");
+    /// capture/compare register 1 (CCR1)
     struct CaptureCompare1 final {
         /// Default Constructor
         CaptureCompare1()
@@ -946,10 +935,10 @@ struct Timer2 final {
 
         /// The internal bitfield for the register
         struct Fields final {
-            /// Low Capture/Compare 1 value (CaptureCompare1_L)
-            uint32_t ccr1_l : 16;    // bits 0:15
-            /// High Capture/Compare 1 value (CaptureCompare1_H)
-            uint32_t ccr1_h : 16;    // bits 16:31
+            /// Low Capture/Compare 1 value (CCR1_L)
+            uint32_t capture_compare1_low  : 16;    // bits 0:15
+            /// High Capture/Compare 1 value (CCR1_H)
+            uint32_t capture_compare1_high : 16;    // bits 16:31
         };
         //+=MEMORY======================================+
         union {
@@ -973,15 +962,14 @@ struct Timer2 final {
         inline explicit operator uint32_t(void) const { return whole; }
         /// Returns a copy of the volatile register as an uint32_t
         inline explicit operator uint32_t(void) volatile { return whole; }
-        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular
-        /// instance
+        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular instance
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
     static_assert(std::is_standard_layout<CaptureCompare1>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
     static_assert(sizeof(CaptureCompare1) == 4UL, "Must be this exact size");
-    /// capture/compare register 2 (CaptureCompare2)
+    /// capture/compare register 2 (CCR2)
     struct CaptureCompare2 final {
         /// Default Constructor
         CaptureCompare2()
@@ -1005,10 +993,10 @@ struct Timer2 final {
 
         /// The internal bitfield for the register
         struct Fields final {
-            /// Low Capture/Compare 2 value (CaptureCompare2_L)
-            uint32_t ccr2_l : 16;    // bits 0:15
-            /// High Capture/Compare 2 value (CaptureCompare2_H)
-            uint32_t ccr2_h : 16;    // bits 16:31
+            /// Low Capture/Compare 2 value (CCR2_L)
+            uint32_t capture_compare2_low  : 16;    // bits 0:15
+            /// High Capture/Compare 2 value (CCR2_H)
+            uint32_t capture_compare2_high : 16;    // bits 16:31
         };
         //+=MEMORY======================================+
         union {
@@ -1032,15 +1020,14 @@ struct Timer2 final {
         inline explicit operator uint32_t(void) const { return whole; }
         /// Returns a copy of the volatile register as an uint32_t
         inline explicit operator uint32_t(void) volatile { return whole; }
-        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular
-        /// instance
+        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular instance
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
     static_assert(std::is_standard_layout<CaptureCompare2>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
     static_assert(sizeof(CaptureCompare2) == 4UL, "Must be this exact size");
-    /// capture/compare register 3 (CaptureCompare3)
+    /// capture/compare register 3 (CCR3)
     struct CaptureCompare3 final {
         /// Default Constructor
         CaptureCompare3()
@@ -1064,10 +1051,10 @@ struct Timer2 final {
 
         /// The internal bitfield for the register
         struct Fields final {
-            /// Low Capture/Compare value (CaptureCompare3_L)
-            uint32_t ccr3_l : 16;    // bits 0:15
-            /// High Capture/Compare value (CaptureCompare3_H)
-            uint32_t ccr3_h : 16;    // bits 16:31
+            /// Low Capture/Compare value (CCR3_L)
+            uint32_t capture_compare3_low  : 16;    // bits 0:15
+            /// High Capture/Compare value (CCR3_H)
+            uint32_t capture_compare3_high : 16;    // bits 16:31
         };
         //+=MEMORY======================================+
         union {
@@ -1091,15 +1078,14 @@ struct Timer2 final {
         inline explicit operator uint32_t(void) const { return whole; }
         /// Returns a copy of the volatile register as an uint32_t
         inline explicit operator uint32_t(void) volatile { return whole; }
-        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular
-        /// instance
+        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular instance
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
     static_assert(std::is_standard_layout<CaptureCompare3>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
     static_assert(sizeof(CaptureCompare3) == 4UL, "Must be this exact size");
-    /// capture/compare register 4 (CaptureCompare4)
+    /// capture/compare register 4 (CCR4)
     struct CaptureCompare4 final {
         /// Default Constructor
         CaptureCompare4()
@@ -1123,10 +1109,10 @@ struct Timer2 final {
 
         /// The internal bitfield for the register
         struct Fields final {
-            /// Low Capture/Compare value (CaptureCompare4_L)
-            uint32_t ccr4_l : 16;    // bits 0:15
-            /// High Capture/Compare value (CaptureCompare4_H)
-            uint32_t ccr4_h : 16;    // bits 16:31
+            /// Low Capture/Compare value (CCR4_L)
+            uint32_t capture_compare4_low  : 16;    // bits 0:15
+            /// High Capture/Compare value (CCR4_H)
+            uint32_t capture_compare4_high : 16;    // bits 16:31
         };
         //+=MEMORY======================================+
         union {
@@ -1150,46 +1136,45 @@ struct Timer2 final {
         inline explicit operator uint32_t(void) const { return whole; }
         /// Returns a copy of the volatile register as an uint32_t
         inline explicit operator uint32_t(void) volatile { return whole; }
-        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular
-        /// instance
+        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular instance
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
     static_assert(std::is_standard_layout<CaptureCompare4>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
     static_assert(sizeof(CaptureCompare4) == 4UL, "Must be this exact size");
-    /// DMA control register (DmaControl)
-    struct DmaControl final {
+    /// DMA control register (DCR)
+    struct DirectMemoryAccessControl final {
         /// Default Constructor
-        DmaControl()
+        DirectMemoryAccessControl()
             : whole{0u} {}
         /// Copy Constructor from volatile
-        DmaControl(DmaControl volatile const& other)
+        DirectMemoryAccessControl(DirectMemoryAccessControl volatile const& other)
             : whole{other.whole} {}
         /// Copy Construction from nonvolatile
-        DmaControl(DmaControl const& other)
+        DirectMemoryAccessControl(DirectMemoryAccessControl const& other)
             : whole{other.whole} {}
         /// Move Constructor is deleted
-        DmaControl(DmaControl&&) = delete;
+        DirectMemoryAccessControl(DirectMemoryAccessControl&&) = delete;
         /// Parameterized Constructor for constant references
-        explicit DmaControl(uint32_t const& value)
+        explicit DirectMemoryAccessControl(uint32_t const& value)
             : whole{value} {}
         /// Parameterized Constructor for volatile references
-        explicit DmaControl(uint32_t volatile& value)
+        explicit DirectMemoryAccessControl(uint32_t volatile& value)
             : whole{value} {}
         /// Destructor is empty
-        ~DmaControl() = default;
+        ~DirectMemoryAccessControl() = default;
 
         /// The internal bitfield for the register
         struct Fields final {
             /// DMA base address (DBA)
-            uint32_t dba : 5;    // bits 0:4
+            uint32_t dma_base_address : 5;    // bits 0:4
             /// (reserved)
-            uint32_t     : 3;    // bits 5:7
+            uint32_t                  : 3;    // bits 5:7
             /// DMA burst length (DBL)
-            uint32_t dbl : 5;    // bits 8:12
+            uint32_t dma_burst_length : 5;    // bits 8:12
             /// (reserved)
-            uint32_t     : 19;    // bits 13:31
+            uint32_t                  : 19;    // bits 13:31
         };
         //+=MEMORY======================================+
         union {
@@ -1198,13 +1183,13 @@ struct Timer2 final {
         };
         //+=MEMORY======================================+
         /// Move Assignment is deleted
-        DmaControl& operator=(DmaControl&&) = delete;
+        DirectMemoryAccessControl& operator=(DirectMemoryAccessControl&&) = delete;
         /// Assignment from a volatile to a non volatile copy of the register.
         /// @note Does not return a reference
-        inline void operator=(DmaControl volatile& other) { whole = other.whole; }
+        inline void operator=(DirectMemoryAccessControl volatile& other) { whole = other.whole; }
         /// Assignment from a non volatile to a volatile register
         /// @note Does not return a reference
-        inline void operator=(DmaControl const& other) volatile { whole = other.whole; }
+        inline void operator=(DirectMemoryAccessControl const& other) volatile { whole = other.whole; }
         /// Copy Assign a complete value from the base type uint32_t into a volatile version
         /// This allows you to assign the whole register to a literal value or a known constant of the same type.
         /// @note Does not return a reference
@@ -1213,42 +1198,41 @@ struct Timer2 final {
         inline explicit operator uint32_t(void) const { return whole; }
         /// Returns a copy of the volatile register as an uint32_t
         inline explicit operator uint32_t(void) volatile { return whole; }
-        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular
-        /// instance
+        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular instance
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
-    static_assert(std::is_standard_layout<DmaControl>::value, "Must be standard layout");
+    static_assert(std::is_standard_layout<DirectMemoryAccessControl>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(sizeof(DmaControl) == 4UL, "Must be this exact size");
-    /// DMA address for full transfer (DmaAddress)
-    struct DmaAddress final {
+    static_assert(sizeof(DirectMemoryAccessControl) == 4UL, "Must be this exact size");
+    /// DMA address for full transfer (DMAR)
+    struct DirectMemoryAccessAddress final {
         /// Default Constructor
-        DmaAddress()
+        DirectMemoryAccessAddress()
             : whole{0u} {}
         /// Copy Constructor from volatile
-        DmaAddress(DmaAddress volatile const& other)
+        DirectMemoryAccessAddress(DirectMemoryAccessAddress volatile const& other)
             : whole{other.whole} {}
         /// Copy Construction from nonvolatile
-        DmaAddress(DmaAddress const& other)
+        DirectMemoryAccessAddress(DirectMemoryAccessAddress const& other)
             : whole{other.whole} {}
         /// Move Constructor is deleted
-        DmaAddress(DmaAddress&&) = delete;
+        DirectMemoryAccessAddress(DirectMemoryAccessAddress&&) = delete;
         /// Parameterized Constructor for constant references
-        explicit DmaAddress(uint32_t const& value)
+        explicit DirectMemoryAccessAddress(uint32_t const& value)
             : whole{value} {}
         /// Parameterized Constructor for volatile references
-        explicit DmaAddress(uint32_t volatile& value)
+        explicit DirectMemoryAccessAddress(uint32_t volatile& value)
             : whole{value} {}
         /// Destructor is empty
-        ~DmaAddress() = default;
+        ~DirectMemoryAccessAddress() = default;
 
         /// The internal bitfield for the register
         struct Fields final {
             /// DMA register for burst accesses (DMAB)
-            uint32_t dmab : 16;    // bits 0:15
+            uint32_t dma_burst : 16;    // bits 0:15
             /// (reserved)
-            uint32_t      : 16;    // bits 16:31
+            uint32_t           : 16;    // bits 16:31
         };
         //+=MEMORY======================================+
         union {
@@ -1257,13 +1241,13 @@ struct Timer2 final {
         };
         //+=MEMORY======================================+
         /// Move Assignment is deleted
-        DmaAddress& operator=(DmaAddress&&) = delete;
+        DirectMemoryAccessAddress& operator=(DirectMemoryAccessAddress&&) = delete;
         /// Assignment from a volatile to a non volatile copy of the register.
         /// @note Does not return a reference
-        inline void operator=(DmaAddress volatile& other) { whole = other.whole; }
+        inline void operator=(DirectMemoryAccessAddress volatile& other) { whole = other.whole; }
         /// Assignment from a non volatile to a volatile register
         /// @note Does not return a reference
-        inline void operator=(DmaAddress const& other) volatile { whole = other.whole; }
+        inline void operator=(DirectMemoryAccessAddress const& other) volatile { whole = other.whole; }
         /// Copy Assign a complete value from the base type uint32_t into a volatile version
         /// This allows you to assign the whole register to a literal value or a known constant of the same type.
         /// @note Does not return a reference
@@ -1272,14 +1256,13 @@ struct Timer2 final {
         inline explicit operator uint32_t(void) const { return whole; }
         /// Returns a copy of the volatile register as an uint32_t
         inline explicit operator uint32_t(void) volatile { return whole; }
-        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular
-        /// instance
+        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular instance
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
-    static_assert(std::is_standard_layout<DmaAddress>::value, "Must be standard layout");
+    static_assert(std::is_standard_layout<DirectMemoryAccessAddress>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(sizeof(DmaAddress) == 4UL, "Must be this exact size");
+    static_assert(sizeof(DirectMemoryAccessAddress) == 4UL, "Must be this exact size");
     /// TIM5 option register (OR)
     struct Option final {
         /// Default Constructor
@@ -1333,8 +1316,7 @@ struct Timer2 final {
         inline explicit operator uint32_t(void) const { return whole; }
         /// Returns a copy of the volatile register as an uint32_t
         inline explicit operator uint32_t(void) volatile { return whole; }
-        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular
-        /// instance
+        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular instance
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
@@ -1347,40 +1329,40 @@ struct Timer2 final {
     Control1 control1;    // offset 0x0UL
     /// control register 2 (CR2)
     Control2 control2;    // offset 0x4UL
-    /// slave mode control register (FollowerMode)
+    /// slave mode control register (SMCR)
     FollowerMode follower_mode;    // offset 0x8UL
-    /// DMA/Interrupt enable register (DmaInterruptEnable)
-    DmaInterruptEnable dma_interrupt;    // offset 0xcUL
+    /// DMA/Interrupt enable register (DIER)
+    DirectMemoryAccessInterruptEnable direct_memory_access_interrupt_enable;    // offset 0xcUL
     /// status register (SR)
     Status status;    // offset 0x10UL
-    /// event generation register (EventGeneration)
+    /// event generation register (EGR)
     EventGeneration event_generation;    // offset 0x14UL
-    /// FIXME (comment)
-    CaptureCompareMode1 ccmr1;    // offset 0x18UL
-    /// FIXME (comment)
-    CaptureControlMode2 ccmr2;    // offset 0x1cUL
-    /// capture/compare enable register (CaptureControlEnable)
-    CaptureControlEnable ccer;    // offset 0x20UL
+    /// capture/compare mode register 1 (CCMR1)
+    CaptureCompareMode1 capture_compare_mode1;    // offset 0x18UL
+    /// capture/compare mode register 2 (CCMR2)
+    CaptureCompareMode2 capture_compare_mode2;    // offset 0x1cUL
+    /// capture/compare enable register (CCER)
+    CaptureCompareEnable capture_compare_enable;    // offset 0x20UL
     /// counter (CNT)
     Counter counter;    // offset 0x24UL
-    /// prescaler (Prescalar)
-    Prescalar prescalar;    // offset 0x28UL
+    /// prescaler (PSC)
+    Prescaler prescaler;    // offset 0x28UL
     /// auto-reload register (ARR)
-    AutoReloadRegister auto_reload;    // offset 0x2cUL
-    uint32_t : 32;                     // offset 0x30UL
-    /// capture/compare register 1 (CapturclangeCompare1)
-    CaptureCompare1 ccr1;    // offset 0x34UL
-    /// capture/compare register 2 (CaptureCompare2)
-    CaptureCompare2 ccr2;    // offset 0x38UL
-    /// capture/compare register 3 (CaptureCompare3)
-    CaptureCompare3 ccr3;    // offset 0x3cUL
-    /// capture/compare register 4 (CaptureCompare4)
-    CaptureCompare4 ccr4;    // offset 0x40UL
-    uint32_t : 32;           // offset 0x44UL
-    /// DMA control register (DmaControl)
-    DmaControl dcr;    // offset 0x48UL
-    /// DMA address for full transfer (DmaAddress)
-    DmaAddress dmar;    // offset 0x4cUL
+    AutoReload auto_reload;    // offset 0x2cUL
+    uint32_t : 32;             // offset 0x30UL
+    /// capture/compare register 1 (CCR1)
+    CaptureCompare1 capture_compare1;    // offset 0x34UL
+    /// capture/compare register 2 (CCR2)
+    CaptureCompare2 capture_compare2;    // offset 0x38UL
+    /// capture/compare register 3 (CCR3)
+    CaptureCompare3 capture_compare3;    // offset 0x3cUL
+    /// capture/compare register 4 (CCR4)
+    CaptureCompare4 capture_compare4;    // offset 0x40UL
+    uint32_t : 32;                       // offset 0x44UL
+    /// DMA control register (DCR)
+    DirectMemoryAccessControl direct_memory_access_control;    // offset 0x48UL
+    /// DMA address for full transfer (DMAR)
+    DirectMemoryAccessAddress direct_memory_access_address;    // offset 0x4cUL
     /// TIM5 option register (OR)
     Option option;    // offset 0x50UL
     uint32_t : 32;    // offset 0x54UL
@@ -1626,29 +1608,27 @@ static_assert(std::is_standard_layout<Timer2>::value, "Must be standard layout")
 static_assert(offsetof(Timer2, control1) == 0x0UL, "Must be located at this offset");
 static_assert(offsetof(Timer2, control2) == 0x4UL, "Must be located at this offset");
 static_assert(offsetof(Timer2, follower_mode) == 0x8UL, "Must be located at this offset");
-static_assert(offsetof(Timer2, dma_interrupt) == 0xcUL, "Must be located at this offset");
+static_assert(offsetof(Timer2, direct_memory_access_interrupt_enable) == 0xcUL, "Must be located at this offset");
 static_assert(offsetof(Timer2, status) == 0x10UL, "Must be located at this offset");
 static_assert(offsetof(Timer2, event_generation) == 0x14UL, "Must be located at this offset");
-static_assert(offsetof(Timer2, ccer) == 0x20UL, "Must be located at this offset");
+static_assert(offsetof(Timer2, capture_compare_enable) == 0x20UL, "Must be located at this offset");
 static_assert(offsetof(Timer2, counter) == 0x24UL, "Must be located at this offset");
-static_assert(offsetof(Timer2, prescalar) == 0x28UL, "Must be located at this offset");
+static_assert(offsetof(Timer2, prescaler) == 0x28UL, "Must be located at this offset");
 static_assert(offsetof(Timer2, auto_reload) == 0x2cUL, "Must be located at this offset");
-static_assert(offsetof(Timer2, ccr1) == 0x34UL, "Must be located at this offset");
-static_assert(offsetof(Timer2, ccr2) == 0x38UL, "Must be located at this offset");
-static_assert(offsetof(Timer2, ccr3) == 0x3cUL, "Must be located at this offset");
-static_assert(offsetof(Timer2, ccr4) == 0x40UL, "Must be located at this offset");
-static_assert(offsetof(Timer2, dcr) == 0x48UL, "Must be located at this offset");
-static_assert(offsetof(Timer2, dmar) == 0x4cUL, "Must be located at this offset");
+static_assert(offsetof(Timer2, capture_compare1) == 0x34UL, "Must be located at this offset");
+static_assert(offsetof(Timer2, capture_compare2) == 0x38UL, "Must be located at this offset");
+static_assert(offsetof(Timer2, capture_compare3) == 0x3cUL, "Must be located at this offset");
+static_assert(offsetof(Timer2, capture_compare4) == 0x40UL, "Must be located at this offset");
+static_assert(offsetof(Timer2, direct_memory_access_control) == 0x48UL, "Must be located at this offset");
+static_assert(offsetof(Timer2, direct_memory_access_address) == 0x4cUL, "Must be located at this offset");
 static_assert(offsetof(Timer2, option) == 0x50UL, "Must be located at this offset");
 
 // Ensure the sizeof the entire structure is correct.
 static_assert(sizeof(Timer2) == 0x400UL, "Must be this exact size");
 
-/// The external volatile t_i_m2 which is a memory mapped register or peripheral.
+/// The external volatile timer2 which is a memory mapped register or peripheral.
 /// @note The address of the peripheral is set either by the linkerscript or by a unit test.
 extern Timer2 volatile timer2;
-
-}    // namespace peripherals
+}    // namespace f4xx
 }    // namespace stm32
-
-#endif    // STM32_PERIPHERALS_TIMER2_HPP_
+#endif    // STM32_F4XX_TIMER2__HPP_

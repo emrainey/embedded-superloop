@@ -1,6 +1,6 @@
 #include "stm32/gpio/Pin.hpp"
 #include "iso.hpp"
-#include "stm32/peripherals/GeneralPurposeInputOutput.hpp"
+#include "stm32/peripherals.hpp"
 
 namespace stm32 {
 namespace gpio {
@@ -94,17 +94,17 @@ void Pin::Value(bool value) {
 Pin& Pin::SetAlternative(uint8_t value) {
     Mode mode = GetMode();
     if (mode == Mode::AlternateFunction) {
-        value &= 0xFU;                                                                                          // only 4 bits are allowed
+        value &= 0xFU;    // only 4 bits are allowed
         if (index_ < 8) {
-            auto alt_func_low = general_purpose_input_output[polyfill::to_underlying(port_)].alt_func_low;      // read
-            alt_func_low.whole &= ~(0xFU << (index_ * 4U));                                                     // modify
-            alt_func_low.whole |= static_cast<std::uint32_t>(value << (index_ * 4U));                           // modify
-            general_purpose_input_output[polyfill::to_underlying(port_)].alt_func_low = alt_func_low;           // write
+            auto alternative_function_low = general_purpose_input_output[polyfill::to_underlying(port_)].alternative_function_low;      // read
+            alternative_function_low.whole &= ~(0xFU << (index_ * 4U));                                                                 // modify
+            alternative_function_low.whole |= static_cast<std::uint32_t>(value << (index_ * 4U));                                       // modify
+            general_purpose_input_output[polyfill::to_underlying(port_)].alternative_function_low = alternative_function_low;           // write
         } else {
-            auto alt_func_high = general_purpose_input_output[polyfill::to_underlying(port_)].alt_func_high;    // read
-            alt_func_high.whole &= ~(0xFU << ((index_ - 8) * 4U));                                              // modify
-            alt_func_high.whole |= static_cast<std::uint32_t>(value << ((index_ - 8) * 4U));                    // modify
-            general_purpose_input_output[polyfill::to_underlying(port_)].alt_func_high = alt_func_high;         // write
+            auto alternative_function_high = general_purpose_input_output[polyfill::to_underlying(port_)].alternative_function_high;    // read
+            alternative_function_high.whole &= ~(0xFU << ((index_ - 8) * 4U));                                                          // modify
+            alternative_function_high.whole |= static_cast<std::uint32_t>(value << ((index_ - 8) * 4U));                                // modify
+            general_purpose_input_output[polyfill::to_underlying(port_)].alternative_function_high = alternative_function_high;         // write
         }
     }
     return *this;
@@ -114,11 +114,11 @@ uint8_t Pin::GetAlternative() const {
     Mode mode = GetMode();
     if (mode == Mode::AlternateFunction) {
         if (index_ < 8) {
-            auto alt_func_low = general_purpose_input_output[polyfill::to_underlying(port_)].alt_func_low;      // read
-            return (alt_func_low.whole >> (index_ * 4U)) & 0xFU;                                                // extract
+            auto alternative_function_low = general_purpose_input_output[polyfill::to_underlying(port_)].alternative_function_low;      // read
+            return (alternative_function_low.whole >> (index_ * 4U)) & 0xFU;                                                            // extract
         } else {
-            auto alt_func_high = general_purpose_input_output[polyfill::to_underlying(port_)].alt_func_high;    // read
-            return (alt_func_high.whole >> ((index_ - 8) * 4U)) & 0xFU;                                         // extract
+            auto alternative_function_high = general_purpose_input_output[polyfill::to_underlying(port_)].alternative_function_high;    // read
+            return (alternative_function_high.whole >> ((index_ - 8) * 4U)) & 0xFU;                                                     // extract
         }
     }
     return 0U;    // when not in alternate function mode, return 0 (the hardware default)

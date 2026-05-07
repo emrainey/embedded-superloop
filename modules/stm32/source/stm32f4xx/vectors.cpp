@@ -288,7 +288,7 @@ ExtendedVectors const extended_vectors = {{
     dummy_isr,           // 80
     dummy_isr,           // 81
 }};
-// static_assert(sizeof(extended_vectors.handlers) == (stm32::number_of_interrupt_channels * sizeof(void *)), "Must be this value exactly");
+static_assert(sizeof(extended_vectors.handlers) == (stm32::number_of_interrupt_channels * sizeof(void *)), "Must be this value exactly");
 
 // local storage for the external interrupt statistics
 ExtendedVectorStatistics extended_vector_statistics;

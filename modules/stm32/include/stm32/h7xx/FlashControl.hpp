@@ -1,6 +1,6 @@
 
-#ifndef STM32_PERIPHERALS_FLASHCONTROL__HPP_
-#define STM32_PERIPHERALS_FLASHCONTROL__HPP_
+#ifndef STM32_H7XX_FLASHCONTROL__HPP_
+#define STM32_H7XX_FLASHCONTROL__HPP_
 
 /// @file
 /// Auto Generated Structure Definitions for FlashControl from the Peripheralyzer.
@@ -11,7 +11,7 @@
 #include <type_traits>
 
 namespace stm32 {
-namespace peripherals {
+namespace h7xx {
 
 /// FLASH (FLASH)
 struct FlashControl final {
@@ -50,9 +50,9 @@ struct FlashControl final {
             /// Data cache enable (DCEN)
             uint32_t data_cache_enable        : 1;    // bit 10
             /// Instruction cache reset (ICRST)
-            uint32_t icrst                    : 1;    // bit 11
+            uint32_t instruction_cache_reset  : 1;    // bit 11
             /// Data cache reset (DCRST)
-            uint32_t dcrst                    : 1;    // bit 12
+            uint32_t data_cache_reset         : 1;    // bit 12
             /// (reserved)
             uint32_t                          : 19;    // bits 13:31
         };
@@ -238,7 +238,7 @@ struct FlashControl final {
             /// (reserved)
             uint32_t        : 8;    // bits 8:15
             /// Busy (BSY)
-            uint32_t bsy    : 1;    // bit 16
+            uint32_t busy   : 1;    // bit 16
             /// (reserved)
             uint32_t        : 15;    // bits 17:31
         };
@@ -296,31 +296,31 @@ struct FlashControl final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Programming (PG)
-            uint32_t pg    : 1;    // bit 0
+            uint32_t programming                       : 1;    // bit 0
             /// Sector Erase (SER)
-            uint32_t ser   : 1;    // bit 1
+            uint32_t sector_erase                      : 1;    // bit 1
             /// Mass Erase (MER)
-            uint32_t mer   : 1;    // bit 2
+            uint32_t memory_erase                      : 1;    // bit 2
             /// Sector number (SNB)
-            uint32_t snb   : 4;    // bits 3:6
+            uint32_t sector_number                     : 4;    // bits 3:6
             /// (reserved)
-            uint32_t       : 1;    // bit 7
+            uint32_t                                   : 1;    // bit 7
             /// Program size (PSIZE)
-            uint32_t psize : 2;    // bits 8:9
+            uint32_t peripheral_data_size              : 2;    // bits 8:9
             /// (reserved)
-            uint32_t       : 6;    // bits 10:15
+            uint32_t                                   : 6;    // bits 10:15
             /// Start (STRT)
-            uint32_t strt  : 1;    // bit 16
+            uint32_t start                             : 1;    // bit 16
             /// (reserved)
-            uint32_t       : 7;    // bits 17:23
+            uint32_t                                   : 7;    // bits 17:23
             /// End of operation interrupt enable (EOPIE)
-            uint32_t eopie : 1;    // bit 24
+            uint32_t end_of_operation_interrupt_enable : 1;    // bit 24
             /// Error interrupt enable (ERRIE)
-            uint32_t errie : 1;    // bit 25
+            uint32_t error_interrupt_enable            : 1;    // bit 25
             /// (reserved)
-            uint32_t       : 5;    // bits 26:30
+            uint32_t                                   : 5;    // bits 26:30
             /// Lock (LOCK)
-            uint32_t lock  : 1;    // bit 31
+            uint32_t lock                              : 1;    // bit 31
         };
         //+=MEMORY======================================+
         union {
@@ -707,6 +707,6 @@ static_assert(sizeof(FlashControl) == 0x400UL, "Must be this exact size");
 /// The external volatile flash_control which is a memory mapped register or peripheral.
 /// @note The address of the peripheral is set either by the linkerscript or by a unit test.
 extern FlashControl volatile flash_control;
-}    // namespace peripherals
+}    // namespace h7xx
 }    // namespace stm32
-#endif    // STM32_PERIPHERALS_FLASHCONTROL__HPP_
+#endif    // STM32_H7XX_FLASHCONTROL__HPP_

@@ -1,6 +1,6 @@
 
-#ifndef STM32_PERIPHERALS_INTERINTEGRATEDCIRCUIT_HPP_
-#define STM32_PERIPHERALS_INTERINTEGRATEDCIRCUIT_HPP_
+#ifndef STM32_F4XX_INTERINTEGRATEDCIRCUIT__HPP_
+#define STM32_F4XX_INTERINTEGRATEDCIRCUIT__HPP_
 
 /// @file
 /// Auto Generated Structure Definitions for InterIntegratedCircuit from the Peripheralyzer.
@@ -11,9 +11,9 @@
 #include <type_traits>
 
 namespace stm32 {
-namespace peripherals {
+namespace f4xx {
 
-/// Inter-integrated circuit (I2C1)
+/// Inter-integrated circuit
 struct InterIntegratedCircuit final {
     /// Control register 1 (CR1)
     struct Control1 final {
@@ -264,11 +264,11 @@ struct InterIntegratedCircuit final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Dual addressing mode enable (ENDUAL)
-            uint32_t enable_dual_address_mode : 1;    // bit 0
+            uint32_t enable_dual_addressing_mode : 1;    // bit 0
             /// Interface address (ADD2)
-            uint32_t address2                 : 7;    // bits 1:7
+            uint32_t interface_address           : 7;    // bits 1:7
             /// (reserved)
-            uint32_t                          : 24;    // bits 8:31
+            uint32_t                             : 24;    // bits 8:31
         };
         //+=MEMORY======================================+
         union {
@@ -485,7 +485,7 @@ struct InterIntegratedCircuit final {
             uint32_t system_management_bus_host    : 1;    // bit 6
             /// Dual flag (Slave mode) (DUALF)
             uint32_t dual_flag                     : 1;    // bit 7
-            /// Packet error checking register (PEC)
+            /// acket error checking register (PEC)
             uint32_t packet_error_checking         : 8;    // bits 8:15
             /// (reserved)
             uint32_t                               : 16;    // bits 16:31
@@ -926,7 +926,7 @@ static_assert(offsetof(InterIntegratedCircuit, rise_time) == 0x20UL, "Must be lo
 // Ensure the sizeof the entire structure is correct.
 static_assert(sizeof(InterIntegratedCircuit) == 0x400UL, "Must be this exact size");
 
-/// The external volatile inter_integrated_circuit1 which is a memory mapped register or peripheral.
+/// The external volatile inter_integrated_circuit which is a memory mapped register or peripheral.
 /// @note The address of the peripheral is set either by the linkerscript or by a unit test.
 extern InterIntegratedCircuit volatile i2c1;
 
@@ -938,6 +938,6 @@ extern InterIntegratedCircuit volatile i2c2;
 /// @note The address of the peripheral is set either by the linkerscript or by a unit test.
 extern InterIntegratedCircuit volatile i2c3;
 
-}    // namespace peripherals
+}    // namespace f4xx
 }    // namespace stm32
-#endif    // STM32_PERIPHERALS_INTERINTEGRATEDCIRCUIT_HPP_
+#endif    // STM32_F4XX_INTERINTEGRATEDCIRCUIT__HPP_

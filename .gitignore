@@ -34,6 +34,10 @@
 # Ignore Build Output
 build/
 
+# Ingnore Testing Output like Jlink/Ozone or GDB configuration
+testing/*.jdebug*
+testing/*.gdb
+
 # Ignore Python virtual environments
 venv/
 .venv/

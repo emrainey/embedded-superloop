@@ -43,40 +43,45 @@ add_configuration(NAME full)
 add_configuration(NAME basic)
 add_configuration(NAME qemu)
 
-add_family(FAMILY stm32f40xxx
+add_family(FAMILY stm32f4xx
     VENDOR stm32
     DESCRIPTION "ST STM32F4xx family"
     MODULES stm32
     CORTEX_M 4
     ARCHITECTURE armv7e-m
     PRECISION SINGLE
+    NAMESPACE f4xx
 )
 
 add_chip(NAME stm32f407ve
-    FAMILY stm32f40xxx
+    FAMILY stm32f4xx
     DEVICE STM32F407VE
     PACKAGE LQFP100
+    DEFINES CORTEX_INTERRUPT_CHANNELS=82
 )
 
 add_chip(NAME stm32f405rg
-    FAMILY stm32f40xxx
+    FAMILY stm32f4xx
     DEVICE STM32F405RG
     PACKAGE LQFP64
+    DEFINES CORTEX_INTERRUPT_CHANNELS=82
 )
 
-add_family(FAMILY stm32h7xxxx
+add_family(FAMILY stm32h7xx
     VENDOR stm32
     DESCRIPTION "ST STM32H7xx family"
     MODULES stm32
     CORTEX_M 7
     ARCHITECTURE armv7e-m
     PRECISION DOUBLE
+    NAMESPACE h7xx
 )
 
 add_chip(NAME stm32h753zi
-    FAMILY stm32h7xxxx
+    FAMILY stm32h7xx
     DEVICE STM32H753ZI
     PACKAGE LQFP144
+    DEFINES CORTEX_INTERRUPT_CHANNELS=150
 )
 
 # After we define all the chips, families and configurations,

@@ -9,7 +9,7 @@
 #include <core/Statistician.hpp>
 #include "jarnax/uart/Driver.hpp"
 #include "stm32/dma/Manager.hpp"
-#include "stm32/peripherals/UniversalAsynchronousReceiverTransmitter.hpp"
+#include "stm32/f4xx/UniversalAsynchronousReceiverTransmitter.hpp"
 
 namespace stm32 {
 namespace uart {
