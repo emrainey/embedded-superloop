@@ -13,7 +13,7 @@
 namespace stm32 {
 namespace h7xx {
 
-/// General-purpose I/Os
+/// GPIO
 struct GeneralPurposeInputOutput final {
     /// GPIO port mode register (MODER)
     struct Mode final {
@@ -39,37 +39,37 @@ struct GeneralPurposeInputOutput final {
 
         /// The internal bitfield for the register
         struct Fields final {
-            /// Port x configuration bits (y = 0..15) (MODER0)
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O mode. (MODE0)
             uint32_t mode0  : 2;    // bits 0:1
-            /// Port x configuration bits (y = 0..15) (MODER1)
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O mode. (MODE1)
             uint32_t mode1  : 2;    // bits 2:3
-            /// Port x configuration bits (y = 0..15) (MODER2)
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O mode. (MODE2)
             uint32_t mode2  : 2;    // bits 4:5
-            /// Port x configuration bits (y = 0..15) (MODER3)
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O mode. (MODE3)
             uint32_t mode3  : 2;    // bits 6:7
-            /// Port x configuration bits (y = 0..15) (MODER4)
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O mode. (MODE4)
             uint32_t mode4  : 2;    // bits 8:9
-            /// Port x configuration bits (y = 0..15) (MODER5)
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O mode. (MODE5)
             uint32_t mode5  : 2;    // bits 10:11
-            /// Port x configuration bits (y = 0..15) (MODER6)
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O mode. (MODE6)
             uint32_t mode6  : 2;    // bits 12:13
-            /// Port x configuration bits (y = 0..15) (MODER7)
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O mode. (MODE7)
             uint32_t mode7  : 2;    // bits 14:15
-            /// Port x configuration bits (y = 0..15) (MODER8)
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O mode. (MODE8)
             uint32_t mode8  : 2;    // bits 16:17
-            /// Port x configuration bits (y = 0..15) (MODER9)
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O mode. (MODE9)
             uint32_t mode9  : 2;    // bits 18:19
-            /// Port x configuration bits (y = 0..15) (MODER10)
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O mode. (MODE10)
             uint32_t mode10 : 2;    // bits 20:21
-            /// Port x configuration bits (y = 0..15) (MODER11)
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O mode. (MODE11)
             uint32_t mode11 : 2;    // bits 22:23
-            /// Port x configuration bits (y = 0..15) (MODER12)
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O mode. (MODE12)
             uint32_t mode12 : 2;    // bits 24:25
-            /// Port x configuration bits (y = 0..15) (MODER13)
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O mode. (MODE13)
             uint32_t mode13 : 2;    // bits 26:27
-            /// Port x configuration bits (y = 0..15) (MODER14)
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O mode. (MODE14)
             uint32_t mode14 : 2;    // bits 28:29
-            /// Port x configuration bits (y = 0..15) (MODER15)
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O mode. (MODE15)
             uint32_t mode15 : 2;    // bits 30:31
         };
         //+=MEMORY======================================+
@@ -125,37 +125,37 @@ struct GeneralPurposeInputOutput final {
 
         /// The internal bitfield for the register
         struct Fields final {
-            /// Port x configuration bits (y = 0..15) (OT0)
+            /// Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output type. (OT0)
             uint32_t output_type0  : 1;    // bit 0
-            /// Port x configuration bits (y = 0..15) (OT1)
+            /// Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output type. (OT1)
             uint32_t output_type1  : 1;    // bit 1
-            /// Port x configuration bits (y = 0..15) (OT2)
+            /// Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output type. (OT2)
             uint32_t output_type2  : 1;    // bit 2
-            /// Port x configuration bits (y = 0..15) (OT3)
+            /// Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output type. (OT3)
             uint32_t output_type3  : 1;    // bit 3
-            /// Port x configuration bits (y = 0..15) (OT4)
+            /// Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output type. (OT4)
             uint32_t output_type4  : 1;    // bit 4
-            /// Port x configuration bits (y = 0..15) (OT5)
+            /// Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output type. (OT5)
             uint32_t output_type5  : 1;    // bit 5
-            /// Port x configuration bits (y = 0..15) (OT6)
+            /// Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output type. (OT6)
             uint32_t output_type6  : 1;    // bit 6
-            /// Port x configuration bits (y = 0..15) (OT7)
+            /// Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output type. (OT7)
             uint32_t output_type7  : 1;    // bit 7
-            /// Port x configuration bits (y = 0..15) (OT8)
+            /// Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output type. (OT8)
             uint32_t output_type8  : 1;    // bit 8
-            /// Port x configuration bits (y = 0..15) (OT9)
+            /// Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output type. (OT9)
             uint32_t output_type9  : 1;    // bit 9
-            /// Port x configuration bits (y = 0..15) (OT10)
+            /// Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output type. (OT10)
             uint32_t output_type10 : 1;    // bit 10
-            /// Port x configuration bits (y = 0..15) (OT11)
+            /// Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output type. (OT11)
             uint32_t output_type11 : 1;    // bit 11
-            /// Port x configuration bits (y = 0..15) (OT12)
+            /// Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output type. (OT12)
             uint32_t output_type12 : 1;    // bit 12
-            /// Port x configuration bits (y = 0..15) (OT13)
+            /// Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output type. (OT13)
             uint32_t output_type13 : 1;    // bit 13
-            /// Port x configuration bits (y = 0..15) (OT14)
+            /// Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output type. (OT14)
             uint32_t output_type14 : 1;    // bit 14
-            /// Port x configuration bits (y = 0..15) (OT15)
+            /// Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output type. (OT15)
             uint32_t output_type15 : 1;    // bit 15
             /// (reserved)
             uint32_t               : 16;    // bits 16:31
@@ -213,38 +213,54 @@ struct GeneralPurposeInputOutput final {
 
         /// The internal bitfield for the register
         struct Fields final {
-            /// Port x configuration bits (y = 0..15) (OSPEEDR0)
-            uint32_t output_speed0  : 2;    // bits 0:1
-            /// Port x configuration bits (y = 0..15) (OSPEEDR1)
-            uint32_t output_speed1  : 2;    // bits 2:3
-            /// Port x configuration bits (y = 0..15) (OSPEEDR2)
-            uint32_t output_speed2  : 2;    // bits 4:5
-            /// Port x configuration bits (y = 0..15) (OSPEEDR3)
-            uint32_t output_speed3  : 2;    // bits 6:7
-            /// Port x configuration bits (y = 0..15) (OSPEEDR4)
-            uint32_t output_speed4  : 2;    // bits 8:9
-            /// Port x configuration bits (y = 0..15) (OSPEEDR5)
-            uint32_t output_speed5  : 2;    // bits 10:11
-            /// Port x configuration bits (y = 0..15) (OSPEEDR6)
-            uint32_t output_speed6  : 2;    // bits 12:13
-            /// Port x configuration bits (y = 0..15) (OSPEEDR7)
-            uint32_t output_speed7  : 2;    // bits 14:15
-            /// Port x configuration bits (y = 0..15) (OSPEEDR8)
-            uint32_t output_speed8  : 2;    // bits 16:17
-            /// Port x configuration bits (y = 0..15) (OSPEEDR9)
-            uint32_t output_speed9  : 2;    // bits 18:19
-            /// Port x configuration bits (y = 0..15) (OSPEEDR10)
-            uint32_t output_speed10 : 2;    // bits 20:21
-            /// Port x configuration bits (y = 0..15) (OSPEEDR11)
-            uint32_t output_speed11 : 2;    // bits 22:23
-            /// Port x configuration bits (y = 0..15) (OSPEEDR12)
-            uint32_t output_speed12 : 2;    // bits 24:25
-            /// Port x configuration bits (y = 0..15) (OSPEEDR13)
-            uint32_t output_speed13 : 2;    // bits 26:27
-            /// Port x configuration bits (y = 0..15) (OSPEEDR14)
-            uint32_t output_speed14 : 2;    // bits 28:29
-            /// Port x configuration bits (y = 0..15) (OSPEEDR15)
-            uint32_t output_speed15 : 2;    // bits 30:31
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output speed. Note: Refer to the
+            /// device datasheet for the frequency specifications and the power supply and load conditions for each speed. (OSPEED0)
+            uint32_t ospeed0  : 2;    // bits 0:1
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output speed. Note: Refer to the
+            /// device datasheet for the frequency specifications and the power supply and load conditions for each speed. (OSPEED1)
+            uint32_t ospeed1  : 2;    // bits 2:3
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output speed. Note: Refer to the
+            /// device datasheet for the frequency specifications and the power supply and load conditions for each speed. (OSPEED2)
+            uint32_t ospeed2  : 2;    // bits 4:5
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output speed. Note: Refer to the
+            /// device datasheet for the frequency specifications and the power supply and load conditions for each speed. (OSPEED3)
+            uint32_t ospeed3  : 2;    // bits 6:7
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output speed. Note: Refer to the
+            /// device datasheet for the frequency specifications and the power supply and load conditions for each speed. (OSPEED4)
+            uint32_t ospeed4  : 2;    // bits 8:9
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output speed. Note: Refer to the
+            /// device datasheet for the frequency specifications and the power supply and load conditions for each speed. (OSPEED5)
+            uint32_t ospeed5  : 2;    // bits 10:11
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output speed. Note: Refer to the
+            /// device datasheet for the frequency specifications and the power supply and load conditions for each speed. (OSPEED6)
+            uint32_t ospeed6  : 2;    // bits 12:13
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output speed. Note: Refer to the
+            /// device datasheet for the frequency specifications and the power supply and load conditions for each speed. (OSPEED7)
+            uint32_t ospeed7  : 2;    // bits 14:15
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output speed. Note: Refer to the
+            /// device datasheet for the frequency specifications and the power supply and load conditions for each speed. (OSPEED8)
+            uint32_t ospeed8  : 2;    // bits 16:17
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output speed. Note: Refer to the
+            /// device datasheet for the frequency specifications and the power supply and load conditions for each speed. (OSPEED9)
+            uint32_t ospeed9  : 2;    // bits 18:19
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output speed. Note: Refer to the
+            /// device datasheet for the frequency specifications and the power supply and load conditions for each speed. (OSPEED10)
+            uint32_t ospeed10 : 2;    // bits 20:21
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output speed. Note: Refer to the
+            /// device datasheet for the frequency specifications and the power supply and load conditions for each speed. (OSPEED11)
+            uint32_t ospeed11 : 2;    // bits 22:23
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output speed. Note: Refer to the
+            /// device datasheet for the frequency specifications and the power supply and load conditions for each speed. (OSPEED12)
+            uint32_t ospeed12 : 2;    // bits 24:25
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output speed. Note: Refer to the
+            /// device datasheet for the frequency specifications and the power supply and load conditions for each speed. (OSPEED13)
+            uint32_t ospeed13 : 2;    // bits 26:27
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output speed. Note: Refer to the
+            /// device datasheet for the frequency specifications and the power supply and load conditions for each speed. (OSPEED14)
+            uint32_t ospeed14 : 2;    // bits 28:29
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O output speed. Note: Refer to the
+            /// device datasheet for the frequency specifications and the power supply and load conditions for each speed. (OSPEED15)
+            uint32_t ospeed15 : 2;    // bits 30:31
         };
         //+=MEMORY======================================+
         union {
@@ -299,38 +315,38 @@ struct GeneralPurposeInputOutput final {
 
         /// The internal bitfield for the register
         struct Fields final {
-            /// Port x configuration bits (y = 0..15) (PUPDR0)
-            uint32_t pullup_pulldown0  : 2;    // bits 0:1
-            /// Port x configuration bits (y = 0..15) (PUPDR1)
-            uint32_t pullup_pulldown1  : 2;    // bits 2:3
-            /// Port x configuration bits (y = 0..15) (PUPDR2)
-            uint32_t pullup_pulldown2  : 2;    // bits 4:5
-            /// Port x configuration bits (y = 0..15) (PUPDR3)
-            uint32_t pullup_pulldown3  : 2;    // bits 6:7
-            /// Port x configuration bits (y = 0..15) (PUPDR4)
-            uint32_t pullup_pulldown4  : 2;    // bits 8:9
-            /// Port x configuration bits (y = 0..15) (PUPDR5)
-            uint32_t pullup_pulldown5  : 2;    // bits 10:11
-            /// Port x configuration bits (y = 0..15) (PUPDR6)
-            uint32_t pullup_pulldown6  : 2;    // bits 12:13
-            /// Port x configuration bits (y = 0..15) (PUPDR7)
-            uint32_t pullup_pulldown7  : 2;    // bits 14:15
-            /// Port x configuration bits (y = 0..15) (PUPDR8)
-            uint32_t pullup_pulldown8  : 2;    // bits 16:17
-            /// Port x configuration bits (y = 0..15) (PUPDR9)
-            uint32_t pullup_pulldown9  : 2;    // bits 18:19
-            /// Port x configuration bits (y = 0..15) (PUPDR10)
-            uint32_t pullup_pulldown10 : 2;    // bits 20:21
-            /// Port x configuration bits (y = 0..15) (PUPDR11)
-            uint32_t pullup_pulldown11 : 2;    // bits 22:23
-            /// Port x configuration bits (y = 0..15) (PUPDR12)
-            uint32_t pullup_pulldown12 : 2;    // bits 24:25
-            /// Port x configuration bits (y = 0..15) (PUPDR13)
-            uint32_t pullup_pulldown13 : 2;    // bits 26:27
-            /// Port x configuration bits (y = 0..15) (PUPDR14)
-            uint32_t pullup_pulldown14 : 2;    // bits 28:29
-            /// Port x configuration bits (y = 0..15) (PUPDR15)
-            uint32_t pullup_pulldown15 : 2;    // bits 30:31
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O pull-up or pull-down (PUPD0)
+            uint32_t pupd0  : 2;    // bits 0:1
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O pull-up or pull-down (PUPD1)
+            uint32_t pupd1  : 2;    // bits 2:3
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O pull-up or pull-down (PUPD2)
+            uint32_t pupd2  : 2;    // bits 4:5
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O pull-up or pull-down (PUPD3)
+            uint32_t pupd3  : 2;    // bits 6:7
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O pull-up or pull-down (PUPD4)
+            uint32_t pupd4  : 2;    // bits 8:9
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O pull-up or pull-down (PUPD5)
+            uint32_t pupd5  : 2;    // bits 10:11
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O pull-up or pull-down (PUPD6)
+            uint32_t pupd6  : 2;    // bits 12:13
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O pull-up or pull-down (PUPD7)
+            uint32_t pupd7  : 2;    // bits 14:15
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O pull-up or pull-down (PUPD8)
+            uint32_t pupd8  : 2;    // bits 16:17
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O pull-up or pull-down (PUPD9)
+            uint32_t pupd9  : 2;    // bits 18:19
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O pull-up or pull-down (PUPD10)
+            uint32_t pupd10 : 2;    // bits 20:21
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O pull-up or pull-down (PUPD11)
+            uint32_t pupd11 : 2;    // bits 22:23
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O pull-up or pull-down (PUPD12)
+            uint32_t pupd12 : 2;    // bits 24:25
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O pull-up or pull-down (PUPD13)
+            uint32_t pupd13 : 2;    // bits 26:27
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O pull-up or pull-down (PUPD14)
+            uint32_t pupd14 : 2;    // bits 28:29
+            /// [1:0]: Port x configuration bits (y = 0..15) These bits are written by software to configure the I/O pull-up or pull-down (PUPD15)
+            uint32_t pupd15 : 2;    // bits 30:31
         };
         //+=MEMORY======================================+
         union {
@@ -385,40 +401,40 @@ struct GeneralPurposeInputOutput final {
 
         /// The internal bitfield for the register
         struct Fields final {
-            /// Port input data (y = 0..15) (IDR0)
-            uint32_t input_data0  : 1;    // bit 0
-            /// Port input data (y = 0..15) (IDR1)
-            uint32_t input_data1  : 1;    // bit 1
-            /// Port input data (y = 0..15) (IDR2)
-            uint32_t input_data2  : 1;    // bit 2
-            /// Port input data (y = 0..15) (IDR3)
-            uint32_t input_data3  : 1;    // bit 3
-            /// Port input data (y = 0..15) (IDR4)
-            uint32_t input_data4  : 1;    // bit 4
-            /// Port input data (y = 0..15) (IDR5)
-            uint32_t input_data5  : 1;    // bit 5
-            /// Port input data (y = 0..15) (IDR6)
-            uint32_t input_data6  : 1;    // bit 6
-            /// Port input data (y = 0..15) (IDR7)
-            uint32_t input_data7  : 1;    // bit 7
-            /// Port input data (y = 0..15) (IDR8)
-            uint32_t input_data8  : 1;    // bit 8
-            /// Port input data (y = 0..15) (IDR9)
-            uint32_t input_data9  : 1;    // bit 9
-            /// Port input data (y = 0..15) (IDR10)
-            uint32_t input_data10 : 1;    // bit 10
-            /// Port input data (y = 0..15) (IDR11)
-            uint32_t input_data11 : 1;    // bit 11
-            /// Port input data (y = 0..15) (IDR12)
-            uint32_t input_data12 : 1;    // bit 12
-            /// Port input data (y = 0..15) (IDR13)
-            uint32_t input_data13 : 1;    // bit 13
-            /// Port input data (y = 0..15) (IDR14)
-            uint32_t input_data14 : 1;    // bit 14
-            /// Port input data (y = 0..15) (IDR15)
-            uint32_t input_data15 : 1;    // bit 15
+            /// Port input data bit (y = 0..15) These bits are read-only. They contain the input value of the corresponding I/O port. (ID0)
+            uint32_t id0  : 1;    // bit 0
+            /// Port input data bit (y = 0..15) These bits are read-only. They contain the input value of the corresponding I/O port. (ID1)
+            uint32_t id1  : 1;    // bit 1
+            /// Port input data bit (y = 0..15) These bits are read-only. They contain the input value of the corresponding I/O port. (ID2)
+            uint32_t id2  : 1;    // bit 2
+            /// Port input data bit (y = 0..15) These bits are read-only. They contain the input value of the corresponding I/O port. (ID3)
+            uint32_t id3  : 1;    // bit 3
+            /// Port input data bit (y = 0..15) These bits are read-only. They contain the input value of the corresponding I/O port. (ID4)
+            uint32_t id4  : 1;    // bit 4
+            /// Port input data bit (y = 0..15) These bits are read-only. They contain the input value of the corresponding I/O port. (ID5)
+            uint32_t id5  : 1;    // bit 5
+            /// Port input data bit (y = 0..15) These bits are read-only. They contain the input value of the corresponding I/O port. (ID6)
+            uint32_t id6  : 1;    // bit 6
+            /// Port input data bit (y = 0..15) These bits are read-only. They contain the input value of the corresponding I/O port. (ID7)
+            uint32_t id7  : 1;    // bit 7
+            /// Port input data bit (y = 0..15) These bits are read-only. They contain the input value of the corresponding I/O port. (ID8)
+            uint32_t id8  : 1;    // bit 8
+            /// Port input data bit (y = 0..15) These bits are read-only. They contain the input value of the corresponding I/O port. (ID9)
+            uint32_t id9  : 1;    // bit 9
+            /// Port input data bit (y = 0..15) These bits are read-only. They contain the input value of the corresponding I/O port. (ID10)
+            uint32_t id10 : 1;    // bit 10
+            /// Port input data bit (y = 0..15) These bits are read-only. They contain the input value of the corresponding I/O port. (ID11)
+            uint32_t id11 : 1;    // bit 11
+            /// Port input data bit (y = 0..15) These bits are read-only. They contain the input value of the corresponding I/O port. (ID12)
+            uint32_t id12 : 1;    // bit 12
+            /// Port input data bit (y = 0..15) These bits are read-only. They contain the input value of the corresponding I/O port. (ID13)
+            uint32_t id13 : 1;    // bit 13
+            /// Port input data bit (y = 0..15) These bits are read-only. They contain the input value of the corresponding I/O port. (ID14)
+            uint32_t id14 : 1;    // bit 14
+            /// Port input data bit (y = 0..15) These bits are read-only. They contain the input value of the corresponding I/O port. (ID15)
+            uint32_t id15 : 1;    // bit 15
             /// (reserved)
-            uint32_t              : 16;    // bits 16:31
+            uint32_t      : 16;    // bits 16:31
         };
         //+=MEMORY======================================+
         union {
@@ -473,40 +489,56 @@ struct GeneralPurposeInputOutput final {
 
         /// The internal bitfield for the register
         struct Fields final {
-            /// Port output data (y = 0..15) (ODR0)
-            uint32_t output_data0  : 1;    // bit 0
-            /// Port output data (y = 0..15) (ODR1)
-            uint32_t output_data1  : 1;    // bit 1
-            /// Port output data (y = 0..15) (ODR2)
-            uint32_t output_data2  : 1;    // bit 2
-            /// Port output data (y = 0..15) (ODR3)
-            uint32_t output_data3  : 1;    // bit 3
-            /// Port output data (y = 0..15) (ODR4)
-            uint32_t output_data4  : 1;    // bit 4
-            /// Port output data (y = 0..15) (ODR5)
-            uint32_t output_data5  : 1;    // bit 5
-            /// Port output data (y = 0..15) (ODR6)
-            uint32_t output_data6  : 1;    // bit 6
-            /// Port output data (y = 0..15) (ODR7)
-            uint32_t output_data7  : 1;    // bit 7
-            /// Port output data (y = 0..15) (ODR8)
-            uint32_t output_data8  : 1;    // bit 8
-            /// Port output data (y = 0..15) (ODR9)
-            uint32_t output_data9  : 1;    // bit 9
-            /// Port output data (y = 0..15) (ODR10)
-            uint32_t output_data10 : 1;    // bit 10
-            /// Port output data (y = 0..15) (ODR11)
-            uint32_t output_data11 : 1;    // bit 11
-            /// Port output data (y = 0..15) (ODR12)
-            uint32_t output_data12 : 1;    // bit 12
-            /// Port output data (y = 0..15) (ODR13)
-            uint32_t output_data13 : 1;    // bit 13
-            /// Port output data (y = 0..15) (ODR14)
-            uint32_t output_data14 : 1;    // bit 14
-            /// Port output data (y = 0..15) (ODR15)
-            uint32_t output_data15 : 1;    // bit 15
+            /// Port output data bit These bits can be read and written by software. Note: For atomic bit set/reset, the OD bits can be individually
+            /// set and/or reset by writing to the GPIOx_BSRR or GPIOx_BRR registers (x = A..F). (OD0)
+            uint32_t od0  : 1;    // bit 0
+            /// Port output data bit These bits can be read and written by software. Note: For atomic bit set/reset, the OD bits can be individually
+            /// set and/or reset by writing to the GPIOx_BSRR or GPIOx_BRR registers (x = A..F). (OD1)
+            uint32_t od1  : 1;    // bit 1
+            /// Port output data bit These bits can be read and written by software. Note: For atomic bit set/reset, the OD bits can be individually
+            /// set and/or reset by writing to the GPIOx_BSRR or GPIOx_BRR registers (x = A..F). (OD2)
+            uint32_t od2  : 1;    // bit 2
+            /// Port output data bit These bits can be read and written by software. Note: For atomic bit set/reset, the OD bits can be individually
+            /// set and/or reset by writing to the GPIOx_BSRR or GPIOx_BRR registers (x = A..F). (OD3)
+            uint32_t od3  : 1;    // bit 3
+            /// Port output data bit These bits can be read and written by software. Note: For atomic bit set/reset, the OD bits can be individually
+            /// set and/or reset by writing to the GPIOx_BSRR or GPIOx_BRR registers (x = A..F). (OD4)
+            uint32_t od4  : 1;    // bit 4
+            /// Port output data bit These bits can be read and written by software. Note: For atomic bit set/reset, the OD bits can be individually
+            /// set and/or reset by writing to the GPIOx_BSRR or GPIOx_BRR registers (x = A..F). (OD5)
+            uint32_t od5  : 1;    // bit 5
+            /// Port output data bit These bits can be read and written by software. Note: For atomic bit set/reset, the OD bits can be individually
+            /// set and/or reset by writing to the GPIOx_BSRR or GPIOx_BRR registers (x = A..F). (OD6)
+            uint32_t od6  : 1;    // bit 6
+            /// Port output data bit These bits can be read and written by software. Note: For atomic bit set/reset, the OD bits can be individually
+            /// set and/or reset by writing to the GPIOx_BSRR or GPIOx_BRR registers (x = A..F). (OD7)
+            uint32_t od7  : 1;    // bit 7
+            /// Port output data bit These bits can be read and written by software. Note: For atomic bit set/reset, the OD bits can be individually
+            /// set and/or reset by writing to the GPIOx_BSRR or GPIOx_BRR registers (x = A..F). (OD8)
+            uint32_t od8  : 1;    // bit 8
+            /// Port output data bit These bits can be read and written by software. Note: For atomic bit set/reset, the OD bits can be individually
+            /// set and/or reset by writing to the GPIOx_BSRR or GPIOx_BRR registers (x = A..F). (OD9)
+            uint32_t od9  : 1;    // bit 9
+            /// Port output data bit These bits can be read and written by software. Note: For atomic bit set/reset, the OD bits can be individually
+            /// set and/or reset by writing to the GPIOx_BSRR or GPIOx_BRR registers (x = A..F). (OD10)
+            uint32_t od10 : 1;    // bit 10
+            /// Port output data bit These bits can be read and written by software. Note: For atomic bit set/reset, the OD bits can be individually
+            /// set and/or reset by writing to the GPIOx_BSRR or GPIOx_BRR registers (x = A..F). (OD11)
+            uint32_t od11 : 1;    // bit 11
+            /// Port output data bit These bits can be read and written by software. Note: For atomic bit set/reset, the OD bits can be individually
+            /// set and/or reset by writing to the GPIOx_BSRR or GPIOx_BRR registers (x = A..F). (OD12)
+            uint32_t od12 : 1;    // bit 12
+            /// Port output data bit These bits can be read and written by software. Note: For atomic bit set/reset, the OD bits can be individually
+            /// set and/or reset by writing to the GPIOx_BSRR or GPIOx_BRR registers (x = A..F). (OD13)
+            uint32_t od13 : 1;    // bit 13
+            /// Port output data bit These bits can be read and written by software. Note: For atomic bit set/reset, the OD bits can be individually
+            /// set and/or reset by writing to the GPIOx_BSRR or GPIOx_BRR registers (x = A..F). (OD14)
+            uint32_t od14 : 1;    // bit 14
+            /// Port output data bit These bits can be read and written by software. Note: For atomic bit set/reset, the OD bits can be individually
+            /// set and/or reset by writing to the GPIOx_BSRR or GPIOx_BRR registers (x = A..F). (OD15)
+            uint32_t od15 : 1;    // bit 15
             /// (reserved)
-            uint32_t               : 16;    // bits 16:31
+            uint32_t      : 16;    // bits 16:31
         };
         //+=MEMORY======================================+
         union {
@@ -561,69 +593,85 @@ struct GeneralPurposeInputOutput final {
 
         /// The internal bitfield for the register
         struct Fields final {
-            /// Port x set bit y (y= 0..15) (BS0)
+            /// Port x set bit y (y= 0..15) These bits are write-only. A read to these bits returns the value 0x0000. (BS0)
             uint32_t bit_set0    : 1;    // bit 0
-            /// Port x set bit y (y= 0..15) (BS1)
+            /// Port x set bit y (y= 0..15) These bits are write-only. A read to these bits returns the value 0x0000. (BS1)
             uint32_t bit_set1    : 1;    // bit 1
-            /// Port x set bit y (y= 0..15) (BS2)
+            /// Port x set bit y (y= 0..15) These bits are write-only. A read to these bits returns the value 0x0000. (BS2)
             uint32_t bit_set2    : 1;    // bit 2
-            /// Port x set bit y (y= 0..15) (BS3)
+            /// Port x set bit y (y= 0..15) These bits are write-only. A read to these bits returns the value 0x0000. (BS3)
             uint32_t bit_set3    : 1;    // bit 3
-            /// Port x set bit y (y= 0..15) (BS4)
+            /// Port x set bit y (y= 0..15) These bits are write-only. A read to these bits returns the value 0x0000. (BS4)
             uint32_t bit_set4    : 1;    // bit 4
-            /// Port x set bit y (y= 0..15) (BS5)
+            /// Port x set bit y (y= 0..15) These bits are write-only. A read to these bits returns the value 0x0000. (BS5)
             uint32_t bit_set5    : 1;    // bit 5
-            /// Port x set bit y (y= 0..15) (BS6)
+            /// Port x set bit y (y= 0..15) These bits are write-only. A read to these bits returns the value 0x0000. (BS6)
             uint32_t bit_set6    : 1;    // bit 6
-            /// Port x set bit y (y= 0..15) (BS7)
+            /// Port x set bit y (y= 0..15) These bits are write-only. A read to these bits returns the value 0x0000. (BS7)
             uint32_t bit_set7    : 1;    // bit 7
-            /// Port x set bit y (y= 0..15) (BS8)
+            /// Port x set bit y (y= 0..15) These bits are write-only. A read to these bits returns the value 0x0000. (BS8)
             uint32_t bit_set8    : 1;    // bit 8
-            /// Port x set bit y (y= 0..15) (BS9)
+            /// Port x set bit y (y= 0..15) These bits are write-only. A read to these bits returns the value 0x0000. (BS9)
             uint32_t bit_set9    : 1;    // bit 9
-            /// Port x set bit y (y= 0..15) (BS10)
+            /// Port x set bit y (y= 0..15) These bits are write-only. A read to these bits returns the value 0x0000. (BS10)
             uint32_t bit_set10   : 1;    // bit 10
-            /// Port x set bit y (y= 0..15) (BS11)
+            /// Port x set bit y (y= 0..15) These bits are write-only. A read to these bits returns the value 0x0000. (BS11)
             uint32_t bit_set11   : 1;    // bit 11
-            /// Port x set bit y (y= 0..15) (BS12)
+            /// Port x set bit y (y= 0..15) These bits are write-only. A read to these bits returns the value 0x0000. (BS12)
             uint32_t bit_set12   : 1;    // bit 12
-            /// Port x set bit y (y= 0..15) (BS13)
+            /// Port x set bit y (y= 0..15) These bits are write-only. A read to these bits returns the value 0x0000. (BS13)
             uint32_t bit_set13   : 1;    // bit 13
-            /// Port x set bit y (y= 0..15) (BS14)
+            /// Port x set bit y (y= 0..15) These bits are write-only. A read to these bits returns the value 0x0000. (BS14)
             uint32_t bit_set14   : 1;    // bit 14
-            /// Port x set bit y (y= 0..15) (BS15)
+            /// Port x set bit y (y= 0..15) These bits are write-only. A read to these bits returns the value 0x0000. (BS15)
             uint32_t bit_set15   : 1;    // bit 15
-            /// Port x set bit y (y= 0..15) (BR0)
+            /// Port x reset bit y (y = 0..15) These bits are write-only. A read to these bits returns the value 0x0000. Note: If both BSx and BRx are
+            /// set, BSx has priority. (BR0)
             uint32_t bit_reset0  : 1;    // bit 16
-            /// Port x reset bit y (y = 0..15) (BR1)
+            /// Port x reset bit y (y = 0..15) These bits are write-only. A read to these bits returns the value 0x0000. Note: If both BSx and BRx are
+            /// set, BSx has priority. (BR1)
             uint32_t bit_reset1  : 1;    // bit 17
-            /// Port x reset bit y (y = 0..15) (BR2)
+            /// Port x reset bit y (y = 0..15) These bits are write-only. A read to these bits returns the value 0x0000. Note: If both BSx and BRx are
+            /// set, BSx has priority. (BR2)
             uint32_t bit_reset2  : 1;    // bit 18
-            /// Port x reset bit y (y = 0..15) (BR3)
+            /// Port x reset bit y (y = 0..15) These bits are write-only. A read to these bits returns the value 0x0000. Note: If both BSx and BRx are
+            /// set, BSx has priority. (BR3)
             uint32_t bit_reset3  : 1;    // bit 19
-            /// Port x reset bit y (y = 0..15) (BR4)
+            /// Port x reset bit y (y = 0..15) These bits are write-only. A read to these bits returns the value 0x0000. Note: If both BSx and BRx are
+            /// set, BSx has priority. (BR4)
             uint32_t bit_reset4  : 1;    // bit 20
-            /// Port x reset bit y (y = 0..15) (BR5)
+            /// Port x reset bit y (y = 0..15) These bits are write-only. A read to these bits returns the value 0x0000. Note: If both BSx and BRx are
+            /// set, BSx has priority. (BR5)
             uint32_t bit_reset5  : 1;    // bit 21
-            /// Port x reset bit y (y = 0..15) (BR6)
+            /// Port x reset bit y (y = 0..15) These bits are write-only. A read to these bits returns the value 0x0000. Note: If both BSx and BRx are
+            /// set, BSx has priority. (BR6)
             uint32_t bit_reset6  : 1;    // bit 22
-            /// Port x reset bit y (y = 0..15) (BR7)
+            /// Port x reset bit y (y = 0..15) These bits are write-only. A read to these bits returns the value 0x0000. Note: If both BSx and BRx are
+            /// set, BSx has priority. (BR7)
             uint32_t bit_reset7  : 1;    // bit 23
-            /// Port x reset bit y (y = 0..15) (BR8)
+            /// Port x reset bit y (y = 0..15) These bits are write-only. A read to these bits returns the value 0x0000. Note: If both BSx and BRx are
+            /// set, BSx has priority. (BR8)
             uint32_t bit_reset8  : 1;    // bit 24
-            /// Port x reset bit y (y = 0..15) (BR9)
+            /// Port x reset bit y (y = 0..15) These bits are write-only. A read to these bits returns the value 0x0000. Note: If both BSx and BRx are
+            /// set, BSx has priority. (BR9)
             uint32_t bit_reset9  : 1;    // bit 25
-            /// Port x reset bit y (y = 0..15) (BR10)
+            /// Port x reset bit y (y = 0..15) These bits are write-only. A read to these bits returns the value 0x0000. Note: If both BSx and BRx are
+            /// set, BSx has priority. (BR10)
             uint32_t bit_reset10 : 1;    // bit 26
-            /// Port x reset bit y (y = 0..15) (BR11)
+            /// Port x reset bit y (y = 0..15) These bits are write-only. A read to these bits returns the value 0x0000. Note: If both BSx and BRx are
+            /// set, BSx has priority. (BR11)
             uint32_t bit_reset11 : 1;    // bit 27
-            /// Port x reset bit y (y = 0..15) (BR12)
+            /// Port x reset bit y (y = 0..15) These bits are write-only. A read to these bits returns the value 0x0000. Note: If both BSx and BRx are
+            /// set, BSx has priority. (BR12)
             uint32_t bit_reset12 : 1;    // bit 28
-            /// Port x reset bit y (y = 0..15) (BR13)
+            /// Port x reset bit y (y = 0..15) These bits are write-only. A read to these bits returns the value 0x0000. Note: If both BSx and BRx are
+            /// set, BSx has priority. (BR13)
             uint32_t bit_reset13 : 1;    // bit 29
-            /// Port x reset bit y (y = 0..15) (BR14)
+            /// Port x reset bit y (y = 0..15) These bits are write-only. A read to these bits returns the value 0x0000. Note: If both BSx and BRx are
+            /// set, BSx has priority. (BR14)
             uint32_t bit_reset14 : 1;    // bit 30
-            /// Port x reset bit y (y = 0..15) (BR15)
+            /// Port x reset bit y (y = 0..15) These bits are write-only. A read to these bits returns the value 0x0000. Note: If both BSx and BRx are
+            /// set, BSx has priority. (BR15)
             uint32_t bit_reset15 : 1;    // bit 31
         };
         //+=MEMORY======================================+
@@ -655,7 +703,11 @@ struct GeneralPurposeInputOutput final {
     static_assert(std::is_standard_layout<BitSetReset>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
     static_assert(sizeof(BitSetReset) == 4UL, "Must be this exact size");
-    /// GPIO port configuration lock register (LCKR)
+    /// This register is used to lock the configuration of the port bits when a correct write sequence is applied to bit 16 (LCKK). The value of bits
+    /// [15:0] is used to lock the configuration of the GPIO. During the write sequence, the value of LCKR[15:0] must not change. When the LOCK
+    /// sequence has been applied on a port bit, the value of this port bit can no longer be modified until the next MCU reset or peripheral reset.A
+    /// specific write sequence is used to write to the GPIOx_LCKR register. Only word access (32-bit long) is allowed during this locking
+    /// sequence.Each lock bit freezes a specific configuration register (control and alternate function registers). (LCKR)
     struct Lock final {
         /// Default Constructor
         Lock()
@@ -679,39 +731,43 @@ struct GeneralPurposeInputOutput final {
 
         /// The internal bitfield for the register
         struct Fields final {
-            /// Port x lock bit y (y= 0..15) (LCK0)
+            /// Port x lock bit y (y= 0..15) These bits are read/write but can only be written when the LCKK bit is 0. (LCK0)
             uint32_t lock0    : 1;    // bit 0
-            /// Port x lock bit y (y= 0..15) (LCK1)
+            /// Port x lock bit y (y= 0..15) These bits are read/write but can only be written when the LCKK bit is 0. (LCK1)
             uint32_t lock1    : 1;    // bit 1
-            /// Port x lock bit y (y= 0..15) (LCK2)
+            /// Port x lock bit y (y= 0..15) These bits are read/write but can only be written when the LCKK bit is 0. (LCK2)
             uint32_t lock2    : 1;    // bit 2
-            /// Port x lock bit y (y= 0..15) (LCK3)
+            /// Port x lock bit y (y= 0..15) These bits are read/write but can only be written when the LCKK bit is 0. (LCK3)
             uint32_t lock3    : 1;    // bit 3
-            /// Port x lock bit y (y= 0..15) (LCK4)
+            /// Port x lock bit y (y= 0..15) These bits are read/write but can only be written when the LCKK bit is 0. (LCK4)
             uint32_t lock4    : 1;    // bit 4
-            /// Port x lock bit y (y= 0..15) (LCK5)
+            /// Port x lock bit y (y= 0..15) These bits are read/write but can only be written when the LCKK bit is 0. (LCK5)
             uint32_t lock5    : 1;    // bit 5
-            /// Port x lock bit y (y= 0..15) (LCK6)
+            /// Port x lock bit y (y= 0..15) These bits are read/write but can only be written when the LCKK bit is 0. (LCK6)
             uint32_t lock6    : 1;    // bit 6
-            /// Port x lock bit y (y= 0..15) (LCK7)
+            /// Port x lock bit y (y= 0..15) These bits are read/write but can only be written when the LCKK bit is 0. (LCK7)
             uint32_t lock7    : 1;    // bit 7
-            /// Port x lock bit y (y= 0..15) (LCK8)
+            /// Port x lock bit y (y= 0..15) These bits are read/write but can only be written when the LCKK bit is 0. (LCK8)
             uint32_t lock8    : 1;    // bit 8
-            /// Port x lock bit y (y= 0..15) (LCK9)
+            /// Port x lock bit y (y= 0..15) These bits are read/write but can only be written when the LCKK bit is 0. (LCK9)
             uint32_t lock9    : 1;    // bit 9
-            /// Port x lock bit y (y= 0..15) (LCK10)
+            /// Port x lock bit y (y= 0..15) These bits are read/write but can only be written when the LCKK bit is 0. (LCK10)
             uint32_t lock10   : 1;    // bit 10
-            /// Port x lock bit y (y= 0..15) (LCK11)
+            /// Port x lock bit y (y= 0..15) These bits are read/write but can only be written when the LCKK bit is 0. (LCK11)
             uint32_t lock11   : 1;    // bit 11
-            /// Port x lock bit y (y= 0..15) (LCK12)
+            /// Port x lock bit y (y= 0..15) These bits are read/write but can only be written when the LCKK bit is 0. (LCK12)
             uint32_t lock12   : 1;    // bit 12
-            /// Port x lock bit y (y= 0..15) (LCK13)
+            /// Port x lock bit y (y= 0..15) These bits are read/write but can only be written when the LCKK bit is 0. (LCK13)
             uint32_t lock13   : 1;    // bit 13
-            /// Port x lock bit y (y= 0..15) (LCK14)
+            /// Port x lock bit y (y= 0..15) These bits are read/write but can only be written when the LCKK bit is 0. (LCK14)
             uint32_t lock14   : 1;    // bit 14
-            /// Port x lock bit y (y= 0..15) (LCK15)
+            /// Port x lock bit y (y= 0..15) These bits are read/write but can only be written when the LCKK bit is 0. (LCK15)
             uint32_t lock15   : 1;    // bit 15
-            /// Port x lock bit y (y= 0..15) (LCKK)
+            /// Lock key This bit can be read any time. It can only be modified using the lock key write sequence. LOCK key write sequence: WR
+            /// LCKR[16] = 1 + LCKR[15:0] WR LCKR[16] = 0 + LCKR[15:0] WR LCKR[16] = 1 + LCKR[15:0] RD LCKR RD LCKR[16] = 1 (this read operation is
+            /// optional but it confirms that the lock is active) Note: During the LOCK key write sequence, the value of LCK[15:0] must not change.
+            /// Any error in the lock sequence aborts the lock. After the first lock sequence on any bit of the port, any read access on the LCKK bit
+            /// will return 1 until the next MCU reset or peripheral reset. (LCKK)
             uint32_t lock_key : 1;    // bit 16
             /// (reserved)
             uint32_t          : 15;    // bits 17:31
@@ -769,22 +825,30 @@ struct GeneralPurposeInputOutput final {
 
         /// The internal bitfield for the register
         struct Fields final {
-            /// Alternate function selection for port x bit y (y = 0..7) (AFRL0)
-            uint32_t alternative_function_low0 : 4;    // bits 0:3
-            /// Alternate function selection for port x bit y (y = 0..7) (AFRL1)
-            uint32_t alternative_function_low1 : 4;    // bits 4:7
-            /// Alternate function selection for port x bit y (y = 0..7) (AFRL2)
-            uint32_t alternative_function_low2 : 4;    // bits 8:11
-            /// Alternate function selection for port x bit y (y = 0..7) (AFRL3)
-            uint32_t alternative_function_low3 : 4;    // bits 12:15
-            /// Alternate function selection for port x bit y (y = 0..7) (AFRL4)
-            uint32_t alternative_function_low4 : 4;    // bits 16:19
-            /// Alternate function selection for port x bit y (y = 0..7) (AFRL5)
-            uint32_t alternative_function_low5 : 4;    // bits 20:23
-            /// Alternate function selection for port x bit y (y = 0..7) (AFRL6)
-            uint32_t alternative_function_low6 : 4;    // bits 24:27
-            /// Alternate function selection for port x bit y (y = 0..7) (AFRL7)
-            uint32_t alternative_function_low7 : 4;    // bits 28:31
+            /// [3:0]: Alternate function selection for port x pin y (y = 0..7) These bits are written by software to configure alternate function
+            /// I/Os AFSELy selection: (AFSEL0)
+            uint32_t afsel0 : 4;    // bits 0:3
+            /// [3:0]: Alternate function selection for port x pin y (y = 0..7) These bits are written by software to configure alternate function
+            /// I/Os AFSELy selection: (AFSEL1)
+            uint32_t afsel1 : 4;    // bits 4:7
+            /// [3:0]: Alternate function selection for port x pin y (y = 0..7) These bits are written by software to configure alternate function
+            /// I/Os AFSELy selection: (AFSEL2)
+            uint32_t afsel2 : 4;    // bits 8:11
+            /// [3:0]: Alternate function selection for port x pin y (y = 0..7) These bits are written by software to configure alternate function
+            /// I/Os AFSELy selection: (AFSEL3)
+            uint32_t afsel3 : 4;    // bits 12:15
+            /// [3:0]: Alternate function selection for port x pin y (y = 0..7) These bits are written by software to configure alternate function
+            /// I/Os AFSELy selection: (AFSEL4)
+            uint32_t afsel4 : 4;    // bits 16:19
+            /// [3:0]: Alternate function selection for port x pin y (y = 0..7) These bits are written by software to configure alternate function
+            /// I/Os AFSELy selection: (AFSEL5)
+            uint32_t afsel5 : 4;    // bits 20:23
+            /// [3:0]: Alternate function selection for port x pin y (y = 0..7) These bits are written by software to configure alternate function
+            /// I/Os AFSELy selection: (AFSEL6)
+            uint32_t afsel6 : 4;    // bits 24:27
+            /// [3:0]: Alternate function selection for port x pin y (y = 0..7) These bits are written by software to configure alternate function
+            /// I/Os AFSELy selection: (AFSEL7)
+            uint32_t afsel7 : 4;    // bits 28:31
         };
         //+=MEMORY======================================+
         union {
@@ -839,22 +903,30 @@ struct GeneralPurposeInputOutput final {
 
         /// The internal bitfield for the register
         struct Fields final {
-            /// Alternate function selection for port x bit y (y = 8..15) (AFRH8)
-            uint32_t alternative_function_high8  : 4;    // bits 0:3
-            /// Alternate function selection for port x bit y (y = 8..15) (AFRH9)
-            uint32_t alternative_function_high9  : 4;    // bits 4:7
-            /// Alternate function selection for port x bit y (y = 8..15) (AFRH10)
-            uint32_t alternative_function_high10 : 4;    // bits 8:11
-            /// Alternate function selection for port x bit y (y = 8..15) (AFRH11)
-            uint32_t alternative_function_high11 : 4;    // bits 12:15
-            /// Alternate function selection for port x bit y (y = 8..15) (AFRH12)
-            uint32_t alternative_function_high12 : 4;    // bits 16:19
-            /// Alternate function selection for port x bit y (y = 8..15) (AFRH13)
-            uint32_t alternative_function_high13 : 4;    // bits 20:23
-            /// Alternate function selection for port x bit y (y = 8..15) (AFRH14)
-            uint32_t alternative_function_high14 : 4;    // bits 24:27
-            /// Alternate function selection for port x bit y (y = 8..15) (AFRH15)
-            uint32_t alternative_function_high15 : 4;    // bits 28:31
+            /// [3:0]: Alternate function selection for port x pin y (y = 8..15) These bits are written by software to configure alternate function
+            /// I/Os (AFSEL8)
+            uint32_t afsel8  : 4;    // bits 0:3
+            /// [3:0]: Alternate function selection for port x pin y (y = 8..15) These bits are written by software to configure alternate function
+            /// I/Os (AFSEL9)
+            uint32_t afsel9  : 4;    // bits 4:7
+            /// [3:0]: Alternate function selection for port x pin y (y = 8..15) These bits are written by software to configure alternate function
+            /// I/Os (AFSEL10)
+            uint32_t afsel10 : 4;    // bits 8:11
+            /// [3:0]: Alternate function selection for port x pin y (y = 8..15) These bits are written by software to configure alternate function
+            /// I/Os (AFSEL11)
+            uint32_t afsel11 : 4;    // bits 12:15
+            /// [3:0]: Alternate function selection for port x pin y (y = 8..15) These bits are written by software to configure alternate function
+            /// I/Os (AFSEL12)
+            uint32_t afsel12 : 4;    // bits 16:19
+            /// [3:0]: Alternate function selection for port x pin y (y = 8..15) These bits are written by software to configure alternate function
+            /// I/Os (AFSEL13)
+            uint32_t afsel13 : 4;    // bits 20:23
+            /// [3:0]: Alternate function selection for port x pin y (y = 8..15) These bits are written by software to configure alternate function
+            /// I/Os (AFSEL14)
+            uint32_t afsel14 : 4;    // bits 24:27
+            /// [3:0]: Alternate function selection for port x pin y (y = 8..15) These bits are written by software to configure alternate function
+            /// I/Os (AFSEL15)
+            uint32_t afsel15 : 4;    // bits 28:31
         };
         //+=MEMORY======================================+
         union {
@@ -901,7 +973,11 @@ struct GeneralPurposeInputOutput final {
     OutputData output_data;    // offset 0x14UL
     /// GPIO port bit set/reset register (BSRR)
     BitSetReset bit_set_reset;    // offset 0x18UL
-    /// GPIO port configuration lock register (LCKR)
+    /// This register is used to lock the configuration of the port bits when a correct write sequence is applied to bit 16 (LCKK). The value of bits
+    /// [15:0] is used to lock the configuration of the GPIO. During the write sequence, the value of LCKR[15:0] must not change. When the LOCK
+    /// sequence has been applied on a port bit, the value of this port bit can no longer be modified until the next MCU reset or peripheral reset.A
+    /// specific write sequence is used to write to the GPIOx_LCKR register. Only word access (32-bit long) is allowed during this locking
+    /// sequence.Each lock bit freezes a specific configuration register (control and alternate function registers). (LCKR)
     Lock lock;    // offset 0x1cUL
     /// GPIO alternate function low register (AFRL)
     AlternativeFunctionLow alternative_function_low;    // offset 0x20UL
@@ -1177,8 +1253,6 @@ static constexpr std::size_t NumberOfGeneralPurposeInputOutputInstances = 11UL;
 /// The external volatile gpio which is a memory mapped register or peripheral.
 /// @note The address of the peripheral is set either by the linkerscript or by a unit test.
 extern GeneralPurposeInputOutput volatile general_purpose_input_output[NumberOfGeneralPurposeInputOutputInstances];
-
 }    // namespace h7xx
-
 }    // namespace stm32
 #endif    // STM32_H7XX_GENERALPURPOSEINPUTOUTPUT__HPP_

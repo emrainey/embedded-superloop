@@ -37,7 +37,7 @@ public:
     /// @param peripheral_frequency The input clock frequency to the SPI peripheral
     /// @param desired_spi_clock_frequency The desired SPI bus clock frequency
     /// @return The baud rate divider setting that produces the closest frequency
-    stm32::peripherals::SerialPeripheralInterface::Control1::BaudRateDivider FindClosestDivider(
+    stm32::peripherals::SerialPeripheralInterface::BaudRateDivider FindClosestDivider(
         core::units::Hertz peripheral_frequency, core::units::Hertz desired_spi_clock_frequency
     );
 

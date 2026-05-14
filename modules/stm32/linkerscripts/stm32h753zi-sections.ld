@@ -295,6 +295,8 @@
         _stm32_ramecc3 = . ;
     } > AHB4
 
+    PROVIDE(_ZN5stm324h7xx16power_controllerE = _stm32_power_control);
+
     /* Private Peripheral Block for Cortex M */
     .ppb (NOLOAD) : {
         . = ORIGIN(PPB) + 0x00000;

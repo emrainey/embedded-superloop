@@ -1841,8 +1841,8 @@ BR9:
   - GPIOJ.BSRR
   - GPIOK.BSRR
 BRE:
-  as_type: BRE
-  as_variable: bre
+  as_type: BackupRegulatorEnable
+  as_variable: backup_regulator_enable
   context:
   - PWR.CSR
 BRP:
@@ -1872,6 +1872,10 @@ BRR:
   - USART3.BRR
   - USART6
   - USART6.BRR
+  overrides:
+    PWR.CSR:
+      as_type: BackupRegulatorReady
+      as_variable: backup_regulator_ready
 BS0:
   as_type: BitSet0
   as_variable: bit_set0
@@ -2420,8 +2424,8 @@ CBURSTRW:
   - FSMC.BCR3
   - FSMC.BCR4
 CC1DE:
-  as_type: CC1DE
-  as_variable: cc1de
+  as_type: CaptureCompare1DMAEnable
+  as_variable: capture_compare1_dma_enable
   context:
   - TIM1.DIER
   - TIM2.DIER
@@ -2430,8 +2434,8 @@ CC1DE:
   - TIM5.DIER
   - TIM8.DIER
 CC1E:
-  as_type: CC1E
-  as_variable: cc1e
+  as_type: CaptureCompare1Enable
+  as_variable: capture_compare1_enable
   context:
   - TIM1.CCER
   - TIM10.CCER
@@ -2446,8 +2450,8 @@ CC1E:
   - TIM8.CCER
   - TIM9.CCER
 CC1G:
-  as_type: CC1G
-  as_variable: cc1g
+  as_type: CaptureCompare1Generation
+  as_variable: capture_compare1_generation
   context:
   - TIM1.EGR
   - TIM10.EGR
@@ -2462,8 +2466,8 @@ CC1G:
   - TIM8.EGR
   - TIM9.EGR
 CC1IE:
-  as_type: CC1IE
-  as_variable: cc1ie
+  as_type: CaptureCompare1InterruptEnable
+  as_variable: capture_compare1_interrupt_enable
   context:
   - TIM1.DIER
   - TIM10.DIER
@@ -2478,8 +2482,8 @@ CC1IE:
   - TIM8.DIER
   - TIM9.DIER
 CC1IF:
-  as_type: CC1IF
-  as_variable: cc1if
+  as_type: CaptureCompare1InterruptFlag
+  as_variable: capture_compare1_interrupt_flag
   context:
   - TIM1.SR
   - TIM10.SR
@@ -2500,8 +2504,8 @@ CC1NE:
   - TIM1.CCER
   - TIM8.CCER
 CC1NP:
-  as_type: CC1NP
-  as_variable: cc1np
+  as_type: CaptureCompare1OutputPolarity
+  as_variable: capture_compare1_output_polarity
   context:
   - TIM1.CCER
   - TIM10.CCER
@@ -2516,8 +2520,8 @@ CC1NP:
   - TIM8.CCER
   - TIM9.CCER
 CC1OF:
-  as_type: CC1OF
-  as_variable: cc1of
+  as_type: CaptureCompare1OvercaptureFlag
+  as_variable: capture_compare1_overcapture_flag
   context:
   - TIM1.SR
   - TIM10.SR
@@ -2532,8 +2536,8 @@ CC1OF:
   - TIM8.SR
   - TIM9.SR
 CC1P:
-  as_type: CC1P
-  as_variable: cc1p
+  as_type: CaptureCompare1Polarity
+  as_variable: capture_compare1_polarity
   context:
   - TIM1.CCER
   - TIM10.CCER
@@ -2548,8 +2552,8 @@ CC1P:
   - TIM8.CCER
   - TIM9.CCER
 CC1S:
-  as_type: CC1S
-  as_variable: cc1s
+  as_type: CaptureCompare1Selection
+  as_variable: capture_compare1_selection
   context:
   - TIM1.CCMR1_Input
   - TIM1.CCMR1_Output
@@ -2576,8 +2580,8 @@ CC1S:
   - TIM9.CCMR1_Input
   - TIM9.CCMR1_Output
 CC2DE:
-  as_type: CC2DE
-  as_variable: cc2de
+  as_type: CaptureCompare2DMAEnable
+  as_variable: capture_compare2_dma_enable
   context:
   - TIM1.DIER
   - TIM2.DIER
@@ -2586,8 +2590,8 @@ CC2DE:
   - TIM5.DIER
   - TIM8.DIER
 CC2E:
-  as_type: CC2E
-  as_variable: cc2e
+  as_type: CaptureCompare2Enable
+  as_variable: capture_compare2_enable
   context:
   - TIM1.CCER
   - TIM12.CCER
@@ -2598,8 +2602,8 @@ CC2E:
   - TIM8.CCER
   - TIM9.CCER
 CC2G:
-  as_type: CC2G
-  as_variable: cc2g
+  as_type: CaptureCompare2Generation
+  as_variable: capture_compare2_generation
   context:
   - TIM1.EGR
   - TIM12.EGR
@@ -2610,8 +2614,8 @@ CC2G:
   - TIM8.EGR
   - TIM9.EGR
 CC2IE:
-  as_type: CC2IE
-  as_variable: cc2ie
+  as_type: CaptureCompare2InterruptEnable
+  as_variable: capture_compare2_interrupt_enable
   context:
   - TIM1.DIER
   - TIM12.DIER
@@ -2622,8 +2626,8 @@ CC2IE:
   - TIM8.DIER
   - TIM9.DIER
 CC2IF:
-  as_type: CC2IF
-  as_variable: cc2if
+  as_type: CaptureCompare2InterruptFlag
+  as_variable: capture_compare2_interrupt_flag
   context:
   - TIM1.SR
   - TIM12.SR
@@ -2640,8 +2644,8 @@ CC2NE:
   - TIM1.CCER
   - TIM8.CCER
 CC2NP:
-  as_type: CC2NP
-  as_variable: cc2np
+  as_type: CaptureCompare2OutputPolarity
+  as_variable: capture_compare2_output_polarity
   context:
   - TIM1.CCER
   - TIM12.CCER
@@ -2652,8 +2656,8 @@ CC2NP:
   - TIM8.CCER
   - TIM9.CCER
 CC2OF:
-  as_type: CC2OF
-  as_variable: cc2of
+  as_type: CaptureCompare2OvercaptureFlag
+  as_variable: capture_compare2_overcapture_flag
   context:
   - TIM1.SR
   - TIM12.SR
@@ -2664,8 +2668,8 @@ CC2OF:
   - TIM8.SR
   - TIM9.SR
 CC2P:
-  as_type: CC2P
-  as_variable: cc2p
+  as_type: CaptureCompare2Polarity
+  as_variable: capture_compare2_polarity
   context:
   - TIM1.CCER
   - TIM12.CCER
@@ -2677,7 +2681,7 @@ CC2P:
   - TIM9.CCER
 CC2S:
   as_type: CC2S
-  as_variable: cc2s
+  as_variable: capture_compare_selection2
   context:
   - TIM1.CCMR1_Input
   - TIM1.CCMR1_Output
@@ -2696,8 +2700,8 @@ CC2S:
   - TIM9.CCMR1_Input
   - TIM9.CCMR1_Output
 CC3DE:
-  as_type: CC3DE
-  as_variable: cc3de
+  as_type: CaptureCompare3DMAEnable
+  as_variable: capture_compare3_dma_enable
   context:
   - TIM1.DIER
   - TIM2.DIER
@@ -2706,8 +2710,8 @@ CC3DE:
   - TIM5.DIER
   - TIM8.DIER
 CC3E:
-  as_type: CC3E
-  as_variable: cc3e
+  as_type: CaptureCompare3Enable
+  as_variable: capture_compare3_enable
   context:
   - TIM1.CCER
   - TIM2.CCER
@@ -2716,8 +2720,8 @@ CC3E:
   - TIM5.CCER
   - TIM8.CCER
 CC3G:
-  as_type: CC3G
-  as_variable: cc3g
+  as_type: CaptureCompare3Generation
+  as_variable: capture_compare3_generation
   context:
   - TIM1.EGR
   - TIM2.EGR
@@ -2726,8 +2730,8 @@ CC3G:
   - TIM5.EGR
   - TIM8.EGR
 CC3IE:
-  as_type: CC3IE
-  as_variable: cc3ie
+  as_type: CaptureCompare3InterruptEnable
+  as_variable: capture_compare3_interrupt_enable
   context:
   - TIM1.DIER
   - TIM2.DIER
@@ -2736,8 +2740,8 @@ CC3IE:
   - TIM5.DIER
   - TIM8.DIER
 CC3IF:
-  as_type: CC3IF
-  as_variable: cc3if
+  as_type: CaptureCompare3InterruptFlag
+  as_variable: capture_compare3_interrupt_flag
   context:
   - TIM1.SR
   - TIM2.SR
@@ -2752,8 +2756,8 @@ CC3NE:
   - TIM1.CCER
   - TIM8.CCER
 CC3NP:
-  as_type: CC3NP
-  as_variable: cc3np
+  as_type: CaptureCompare3OutputPolarity
+  as_variable: capture_compare3_output_polarity
   context:
   - TIM1.CCER
   - TIM2.CCER
@@ -2762,8 +2766,8 @@ CC3NP:
   - TIM5.CCER
   - TIM8.CCER
 CC3OF:
-  as_type: CC3OF
-  as_variable: cc3of
+  as_type: CaptureCompare3OvercaptureFlag
+  as_variable: capture_compare3_overcapture_flag
   context:
   - TIM1.SR
   - TIM2.SR
@@ -2772,8 +2776,8 @@ CC3OF:
   - TIM5.SR
   - TIM8.SR
 CC3P:
-  as_type: CC3P
-  as_variable: cc3p
+  as_type: CaptureCompare3Polarity
+  as_variable: capture_compare3_polarity
   context:
   - TIM1.CCER
   - TIM2.CCER
@@ -2782,8 +2786,8 @@ CC3P:
   - TIM5.CCER
   - TIM8.CCER
 CC3S:
-  as_type: CC3S
-  as_variable: cc3s
+  as_type: CaptureCompare3Selection
+  as_variable: capture_compare3_selection
   context:
   - TIM1.CCMR2_Input
   - TIM1.CCMR2_Output
@@ -2798,8 +2802,8 @@ CC3S:
   - TIM8.CCMR2_Input
   - TIM8.CCMR2_Output
 CC4DE:
-  as_type: CC4DE
-  as_variable: cc4de
+  as_type: CaptureCompare4DMAEnable
+  as_variable: capture_compare4_dma_enable
   context:
   - TIM1.DIER
   - TIM2.DIER
@@ -2808,8 +2812,8 @@ CC4DE:
   - TIM5.DIER
   - TIM8.DIER
 CC4E:
-  as_type: CC4E
-  as_variable: cc4e
+  as_type: CaptureCompare4Enable
+  as_variable: capture_compare4_enable
   context:
   - TIM1.CCER
   - TIM2.CCER
@@ -2818,8 +2822,8 @@ CC4E:
   - TIM5.CCER
   - TIM8.CCER
 CC4G:
-  as_type: CC4G
-  as_variable: cc4g
+  as_type: CaptureCompare4Generation
+  as_variable: capture_compare4_generation
   context:
   - TIM1.EGR
   - TIM2.EGR
@@ -2828,8 +2832,8 @@ CC4G:
   - TIM5.EGR
   - TIM8.EGR
 CC4IE:
-  as_type: CC4IE
-  as_variable: cc4ie
+  as_type: CaptureCompare4InterruptEnable
+  as_variable: capture_compare4_interrupt_enable
   context:
   - TIM1.DIER
   - TIM2.DIER
@@ -2838,8 +2842,8 @@ CC4IE:
   - TIM5.DIER
   - TIM8.DIER
 CC4IF:
-  as_type: CC4IF
-  as_variable: cc4if
+  as_type: CaptureCompare4InterruptFlag
+  as_variable: capture_compare4_interrupt_flag
   context:
   - TIM1.SR
   - TIM2.SR
@@ -2848,16 +2852,16 @@ CC4IF:
   - TIM5.SR
   - TIM8.SR
 CC4NP:
-  as_type: CC4NP
-  as_variable: cc4np
+  as_type: CaptureCompare4OutputPolarity
+  as_variable: capture_compare4_output_polarity
   context:
   - TIM2.CCER
   - TIM3.CCER
   - TIM4.CCER
   - TIM5.CCER
 CC4OF:
-  as_type: CC4OF
-  as_variable: cc4of
+  as_type: CaptureCompare4OvercaptureFlag
+  as_variable: capture_compare4_overcapture_flag
   context:
   - TIM1.SR
   - TIM2.SR
@@ -2866,8 +2870,8 @@ CC4OF:
   - TIM5.SR
   - TIM8.SR
 CC4P:
-  as_type: CC4P
-  as_variable: cc4p
+  as_type: CaptureCompare4Polarity
+  as_variable: capture_compare4_polarity
   context:
   - TIM1.CCER
   - TIM2.CCER
@@ -2876,8 +2880,8 @@ CC4P:
   - TIM5.CCER
   - TIM8.CCER
 CC4S:
-  as_type: CC4S
-  as_variable: cc4s
+  as_type: CaptureCompare4Selection
+  as_variable: capture_compare4_selection
   context:
   - TIM1.CCMR2_Input
   - TIM1.CCMR2_Output
@@ -4412,8 +4416,8 @@ CRYPEN:
   context:
   - CRYP.CR
 CSBF:
-  as_type: CSBF
-  as_variable: csbf
+  as_type: ClearStandbyFlag
+  as_variable: clear_standby_flag
   context:
   - PWR.CR
 CSD:
@@ -4529,327 +4533,331 @@ CSR:
   - PWR.CSR
   - RCC
   - RCC.CSR
+  overrides:
+    PWR.CSR:
+      as_type: ControlStatus
+      as_variable: control_status
 CSR0:
-  as_type: CSR0
-  as_variable: csr0
+  as_type: ContextSwap0
+  as_variable: context_swap0
   context:
   - HASH
   - HASH.CSR0
 CSR1:
-  as_type: CSR1
-  as_variable: csr1
+  as_type: ContextSwap1
+  as_variable: context_swap1
   context:
   - HASH
   - HASH.CSR1
 CSR10:
-  as_type: CSR10
-  as_variable: csr10
+  as_type: ContextSwap10
+  as_variable: context_swap10
   context:
   - HASH
   - HASH.CSR10
 CSR11:
-  as_type: CSR11
-  as_variable: csr11
+  as_type: ContextSwap11
+  as_variable: context_swap11
   context:
   - HASH
   - HASH.CSR11
 CSR12:
-  as_type: CSR12
-  as_variable: csr12
+  as_type: ContextSwap12
+  as_variable: context_swap12
   context:
   - HASH
   - HASH.CSR12
 CSR13:
-  as_type: CSR13
-  as_variable: csr13
+  as_type: ContextSwap13
+  as_variable: context_swap13
   context:
   - HASH
   - HASH.CSR13
 CSR14:
-  as_type: CSR14
-  as_variable: csr14
+  as_type: ContextSwap14
+  as_variable: context_swap14
   context:
   - HASH
   - HASH.CSR14
 CSR15:
-  as_type: CSR15
-  as_variable: csr15
+  as_type: ContextSwap15
+  as_variable: context_swap15
   context:
   - HASH
   - HASH.CSR15
 CSR16:
-  as_type: CSR16
-  as_variable: csr16
+  as_type: ContextSwap16
+  as_variable: context_swap16
   context:
   - HASH
   - HASH.CSR16
 CSR17:
-  as_type: CSR17
-  as_variable: csr17
+  as_type: ContextSwap17
+  as_variable: context_swap17
   context:
   - HASH
   - HASH.CSR17
 CSR18:
-  as_type: CSR18
-  as_variable: csr18
+  as_type: ContextSwap18
+  as_variable: context_swap18
   context:
   - HASH
   - HASH.CSR18
 CSR19:
-  as_type: CSR19
-  as_variable: csr19
+  as_type: ContextSwap19
+  as_variable: context_swap19
   context:
   - HASH
   - HASH.CSR19
 CSR2:
-  as_type: CSR2
-  as_variable: csr2
+  as_type: ContextSwap2
+  as_variable: context_swap2
   context:
   - HASH
   - HASH.CSR2
 CSR20:
-  as_type: CSR20
-  as_variable: csr20
+  as_type: ContextSwap20
+  as_variable: context_swap20
   context:
   - HASH
   - HASH.CSR20
 CSR21:
-  as_type: CSR21
-  as_variable: csr21
+  as_type: ContextSwap21
+  as_variable: context_swap21
   context:
   - HASH
   - HASH.CSR21
 CSR22:
-  as_type: CSR22
-  as_variable: csr22
+  as_type: ContextSwap22
+  as_variable: context_swap22
   context:
   - HASH
   - HASH.CSR22
 CSR23:
-  as_type: CSR23
-  as_variable: csr23
+  as_type: ContextSwap23
+  as_variable: context_swap23
   context:
   - HASH
   - HASH.CSR23
 CSR24:
-  as_type: CSR24
-  as_variable: csr24
+  as_type: ContextSwap24
+  as_variable: context_swap24
   context:
   - HASH
   - HASH.CSR24
 CSR25:
-  as_type: CSR25
-  as_variable: csr25
+  as_type: ContextSwap25
+  as_variable: context_swap25
   context:
   - HASH
   - HASH.CSR25
 CSR26:
-  as_type: CSR26
-  as_variable: csr26
+  as_type: ContextSwap26
+  as_variable: context_swap26
   context:
   - HASH
   - HASH.CSR26
 CSR27:
-  as_type: CSR27
-  as_variable: csr27
+  as_type: ContextSwap27
+  as_variable: context_swap27
   context:
   - HASH
   - HASH.CSR27
 CSR28:
-  as_type: CSR28
-  as_variable: csr28
+  as_type: ContextSwap28
+  as_variable: context_swap28
   context:
   - HASH
   - HASH.CSR28
 CSR29:
-  as_type: CSR29
-  as_variable: csr29
+  as_type: ContextSwap29
+  as_variable: context_swap29
   context:
   - HASH
   - HASH.CSR29
 CSR3:
-  as_type: CSR3
-  as_variable: csr3
+  as_type: ContextSwap3
+  as_variable: context_swap3
   context:
   - HASH
   - HASH.CSR3
 CSR30:
-  as_type: CSR30
-  as_variable: csr30
+  as_type: ContextSwap30
+  as_variable: context_swap30
   context:
   - HASH
   - HASH.CSR30
 CSR31:
-  as_type: CSR31
-  as_variable: csr31
+  as_type: ContextSwap31
+  as_variable: context_swap31
   context:
   - HASH
   - HASH.CSR31
 CSR32:
-  as_type: CSR32
-  as_variable: csr32
+  as_type: ContextSwap32
+  as_variable: context_swap32
   context:
   - HASH
   - HASH.CSR32
 CSR33:
-  as_type: CSR33
-  as_variable: csr33
+  as_type: ContextSwap33
+  as_variable: context_swap33
   context:
   - HASH
   - HASH.CSR33
 CSR34:
-  as_type: CSR34
-  as_variable: csr34
+  as_type: ContextSwap34
+  as_variable: context_swap34
   context:
   - HASH
   - HASH.CSR34
 CSR35:
-  as_type: CSR35
-  as_variable: csr35
+  as_type: ContextSwap35
+  as_variable: context_swap35
   context:
   - HASH
   - HASH.CSR35
 CSR36:
-  as_type: CSR36
-  as_variable: csr36
+  as_type: ContextSwap36
+  as_variable: context_swap36
   context:
   - HASH
   - HASH.CSR36
 CSR37:
-  as_type: CSR37
-  as_variable: csr37
+  as_type: ContextSwap37
+  as_variable: context_swap37
   context:
   - HASH
   - HASH.CSR37
 CSR38:
-  as_type: CSR38
-  as_variable: csr38
+  as_type: ContextSwap38
+  as_variable: context_swap38
   context:
   - HASH
   - HASH.CSR38
 CSR39:
-  as_type: CSR39
-  as_variable: csr39
+  as_type: ContextSwap39
+  as_variable: context_swap39
   context:
   - HASH
   - HASH.CSR39
 CSR4:
-  as_type: CSR4
-  as_variable: csr4
+  as_type: ContextSwap4
+  as_variable: context_swap4
   context:
   - HASH
   - HASH.CSR4
 CSR40:
-  as_type: CSR40
-  as_variable: csr40
+  as_type: ContextSwap40
+  as_variable: context_swap40
   context:
   - HASH
   - HASH.CSR40
 CSR41:
-  as_type: CSR41
-  as_variable: csr41
+  as_type: ContextSwap41
+  as_variable: context_swap41
   context:
   - HASH
   - HASH.CSR41
 CSR42:
-  as_type: CSR42
-  as_variable: csr42
+  as_type: ContextSwap42
+  as_variable: context_swap42
   context:
   - HASH
   - HASH.CSR42
 CSR43:
-  as_type: CSR43
-  as_variable: csr43
+  as_type: ContextSwap43
+  as_variable: context_swap43
   context:
   - HASH
   - HASH.CSR43
 CSR44:
-  as_type: CSR44
-  as_variable: csr44
+  as_type: ContextSwap44
+  as_variable: context_swap44
   context:
   - HASH
   - HASH.CSR44
 CSR45:
-  as_type: CSR45
-  as_variable: csr45
+  as_type: ContextSwap45
+  as_variable: context_swap45
   context:
   - HASH
   - HASH.CSR45
 CSR46:
-  as_type: CSR46
-  as_variable: csr46
+  as_type: ContextSwap46
+  as_variable: context_swap46
   context:
   - HASH
   - HASH.CSR46
 CSR47:
-  as_type: CSR47
-  as_variable: csr47
+  as_type: ContextSwap47
+  as_variable: context_swap47
   context:
   - HASH
   - HASH.CSR47
 CSR48:
-  as_type: CSR48
-  as_variable: csr48
+  as_type: ContextSwap48
+  as_variable: context_swap48
   context:
   - HASH
   - HASH.CSR48
 CSR49:
-  as_type: CSR49
-  as_variable: csr49
+  as_type: ContextSwap49
+  as_variable: context_swap49
   context:
   - HASH
   - HASH.CSR49
 CSR5:
-  as_type: CSR5
-  as_variable: csr5
+  as_type: ContextSwap5
+  as_variable: context_swap5
   context:
   - HASH
   - HASH.CSR5
 CSR50:
-  as_type: CSR50
-  as_variable: csr50
+  as_type: ContextSwap50
+  as_variable: context_swap50
   context:
   - HASH
   - HASH.CSR50
 CSR51:
-  as_type: CSR51
-  as_variable: csr51
+  as_type: ContextSwap51
+  as_variable: context_swap51
   context:
   - HASH
   - HASH.CSR51
 CSR52:
-  as_type: CSR52
-  as_variable: csr52
+  as_type: ContextSwap52
+  as_variable: context_swap52
   context:
   - HASH
   - HASH.CSR52
 CSR53:
-  as_type: CSR53
-  as_variable: csr53
+  as_type: ContextSwap53
+  as_variable: context_swap53
   context:
   - HASH
   - HASH.CSR53
 CSR6:
-  as_type: CSR6
-  as_variable: csr6
+  as_type: ContextSwap6
+  as_variable: context_swap6
   context:
   - HASH
   - HASH.CSR6
 CSR7:
-  as_type: CSR7
-  as_variable: csr7
+  as_type: ContextSwap7
+  as_variable: context_swap7
   context:
   - HASH
   - HASH.CSR7
 CSR8:
-  as_type: CSR8
-  as_variable: csr8
+  as_type: ContextSwap8
+  as_variable: context_swap8
   context:
   - HASH
   - HASH.CSR8
 CSR9:
-  as_type: CSR9
-  as_variable: csr9
+  as_type: ContextSwap9
+  as_variable: context_swap9
   context:
   - HASH
   - HASH.CSR9
@@ -5075,8 +5083,8 @@ CWSTRT:
   - DCMI
   - DCMI.CWSTRT
 CWUF:
-  as_type: CWUF
-  as_variable: cwuf
+  as_type: ClearWakeupFlag
+  as_variable: clear_wakeup_flag
   context:
   - PWR.CR
 CXPOS:
@@ -5520,76 +5528,76 @@ DBG_STOP:
   - DBG.DBGMCU_CR
 DBG_TIM10_STOP:
   as_type: DBG_TIM10_STOP
-  as_variable: dbg_tim10_stop
+  as_variable: timer_10_stop_in_debug
   context:
   - DBG.DBGMCU_APB2_FZ
 DBG_TIM11_STOP:
   as_type: DBG_TIM11_STOP
-  as_variable: dbg_tim11_stop
+  as_variable: timer_11_stop_in_debug
   context:
   - DBG.DBGMCU_APB2_FZ
 DBG_TIM12_STOP:
   as_type: DBG_TIM12_STOP
-  as_variable: dbg_tim12_stop
+  as_variable: timer_12_stop_in_debug
   context:
   - DBG.DBGMCU_APB1_FZ
 DBG_TIM13_STOP:
   as_type: DBG_TIM13_STOP
-  as_variable: dbg_tim13_stop
+  as_variable: timer_13_stop_in_debug
   context:
   - DBG.DBGMCU_APB1_FZ
 DBG_TIM14_STOP:
   as_type: DBG_TIM14_STOP
-  as_variable: dbg_tim14_stop
+  as_variable: timer_14_stop_in_debug
   context:
   - DBG.DBGMCU_APB1_FZ
 DBG_TIM1_STOP:
   as_type: DBG_TIM1_STOP
-  as_variable: dbg_tim1_stop
+  as_variable: timer_1_stop_in_debug
   context:
   - DBG.DBGMCU_APB2_FZ
 DBG_TIM2_STOP:
   as_type: DBG_TIM2_STOP
-  as_variable: dbg_tim2_stop
+  as_variable: timer_2_stop_in_debug
   context:
   - DBG.DBGMCU_APB1_FZ
 DBG_TIM3_STOP:
   as_type: DBG_TIM3_STOP
-  as_variable: dbg_tim3_stop
+  as_variable: timer_3_stop_in_debug
   context:
   - DBG.DBGMCU_APB1_FZ
 DBG_TIM4_STOP:
   as_type: DBG_TIM4_STOP
-  as_variable: dbg_tim4_stop
+  as_variable: timer_4_stop_in_debug
   context:
   - DBG.DBGMCU_APB1_FZ
 DBG_TIM5_STOP:
   as_type: DBG_TIM5_STOP
-  as_variable: dbg_tim5_stop
+  as_variable: timer_5_stop_in_debug
   context:
   - DBG.DBGMCU_APB1_FZ
   - DBG.DBGMCU_CR
 DBG_TIM6_STOP:
   as_type: DBG_TIM6_STOP
-  as_variable: dbg_tim6_stop
+  as_variable: timer_6_stop_in_debug
   context:
   - DBG.DBGMCU_APB1_FZ
   - DBG.DBGMCU_CR
 DBG_TIM7_STOP:
   as_type: DBG_TIM7_STOP
-  as_variable: dbg_tim7_stop
+  as_variable: timer_7_stop_in_debug
   context:
   - DBG.DBGMCU_APB1_FZ
   - DBG.DBGMCU_CR
 DBG_TIM8_STOP:
   as_type: DBG_TIM8_STOP
-  as_variable: dbg_tim8_stop
+  as_variable: timer_8_stop_in_debug
   context:
   - DBG.DBGMCU_APB2_FZ
   - DBG.DBGMCU_CR
 DBG_TIM9_STOP:
   as_type: DBG_TIM9_STOP
-  as_variable: dbg_tim9_stop
+  as_variable: timer_9_stop_in_debug
   context:
   - DBG.DBGMCU_APB2_FZ
 DBG_WWDG_STOP:
@@ -5633,8 +5641,8 @@ DBM:
   - DMA2.S6CR
   - DMA2.S7CR
 DBP:
-  as_type: DBP
-  as_variable: dbp
+  as_type: DisableBackupWriteProtection
+  as_variable: disable_backup_write_protection
   context:
   - PWR.CR
 DBW:
@@ -6334,8 +6342,8 @@ DMAR:
   - USART6.CR3
   overrides:
     TIM*.DMAR:
-      as_type: DirectMemoryAddress
-      as_variable: direct_memory_address
+      as_type: DirectMemoryAccessAddress
+      as_variable: direct_memory_access_address
 DMARDLAR:
   as_type: DMARDLAR
   as_variable: dmardlar
@@ -7574,8 +7582,8 @@ EWIF:
   context:
   - WWDG.SR
 EWUP:
-  as_type: EWUP
-  as_variable: ewup
+  as_type: EnableWakeupPin
+  as_variable: enable_wakeup_pin
   context:
   - PWR.CSR
 EXID:
@@ -12762,8 +12770,8 @@ FPCCR:
   - FPU
   - FPU.FPCCR
 FPDS:
-  as_type: FPDS
-  as_variable: fpds
+  as_type: FlashPowerDownInStopMode
+  as_variable: flash_power_down_in_stop_mode
   context:
   - PWR.CR
 FPM:
@@ -14668,7 +14676,7 @@ IBUSERR:
   - SCB.CFSR_UFSR_BFSR_MMFSR
 IC1F:
   as_type: IC1F
-  as_variable: ic1f
+  as_variable: input_capture_filter1
   context:
   - TIM1.CCMR1_Input
   - TIM10.CCMR1_Input
@@ -14684,7 +14692,7 @@ IC1F:
   - TIM9.CCMR1_Input
 IC2F:
   as_type: IC2F
-  as_variable: ic2f
+  as_variable: input_capture_filter2
   context:
   - TIM1.CCMR1_Input
   - TIM12.CCMR1_Input
@@ -14696,7 +14704,7 @@ IC2F:
   - TIM9.CCMR1_Input
 IC2PCS:
   as_type: IC2PCS
-  as_variable: ic2pcs
+  as_variable: input_capture_prescaler2
   context:
   - TIM1.CCMR1_Input
   - TIM12.CCMR1_Input
@@ -14708,7 +14716,7 @@ IC2PCS:
   - TIM9.CCMR1_Input
 IC3F:
   as_type: IC3F
-  as_variable: ic3f
+  as_variable: input_capture_filter3
   context:
   - TIM1.CCMR2_Input
   - TIM2.CCMR2_Input
@@ -14728,7 +14736,7 @@ IC3PSC:
   - TIM8.CCMR2_Input
 IC4F:
   as_type: IC4F
-  as_variable: ic4f
+  as_variable: input_capture_filter4
   context:
   - TIM1.CCMR2_Input
   - TIM2.CCMR2_Input
@@ -14738,7 +14746,7 @@ IC4F:
   - TIM8.CCMR2_Input
 IC4PSC:
   as_type: IC4PSC
-  as_variable: ic4psc
+  as_variable: input_capture_prescaler4
   context:
   - TIM1.CCMR2_Input
   - TIM2.CCMR2_Input
@@ -14771,7 +14779,7 @@ ICER2:
   - NVIC.ICER2
 ICPCS:
   as_type: ICPCS
-  as_variable: icpcs
+  as_variable: input_capture_prescaler1
   context:
   - TIM1.CCMR1_Input
   - TIM10.CCMR1_Input
@@ -14804,8 +14812,8 @@ ICPR2:
   - NVIC
   - NVIC.ICPR2
 ICR:
-  as_type: ICR
-  as_variable: icr
+  as_type: InterruptClear
+  as_variable: interrupt_clear
   context:
   - DCMI
   - DCMI.ICR
@@ -14825,8 +14833,8 @@ ICSR:
   - SCB
   - SCB.ICSR
 IDC:
-  as_type: IDC
-  as_variable: idc
+  as_type: Identity
+  as_variable: identity
   context:
   - FPU.FPSCR
 IDE:
@@ -15750,8 +15758,8 @@ ISPR2:
   - NVIC
   - NVIC.ISPR2
 ISR:
-  as_type: ISR
-  as_variable: isr
+  as_type: InterruptStatus
+  as_variable: interrupt_status
   context:
   - LTDC
   - LTDC.ISR
@@ -17481,8 +17489,8 @@ LOW2:
   - CAN1.TSR
   - CAN2.TSR
 LPDS:
-  as_type: LPDS
-  as_variable: lpds
+  as_type: LowPowerDeepSleep
+  as_variable: low_power_deep_sleep
   context:
   - PWR.CR
 LPWRRSTF:
@@ -17983,7 +17991,7 @@ MCO1:
   - RCC.CFGR
   - RCC.CFGR.MCO1
 MCO1PRE:
-  as_type: Mco1Prescaler
+  as_type: MicrocontrollerOutput1Prescaler
   as_variable: mco1_prescaler
   context:
   - RCC.CFGR
@@ -17994,7 +18002,7 @@ MCO2:
   - RCC.CFGR
   - RCC.CFGR.MCO2
 MCO2PRE:
-  as_type: Mco2Prescaler
+  as_type: MicrocontrollerOutput2Prescaler
   as_variable: mco2_prescaler
   context:
   - RCC.CFGR
@@ -19300,7 +19308,7 @@ NZLSOHSK:
   - OTG_HS_DEVICE.OTG_HS_DCFG
 O24CE:
   as_type: O24CE
-  as_variable: o24ce
+  as_variable: output_compare_clear_enable4
   context:
   - TIM2.CCMR2_Output
   - TIM3.CCMR2_Output
@@ -19337,8 +19345,8 @@ OC1CE:
   - TIM5.CCMR1_Output
   - TIM8.CCMR1_Output
 OC1FE:
-  as_type: OC1FE
-  as_variable: oc1fe
+  as_type: OutputCompare1FastEnable
+  as_variable: output_compare1_fast_enable
   context:
   - TIM1.CCMR1_Output
   - TIM10.CCMR1_Output
@@ -19353,8 +19361,8 @@ OC1FE:
   - TIM8.CCMR1_Output
   - TIM9.CCMR1_Output
 OC1M:
-  as_type: OC1M
-  as_variable: oc1m
+  as_type: OutputCompare1Mode
+  as_variable: output_compare1_mode
   context:
   - TIM1.CCMR1_Output
   - TIM10.CCMR1_Output
@@ -19369,8 +19377,8 @@ OC1M:
   - TIM8.CCMR1_Output
   - TIM9.CCMR1_Output
 OC1PE:
-  as_type: OC1PE
-  as_variable: oc1pe
+  as_type: OutputCompare1PreloadEnable
+  as_variable: output_compare1_preload_enable
   context:
   - TIM1.CCMR1_Output
   - TIM10.CCMR1_Output
@@ -19386,7 +19394,7 @@ OC1PE:
   - TIM9.CCMR1_Output
 OC2CE:
   as_type: OC2CE
-  as_variable: oc2ce
+  as_variable: output_compare2_clear_enable
   context:
   - TIM1.CCMR1_Output
   - TIM2.CCMR1_Output
@@ -19395,8 +19403,8 @@ OC2CE:
   - TIM5.CCMR1_Output
   - TIM8.CCMR1_Output
 OC2FE:
-  as_type: OC2FE
-  as_variable: oc2fe
+  as_type: OutputCompare2FastEnable
+  as_variable: output_compare2_fast_enable
   context:
   - TIM1.CCMR1_Output
   - TIM12.CCMR1_Output
@@ -19407,8 +19415,8 @@ OC2FE:
   - TIM8.CCMR1_Output
   - TIM9.CCMR1_Output
 OC2M:
-  as_type: OC2M
-  as_variable: oc2m
+  as_type: OutputCompare2Mode
+  as_variable: output_compare2_mode
   context:
   - TIM1.CCMR1_Output
   - TIM12.CCMR1_Output
@@ -19419,8 +19427,8 @@ OC2M:
   - TIM8.CCMR1_Output
   - TIM9.CCMR1_Output
 OC2PE:
-  as_type: OC2PE
-  as_variable: oc2pe
+  as_type: OutputCompare2PreloadEnable
+  as_variable: output_compare2_preload_enable
   context:
   - TIM1.CCMR1_Output
   - TIM12.CCMR1_Output
@@ -19432,7 +19440,7 @@ OC2PE:
   - TIM9.CCMR1_Output
 OC3CE:
   as_type: OC3CE
-  as_variable: oc3ce
+  as_variable: output_compare_clear_enable3
   context:
   - TIM1.CCMR2_Output
   - TIM2.CCMR2_Output
@@ -19441,8 +19449,8 @@ OC3CE:
   - TIM5.CCMR2_Output
   - TIM8.CCMR2_Output
 OC3FE:
-  as_type: OC3FE
-  as_variable: oc3fe
+  as_type: OutputCompare3FastEnable
+  as_variable: output_compare3_fast_enable
   context:
   - TIM1.CCMR2_Output
   - TIM2.CCMR2_Output
@@ -19451,8 +19459,8 @@ OC3FE:
   - TIM5.CCMR2_Output
   - TIM8.CCMR2_Output
 OC3M:
-  as_type: OC3M
-  as_variable: oc3m
+  as_type: OutputCompare3Mode
+  as_variable: output_compare3_mode
   context:
   - TIM1.CCMR2_Output
   - TIM2.CCMR2_Output
@@ -19461,8 +19469,8 @@ OC3M:
   - TIM5.CCMR2_Output
   - TIM8.CCMR2_Output
 OC3PE:
-  as_type: OC3PE
-  as_variable: oc3pe
+  as_type: OutputCompare3PreloadEnable
+  as_variable: output_compare3_preload_enable
   context:
   - TIM1.CCMR2_Output
   - TIM2.CCMR2_Output
@@ -19477,8 +19485,8 @@ OC4CE:
   - TIM1.CCMR2_Output
   - TIM8.CCMR2_Output
 OC4FE:
-  as_type: OC4FE
-  as_variable: oc4fe
+  as_type: OutputCompare4FastEnable
+  as_variable: output_compare4_fast_enable
   context:
   - TIM1.CCMR2_Output
   - TIM2.CCMR2_Output
@@ -19487,8 +19495,8 @@ OC4FE:
   - TIM5.CCMR2_Output
   - TIM8.CCMR2_Output
 OC4M:
-  as_type: OC4M
-  as_variable: oc4m
+  as_type: OutputCompare4Mode
+  as_variable: output_compare4_mode
   context:
   - TIM1.CCMR2_Output
   - TIM2.CCMR2_Output
@@ -19497,8 +19505,8 @@ OC4M:
   - TIM5.CCMR2_Output
   - TIM8.CCMR2_Output
 OC4PE:
-  as_type: OC4PE
-  as_variable: oc4pe
+  as_type: OutputCompare4PreloadEnable
+  as_variable: output_compare4_preload_enable
   context:
   - TIM1.CCMR2_Output
   - TIM2.CCMR2_Output
@@ -21931,8 +21939,8 @@ PD:
   context:
   - Ethernet_MAC.MACPMTCSR
 PDDS:
-  as_type: PDDS
-  as_variable: pdds
+  as_type: PowerDownDeepSleep
+  as_variable: power_down_deep_sleep
   context:
   - PWR.CR
 PE:
@@ -22339,8 +22347,8 @@ PLL_I2S_CLOCK:
   context:
   - RCC.CFGR.MCO2.PLL_I2S_CLOCK
 PLS:
-  as_type: PLS
-  as_variable: pls
+  as_type: PvdLevelSelect
+  as_variable: pvd_level_select
   context:
   - PWR.CR
 PLSTS:
@@ -23178,13 +23186,13 @@ PUPDR9:
   - GPIOJ.PUPDR
   - GPIOK.PUPDR
 PVDE:
-  as_type: PVDE
-  as_variable: pvde
+  as_type: PowerVoltageDetectorEnable
+  as_variable: power_voltage_detector_enable
   context:
   - PWR.CR
 PVDO:
-  as_type: PVDO
-  as_variable: pvdo
+  as_type: PowerVoltageDetectorOutput
+  as_variable: power_voltage_detector_output
   context:
   - PWR.CSR
 PVU:
@@ -24581,8 +24589,8 @@ SB:
   - I2C2.SR1
   - I2C3.SR1
 SBF:
-  as_type: SBF
-  as_variable: sbf
+  as_type: StandbyFlag
+  as_variable: standby_flag
   context:
   - PWR.CSR
 SBK:
@@ -25696,8 +25704,8 @@ STPNS:
   context:
   - Ethernet_PTP.PTPTSLR
 STPPCLK:
-  as_type: STPPCLK
-  as_variable: stppclk
+  as_type: StopPhyClock
+  as_variable: stop_phy_clock
   context:
   - OTG_FS_PWRCLK.FS_PCGCCTL
   - OTG_HS_PWRCLK.OTG_HS_PCGCR
@@ -26241,8 +26249,8 @@ TD:
   context:
   - Ethernet_MAC.MACMIIDR
 TDE:
-  as_type: TDE
-  as_variable: tde
+  as_type: TriggerDirectMemoryAccessEnable
+  as_variable: trigger_direct_memory_access_enable
   context:
   - TIM1.DIER
   - TIM2.DIER
@@ -26587,8 +26595,8 @@ TIE:
   - TIM8.DIER
   - TIM9.DIER
 TIF:
-  as_type: TIF
-  as_variable: tif
+  as_type: TriggerInterruptFlag
+  as_variable: trigger_interrupt_flag
   context:
   - TIM1.SR
   - TIM12.SR
@@ -27830,8 +27838,8 @@ UART8:
   context:
   - null
 UDE:
-  as_type: UDE
-  as_variable: ude
+  as_type: UpdateDirectMemoryAccessEnable
+  as_variable: update_direct_memory_access_enable
   context:
   - TIM1.DIER
   - TIM2.DIER
@@ -28254,8 +28262,8 @@ VLINE:
   context:
   - DCMI.CWSIZE
 VOSRDY:
-  as_type: VOSRDY
-  as_variable: vosrdy
+  as_type: VoltageScalingOutputReady
+  as_variable: voltage_scaling_output_ready
   context:
   - PWR.CSR
 VSH:
@@ -28521,8 +28529,8 @@ WRPERR:
   context:
   - FLASH.SR
 WUF:
-  as_type: WUF
-  as_variable: wuf
+  as_type: WakeupFlag
+  as_variable: wakeup_flag
   context:
   - PWR.CSR
 WUIM:

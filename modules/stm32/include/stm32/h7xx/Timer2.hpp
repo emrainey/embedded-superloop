@@ -56,7 +56,11 @@ struct Timer2 final {
             /// Clock division (CKD)
             uint32_t clock_division             : 2;    // bits 8:9
             /// (reserved)
-            uint32_t                            : 22;    // bits 10:31
+            uint32_t                            : 1;    // bit 10
+            /// UIF status bit remapping (UIFREMAP)
+            uint32_t uifremap                   : 1;    // bit 11
+            /// (reserved)
+            uint32_t                            : 20;    // bits 12:31
         };
         //+=MEMORY======================================+
         union {
@@ -191,8 +195,14 @@ struct Timer2 final {
             uint32_t external_clock_parity      : 1;    // bit 14
             /// External trigger polarity (ETP)
             uint32_t external_trigger_parity    : 1;    // bit 15
+            /// Slave mode selection - bit 3 (SMS_3)
+            uint32_t follower_mode_selection3   : 1;    // bit 16
             /// (reserved)
-            uint32_t                            : 16;    // bits 16:31
+            uint32_t                            : 3;    // bits 17:19
+            /// Trigger selection (TS_4_3)
+            uint32_t trigger_selection_4_3      : 2;    // bits 20:21
+            /// (reserved)
+            uint32_t                            : 10;    // bits 22:31
         };
         //+=MEMORY======================================+
         union {
@@ -248,37 +258,37 @@ struct Timer2 final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Update interrupt enable (UIE)
-            uint32_t update_interrupt_enable  : 1;    // bit 0
+            uint32_t update_interrupt_enable             : 1;    // bit 0
             /// Capture/Compare 1 interrupt enable (CC1IE)
-            uint32_t cc1ie                    : 1;    // bit 1
+            uint32_t capture_compare1_interrupt_enable   : 1;    // bit 1
             /// Capture/Compare 2 interrupt enable (CC2IE)
-            uint32_t cc2ie                    : 1;    // bit 2
+            uint32_t capture_compare2_interrupt_enable   : 1;    // bit 2
             /// Capture/Compare 3 interrupt enable (CC3IE)
-            uint32_t cc3ie                    : 1;    // bit 3
+            uint32_t capture_compare3_interrupt_enable   : 1;    // bit 3
             /// Capture/Compare 4 interrupt enable (CC4IE)
-            uint32_t cc4ie                    : 1;    // bit 4
+            uint32_t capture_compare4_interrupt_enable   : 1;    // bit 4
             /// (reserved)
-            uint32_t                          : 1;    // bit 5
+            uint32_t                                     : 1;    // bit 5
             /// Trigger interrupt enable (TIE)
-            uint32_t trigger_interrupt_enable : 1;    // bit 6
+            uint32_t trigger_interrupt_enable            : 1;    // bit 6
             /// (reserved)
-            uint32_t                          : 1;    // bit 7
+            uint32_t                                     : 1;    // bit 7
             /// Update DMA request enable (UDE)
-            uint32_t ude                      : 1;    // bit 8
+            uint32_t update_direct_memory_access_enable  : 1;    // bit 8
             /// Capture/Compare 1 DMA request enable (CC1DE)
-            uint32_t cc1de                    : 1;    // bit 9
+            uint32_t capture_compare1_dma_enable         : 1;    // bit 9
             /// Capture/Compare 2 DMA request enable (CC2DE)
-            uint32_t cc2de                    : 1;    // bit 10
+            uint32_t capture_compare2_dma_enable         : 1;    // bit 10
             /// Capture/Compare 3 DMA request enable (CC3DE)
-            uint32_t cc3de                    : 1;    // bit 11
+            uint32_t capture_compare3_dma_enable         : 1;    // bit 11
             /// Capture/Compare 4 DMA request enable (CC4DE)
-            uint32_t cc4de                    : 1;    // bit 12
+            uint32_t capture_compare4_dma_enable         : 1;    // bit 12
             /// (reserved)
-            uint32_t                          : 1;    // bit 13
+            uint32_t                                     : 1;    // bit 13
             /// Trigger DMA request enable (TDE)
-            uint32_t tde                      : 1;    // bit 14
+            uint32_t trigger_direct_memory_access_enable : 1;    // bit 14
             /// (reserved)
-            uint32_t                          : 17;    // bits 15:31
+            uint32_t                                     : 17;    // bits 15:31
         };
         //+=MEMORY======================================+
         union {
@@ -334,31 +344,31 @@ struct Timer2 final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Update interrupt flag (UIF)
-            uint32_t update_interrupt_flag : 1;    // bit 0
+            uint32_t update_interrupt_flag             : 1;    // bit 0
             /// Capture/compare 1 interrupt flag (CC1IF)
-            uint32_t cc1if                 : 1;    // bit 1
+            uint32_t capture_compare1_interrupt_flag   : 1;    // bit 1
             /// Capture/Compare 2 interrupt flag (CC2IF)
-            uint32_t cc2if                 : 1;    // bit 2
+            uint32_t capture_compare2_interrupt_flag   : 1;    // bit 2
             /// Capture/Compare 3 interrupt flag (CC3IF)
-            uint32_t cc3if                 : 1;    // bit 3
+            uint32_t capture_compare3_interrupt_flag   : 1;    // bit 3
             /// Capture/Compare 4 interrupt flag (CC4IF)
-            uint32_t cc4if                 : 1;    // bit 4
+            uint32_t capture_compare4_interrupt_flag   : 1;    // bit 4
             /// (reserved)
-            uint32_t                       : 1;    // bit 5
+            uint32_t                                   : 1;    // bit 5
             /// Trigger interrupt flag (TIF)
-            uint32_t tif                   : 1;    // bit 6
+            uint32_t trigger_interrupt_flag            : 1;    // bit 6
             /// (reserved)
-            uint32_t                       : 2;    // bits 7:8
+            uint32_t                                   : 2;    // bits 7:8
             /// Capture/Compare 1 overcapture flag (CC1OF)
-            uint32_t cc1of                 : 1;    // bit 9
+            uint32_t capture_compare1_overcapture_flag : 1;    // bit 9
             /// Capture/compare 2 overcapture flag (CC2OF)
-            uint32_t cc2of                 : 1;    // bit 10
+            uint32_t capture_compare2_overcapture_flag : 1;    // bit 10
             /// Capture/Compare 3 overcapture flag (CC3OF)
-            uint32_t cc3of                 : 1;    // bit 11
+            uint32_t capture_compare3_overcapture_flag : 1;    // bit 11
             /// Capture/Compare 4 overcapture flag (CC4OF)
-            uint32_t cc4of                 : 1;    // bit 12
+            uint32_t capture_compare4_overcapture_flag : 1;    // bit 12
             /// (reserved)
-            uint32_t                       : 19;    // bits 13:31
+            uint32_t                                   : 19;    // bits 13:31
         };
         //+=MEMORY======================================+
         union {
@@ -414,21 +424,21 @@ struct Timer2 final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Update generation (UG)
-            uint32_t update_generation  : 1;    // bit 0
+            uint32_t update_generation           : 1;    // bit 0
             /// Capture/compare 1 generation (CC1G)
-            uint32_t cc1g               : 1;    // bit 1
+            uint32_t capture_compare1_generation : 1;    // bit 1
             /// Capture/compare 2 generation (CC2G)
-            uint32_t cc2g               : 1;    // bit 2
+            uint32_t capture_compare2_generation : 1;    // bit 2
             /// Capture/compare 3 generation (CC3G)
-            uint32_t cc3g               : 1;    // bit 3
+            uint32_t capture_compare3_generation : 1;    // bit 3
             /// Capture/compare 4 generation (CC4G)
-            uint32_t cc4g               : 1;    // bit 4
+            uint32_t capture_compare4_generation : 1;    // bit 4
             /// (reserved)
-            uint32_t                    : 1;    // bit 5
+            uint32_t                             : 1;    // bit 5
             /// Trigger generation (TG)
-            uint32_t trigger_generation : 1;    // bit 6
+            uint32_t trigger_generation          : 1;    // bit 6
             /// (reserved)
-            uint32_t                    : 25;    // bits 7:31
+            uint32_t                             : 25;    // bits 7:31
         };
         //+=MEMORY======================================+
         union {
@@ -459,7 +469,7 @@ struct Timer2 final {
     static_assert(std::is_standard_layout<EventGeneration>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
     static_assert(sizeof(EventGeneration) == 4UL, "Must be this exact size");
-    /// capture/compare mode register 1 (output mode) (CaptureCompareOutput1)
+    /// capture/compare mode register 1 (output mode) (CaptureCompareMode1)
     struct CaptureCompareMode1 final {
         /// Default Constructor
         CaptureCompareMode1()
@@ -483,33 +493,39 @@ struct Timer2 final {
 
         /// The internal bitfield for the register
         struct OutputFields final {
-            /// Capture/Compare 1 selection (CC1S)
-            uint32_t capture_compare_selection1     : 2;    // bits 0:1
-            /// Output Compare 1 Fast enable (OC1FE)
-            uint32_t output_compare_fast_enable1    : 1;    // bit 2
-            /// Output Compare 1 Preload enable (OC1PE)
-            uint32_t output_compare_preload_enable1 : 1;    // bit 3
-            /// Output Compare 1 Mode (OC1M)
-            uint32_t output_compare_mode1           : 3;    // bits 4:6
-            /// Output Compare 1 Clear Enable (OC1CE)
-            uint32_t output_compare_clear_enable1   : 1;    // bit 7
-            /// Capture/Compare 2 selection (CC2S)
+            /// CC1S (CC1S)
+            uint32_t capture_compare1_selection     : 2;    // bits 0:1
+            /// OC1FE (OC1FE)
+            uint32_t output_compare1_fast_enable    : 1;    // bit 2
+            /// OC1PE (OC1PE)
+            uint32_t output_compare1_preload_enable : 1;    // bit 3
+            /// OC1M (OC1M)
+            uint32_t output_compare1_mode           : 3;    // bits 4:6
+            /// OC1CE (OC1CE)
+            uint32_t output_compare1_clear_enable   : 1;    // bit 7
+            /// CC2S (CC2S)
             uint32_t capture_compare_selection2     : 2;    // bits 8:9
-            /// Output Compare 2 Fast enable (OC2FE)
-            uint32_t output_compare_fast_enable2    : 1;    // bit 10
-            /// Output Compare 2 Preload enable (OC2PE)
-            uint32_t output_compare_preload_enable2 : 1;    // bit 11
-            /// Output Compare 2 Mode (OC2M)
-            uint32_t output_compare_mode2           : 3;    // bits 12:14
-            /// Output Compare 2 Clear Enable (OC2CE)
-            uint32_t output_compare_clear_enable2   : 1;    // bit 15
+            /// OC2FE (OC2FE)
+            uint32_t output_compare2_fast_enable    : 1;    // bit 10
+            /// OC2PE (OC2PE)
+            uint32_t output_compare2_preload_enable : 1;    // bit 11
+            /// OC2M (OC2M)
+            uint32_t output_compare2_mode           : 3;    // bits 12:14
+            /// OC2CE (OC2CE)
+            uint32_t output_compare2_clear_enable   : 1;    // bit 15
+            /// Output Compare 1 mode - bit 3 (OC1M_3)
+            uint32_t output_compare1_mode3          : 1;    // bit 16
             /// (reserved)
-            uint32_t                                : 16;    // bits 16:31
+            uint32_t                                : 7;    // bits 17:23
+            /// Output Compare 2 mode - bit 3 (OC2M_3)
+            uint32_t output_compare2_mode3          : 1;    // bit 24
+            /// (reserved)
+            uint32_t                                : 7;    // bits 25:31
         };
         /// The internal bitfield for the register
         struct InputFields final {
             /// Capture/Compare 1 selection (CC1S)
-            uint32_t capture_compare_selection1 : 2;    // bits 0:1
+            uint32_t capture_compare1_selection : 2;    // bits 0:1
             /// Input capture 1 prescaler (ICPCS)
             uint32_t input_capture_prescaler1   : 2;    // bits 2:3
             /// Input capture 1 filter (IC1F)
@@ -554,7 +570,7 @@ struct Timer2 final {
     static_assert(std::is_standard_layout<CaptureCompareMode1>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
     static_assert(sizeof(CaptureCompareMode1) == 4UL, "Must be this exact size");
-    /// capture/compare mode register 2 (output mode) (CaptureCompareOutput2)
+    /// capture/compare mode register 2 (output mode) (CaptureCompareMode2)
     struct CaptureCompareMode2 final {
         /// Default Constructor
         CaptureCompareMode2()
@@ -578,39 +594,45 @@ struct Timer2 final {
 
         /// The internal bitfield for the register
         struct OutputFields final {
-            /// Capture/Compare 3 selection (CC3S)
-            uint32_t capture_compare_selection3     : 2;    // bits 0:1
-            /// Output Compare 3 Fast enable (OC3FE)
-            uint32_t output_compare_fast_enable3    : 1;    // bit 2
-            /// Output Compare 3 Preload enable (OC3PE)
-            uint32_t output_compare_preload_enable3 : 1;    // bit 3
-            /// Output Compare 3 Mode (OC3M)
-            uint32_t output_compare_mode3           : 3;    // bits 4:6
-            /// Output Compare 3 Clear Enable (OC3CE)
+            /// CC3S (CC3S)
+            uint32_t capture_compare3_selection     : 2;    // bits 0:1
+            /// OC3FE (OC3FE)
+            uint32_t output_compare3_fast_enable    : 1;    // bit 2
+            /// OC3PE (OC3PE)
+            uint32_t output_compare3_preload_enable : 1;    // bit 3
+            /// OC3M (OC3M)
+            uint32_t output_compare3_mode           : 3;    // bits 4:6
+            /// OC3CE (OC3CE)
             uint32_t output_compare_clear_enable3   : 1;    // bit 7
-            /// Capture/Compare 4 selection (CC4S)
-            uint32_t capture_compare_selection4     : 2;    // bits 8:9
-            /// Output Compare 4 Fast enable (OC4FE)
-            uint32_t output_compare_fast_enable4    : 1;    // bit 10
-            /// Output Compare 4 Preload enable (OC4PE)
-            uint32_t output_compare_preload_enable4 : 1;    // bit 11
-            /// Output Compare 4 Mode (OC4M)
-            uint32_t output_compare_mode4           : 3;    // bits 12:14
-            /// Output Compare 4 Clear Enable (OC4CE)
+            /// CC4S (CC4S)
+            uint32_t capture_compare4_selection     : 2;    // bits 8:9
+            /// OC4FE (OC4FE)
+            uint32_t output_compare4_fast_enable    : 1;    // bit 10
+            /// OC4PE (OC4PE)
+            uint32_t output_compare4_preload_enable : 1;    // bit 11
+            /// OC4M (OC4M)
+            uint32_t output_compare4_mode           : 3;    // bits 12:14
+            /// O24CE (O24CE)
             uint32_t output_compare_clear_enable4   : 1;    // bit 15
+            /// Output Compare 1 mode - bit 3 (OC3M_3)
+            uint32_t output_compare3_mode_3         : 1;    // bit 16
             /// (reserved)
-            uint32_t                                : 16;    // bits 16:31
+            uint32_t                                : 7;    // bits 17:23
+            /// Output Compare 2 mode - bit 3 (OC4M_3)
+            uint32_t output_compare4_mode_3         : 1;    // bit 24
+            /// (reserved)
+            uint32_t                                : 7;    // bits 25:31
         };
         /// The internal bitfield for the register
         struct InputFields final {
             /// Capture/compare 3 selection (CC3S)
-            uint32_t capture_compare_selection3 : 2;    // bits 0:1
+            uint32_t capture_compare3_selection : 2;    // bits 0:1
             /// Input capture 3 prescaler (IC3PSC)
             uint32_t input_capture_prescaler3   : 2;    // bits 2:3
             /// Input capture 3 filter (IC3F)
             uint32_t input_capture_filter3      : 4;    // bits 4:7
             /// Capture/Compare 4 selection (CC4S)
-            uint32_t capture_compare_selection4 : 2;    // bits 8:9
+            uint32_t capture_compare4_selection : 2;    // bits 8:9
             /// Input capture 4 prescaler (IC4PSC)
             uint32_t input_capture_prescaler4   : 2;    // bits 10:11
             /// Input capture 4 filter (IC4F)
@@ -641,8 +663,7 @@ struct Timer2 final {
         inline explicit operator uint32_t(void) const { return whole; }
         /// Returns a copy of the volatile register as an uint32_t
         inline explicit operator uint32_t(void) volatile { return whole; }
-        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular
-        /// instance
+        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular instance
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
@@ -674,39 +695,39 @@ struct Timer2 final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Capture/Compare 1 output enable (CC1E)
-            uint32_t cc1e  : 1;    // bit 0
+            uint32_t capture_compare1_enable          : 1;    // bit 0
             /// Capture/Compare 1 output Polarity (CC1P)
-            uint32_t cc1p  : 1;    // bit 1
+            uint32_t capture_compare1_polarity        : 1;    // bit 1
             /// (reserved)
-            uint32_t       : 1;    // bit 2
+            uint32_t                                  : 1;    // bit 2
             /// Capture/Compare 1 output Polarity (CC1NP)
-            uint32_t cc1np : 1;    // bit 3
+            uint32_t capture_compare1_output_polarity : 1;    // bit 3
             /// Capture/Compare 2 output enable (CC2E)
-            uint32_t cc2e  : 1;    // bit 4
+            uint32_t capture_compare2_enable          : 1;    // bit 4
             /// Capture/Compare 2 output Polarity (CC2P)
-            uint32_t cc2p  : 1;    // bit 5
+            uint32_t capture_compare2_polarity        : 1;    // bit 5
             /// (reserved)
-            uint32_t       : 1;    // bit 6
+            uint32_t                                  : 1;    // bit 6
             /// Capture/Compare 2 output Polarity (CC2NP)
-            uint32_t cc2np : 1;    // bit 7
+            uint32_t capture_compare2_output_polarity : 1;    // bit 7
             /// Capture/Compare 3 output enable (CC3E)
-            uint32_t cc3e  : 1;    // bit 8
+            uint32_t capture_compare3_enable          : 1;    // bit 8
             /// Capture/Compare 3 output Polarity (CC3P)
-            uint32_t cc3p  : 1;    // bit 9
+            uint32_t capture_compare3_polarity        : 1;    // bit 9
             /// (reserved)
-            uint32_t       : 1;    // bit 10
+            uint32_t                                  : 1;    // bit 10
             /// Capture/Compare 3 output Polarity (CC3NP)
-            uint32_t cc3np : 1;    // bit 11
+            uint32_t capture_compare3_output_polarity : 1;    // bit 11
             /// Capture/Compare 4 output enable (CC4E)
-            uint32_t cc4e  : 1;    // bit 12
-            /// Capture/Compare 4 output Polarity (CC4P)
-            uint32_t cc4p  : 1;    // bit 13
+            uint32_t capture_compare4_enable          : 1;    // bit 12
+            /// Capture/Compare 3 output Polarity (CC4P)
+            uint32_t capture_compare4_polarity        : 1;    // bit 13
             /// (reserved)
-            uint32_t       : 1;    // bit 14
+            uint32_t                                  : 1;    // bit 14
             /// Capture/Compare 4 output Polarity (CC4NP)
-            uint32_t cc4np : 1;    // bit 15
+            uint32_t capture_compare4_output_polarity : 1;    // bit 15
             /// (reserved)
-            uint32_t       : 16;    // bits 16:31
+            uint32_t                                  : 16;    // bits 16:31
         };
         //+=MEMORY======================================+
         union {
@@ -761,7 +782,7 @@ struct Timer2 final {
 
         /// The internal bitfield for the register
         struct Fields final {
-            /// Low counter value (CNT_L)
+            /// low counter value (CNT_L)
             uint32_t counter_low  : 16;    // bits 0:15
             /// High counter value (CNT_H)
             uint32_t counter_high : 16;    // bits 16:31
@@ -820,9 +841,9 @@ struct Timer2 final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Prescaler value (PSC)
-            uint32_t prescaler : 16;    // bits 0:15
+            uint32_t prescaler_value : 16;    // bits 0:15
             /// (reserved)
-            uint32_t           : 16;    // bits 16:31
+            uint32_t                 : 16;    // bits 16:31
         };
         //+=MEMORY======================================+
         union {
@@ -1263,36 +1284,36 @@ struct Timer2 final {
     static_assert(std::is_standard_layout<DirectMemoryAccessAddress>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
     static_assert(sizeof(DirectMemoryAccessAddress) == 4UL, "Must be this exact size");
-    /// TIM5 option register (OR)
-    struct Option final {
+    /// TIM alternate function option register 1 (AF1)
+    struct AlternateFunction1 final {
         /// Default Constructor
-        Option()
+        AlternateFunction1()
             : whole{0u} {}
         /// Copy Constructor from volatile
-        Option(Option volatile const& other)
+        AlternateFunction1(AlternateFunction1 volatile const& other)
             : whole{other.whole} {}
         /// Copy Construction from nonvolatile
-        Option(Option const& other)
+        AlternateFunction1(AlternateFunction1 const& other)
             : whole{other.whole} {}
         /// Move Constructor is deleted
-        Option(Option&&) = delete;
+        AlternateFunction1(AlternateFunction1&&) = delete;
         /// Parameterized Constructor for constant references
-        explicit Option(uint32_t const& value)
+        explicit AlternateFunction1(uint32_t const& value)
             : whole{value} {}
         /// Parameterized Constructor for volatile references
-        explicit Option(uint32_t volatile& value)
+        explicit AlternateFunction1(uint32_t volatile& value)
             : whole{value} {}
         /// Destructor is empty
-        ~Option() = default;
+        ~AlternateFunction1() = default;
 
         /// The internal bitfield for the register
         struct Fields final {
             /// (reserved)
-            uint32_t          : 10;    // bits 0:9
-            /// Timer Input 4 remap (ITR1_RMP)
-            uint32_t itr1_rmp : 2;    // bits 10:11
+            uint32_t        : 14;    // bits 0:13
+            /// ETR source selection (ETRSEL)
+            uint32_t etrsel : 4;    // bits 14:17
             /// (reserved)
-            uint32_t          : 20;    // bits 12:31
+            uint32_t        : 14;    // bits 18:31
         };
         //+=MEMORY======================================+
         union {
@@ -1301,13 +1322,13 @@ struct Timer2 final {
         };
         //+=MEMORY======================================+
         /// Move Assignment is deleted
-        Option& operator=(Option&&) = delete;
+        AlternateFunction1& operator=(AlternateFunction1&&) = delete;
         /// Assignment from a volatile to a non volatile copy of the register.
         /// @note Does not return a reference
-        inline void operator=(Option volatile& other) { whole = other.whole; }
+        inline void operator=(AlternateFunction1 volatile& other) { whole = other.whole; }
         /// Assignment from a non volatile to a volatile register
         /// @note Does not return a reference
-        inline void operator=(Option const& other) volatile { whole = other.whole; }
+        inline void operator=(AlternateFunction1 const& other) volatile { whole = other.whole; }
         /// Copy Assign a complete value from the base type uint32_t into a volatile version
         /// This allows you to assign the whole register to a literal value or a known constant of the same type.
         /// @note Does not return a reference
@@ -1320,9 +1341,79 @@ struct Timer2 final {
         static bool validate(void);
     };
     // Ensure the register is in standard layout format
-    static_assert(std::is_standard_layout<Option>::value, "Must be standard layout");
+    static_assert(std::is_standard_layout<AlternateFunction1>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
-    static_assert(sizeof(Option) == 4UL, "Must be this exact size");
+    static_assert(sizeof(AlternateFunction1) == 4UL, "Must be this exact size");
+    /// TIM timer input selection register (TISEL)
+    struct TimerInputSelection final {
+        /// Default Constructor
+        TimerInputSelection()
+            : whole{0u} {}
+        /// Copy Constructor from volatile
+        TimerInputSelection(TimerInputSelection volatile const& other)
+            : whole{other.whole} {}
+        /// Copy Construction from nonvolatile
+        TimerInputSelection(TimerInputSelection const& other)
+            : whole{other.whole} {}
+        /// Move Constructor is deleted
+        TimerInputSelection(TimerInputSelection&&) = delete;
+        /// Parameterized Constructor for constant references
+        explicit TimerInputSelection(uint32_t const& value)
+            : whole{value} {}
+        /// Parameterized Constructor for volatile references
+        explicit TimerInputSelection(uint32_t volatile& value)
+            : whole{value} {}
+        /// Destructor is empty
+        ~TimerInputSelection() = default;
+
+        /// The internal bitfield for the register
+        struct Fields final {
+            /// TI1[0] to TI1[15] input selection (TI1SEL)
+            uint32_t timer_input1_selection : 4;    // bits 0:3
+            /// (reserved)
+            uint32_t                        : 4;    // bits 4:7
+            /// TI2[0] to TI2[15] input selection (TI2SEL)
+            uint32_t timer_input2_selection : 4;    // bits 8:11
+            /// (reserved)
+            uint32_t                        : 4;    // bits 12:15
+            /// TI3[0] to TI3[15] input selection (TI3SEL)
+            uint32_t timer_input3_selection : 4;    // bits 16:19
+            /// (reserved)
+            uint32_t                        : 4;    // bits 20:23
+            /// TI4[0] to TI4[15] input selection (TI4SEL)
+            uint32_t timer_input4_selection : 4;    // bits 24:27
+            /// (reserved)
+            uint32_t                        : 4;    // bits 28:31
+        };
+        //+=MEMORY======================================+
+        union {
+            Fields bits;
+            uint32_t whole;
+        };
+        //+=MEMORY======================================+
+        /// Move Assignment is deleted
+        TimerInputSelection& operator=(TimerInputSelection&&) = delete;
+        /// Assignment from a volatile to a non volatile copy of the register.
+        /// @note Does not return a reference
+        inline void operator=(TimerInputSelection volatile& other) { whole = other.whole; }
+        /// Assignment from a non volatile to a volatile register
+        /// @note Does not return a reference
+        inline void operator=(TimerInputSelection const& other) volatile { whole = other.whole; }
+        /// Copy Assign a complete value from the base type uint32_t into a volatile version
+        /// This allows you to assign the whole register to a literal value or a known constant of the same type.
+        /// @note Does not return a reference
+        inline void operator=(uint32_t const& value) volatile { whole = value; }
+        /// Returns a copy of the register as an uint32_t.
+        inline explicit operator uint32_t(void) const { return whole; }
+        /// Returns a copy of the volatile register as an uint32_t
+        inline explicit operator uint32_t(void) volatile { return whole; }
+        /// Defined as a runtime function which tests all the combinations of the bitfields but not on any particular instance
+        static bool validate(void);
+    };
+    // Ensure the register is in standard layout format
+    static_assert(std::is_standard_layout<TimerInputSelection>::value, "Must be standard layout");
+    // Ensure the sizeof the entire register is correct.
+    static_assert(sizeof(TimerInputSelection) == 4UL, "Must be this exact size");
 
     //+=MEMORY======================================+
     /// control register 1 (CR1)
@@ -1337,9 +1428,9 @@ struct Timer2 final {
     Status status;    // offset 0x10UL
     /// event generation register (EGR)
     EventGeneration event_generation;    // offset 0x14UL
-    /// capture/compare mode register 1 (CCMR1)
+    /// Internally a union of input/output
     CaptureCompareMode1 capture_compare_mode1;    // offset 0x18UL
-    /// capture/compare mode register 2 (CCMR2)
+    /// Internally a union of input/output
     CaptureCompareMode2 capture_compare_mode2;    // offset 0x1cUL
     /// capture/compare enable register (CCER)
     CaptureCompareEnable capture_compare_enable;    // offset 0x20UL
@@ -1363,243 +1454,244 @@ struct Timer2 final {
     DirectMemoryAccessControl direct_memory_access_control;    // offset 0x48UL
     /// DMA address for full transfer (DMAR)
     DirectMemoryAccessAddress direct_memory_access_address;    // offset 0x4cUL
-    /// TIM5 option register (OR)
-    Option option;    // offset 0x50UL
-    uint32_t : 32;    // offset 0x54UL
-    uint32_t : 32;    // offset 0x58UL
-    uint32_t : 32;    // offset 0x5cUL
-    uint32_t : 32;    // offset 0x60UL
-    uint32_t : 32;    // offset 0x64UL
-    uint32_t : 32;    // offset 0x68UL
-    uint32_t : 32;    // offset 0x6cUL
-    uint32_t : 32;    // offset 0x70UL
-    uint32_t : 32;    // offset 0x74UL
-    uint32_t : 32;    // offset 0x78UL
-    uint32_t : 32;    // offset 0x7cUL
-    uint32_t : 32;    // offset 0x80UL
-    uint32_t : 32;    // offset 0x84UL
-    uint32_t : 32;    // offset 0x88UL
-    uint32_t : 32;    // offset 0x8cUL
-    uint32_t : 32;    // offset 0x90UL
-    uint32_t : 32;    // offset 0x94UL
-    uint32_t : 32;    // offset 0x98UL
-    uint32_t : 32;    // offset 0x9cUL
-    uint32_t : 32;    // offset 0xa0UL
-    uint32_t : 32;    // offset 0xa4UL
-    uint32_t : 32;    // offset 0xa8UL
-    uint32_t : 32;    // offset 0xacUL
-    uint32_t : 32;    // offset 0xb0UL
-    uint32_t : 32;    // offset 0xb4UL
-    uint32_t : 32;    // offset 0xb8UL
-    uint32_t : 32;    // offset 0xbcUL
-    uint32_t : 32;    // offset 0xc0UL
-    uint32_t : 32;    // offset 0xc4UL
-    uint32_t : 32;    // offset 0xc8UL
-    uint32_t : 32;    // offset 0xccUL
-    uint32_t : 32;    // offset 0xd0UL
-    uint32_t : 32;    // offset 0xd4UL
-    uint32_t : 32;    // offset 0xd8UL
-    uint32_t : 32;    // offset 0xdcUL
-    uint32_t : 32;    // offset 0xe0UL
-    uint32_t : 32;    // offset 0xe4UL
-    uint32_t : 32;    // offset 0xe8UL
-    uint32_t : 32;    // offset 0xecUL
-    uint32_t : 32;    // offset 0xf0UL
-    uint32_t : 32;    // offset 0xf4UL
-    uint32_t : 32;    // offset 0xf8UL
-    uint32_t : 32;    // offset 0xfcUL
-    uint32_t : 32;    // offset 0x100UL
-    uint32_t : 32;    // offset 0x104UL
-    uint32_t : 32;    // offset 0x108UL
-    uint32_t : 32;    // offset 0x10cUL
-    uint32_t : 32;    // offset 0x110UL
-    uint32_t : 32;    // offset 0x114UL
-    uint32_t : 32;    // offset 0x118UL
-    uint32_t : 32;    // offset 0x11cUL
-    uint32_t : 32;    // offset 0x120UL
-    uint32_t : 32;    // offset 0x124UL
-    uint32_t : 32;    // offset 0x128UL
-    uint32_t : 32;    // offset 0x12cUL
-    uint32_t : 32;    // offset 0x130UL
-    uint32_t : 32;    // offset 0x134UL
-    uint32_t : 32;    // offset 0x138UL
-    uint32_t : 32;    // offset 0x13cUL
-    uint32_t : 32;    // offset 0x140UL
-    uint32_t : 32;    // offset 0x144UL
-    uint32_t : 32;    // offset 0x148UL
-    uint32_t : 32;    // offset 0x14cUL
-    uint32_t : 32;    // offset 0x150UL
-    uint32_t : 32;    // offset 0x154UL
-    uint32_t : 32;    // offset 0x158UL
-    uint32_t : 32;    // offset 0x15cUL
-    uint32_t : 32;    // offset 0x160UL
-    uint32_t : 32;    // offset 0x164UL
-    uint32_t : 32;    // offset 0x168UL
-    uint32_t : 32;    // offset 0x16cUL
-    uint32_t : 32;    // offset 0x170UL
-    uint32_t : 32;    // offset 0x174UL
-    uint32_t : 32;    // offset 0x178UL
-    uint32_t : 32;    // offset 0x17cUL
-    uint32_t : 32;    // offset 0x180UL
-    uint32_t : 32;    // offset 0x184UL
-    uint32_t : 32;    // offset 0x188UL
-    uint32_t : 32;    // offset 0x18cUL
-    uint32_t : 32;    // offset 0x190UL
-    uint32_t : 32;    // offset 0x194UL
-    uint32_t : 32;    // offset 0x198UL
-    uint32_t : 32;    // offset 0x19cUL
-    uint32_t : 32;    // offset 0x1a0UL
-    uint32_t : 32;    // offset 0x1a4UL
-    uint32_t : 32;    // offset 0x1a8UL
-    uint32_t : 32;    // offset 0x1acUL
-    uint32_t : 32;    // offset 0x1b0UL
-    uint32_t : 32;    // offset 0x1b4UL
-    uint32_t : 32;    // offset 0x1b8UL
-    uint32_t : 32;    // offset 0x1bcUL
-    uint32_t : 32;    // offset 0x1c0UL
-    uint32_t : 32;    // offset 0x1c4UL
-    uint32_t : 32;    // offset 0x1c8UL
-    uint32_t : 32;    // offset 0x1ccUL
-    uint32_t : 32;    // offset 0x1d0UL
-    uint32_t : 32;    // offset 0x1d4UL
-    uint32_t : 32;    // offset 0x1d8UL
-    uint32_t : 32;    // offset 0x1dcUL
-    uint32_t : 32;    // offset 0x1e0UL
-    uint32_t : 32;    // offset 0x1e4UL
-    uint32_t : 32;    // offset 0x1e8UL
-    uint32_t : 32;    // offset 0x1ecUL
-    uint32_t : 32;    // offset 0x1f0UL
-    uint32_t : 32;    // offset 0x1f4UL
-    uint32_t : 32;    // offset 0x1f8UL
-    uint32_t : 32;    // offset 0x1fcUL
-    uint32_t : 32;    // offset 0x200UL
-    uint32_t : 32;    // offset 0x204UL
-    uint32_t : 32;    // offset 0x208UL
-    uint32_t : 32;    // offset 0x20cUL
-    uint32_t : 32;    // offset 0x210UL
-    uint32_t : 32;    // offset 0x214UL
-    uint32_t : 32;    // offset 0x218UL
-    uint32_t : 32;    // offset 0x21cUL
-    uint32_t : 32;    // offset 0x220UL
-    uint32_t : 32;    // offset 0x224UL
-    uint32_t : 32;    // offset 0x228UL
-    uint32_t : 32;    // offset 0x22cUL
-    uint32_t : 32;    // offset 0x230UL
-    uint32_t : 32;    // offset 0x234UL
-    uint32_t : 32;    // offset 0x238UL
-    uint32_t : 32;    // offset 0x23cUL
-    uint32_t : 32;    // offset 0x240UL
-    uint32_t : 32;    // offset 0x244UL
-    uint32_t : 32;    // offset 0x248UL
-    uint32_t : 32;    // offset 0x24cUL
-    uint32_t : 32;    // offset 0x250UL
-    uint32_t : 32;    // offset 0x254UL
-    uint32_t : 32;    // offset 0x258UL
-    uint32_t : 32;    // offset 0x25cUL
-    uint32_t : 32;    // offset 0x260UL
-    uint32_t : 32;    // offset 0x264UL
-    uint32_t : 32;    // offset 0x268UL
-    uint32_t : 32;    // offset 0x26cUL
-    uint32_t : 32;    // offset 0x270UL
-    uint32_t : 32;    // offset 0x274UL
-    uint32_t : 32;    // offset 0x278UL
-    uint32_t : 32;    // offset 0x27cUL
-    uint32_t : 32;    // offset 0x280UL
-    uint32_t : 32;    // offset 0x284UL
-    uint32_t : 32;    // offset 0x288UL
-    uint32_t : 32;    // offset 0x28cUL
-    uint32_t : 32;    // offset 0x290UL
-    uint32_t : 32;    // offset 0x294UL
-    uint32_t : 32;    // offset 0x298UL
-    uint32_t : 32;    // offset 0x29cUL
-    uint32_t : 32;    // offset 0x2a0UL
-    uint32_t : 32;    // offset 0x2a4UL
-    uint32_t : 32;    // offset 0x2a8UL
-    uint32_t : 32;    // offset 0x2acUL
-    uint32_t : 32;    // offset 0x2b0UL
-    uint32_t : 32;    // offset 0x2b4UL
-    uint32_t : 32;    // offset 0x2b8UL
-    uint32_t : 32;    // offset 0x2bcUL
-    uint32_t : 32;    // offset 0x2c0UL
-    uint32_t : 32;    // offset 0x2c4UL
-    uint32_t : 32;    // offset 0x2c8UL
-    uint32_t : 32;    // offset 0x2ccUL
-    uint32_t : 32;    // offset 0x2d0UL
-    uint32_t : 32;    // offset 0x2d4UL
-    uint32_t : 32;    // offset 0x2d8UL
-    uint32_t : 32;    // offset 0x2dcUL
-    uint32_t : 32;    // offset 0x2e0UL
-    uint32_t : 32;    // offset 0x2e4UL
-    uint32_t : 32;    // offset 0x2e8UL
-    uint32_t : 32;    // offset 0x2ecUL
-    uint32_t : 32;    // offset 0x2f0UL
-    uint32_t : 32;    // offset 0x2f4UL
-    uint32_t : 32;    // offset 0x2f8UL
-    uint32_t : 32;    // offset 0x2fcUL
-    uint32_t : 32;    // offset 0x300UL
-    uint32_t : 32;    // offset 0x304UL
-    uint32_t : 32;    // offset 0x308UL
-    uint32_t : 32;    // offset 0x30cUL
-    uint32_t : 32;    // offset 0x310UL
-    uint32_t : 32;    // offset 0x314UL
-    uint32_t : 32;    // offset 0x318UL
-    uint32_t : 32;    // offset 0x31cUL
-    uint32_t : 32;    // offset 0x320UL
-    uint32_t : 32;    // offset 0x324UL
-    uint32_t : 32;    // offset 0x328UL
-    uint32_t : 32;    // offset 0x32cUL
-    uint32_t : 32;    // offset 0x330UL
-    uint32_t : 32;    // offset 0x334UL
-    uint32_t : 32;    // offset 0x338UL
-    uint32_t : 32;    // offset 0x33cUL
-    uint32_t : 32;    // offset 0x340UL
-    uint32_t : 32;    // offset 0x344UL
-    uint32_t : 32;    // offset 0x348UL
-    uint32_t : 32;    // offset 0x34cUL
-    uint32_t : 32;    // offset 0x350UL
-    uint32_t : 32;    // offset 0x354UL
-    uint32_t : 32;    // offset 0x358UL
-    uint32_t : 32;    // offset 0x35cUL
-    uint32_t : 32;    // offset 0x360UL
-    uint32_t : 32;    // offset 0x364UL
-    uint32_t : 32;    // offset 0x368UL
-    uint32_t : 32;    // offset 0x36cUL
-    uint32_t : 32;    // offset 0x370UL
-    uint32_t : 32;    // offset 0x374UL
-    uint32_t : 32;    // offset 0x378UL
-    uint32_t : 32;    // offset 0x37cUL
-    uint32_t : 32;    // offset 0x380UL
-    uint32_t : 32;    // offset 0x384UL
-    uint32_t : 32;    // offset 0x388UL
-    uint32_t : 32;    // offset 0x38cUL
-    uint32_t : 32;    // offset 0x390UL
-    uint32_t : 32;    // offset 0x394UL
-    uint32_t : 32;    // offset 0x398UL
-    uint32_t : 32;    // offset 0x39cUL
-    uint32_t : 32;    // offset 0x3a0UL
-    uint32_t : 32;    // offset 0x3a4UL
-    uint32_t : 32;    // offset 0x3a8UL
-    uint32_t : 32;    // offset 0x3acUL
-    uint32_t : 32;    // offset 0x3b0UL
-    uint32_t : 32;    // offset 0x3b4UL
-    uint32_t : 32;    // offset 0x3b8UL
-    uint32_t : 32;    // offset 0x3bcUL
-    uint32_t : 32;    // offset 0x3c0UL
-    uint32_t : 32;    // offset 0x3c4UL
-    uint32_t : 32;    // offset 0x3c8UL
-    uint32_t : 32;    // offset 0x3ccUL
-    uint32_t : 32;    // offset 0x3d0UL
-    uint32_t : 32;    // offset 0x3d4UL
-    uint32_t : 32;    // offset 0x3d8UL
-    uint32_t : 32;    // offset 0x3dcUL
-    uint32_t : 32;    // offset 0x3e0UL
-    uint32_t : 32;    // offset 0x3e4UL
-    uint32_t : 32;    // offset 0x3e8UL
-    uint32_t : 32;    // offset 0x3ecUL
-    uint32_t : 32;    // offset 0x3f0UL
-    uint32_t : 32;    // offset 0x3f4UL
-    uint32_t : 32;    // offset 0x3f8UL
-    uint32_t : 32;    // offset 0x3fcUL
+    uint32_t : 32;                                             // offset 0x50UL
+    uint32_t : 32;                                             // offset 0x54UL
+    uint32_t : 32;                                             // offset 0x58UL
+    uint32_t : 32;                                             // offset 0x5cUL
+    /// TIM alternate function option register 1 (AF1)
+    AlternateFunction1 alternate_function1;    // offset 0x60UL
+    uint32_t : 32;                             // offset 0x64UL
+    /// TIM timer input selection register (TISEL)
+    TimerInputSelection timer_input_selection;    // offset 0x68UL
+    uint32_t : 32;                                // offset 0x6cUL
+    uint32_t : 32;                                // offset 0x70UL
+    uint32_t : 32;                                // offset 0x74UL
+    uint32_t : 32;                                // offset 0x78UL
+    uint32_t : 32;                                // offset 0x7cUL
+    uint32_t : 32;                                // offset 0x80UL
+    uint32_t : 32;                                // offset 0x84UL
+    uint32_t : 32;                                // offset 0x88UL
+    uint32_t : 32;                                // offset 0x8cUL
+    uint32_t : 32;                                // offset 0x90UL
+    uint32_t : 32;                                // offset 0x94UL
+    uint32_t : 32;                                // offset 0x98UL
+    uint32_t : 32;                                // offset 0x9cUL
+    uint32_t : 32;                                // offset 0xa0UL
+    uint32_t : 32;                                // offset 0xa4UL
+    uint32_t : 32;                                // offset 0xa8UL
+    uint32_t : 32;                                // offset 0xacUL
+    uint32_t : 32;                                // offset 0xb0UL
+    uint32_t : 32;                                // offset 0xb4UL
+    uint32_t : 32;                                // offset 0xb8UL
+    uint32_t : 32;                                // offset 0xbcUL
+    uint32_t : 32;                                // offset 0xc0UL
+    uint32_t : 32;                                // offset 0xc4UL
+    uint32_t : 32;                                // offset 0xc8UL
+    uint32_t : 32;                                // offset 0xccUL
+    uint32_t : 32;                                // offset 0xd0UL
+    uint32_t : 32;                                // offset 0xd4UL
+    uint32_t : 32;                                // offset 0xd8UL
+    uint32_t : 32;                                // offset 0xdcUL
+    uint32_t : 32;                                // offset 0xe0UL
+    uint32_t : 32;                                // offset 0xe4UL
+    uint32_t : 32;                                // offset 0xe8UL
+    uint32_t : 32;                                // offset 0xecUL
+    uint32_t : 32;                                // offset 0xf0UL
+    uint32_t : 32;                                // offset 0xf4UL
+    uint32_t : 32;                                // offset 0xf8UL
+    uint32_t : 32;                                // offset 0xfcUL
+    uint32_t : 32;                                // offset 0x100UL
+    uint32_t : 32;                                // offset 0x104UL
+    uint32_t : 32;                                // offset 0x108UL
+    uint32_t : 32;                                // offset 0x10cUL
+    uint32_t : 32;                                // offset 0x110UL
+    uint32_t : 32;                                // offset 0x114UL
+    uint32_t : 32;                                // offset 0x118UL
+    uint32_t : 32;                                // offset 0x11cUL
+    uint32_t : 32;                                // offset 0x120UL
+    uint32_t : 32;                                // offset 0x124UL
+    uint32_t : 32;                                // offset 0x128UL
+    uint32_t : 32;                                // offset 0x12cUL
+    uint32_t : 32;                                // offset 0x130UL
+    uint32_t : 32;                                // offset 0x134UL
+    uint32_t : 32;                                // offset 0x138UL
+    uint32_t : 32;                                // offset 0x13cUL
+    uint32_t : 32;                                // offset 0x140UL
+    uint32_t : 32;                                // offset 0x144UL
+    uint32_t : 32;                                // offset 0x148UL
+    uint32_t : 32;                                // offset 0x14cUL
+    uint32_t : 32;                                // offset 0x150UL
+    uint32_t : 32;                                // offset 0x154UL
+    uint32_t : 32;                                // offset 0x158UL
+    uint32_t : 32;                                // offset 0x15cUL
+    uint32_t : 32;                                // offset 0x160UL
+    uint32_t : 32;                                // offset 0x164UL
+    uint32_t : 32;                                // offset 0x168UL
+    uint32_t : 32;                                // offset 0x16cUL
+    uint32_t : 32;                                // offset 0x170UL
+    uint32_t : 32;                                // offset 0x174UL
+    uint32_t : 32;                                // offset 0x178UL
+    uint32_t : 32;                                // offset 0x17cUL
+    uint32_t : 32;                                // offset 0x180UL
+    uint32_t : 32;                                // offset 0x184UL
+    uint32_t : 32;                                // offset 0x188UL
+    uint32_t : 32;                                // offset 0x18cUL
+    uint32_t : 32;                                // offset 0x190UL
+    uint32_t : 32;                                // offset 0x194UL
+    uint32_t : 32;                                // offset 0x198UL
+    uint32_t : 32;                                // offset 0x19cUL
+    uint32_t : 32;                                // offset 0x1a0UL
+    uint32_t : 32;                                // offset 0x1a4UL
+    uint32_t : 32;                                // offset 0x1a8UL
+    uint32_t : 32;                                // offset 0x1acUL
+    uint32_t : 32;                                // offset 0x1b0UL
+    uint32_t : 32;                                // offset 0x1b4UL
+    uint32_t : 32;                                // offset 0x1b8UL
+    uint32_t : 32;                                // offset 0x1bcUL
+    uint32_t : 32;                                // offset 0x1c0UL
+    uint32_t : 32;                                // offset 0x1c4UL
+    uint32_t : 32;                                // offset 0x1c8UL
+    uint32_t : 32;                                // offset 0x1ccUL
+    uint32_t : 32;                                // offset 0x1d0UL
+    uint32_t : 32;                                // offset 0x1d4UL
+    uint32_t : 32;                                // offset 0x1d8UL
+    uint32_t : 32;                                // offset 0x1dcUL
+    uint32_t : 32;                                // offset 0x1e0UL
+    uint32_t : 32;                                // offset 0x1e4UL
+    uint32_t : 32;                                // offset 0x1e8UL
+    uint32_t : 32;                                // offset 0x1ecUL
+    uint32_t : 32;                                // offset 0x1f0UL
+    uint32_t : 32;                                // offset 0x1f4UL
+    uint32_t : 32;                                // offset 0x1f8UL
+    uint32_t : 32;                                // offset 0x1fcUL
+    uint32_t : 32;                                // offset 0x200UL
+    uint32_t : 32;                                // offset 0x204UL
+    uint32_t : 32;                                // offset 0x208UL
+    uint32_t : 32;                                // offset 0x20cUL
+    uint32_t : 32;                                // offset 0x210UL
+    uint32_t : 32;                                // offset 0x214UL
+    uint32_t : 32;                                // offset 0x218UL
+    uint32_t : 32;                                // offset 0x21cUL
+    uint32_t : 32;                                // offset 0x220UL
+    uint32_t : 32;                                // offset 0x224UL
+    uint32_t : 32;                                // offset 0x228UL
+    uint32_t : 32;                                // offset 0x22cUL
+    uint32_t : 32;                                // offset 0x230UL
+    uint32_t : 32;                                // offset 0x234UL
+    uint32_t : 32;                                // offset 0x238UL
+    uint32_t : 32;                                // offset 0x23cUL
+    uint32_t : 32;                                // offset 0x240UL
+    uint32_t : 32;                                // offset 0x244UL
+    uint32_t : 32;                                // offset 0x248UL
+    uint32_t : 32;                                // offset 0x24cUL
+    uint32_t : 32;                                // offset 0x250UL
+    uint32_t : 32;                                // offset 0x254UL
+    uint32_t : 32;                                // offset 0x258UL
+    uint32_t : 32;                                // offset 0x25cUL
+    uint32_t : 32;                                // offset 0x260UL
+    uint32_t : 32;                                // offset 0x264UL
+    uint32_t : 32;                                // offset 0x268UL
+    uint32_t : 32;                                // offset 0x26cUL
+    uint32_t : 32;                                // offset 0x270UL
+    uint32_t : 32;                                // offset 0x274UL
+    uint32_t : 32;                                // offset 0x278UL
+    uint32_t : 32;                                // offset 0x27cUL
+    uint32_t : 32;                                // offset 0x280UL
+    uint32_t : 32;                                // offset 0x284UL
+    uint32_t : 32;                                // offset 0x288UL
+    uint32_t : 32;                                // offset 0x28cUL
+    uint32_t : 32;                                // offset 0x290UL
+    uint32_t : 32;                                // offset 0x294UL
+    uint32_t : 32;                                // offset 0x298UL
+    uint32_t : 32;                                // offset 0x29cUL
+    uint32_t : 32;                                // offset 0x2a0UL
+    uint32_t : 32;                                // offset 0x2a4UL
+    uint32_t : 32;                                // offset 0x2a8UL
+    uint32_t : 32;                                // offset 0x2acUL
+    uint32_t : 32;                                // offset 0x2b0UL
+    uint32_t : 32;                                // offset 0x2b4UL
+    uint32_t : 32;                                // offset 0x2b8UL
+    uint32_t : 32;                                // offset 0x2bcUL
+    uint32_t : 32;                                // offset 0x2c0UL
+    uint32_t : 32;                                // offset 0x2c4UL
+    uint32_t : 32;                                // offset 0x2c8UL
+    uint32_t : 32;                                // offset 0x2ccUL
+    uint32_t : 32;                                // offset 0x2d0UL
+    uint32_t : 32;                                // offset 0x2d4UL
+    uint32_t : 32;                                // offset 0x2d8UL
+    uint32_t : 32;                                // offset 0x2dcUL
+    uint32_t : 32;                                // offset 0x2e0UL
+    uint32_t : 32;                                // offset 0x2e4UL
+    uint32_t : 32;                                // offset 0x2e8UL
+    uint32_t : 32;                                // offset 0x2ecUL
+    uint32_t : 32;                                // offset 0x2f0UL
+    uint32_t : 32;                                // offset 0x2f4UL
+    uint32_t : 32;                                // offset 0x2f8UL
+    uint32_t : 32;                                // offset 0x2fcUL
+    uint32_t : 32;                                // offset 0x300UL
+    uint32_t : 32;                                // offset 0x304UL
+    uint32_t : 32;                                // offset 0x308UL
+    uint32_t : 32;                                // offset 0x30cUL
+    uint32_t : 32;                                // offset 0x310UL
+    uint32_t : 32;                                // offset 0x314UL
+    uint32_t : 32;                                // offset 0x318UL
+    uint32_t : 32;                                // offset 0x31cUL
+    uint32_t : 32;                                // offset 0x320UL
+    uint32_t : 32;                                // offset 0x324UL
+    uint32_t : 32;                                // offset 0x328UL
+    uint32_t : 32;                                // offset 0x32cUL
+    uint32_t : 32;                                // offset 0x330UL
+    uint32_t : 32;                                // offset 0x334UL
+    uint32_t : 32;                                // offset 0x338UL
+    uint32_t : 32;                                // offset 0x33cUL
+    uint32_t : 32;                                // offset 0x340UL
+    uint32_t : 32;                                // offset 0x344UL
+    uint32_t : 32;                                // offset 0x348UL
+    uint32_t : 32;                                // offset 0x34cUL
+    uint32_t : 32;                                // offset 0x350UL
+    uint32_t : 32;                                // offset 0x354UL
+    uint32_t : 32;                                // offset 0x358UL
+    uint32_t : 32;                                // offset 0x35cUL
+    uint32_t : 32;                                // offset 0x360UL
+    uint32_t : 32;                                // offset 0x364UL
+    uint32_t : 32;                                // offset 0x368UL
+    uint32_t : 32;                                // offset 0x36cUL
+    uint32_t : 32;                                // offset 0x370UL
+    uint32_t : 32;                                // offset 0x374UL
+    uint32_t : 32;                                // offset 0x378UL
+    uint32_t : 32;                                // offset 0x37cUL
+    uint32_t : 32;                                // offset 0x380UL
+    uint32_t : 32;                                // offset 0x384UL
+    uint32_t : 32;                                // offset 0x388UL
+    uint32_t : 32;                                // offset 0x38cUL
+    uint32_t : 32;                                // offset 0x390UL
+    uint32_t : 32;                                // offset 0x394UL
+    uint32_t : 32;                                // offset 0x398UL
+    uint32_t : 32;                                // offset 0x39cUL
+    uint32_t : 32;                                // offset 0x3a0UL
+    uint32_t : 32;                                // offset 0x3a4UL
+    uint32_t : 32;                                // offset 0x3a8UL
+    uint32_t : 32;                                // offset 0x3acUL
+    uint32_t : 32;                                // offset 0x3b0UL
+    uint32_t : 32;                                // offset 0x3b4UL
+    uint32_t : 32;                                // offset 0x3b8UL
+    uint32_t : 32;                                // offset 0x3bcUL
+    uint32_t : 32;                                // offset 0x3c0UL
+    uint32_t : 32;                                // offset 0x3c4UL
+    uint32_t : 32;                                // offset 0x3c8UL
+    uint32_t : 32;                                // offset 0x3ccUL
+    uint32_t : 32;                                // offset 0x3d0UL
+    uint32_t : 32;                                // offset 0x3d4UL
+    uint32_t : 32;                                // offset 0x3d8UL
+    uint32_t : 32;                                // offset 0x3dcUL
+    uint32_t : 32;                                // offset 0x3e0UL
+    uint32_t : 32;                                // offset 0x3e4UL
+    uint32_t : 32;                                // offset 0x3e8UL
+    uint32_t : 32;                                // offset 0x3ecUL
+    uint32_t : 32;                                // offset 0x3f0UL
+    uint32_t : 32;                                // offset 0x3f4UL
+    uint32_t : 32;                                // offset 0x3f8UL
+    uint32_t : 32;                                // offset 0x3fcUL
     //+=MEMORY======================================+
 };
 // Ensure the structure is in standard layout format
@@ -1621,7 +1713,8 @@ static_assert(offsetof(Timer2, capture_compare3) == 0x3cUL, "Must be located at 
 static_assert(offsetof(Timer2, capture_compare4) == 0x40UL, "Must be located at this offset");
 static_assert(offsetof(Timer2, direct_memory_access_control) == 0x48UL, "Must be located at this offset");
 static_assert(offsetof(Timer2, direct_memory_access_address) == 0x4cUL, "Must be located at this offset");
-static_assert(offsetof(Timer2, option) == 0x50UL, "Must be located at this offset");
+static_assert(offsetof(Timer2, alternate_function1) == 0x60UL, "Must be located at this offset");
+static_assert(offsetof(Timer2, timer_input_selection) == 0x68UL, "Must be located at this offset");
 
 // Ensure the sizeof the entire structure is correct.
 static_assert(sizeof(Timer2) == 0x400UL, "Must be this exact size");

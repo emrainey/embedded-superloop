@@ -121,10 +121,25 @@ void usart3_isr(void) {
     dummy_isr();
 }
 
+void usart4_isr(void) {
+    dummy_isr();
+}
+
+void usart5_isr(void) {
+    dummy_isr();
+}
+
 void usart6_isr(void) {
     dummy_isr();
 }
 
+void usart7_isr(void) {
+    dummy_isr();
+}
+
+void usart8_isr(void) {
+    dummy_isr();
+}
 void i2c1_event_isr(void) {
     dummy_isr();
 }
@@ -178,15 +193,14 @@ ISR void spi1_isr(void) ALIAS(dummy_isr);
 ISR void spi2_isr(void) ALIAS(dummy_isr);
 ISR void spi3_isr(void) ALIAS(dummy_isr);
 
-ISR void uart4_isr(void) ALIAS(dummy_isr);
-ISR void uart5_isr(void) ALIAS(dummy_isr);
-ISR void uart7_isr(void) ALIAS(dummy_isr);
-ISR void uart8_isr(void) ALIAS(dummy_isr);
-
 ISR void usart1_isr(void) ALIAS(dummy_isr);
 ISR void usart2_isr(void) ALIAS(dummy_isr);
 ISR void usart3_isr(void) ALIAS(dummy_isr);
+ISR void usart4_isr(void) ALIAS(dummy_isr);
+ISR void usart5_isr(void) ALIAS(dummy_isr);
 ISR void usart6_isr(void) ALIAS(dummy_isr);
+ISR void usart7_isr(void) ALIAS(dummy_isr);
+ISR void usart8_isr(void) ALIAS(dummy_isr);
 
 ISR void i2c1_event_isr(void) ALIAS(dummy_isr);
 ISR void i2c1_error_isr(void) ALIAS(dummy_isr);
@@ -257,8 +271,8 @@ ExtendedVectors const extended_vectors = {{
     dummy_isr,           // 49
     dummy_isr,           // 50
     stm32::spi3_isr,            // 51
-    stm32::uart4_isr,           // 52
-    stm32::uart5_isr,           // 53
+    stm32::usart4_isr,          // 52
+    stm32::usart5_isr,          // 53
     dummy_isr,           // 54
     dummy_isr,           // 55
     stm32::dma2_stream0_isr,    // 56
@@ -287,8 +301,8 @@ ExtendedVectors const extended_vectors = {{
     dummy_isr,           // 79 - CRYP / HASH
     dummy_isr,           // 80 - RNG
     dummy_isr,           // 81 - FPU
-    stm32::uart7_isr,    // 82 - UART7
-    stm32::uart8_isr,    // 83 - UART8
+    stm32::usart7_isr,   // 82 - UART7
+    stm32::usart8_isr,   // 83 - UART8
     dummy_isr,           // 84 - SPI4
     dummy_isr,           // 85 - SPI5
     dummy_isr,           // 86 - SPI6

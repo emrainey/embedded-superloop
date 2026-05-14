@@ -248,37 +248,37 @@ struct Timer2 final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Update interrupt enable (UIE)
-            uint32_t update_interrupt_enable  : 1;    // bit 0
+            uint32_t update_interrupt_enable             : 1;    // bit 0
             /// Capture/Compare 1 interrupt enable (CC1IE)
-            uint32_t cc1ie                    : 1;    // bit 1
+            uint32_t capture_compare1_interrupt_enable   : 1;    // bit 1
             /// Capture/Compare 2 interrupt enable (CC2IE)
-            uint32_t cc2ie                    : 1;    // bit 2
+            uint32_t capture_compare2_interrupt_enable   : 1;    // bit 2
             /// Capture/Compare 3 interrupt enable (CC3IE)
-            uint32_t cc3ie                    : 1;    // bit 3
+            uint32_t capture_compare3_interrupt_enable   : 1;    // bit 3
             /// Capture/Compare 4 interrupt enable (CC4IE)
-            uint32_t cc4ie                    : 1;    // bit 4
+            uint32_t capture_compare4_interrupt_enable   : 1;    // bit 4
             /// (reserved)
-            uint32_t                          : 1;    // bit 5
+            uint32_t                                     : 1;    // bit 5
             /// Trigger interrupt enable (TIE)
-            uint32_t trigger_interrupt_enable : 1;    // bit 6
+            uint32_t trigger_interrupt_enable            : 1;    // bit 6
             /// (reserved)
-            uint32_t                          : 1;    // bit 7
+            uint32_t                                     : 1;    // bit 7
             /// Update DMA request enable (UDE)
-            uint32_t ude                      : 1;    // bit 8
+            uint32_t update_direct_memory_access_enable  : 1;    // bit 8
             /// Capture/Compare 1 DMA request enable (CC1DE)
-            uint32_t cc1de                    : 1;    // bit 9
+            uint32_t capture_compare1_dma_enable         : 1;    // bit 9
             /// Capture/Compare 2 DMA request enable (CC2DE)
-            uint32_t cc2de                    : 1;    // bit 10
+            uint32_t capture_compare2_dma_enable         : 1;    // bit 10
             /// Capture/Compare 3 DMA request enable (CC3DE)
-            uint32_t cc3de                    : 1;    // bit 11
+            uint32_t capture_compare3_dma_enable         : 1;    // bit 11
             /// Capture/Compare 4 DMA request enable (CC4DE)
-            uint32_t cc4de                    : 1;    // bit 12
+            uint32_t capture_compare4_dma_enable         : 1;    // bit 12
             /// (reserved)
-            uint32_t                          : 1;    // bit 13
+            uint32_t                                     : 1;    // bit 13
             /// Trigger DMA request enable (TDE)
-            uint32_t tde                      : 1;    // bit 14
+            uint32_t trigger_direct_memory_access_enable : 1;    // bit 14
             /// (reserved)
-            uint32_t                          : 17;    // bits 15:31
+            uint32_t                                     : 17;    // bits 15:31
         };
         //+=MEMORY======================================+
         union {
@@ -334,31 +334,31 @@ struct Timer2 final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Update interrupt flag (UIF)
-            uint32_t update_interrupt_flag : 1;    // bit 0
+            uint32_t update_interrupt_flag             : 1;    // bit 0
             /// Capture/compare 1 interrupt flag (CC1IF)
-            uint32_t cc1if                 : 1;    // bit 1
+            uint32_t capture_compare1_interrupt_flag   : 1;    // bit 1
             /// Capture/Compare 2 interrupt flag (CC2IF)
-            uint32_t cc2if                 : 1;    // bit 2
+            uint32_t capture_compare2_interrupt_flag   : 1;    // bit 2
             /// Capture/Compare 3 interrupt flag (CC3IF)
-            uint32_t cc3if                 : 1;    // bit 3
+            uint32_t capture_compare3_interrupt_flag   : 1;    // bit 3
             /// Capture/Compare 4 interrupt flag (CC4IF)
-            uint32_t cc4if                 : 1;    // bit 4
+            uint32_t capture_compare4_interrupt_flag   : 1;    // bit 4
             /// (reserved)
-            uint32_t                       : 1;    // bit 5
+            uint32_t                                   : 1;    // bit 5
             /// Trigger interrupt flag (TIF)
-            uint32_t tif                   : 1;    // bit 6
+            uint32_t trigger_interrupt_flag            : 1;    // bit 6
             /// (reserved)
-            uint32_t                       : 2;    // bits 7:8
+            uint32_t                                   : 2;    // bits 7:8
             /// Capture/Compare 1 overcapture flag (CC1OF)
-            uint32_t cc1of                 : 1;    // bit 9
+            uint32_t capture_compare1_overcapture_flag : 1;    // bit 9
             /// Capture/compare 2 overcapture flag (CC2OF)
-            uint32_t cc2of                 : 1;    // bit 10
+            uint32_t capture_compare2_overcapture_flag : 1;    // bit 10
             /// Capture/Compare 3 overcapture flag (CC3OF)
-            uint32_t cc3of                 : 1;    // bit 11
+            uint32_t capture_compare3_overcapture_flag : 1;    // bit 11
             /// Capture/Compare 4 overcapture flag (CC4OF)
-            uint32_t cc4of                 : 1;    // bit 12
+            uint32_t capture_compare4_overcapture_flag : 1;    // bit 12
             /// (reserved)
-            uint32_t                       : 19;    // bits 13:31
+            uint32_t                                   : 19;    // bits 13:31
         };
         //+=MEMORY======================================+
         union {
@@ -414,21 +414,21 @@ struct Timer2 final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Update generation (UG)
-            uint32_t update_generation  : 1;    // bit 0
+            uint32_t update_generation           : 1;    // bit 0
             /// Capture/compare 1 generation (CC1G)
-            uint32_t cc1g               : 1;    // bit 1
+            uint32_t capture_compare1_generation : 1;    // bit 1
             /// Capture/compare 2 generation (CC2G)
-            uint32_t cc2g               : 1;    // bit 2
+            uint32_t capture_compare2_generation : 1;    // bit 2
             /// Capture/compare 3 generation (CC3G)
-            uint32_t cc3g               : 1;    // bit 3
+            uint32_t capture_compare3_generation : 1;    // bit 3
             /// Capture/compare 4 generation (CC4G)
-            uint32_t cc4g               : 1;    // bit 4
+            uint32_t capture_compare4_generation : 1;    // bit 4
             /// (reserved)
-            uint32_t                    : 1;    // bit 5
+            uint32_t                             : 1;    // bit 5
             /// Trigger generation (TG)
-            uint32_t trigger_generation : 1;    // bit 6
+            uint32_t trigger_generation          : 1;    // bit 6
             /// (reserved)
-            uint32_t                    : 25;    // bits 7:31
+            uint32_t                             : 25;    // bits 7:31
         };
         //+=MEMORY======================================+
         union {
@@ -459,7 +459,7 @@ struct Timer2 final {
     static_assert(std::is_standard_layout<EventGeneration>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
     static_assert(sizeof(EventGeneration) == 4UL, "Must be this exact size");
-    /// capture/compare mode register 1 (output mode) (CaptureCompareOutput1)
+    /// capture/compare mode register 1 (output mode) (CaptureCompareMode1)
     struct CaptureCompareMode1 final {
         /// Default Constructor
         CaptureCompareMode1()
@@ -483,33 +483,33 @@ struct Timer2 final {
 
         /// The internal bitfield for the register
         struct OutputFields final {
-            /// Capture/Compare 1 selection (CC1S)
-            uint32_t capture_compare_selection1     : 2;    // bits 0:1
-            /// Output Compare 1 Fast enable (OC1FE)
-            uint32_t output_compare_fast_enable1    : 1;    // bit 2
-            /// Output Compare 1 Preload enable (OC1PE)
-            uint32_t output_compare_preload_enable1 : 1;    // bit 3
-            /// Output Compare 1 Mode (OC1M)
-            uint32_t output_compare_mode1           : 3;    // bits 4:6
-            /// Output Compare 1 Clear Enable (OC1CE)
-            uint32_t output_compare_clear_enable1   : 1;    // bit 7
-            /// Capture/Compare 2 selection (CC2S)
+            /// CC1S (CC1S)
+            uint32_t capture_compare1_selection     : 2;    // bits 0:1
+            /// OC1FE (OC1FE)
+            uint32_t output_compare1_fast_enable    : 1;    // bit 2
+            /// OC1PE (OC1PE)
+            uint32_t output_compare1_preload_enable : 1;    // bit 3
+            /// OC1M (OC1M)
+            uint32_t output_compare1_mode           : 3;    // bits 4:6
+            /// OC1CE (OC1CE)
+            uint32_t oc1ce                          : 1;    // bit 7
+            /// CC2S (CC2S)
             uint32_t capture_compare_selection2     : 2;    // bits 8:9
-            /// Output Compare 2 Fast enable (OC2FE)
-            uint32_t output_compare_fast_enable2    : 1;    // bit 10
-            /// Output Compare 2 Preload enable (OC2PE)
-            uint32_t output_compare_preload_enable2 : 1;    // bit 11
-            /// Output Compare 2 Mode (OC2M)
-            uint32_t output_compare_mode2           : 3;    // bits 12:14
-            /// Output Compare 2 Clear Enable (OC2CE)
-            uint32_t output_compare_clear_enable2   : 1;    // bit 15
+            /// OC2FE (OC2FE)
+            uint32_t output_compare2_fast_enable    : 1;    // bit 10
+            /// OC2PE (OC2PE)
+            uint32_t output_compare2_preload_enable : 1;    // bit 11
+            /// OC2M (OC2M)
+            uint32_t output_compare2_mode           : 3;    // bits 12:14
+            /// OC2CE (OC2CE)
+            uint32_t output_compare2_clear_enable   : 1;    // bit 15
             /// (reserved)
             uint32_t                                : 16;    // bits 16:31
         };
         /// The internal bitfield for the register
         struct InputFields final {
             /// Capture/Compare 1 selection (CC1S)
-            uint32_t capture_compare_selection1 : 2;    // bits 0:1
+            uint32_t capture_compare1_selection : 2;    // bits 0:1
             /// Input capture 1 prescaler (ICPCS)
             uint32_t input_capture_prescaler1   : 2;    // bits 2:3
             /// Input capture 1 filter (IC1F)
@@ -554,7 +554,7 @@ struct Timer2 final {
     static_assert(std::is_standard_layout<CaptureCompareMode1>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
     static_assert(sizeof(CaptureCompareMode1) == 4UL, "Must be this exact size");
-    /// capture/compare mode register 2 (output mode) (CaptureCompareOutput2)
+    /// capture/compare mode register 2 (output mode) (CaptureCompareMode2)
     struct CaptureCompareMode2 final {
         /// Default Constructor
         CaptureCompareMode2()
@@ -578,25 +578,25 @@ struct Timer2 final {
 
         /// The internal bitfield for the register
         struct OutputFields final {
-            /// Capture/Compare 3 selection (CC3S)
-            uint32_t capture_compare_selection3     : 2;    // bits 0:1
-            /// Output Compare 3 Fast enable (OC3FE)
-            uint32_t output_compare_fast_enable3    : 1;    // bit 2
-            /// Output Compare 3 Preload enable (OC3PE)
-            uint32_t output_compare_preload_enable3 : 1;    // bit 3
-            /// Output Compare 3 Mode (OC3M)
-            uint32_t output_compare_mode3           : 3;    // bits 4:6
-            /// Output Compare 3 Clear Enable (OC3CE)
+            /// CC3S (CC3S)
+            uint32_t capture_compare3_selection     : 2;    // bits 0:1
+            /// OC3FE (OC3FE)
+            uint32_t output_compare3_fast_enable    : 1;    // bit 2
+            /// OC3PE (OC3PE)
+            uint32_t output_compare3_preload_enable : 1;    // bit 3
+            /// OC3M (OC3M)
+            uint32_t output_compare3_mode           : 3;    // bits 4:6
+            /// OC3CE (OC3CE)
             uint32_t output_compare_clear_enable3   : 1;    // bit 7
-            /// Capture/Compare 4 selection (CC4S)
-            uint32_t capture_compare_selection4     : 2;    // bits 8:9
-            /// Output Compare 4 Fast enable (OC4FE)
-            uint32_t output_compare_fast_enable4    : 1;    // bit 10
-            /// Output Compare 4 Preload enable (OC4PE)
-            uint32_t output_compare_preload_enable4 : 1;    // bit 11
-            /// Output Compare 4 Mode (OC4M)
-            uint32_t output_compare_mode4           : 3;    // bits 12:14
-            /// Output Compare 4 Clear Enable (OC4CE)
+            /// CC4S (CC4S)
+            uint32_t capture_compare4_selection     : 2;    // bits 8:9
+            /// OC4FE (OC4FE)
+            uint32_t output_compare4_fast_enable    : 1;    // bit 10
+            /// OC4PE (OC4PE)
+            uint32_t output_compare4_preload_enable : 1;    // bit 11
+            /// OC4M (OC4M)
+            uint32_t output_compare4_mode           : 3;    // bits 12:14
+            /// O24CE (O24CE)
             uint32_t output_compare_clear_enable4   : 1;    // bit 15
             /// (reserved)
             uint32_t                                : 16;    // bits 16:31
@@ -604,13 +604,13 @@ struct Timer2 final {
         /// The internal bitfield for the register
         struct InputFields final {
             /// Capture/compare 3 selection (CC3S)
-            uint32_t capture_compare_selection3 : 2;    // bits 0:1
+            uint32_t capture_compare3_selection : 2;    // bits 0:1
             /// Input capture 3 prescaler (IC3PSC)
             uint32_t input_capture_prescaler3   : 2;    // bits 2:3
             /// Input capture 3 filter (IC3F)
             uint32_t input_capture_filter3      : 4;    // bits 4:7
             /// Capture/Compare 4 selection (CC4S)
-            uint32_t capture_compare_selection4 : 2;    // bits 8:9
+            uint32_t capture_compare4_selection : 2;    // bits 8:9
             /// Input capture 4 prescaler (IC4PSC)
             uint32_t input_capture_prescaler4   : 2;    // bits 10:11
             /// Input capture 4 filter (IC4F)
@@ -674,39 +674,39 @@ struct Timer2 final {
         /// The internal bitfield for the register
         struct Fields final {
             /// Capture/Compare 1 output enable (CC1E)
-            uint32_t cc1e  : 1;    // bit 0
+            uint32_t capture_compare1_enable          : 1;    // bit 0
             /// Capture/Compare 1 output Polarity (CC1P)
-            uint32_t cc1p  : 1;    // bit 1
+            uint32_t capture_compare1_polarity        : 1;    // bit 1
             /// (reserved)
-            uint32_t       : 1;    // bit 2
+            uint32_t                                  : 1;    // bit 2
             /// Capture/Compare 1 output Polarity (CC1NP)
-            uint32_t cc1np : 1;    // bit 3
+            uint32_t capture_compare1_output_polarity : 1;    // bit 3
             /// Capture/Compare 2 output enable (CC2E)
-            uint32_t cc2e  : 1;    // bit 4
+            uint32_t capture_compare2_enable          : 1;    // bit 4
             /// Capture/Compare 2 output Polarity (CC2P)
-            uint32_t cc2p  : 1;    // bit 5
+            uint32_t capture_compare2_polarity        : 1;    // bit 5
             /// (reserved)
-            uint32_t       : 1;    // bit 6
+            uint32_t                                  : 1;    // bit 6
             /// Capture/Compare 2 output Polarity (CC2NP)
-            uint32_t cc2np : 1;    // bit 7
+            uint32_t capture_compare2_output_polarity : 1;    // bit 7
             /// Capture/Compare 3 output enable (CC3E)
-            uint32_t cc3e  : 1;    // bit 8
+            uint32_t capture_compare3_enable          : 1;    // bit 8
             /// Capture/Compare 3 output Polarity (CC3P)
-            uint32_t cc3p  : 1;    // bit 9
+            uint32_t capture_compare3_polarity        : 1;    // bit 9
             /// (reserved)
-            uint32_t       : 1;    // bit 10
+            uint32_t                                  : 1;    // bit 10
             /// Capture/Compare 3 output Polarity (CC3NP)
-            uint32_t cc3np : 1;    // bit 11
+            uint32_t capture_compare3_output_polarity : 1;    // bit 11
             /// Capture/Compare 4 output enable (CC4E)
-            uint32_t cc4e  : 1;    // bit 12
-            /// Capture/Compare 4 output Polarity (CC4P)
-            uint32_t cc4p  : 1;    // bit 13
+            uint32_t capture_compare4_enable          : 1;    // bit 12
+            /// Capture/Compare 3 output Polarity (CC4P)
+            uint32_t capture_compare4_polarity        : 1;    // bit 13
             /// (reserved)
-            uint32_t       : 1;    // bit 14
+            uint32_t                                  : 1;    // bit 14
             /// Capture/Compare 4 output Polarity (CC4NP)
-            uint32_t cc4np : 1;    // bit 15
+            uint32_t capture_compare4_output_polarity : 1;    // bit 15
             /// (reserved)
-            uint32_t       : 16;    // bits 16:31
+            uint32_t                                  : 16;    // bits 16:31
         };
         //+=MEMORY======================================+
         union {

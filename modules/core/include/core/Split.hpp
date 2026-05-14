@@ -22,6 +22,22 @@ struct Split final {
     /// The Storage type of the Split
     using StorageType = STORAGE_TYPE;
 
+    Split() = default;
+    Split(StorageType w)
+        : whole{w} {}
+    Split(StorageType lower, StorageType upper)
+        : parts{lower, upper} {}
+    Split(Split const&) = default;
+    Split(Split&&) = default;
+    Split& operator=(Split const& other) {
+        whole = other.whole;
+        return *this;
+    }
+    Split& operator=(Split&& other) {
+        whole = other.whole;
+        return *this;
+    }
+
     /// The structure holding the lower and upper parts
     struct Fields final {
         StorageType lower : SplitNumberOfBits;                          ///< The lower bits below the split

@@ -13,9 +13,9 @@
 namespace stm32 {
 namespace h7xx {
 
-/// Random number generator (RNG)
+/// RNG (RNG)
 struct RandomNumberGenerator final {
-    /// control register (CR)
+    /// RNG control register (CR)
     struct Control final {
         /// Default Constructor
         Control()
@@ -46,7 +46,13 @@ struct RandomNumberGenerator final {
             /// Interrupt enable (IE)
             uint32_t interrupt_enable               : 1;    // bit 3
             /// (reserved)
-            uint32_t                                : 28;    // bits 4:31
+            uint32_t                                : 1;    // bit 4
+            /// Clock error detection Note: The clock error detection can be used only when ck_rc48 or ck_pll1_q (ck_pll1_q = 48MHz) source is
+            /// selected otherwise, CED bit must be equal to 1. The clock error detection cannot be enabled nor disabled on the fly when RNG
+            /// peripheral is enabled, to enable or disable CED the RNG must be disabled. (CED)
+            uint32_t ced                            : 1;    // bit 5
+            /// (reserved)
+            uint32_t                                : 26;    // bits 6:31
         };
         //+=MEMORY======================================+
         union {
@@ -77,7 +83,7 @@ struct RandomNumberGenerator final {
     static_assert(std::is_standard_layout<Control>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
     static_assert(sizeof(Control) == 4UL, "Must be this exact size");
-    /// status register (SR)
+    /// RNG status register (SR)
     struct Status final {
         /// Default Constructor
         Status()
@@ -101,17 +107,22 @@ struct RandomNumberGenerator final {
 
         /// The internal bitfield for the register
         struct Fields final {
-            /// Data ready (DRDY)
+            /// Data ready Note: If IE=1 in RNG_CR, an interrupt is generated when DRDY=1. It can rise when the peripheral is disabled. When the
+            /// output buffer becomes empty (after reading RNG_DR), this bit returns to 0 until a new random value is generated. (DRDY)
             uint32_t data_ready                   : 1;    // bit 0
-            /// Clock error current status (CECS)
+            /// Clock error current status Note: This bit is meaningless if CED (Clock error detection) bit in RNG_CR is equal to 1. (CECS)
             uint32_t clock_error_current_status   : 1;    // bit 1
-            /// Seed error current status (SECS)
+            /// Seed error current status ** More than 64 consecutive bits at the same value (0 or 1) ** More than 32 consecutive alternances of 0 and
+            /// 1 (0101010101...01) (SECS)
             uint32_t seed_error_current_status    : 1;    // bit 2
             /// (reserved)
             uint32_t                              : 2;    // bits 3:4
-            /// Clock error interrupt status (CEIS)
+            /// Clock error interrupt status This bit is set at the same time as CECS. It is cleared by writing it to 0. An interrupt is pending if IE
+            /// = 1 in the RNG_CR register. Note: This bit is meaningless if CED (Clock error detection) bit in RNG_CR is equal to 1. (CEIS)
             uint32_t clock_error_interrupt_status : 1;    // bit 5
-            /// Seed error interrupt status (SEIS)
+            /// Seed error interrupt status This bit is set at the same time as SECS. It is cleared by writing it to 0. ** More than 64 consecutive
+            /// bits at the same value (0 or 1) ** More than 32 consecutive alternances of 0 and 1 (0101010101...01) An interrupt is pending if IE = 1
+            /// in the RNG_CR register. (SEIS)
             uint32_t seed_error_interrupt_status  : 1;    // bit 6
             /// (reserved)
             uint32_t                              : 25;    // bits 7:31
@@ -145,7 +156,8 @@ struct RandomNumberGenerator final {
     static_assert(std::is_standard_layout<Status>::value, "Must be standard layout");
     // Ensure the sizeof the entire register is correct.
     static_assert(sizeof(Status) == 4UL, "Must be this exact size");
-    /// data register (DR)
+    /// The RNG_DR register is a read-only register that delivers a 32-bit random value when read. The content of this register is valid when DRDY= 1,
+    /// even if RNGEN=0. (DR)
     struct Data final {
         /// Default Constructor
         Data()
@@ -169,7 +181,7 @@ struct RandomNumberGenerator final {
 
         /// The internal bitfield for the register
         struct Fields final {
-            /// Random data (RNDATA)
+            /// Random data 32-bit random data which are valid when DRDY=1. (RNDATA)
             uint32_t random_number_data : 32;    // bits 0:31
         };
         //+=MEMORY======================================+
@@ -203,11 +215,12 @@ struct RandomNumberGenerator final {
     static_assert(sizeof(Data) == 4UL, "Must be this exact size");
 
     //+=MEMORY======================================+
-    /// control register (CR)
+    /// RNG control register (CR)
     Control control;    // offset 0x0UL
-    /// status register (SR)
+    /// RNG status register (SR)
     Status status;    // offset 0x4UL
-    /// data register (DR)
+    /// The RNG_DR register is a read-only register that delivers a 32-bit random value when read. The content of this register is valid when DRDY= 1,
+    /// even if RNGEN=0. (DR)
     Data data;        // offset 0x8UL
     uint32_t : 32;    // offset 0xcUL
     uint32_t : 32;    // offset 0x10UL

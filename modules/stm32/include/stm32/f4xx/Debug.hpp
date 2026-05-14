@@ -116,13 +116,13 @@ struct Debug final {
             /// DBG_I2C2_SMBUS_TIMEOUT (DBG_I2C2_SMBUS_TIMEOUT)
             uint32_t dbg_i2c2_smbus_timeout : 1;    // bit 16
             /// DBG_TIM8_STOP (DBG_TIM8_STOP)
-            uint32_t dbg_tim8_stop          : 1;    // bit 17
+            uint32_t timer_8_stop_in_debug  : 1;    // bit 17
             /// DBG_TIM5_STOP (DBG_TIM5_STOP)
-            uint32_t dbg_tim5_stop          : 1;    // bit 18
+            uint32_t timer_5_stop_in_debug  : 1;    // bit 18
             /// DBG_TIM6_STOP (DBG_TIM6_STOP)
-            uint32_t dbg_tim6_stop          : 1;    // bit 19
+            uint32_t timer_6_stop_in_debug  : 1;    // bit 19
             /// DBG_TIM7_STOP (DBG_TIM7_STOP)
-            uint32_t dbg_tim7_stop          : 1;    // bit 20
+            uint32_t timer_7_stop_in_debug  : 1;    // bit 20
             /// (reserved)
             uint32_t                        : 11;    // bits 21:31
         };
@@ -180,23 +180,23 @@ struct Debug final {
         /// The internal bitfield for the register
         struct Fields final {
             /// DBG_TIM2_STOP (DBG_TIM2_STOP)
-            uint32_t dbg_tim2_stop          : 1;    // bit 0
+            uint32_t timer_2_stop_in_debug  : 1;    // bit 0
             /// DBG_TIM3 _STOP (DBG_TIM3_STOP)
-            uint32_t dbg_tim3_stop          : 1;    // bit 1
+            uint32_t timer_3_stop_in_debug  : 1;    // bit 1
             /// DBG_TIM4_STOP (DBG_TIM4_STOP)
-            uint32_t dbg_tim4_stop          : 1;    // bit 2
+            uint32_t timer_4_stop_in_debug  : 1;    // bit 2
             /// DBG_TIM5_STOP (DBG_TIM5_STOP)
-            uint32_t dbg_tim5_stop          : 1;    // bit 3
+            uint32_t timer_5_stop_in_debug  : 1;    // bit 3
             /// DBG_TIM6_STOP (DBG_TIM6_STOP)
-            uint32_t dbg_tim6_stop          : 1;    // bit 4
+            uint32_t timer_6_stop_in_debug  : 1;    // bit 4
             /// DBG_TIM7_STOP (DBG_TIM7_STOP)
-            uint32_t dbg_tim7_stop          : 1;    // bit 5
+            uint32_t timer_7_stop_in_debug  : 1;    // bit 5
             /// DBG_TIM12_STOP (DBG_TIM12_STOP)
-            uint32_t dbg_tim12_stop         : 1;    // bit 6
+            uint32_t timer_12_stop_in_debug : 1;    // bit 6
             /// DBG_TIM13_STOP (DBG_TIM13_STOP)
-            uint32_t dbg_tim13_stop         : 1;    // bit 7
+            uint32_t timer_13_stop_in_debug : 1;    // bit 7
             /// DBG_TIM14_STOP (DBG_TIM14_STOP)
-            uint32_t dbg_tim14_stop         : 1;    // bit 8
+            uint32_t timer_14_stop_in_debug : 1;    // bit 8
             /// (reserved)
             uint32_t                        : 2;    // bits 9:10
             /// DBG_WWDG_STOP (DBG_WWDG_STOP)
@@ -274,19 +274,19 @@ struct Debug final {
         /// The internal bitfield for the register
         struct Fields final {
             /// TIM1 counter stopped when core is halted (DBG_TIM1_STOP)
-            uint32_t dbg_tim1_stop  : 1;    // bit 0
+            uint32_t timer_1_stop_in_debug  : 1;    // bit 0
             /// TIM8 counter stopped when core is halted (DBG_TIM8_STOP)
-            uint32_t dbg_tim8_stop  : 1;    // bit 1
+            uint32_t timer_8_stop_in_debug  : 1;    // bit 1
             /// (reserved)
-            uint32_t                : 14;    // bits 2:15
+            uint32_t                        : 14;    // bits 2:15
             /// TIM9 counter stopped when core is halted (DBG_TIM9_STOP)
-            uint32_t dbg_tim9_stop  : 1;    // bit 16
+            uint32_t timer_9_stop_in_debug  : 1;    // bit 16
             /// TIM10 counter stopped when core is halted (DBG_TIM10_STOP)
-            uint32_t dbg_tim10_stop : 1;    // bit 17
+            uint32_t timer_10_stop_in_debug : 1;    // bit 17
             /// TIM11 counter stopped when core is halted (DBG_TIM11_STOP)
-            uint32_t dbg_tim11_stop : 1;    // bit 18
+            uint32_t timer_11_stop_in_debug : 1;    // bit 18
             /// (reserved)
-            uint32_t                : 13;    // bits 19:31
+            uint32_t                        : 13;    // bits 19:31
         };
         //+=MEMORY======================================+
         union {

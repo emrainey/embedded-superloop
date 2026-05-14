@@ -4,6 +4,7 @@
 #include "cortex/vectors.hpp"
 #include "stm32/Initialize.hpp"
 
+#include "stm32/h7xx/PowerController.hpp"
 #include "stm32/peripherals.hpp"
 
 namespace stm32 {
@@ -34,7 +35,8 @@ std::uint32_t system_clock_switch_counter{0u};
 
 void clocks(void) {
     auto& cfg = stm32::default_clock_configuration;
-    if ((cfg.pll_m < 2 or 63 < cfg.pll_m) or (cfg.pll_n < 50 or 432 < cfg.pll_n) or (cfg.pll_q < 2 or 15 < cfg.pll_q)) {
+    if ((cfg.pll_m < 1U or 63U < cfg.pll_m) or (cfg.pll_n < 4U or 512U < cfg.pll_n) or (cfg.pll_p < 1U or 128U < cfg.pll_p) or
+        (cfg.pll_q < 1U or 128U < cfg.pll_q) or (cfg.pll_r < 1U or 128U < cfg.pll_r)) {
         // The PLL values is out of range
         cortex::spinhalt();
     }
@@ -44,46 +46,43 @@ void clocks(void) {
 static std::uint32_t GetAHBDivider(std::uint32_t value) {
     switch (value) {
         case 0b0000:
-            return 1U;
-        case 0b0001:
-            return 2U;
-        case 0b0010:
-            return 4U;
-        case 0b0011:
-            return 8U;
-        case 0b0100:
-            return 16U;
-        case 0b0101:
-            return 64U;
-        case 0b0110:
-            return 128U;
-        case 0b0111:
-            return 256U;
         case 0b1000:
+            return 2U;
+        case 0b1001:
+            return 4U;
+        case 0b1010:
+            return 8U;
+        case 0b1011:
+            return 16U;
+        case 0b1100:
+            return 64U;
+        case 0b1101:
+            return 128U;
+        case 0b1110:
+            return 256U;
+        case 0b1111:
             return 512U;
         default:
             return 1U;
     }
 }
 
-static std::uint32_t GetAPB1Divider(std::uint32_t value) {
+static std::uint32_t GetD1CoreDivider(std::uint32_t value) {
     switch (value) {
-        case 0b000:
-            return 1U;
-        case 0b100:
+        case 0b1000:
             return 2U;
-        case 0b101:
+        case 0b1001:
             return 4U;
-        case 0b110:
+        case 0b1010:
             return 8U;
-        case 0b111:
+        case 0b1011:
             return 16U;
         default:
             return 1U;
     }
 }
 
-static std::uint32_t GetAPB2Divider(std::uint32_t value) {
+static std::uint32_t GetAPBDivider(std::uint32_t value) {
     switch (value) {
         case 0b000:
             return 1U;
@@ -104,99 +103,149 @@ static std::uint32_t GetAPB2Divider(std::uint32_t value) {
 void clocks(ClockConfiguration const& clkcfg) {
     using namespace stm32::peripherals;
     using namespace core::units;
+    constexpr std::uint32_t pll1_system_clock_switch = 0b011U;
+    constexpr std::uint32_t mco1_hsi = 0b000U;
+    constexpr std::uint32_t mco1_hse = 0b010U;
+    constexpr std::uint32_t mco2_system_clock = 0b000U;
+    constexpr Hertz csi_oscillator_frequency = 4_MHz;
 
-    if (reset_and_clock_control.configuration.bits.system_clock_switch_status ==
-        ResetAndClockControl::Configuration::SystemClockSwitch::PhaseLockLoopClock) {
+    if (reset_and_clock_control.configuration.bits.system_clock_switch_status == pll1_system_clock_switch) {
         // we're already using the PLL, so don't change anything
         return;
     }
 
-    // Set the Flash Latency so that we can run at the top speed
+    // Set flash wait states for high-speed operation before increasing clocks.
     FlashControl::AccessControl access_control;
     access_control = flash_control.access_control;    // read
     access_control.bits.latency = 5U;
-    access_control.bits.prefetch_enable = 1U;
-    access_control.bits.instruction_cache_enable = 1U;
-    access_control.bits.data_cache_enable = 1U;
+    access_control.bits.wrhighfreq = 0b10U;
     flash_control.access_control = access_control;    // write
 
     ResetAndClockControl::Control control;
     ResetAndClockControl::Configuration config;
+    ResetAndClockControl::Domain1ClockConfiguration d1cfg;
+    ResetAndClockControl::Domain2ClockConfiguration d2cfg;
+    ResetAndClockControl::Domain3ClockConfiguration d3cfg;
+    ResetAndClockControl::PllClockSourceSelection pll_source;
+    ResetAndClockControl::Pll1DividerConfiguration pll_divider;
+    ResetAndClockControl::Pll1FractionalConfiguration pll_fractional;
+
+    bool const use_hsi = (clkcfg.pll_source == 0U) or clkcfg.use_internal;
+    bool const use_csi = (clkcfg.pll_source == 1U) or clkcfg.use_csi;
+    bool const use_hse = (clkcfg.pll_source == 2U) or (not clkcfg.use_internal);
+
+    // Configure D3 voltage scaling before clock ramp.
+    h7xx::PowerController::Domain3Control pwr_d3_control;
+    pwr_d3_control = h7xx::power_controller.domain3_control;
+    pwr_d3_control.bits.voltage_scaling_selection = clkcfg.voltage_scaling;
+    h7xx::power_controller.domain3_control = pwr_d3_control;
+    do {
+        pwr_d3_control = h7xx::power_controller.domain3_control;
+    } while (pwr_d3_control.bits.voltage_scaling_output_ready == 0U);
 
     control = reset_and_clock_control.control;    // read
-    if (clkcfg.use_internal) {
-        control.bits.high_speed_external_bypass = 0;
-        control.bits.high_speed_external_enable = 0;
-        control.bits.high_speed_internal_enable = 1;
-        clock_tree.pll_input = high_speed_internal_oscillator_frequency;
-    } else {
-        control.bits.high_speed_external_bypass = (clkcfg.use_bypass ? 1 : 0);
-        control.bits.high_speed_external_enable = 1;
-        control.bits.high_speed_internal_enable = 0;
-        clock_tree.pll_input = clkcfg.external_clock_frequency;    // take from configuration
-    }
-    reset_and_clock_control.control = control;                     // write
+    control.bits.high_speed_external_bypass = (use_hse and clkcfg.use_bypass) ? 1U : 0U;
+    control.bits.high_speed_external_enable = use_hse ? 1U : 0U;
+    control.bits.high_speed_internal_enable = use_hsi ? 1U : 0U;
+    control.bits.low_power_internal_oscillator_enable = use_csi ? 1U : 0U;
+    reset_and_clock_control.control = control;    // write
 
-    if (clkcfg.use_internal) {
+    if (use_hsi) {
         do {
             control = reset_and_clock_control.control;    // read
             high_speed_stabilization_counter++;
         } while (control.bits.high_speed_internal_ready == 0);
-    } else {
+    }
+    if (use_hse) {
         do {
             control = reset_and_clock_control.control;    // read
             high_speed_stabilization_counter++;
         } while (control.bits.high_speed_external_ready == 0);
     }
-    config.bits.system_clock_switch = ResetAndClockControl::Configuration::SystemClockSwitch::PhaseLockLoopClock;    // switch to the PLL
-    config.bits.ahb_prescaler = clkcfg.ahb_divider;
-    config.bits.apb1_prescaler = clkcfg.apb1_low_speed_divider;
-    config.bits.apb2_prescaler = clkcfg.apb2_high_speed_divider;
-    if (clkcfg.use_internal) {
-        config.bits.clock1_source = ResetAndClockControl::Configuration::Clock1Source::HighSpeedInternalClock;
-    } else {
-        config.bits.clock1_source = ResetAndClockControl::Configuration::Clock1Source::HighSpeedExternalClock;
+    if (use_csi) {
+        do {
+            control = reset_and_clock_control.control;    // read
+            high_speed_stabilization_counter++;
+        } while (control.bits.low_power_internal_oscillator_ready == 0);
     }
-    config.bits.mco1_prescaler = clkcfg.mcu_clock1_divider;
-    config.bits.clock2_source = ResetAndClockControl::Configuration::Clock2Source::SystemClock;
-    config.bits.mco2_prescaler = clkcfg.mcu_clock2_divider;
+
+    if (clkcfg.pll_source == 0U) {
+        clock_tree.pll_input = high_speed_internal_oscillator_frequency;
+    } else if (clkcfg.pll_source == 1U) {
+        clock_tree.pll_input = csi_oscillator_frequency;
+    } else {
+        clock_tree.pll_input = clkcfg.external_clock_frequency;
+    }
+
+    config = reset_and_clock_control.configuration;    // read
     config.bits.real_time_clock_prescaler = clkcfg.rtc_divider;
+    config.bits.mco1_prescaler = clkcfg.mcu_clock1_divider;
+    config.bits.mco1_selection = clkcfg.use_internal ? mco1_hsi : mco1_hse;
+    config.bits.mco2_prescaler = clkcfg.mcu_clock2_divider;
+    config.bits.mco2_selection = mco2_system_clock;
+
+    d1cfg = reset_and_clock_control.domain1_clock_configuration;
+    d1cfg.bits.domain1_core_prescaler = clkcfg.d1_core_prescaler;
+    d1cfg.bits.ahb_prescaler = clkcfg.ahb_divider;
+    d1cfg.bits.domain1_peripheral_prescaler = clkcfg.apb3_divider;
+
+    d2cfg = reset_and_clock_control.domain2_clock_configuration;
+    d2cfg.bits.domain2_peripheral1_prescaler = clkcfg.apb1_low_speed_divider;
+    d2cfg.bits.domain2_peripheral2_prescaler = clkcfg.apb2_high_speed_divider;
+
+    d3cfg = reset_and_clock_control.domain3_clock_configuration;
+    d3cfg.bits.domain3_peripheral_prescaler = clkcfg.apb4_divider;
+
+    pll_source = reset_and_clock_control.pll_clock_source_selection;
+    pll_source.bits.main_pll_source = clkcfg.pll_source;
+    pll_source.bits.pll1_input_divider = clkcfg.pll_m;
 
     // Set the PLL Configuration
     ResetAndClockControl::PhaseLockLoopConfiguration pll_config;
     pll_config = reset_and_clock_control.pll_configuration;    // read
-    pll_config.bits.main_pll_input_divisor = clkcfg.pll_m;
-    pll_config.bits.main_pll_vco_scalar = clkcfg.pll_n;
-    pll_config.bits.main_pll_divider = clkcfg.pll_p;
-    pll_config.bits.main_pll_divider2 = clkcfg.pll_q;
-    if (clkcfg.use_internal) {
-        pll_config.bits.main_pll_source = ResetAndClockControl::PhaseLockLoopConfiguration::MainPLLSource::HighSpeedInternalClock;
-    } else {
-        pll_config.bits.main_pll_source = ResetAndClockControl::PhaseLockLoopConfiguration::MainPLLSource::HighSpeedExternalClock;
-    }
-    reset_and_clock_control.pll_configuration = pll_config;    // save value
+    pll_config.bits.divider_p1_enable = 1U;
+    pll_config.bits.divider_q1_enable = 1U;
+    pll_config.bits.divider_r1_enable = 1U;
+    pll_config.bits.pll1_fractional_enable = clkcfg.use_pll_fracn ? 1U : 0U;
 
-    // save value
+    pll_divider = reset_and_clock_control.pll1_divider_configuration;
+    // the clock variables should be preadjusted
+    pll_divider.bits.divider_n1 = clkcfg.pll_n;
+    pll_divider.bits.divider_p1 = clkcfg.pll_p;
+    pll_divider.bits.divider_q1 = clkcfg.pll_q;
+    pll_divider.bits.divider_r1 = clkcfg.pll_r;
+
+    pll_fractional = reset_and_clock_control.pll1_fractional_configuration;
+    pll_fractional.bits.fractional_n1 = clkcfg.pll_fracn;
+
+    reset_and_clock_control.pll_clock_source_selection = pll_source;
+    reset_and_clock_control.pll_configuration = pll_config;
+    reset_and_clock_control.pll1_divider_configuration = pll_divider;
+    reset_and_clock_control.pll1_fractional_configuration = pll_fractional;
+
+    reset_and_clock_control.domain1_clock_configuration = d1cfg;
+    reset_and_clock_control.domain2_clock_configuration = d2cfg;
+    reset_and_clock_control.domain3_clock_configuration = d3cfg;
     reset_and_clock_control.configuration = config;
 
     control = reset_and_clock_control.control;    // read
-    control.bits.main_pll_enable = 1U;            // enable PLL
+    control.bits.pll1_enable = 1U;                // enable PLL1
     reset_and_clock_control.control = control;    // write
 
     // Wait for PLL Ready
     do {
         control = reset_and_clock_control.control;    // read
         pll_clock_stabilization_counter++;
-    } while (control.bits.main_pll_ready == 0);
+    } while (control.bits.pll1_ready == 0);
 
-    // Choose the PLL as the system clock
+    // Choose PLL1 as the system clock
     config = reset_and_clock_control.configuration;        // read
-    config.bits.system_clock_switch = ResetAndClockControl::Configuration::SystemClockSwitch::PhaseLockLoopClock;
+    config.bits.system_clock_switch = pll1_system_clock_switch;
     reset_and_clock_control.configuration = config;        // write
     do {
         config = reset_and_clock_control.configuration;    // read
         system_clock_switch_counter++;
-    } while (config.bits.system_clock_switch_status != ResetAndClockControl::Configuration::SystemClockSwitch::PhaseLockLoopClock);
+    } while (config.bits.system_clock_switch_status != pll1_system_clock_switch);
 
     // Compute the Clock Tree values from what we just set
     clock_tree.low_speed_internal = low_speed_internal_oscillator_frequency;
@@ -206,25 +255,27 @@ void clocks(ClockConfiguration const& clkcfg) {
 
     std::uint32_t pllm = clkcfg.pll_m;
     std::uint32_t plln = clkcfg.pll_n;
-    std::uint32_t pllp = (clkcfg.pll_p * 2U) + 2U;
+    std::uint32_t pllp = clkcfg.pll_p;
     std::uint32_t pllq = clkcfg.pll_q;
+    std::uint32_t d1cpre = GetD1CoreDivider(clkcfg.d1_core_prescaler);
+    std::uint32_t hpre = GetAHBDivider(clkcfg.ahb_divider);
     // VCO = F_in * (N/M) but if N *F_in is too large (exceeds 32 bits), then we need to divide first
     clock_tree.pll_vco = (clock_tree.pll_input / pllm) * plln;
     clock_tree.pll_output = clock_tree.pll_vco / pllp;
     clock_tree.pll_48ck = clock_tree.pll_vco / pllq;
-    // we want to have the system clock be the
+    // SYSCLK is sourced from PLL1P.
     clock_tree.sysclk = clock_tree.pll_output;
     clock_tree.eth_ptp = clock_tree.sysclk;
-    clock_tree.fclk = clock_tree.sysclk / GetAHBDivider(clkcfg.ahb_divider);
-    clock_tree.hclk = clock_tree.fclk;
+    clock_tree.fclk = clock_tree.sysclk / d1cpre;
+    clock_tree.hclk = clock_tree.fclk / hpre;
     clock_tree.system_timer = clock_tree.fclk / 8U;
-    clock_tree.apb1_peripheral = clock_tree.hclk / GetAPB1Divider(clkcfg.apb1_low_speed_divider);
-    clock_tree.apb2_peripheral = clock_tree.hclk / GetAPB2Divider(clkcfg.apb2_high_speed_divider);
+    clock_tree.apb1_peripheral = clock_tree.hclk / GetAPBDivider(clkcfg.apb1_low_speed_divider);
+    clock_tree.apb2_peripheral = clock_tree.hclk / GetAPBDivider(clkcfg.apb2_high_speed_divider);
     clock_tree.rtc = clock_tree.high_speed_external / clkcfg.rtc_divider;
     clock_tree.apb1_timer_clk =
-        clock_tree.apb1_peripheral * (GetAPB1Divider(clkcfg.apb1_low_speed_divider) == 1 ? 1U : 2U);     // APB1 is doubled if the divider is not 1
+        clock_tree.apb1_peripheral * (GetAPBDivider(clkcfg.apb1_low_speed_divider) == 1 ? 1U : 2U);     // APB1 is doubled if the divider is not 1
     clock_tree.apb2_timer_clk =
-        clock_tree.apb2_peripheral * (GetAPB2Divider(clkcfg.apb2_high_speed_divider) == 1 ? 1U : 2U);    // APB2 is doubled if the divider is not 1
+        clock_tree.apb2_peripheral * (GetAPBDivider(clkcfg.apb2_high_speed_divider) == 1 ? 1U : 2U);    // APB2 is doubled if the divider is not 1
     // clock_tree.rng = clock_tree.sysclk;
 }
 

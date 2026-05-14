@@ -59,7 +59,7 @@ add_module(NAME stm32
 
 add_module(NAME stm32-spi-driver
     SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/spi/Driver.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32f4xx/spi/Driver.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
     LIBRARIES
@@ -69,14 +69,50 @@ add_module(NAME stm32-spi-driver
     ARCH
         cortex
     CHIPS
-        stm32f405rg stm32f407ve stm32h753zi
+        stm32f405rg stm32f407ve
+    CONFIGURATIONS
+        ${TARGET_CONFIGURATIONS}
+)
+
+
+add_module(NAME stm32-spi-driver
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32h7xx/spi/Driver.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+    LIBRARIES
+        jarnax-interfaces
+    GENERIC_MODULES
+        core
+    ARCH
+        cortex
+    CHIPS
+        stm32h753zi
+    CONFIGURATIONS
+        ${TARGET_CONFIGURATIONS}
+)
+
+
+add_module(NAME stm32-i2c-driver
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32f4xx/i2c/Driver.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+    LIBRARIES
+        jarnax-interfaces
+    GENERIC_MODULES
+        core
+    ARCH
+        cortex
+    CHIPS
+        stm32f405rg stm32f407ve
     CONFIGURATIONS
         ${TARGET_CONFIGURATIONS}
 )
 
 add_module(NAME stm32-i2c-driver
     SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/i2c/Driver.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32h7xx/i2c/Driver.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
     LIBRARIES
@@ -86,14 +122,14 @@ add_module(NAME stm32-i2c-driver
     ARCH
         cortex
     CHIPS
-        stm32f405rg stm32f407ve stm32h753zi
+        stm32h753zi
     CONFIGURATIONS
         ${TARGET_CONFIGURATIONS}
 )
 
 add_module(NAME stm32-uart-driver
     SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/uart/Driver.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32f4xx/uart/Driver.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
     LIBRARIES
@@ -103,14 +139,15 @@ add_module(NAME stm32-uart-driver
     ARCH
         cortex
     CHIPS
-        stm32f405rg stm32f407ve stm32h753zi
+        stm32f405rg stm32f407ve
+        # stm32h753zi doesn't have any!
     CONFIGURATIONS
         ${TARGET_CONFIGURATIONS}
 )
 
 add_module(NAME stm32-usart-driver
     SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/usart/Driver.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32f4xx/usart/Driver.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
     LIBRARIES
@@ -120,7 +157,24 @@ add_module(NAME stm32-usart-driver
     ARCH
         cortex
     CHIPS
-        stm32f405rg stm32f407ve stm32h753zi
+        stm32f405rg stm32f407ve
+    CONFIGURATIONS
+        ${TARGET_CONFIGURATIONS}
+)
+
+add_module(NAME stm32-usart-driver
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32h7xx/usart/Driver.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+    LIBRARIES
+        jarnax-interfaces
+    GENERIC_MODULES
+        core
+    ARCH
+        cortex
+    CHIPS
+        stm32h753zi
     CONFIGURATIONS
         ${TARGET_CONFIGURATIONS}
 )

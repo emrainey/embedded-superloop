@@ -39,11 +39,11 @@ ISR void spi1_isr(void);
 ISR void spi2_isr(void);
 ISR void spi3_isr(void);
 
+#if defined(STM32F4)
 /// UART4 ISR Handlers
 ISR void uart4_isr(void);
 /// UART5 ISR Handlers
 ISR void uart5_isr(void);
-#if defined(STM32H7)
 /// UART7 ISR Handlers
 ISR void uart7_isr(void);
 /// UART8 ISR Handlers
@@ -58,6 +58,17 @@ ISR void usart2_isr(void);
 ISR void usart3_isr(void);
 /// USART6 ISR Handler
 ISR void usart6_isr(void);
+
+#if defined(STM32H7)
+/// USART4 ISR Handlers
+ISR void usart4_isr(void);
+/// USART5 ISR Handlers
+ISR void usart5_isr(void);
+/// USART7 ISR Handlers
+ISR void usart7_isr(void);
+/// USART8 ISR Handlers
+ISR void usart8_isr(void);
+#endif
 
 /// I2C1 ISR Handler
 ISR void i2c1_event_isr(void);

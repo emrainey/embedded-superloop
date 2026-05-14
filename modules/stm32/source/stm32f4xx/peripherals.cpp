@@ -20,9 +20,6 @@ Debug volatile debug;
 SerialPeripheralInterface volatile spi1;
 SerialPeripheralInterface volatile spi2;
 SerialPeripheralInterface volatile spi3;
-SerialPeripheralInterface volatile spi4;
-SerialPeripheralInterface volatile spi5;
-SerialPeripheralInterface volatile spi6;
 DirectMemoryAccess volatile direct_memory_access[NumberOfDmaControllers];
 UniversalSynchronousAsynchronousReceiverTransmitter volatile usart1;
 UniversalSynchronousAsynchronousReceiverTransmitter volatile usart2;
@@ -36,6 +33,9 @@ InterIntegratedCircuit volatile i2c1;
 InterIntegratedCircuit volatile i2c2;
 InterIntegratedCircuit volatile i2c3;
 }    // namespace f4xx
+namespace peripherals {
+using namespace stm32::f4xx;
+}    // namespace peripherals
 }    // namespace stm32
 
 #endif    // UNITTEST

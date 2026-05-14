@@ -15,6 +15,18 @@ namespace f4xx {
 
 /// Serial peripheral interface
 struct SerialPeripheralInterface final {
+    /// Baud Rate Divider
+    enum class BaudRateDivider : uint32_t {
+        By2 = 0U,      ///< f_pclk / 2
+        By4 = 1U,      ///< f_pclk / 4
+        By8 = 2U,      ///< f_pclk / 8
+        By16 = 3U,     ///< f_pclk / 16
+        By32 = 4U,     ///< f_pclk / 32
+        By64 = 5U,     ///< f_pclk / 64
+        By128 = 6U,    ///< f_pclk / 128
+        By256 = 7U,    ///< f_pclk / 256
+    };
+
     /// control register 1 (CR1)
     struct Control1 final {
         /// Default Constructor
@@ -76,17 +88,6 @@ struct SerialPeripheralInterface final {
             uint32_t whole;
         };
         //+=MEMORY======================================+
-        /// Baud Rate Divider
-        enum class BaudRateDivider : uint32_t {
-            By2 = 0U,      ///< f_pclk / 2
-            By4 = 1U,      ///< f_pclk / 4
-            By8 = 2U,      ///< f_pclk / 8
-            By16 = 3U,     ///< f_pclk / 16
-            By32 = 4U,     ///< f_pclk / 32
-            By64 = 5U,     ///< f_pclk / 64
-            By128 = 6U,    ///< f_pclk / 128
-            By256 = 7U,    ///< f_pclk / 256
-        };
         /// Converts the baud rate divider to a uint32_t divisor
         inline uint32_t baud_rate_divider(void) const { return (1U << (bits.baud_rate + 1U)); }
         /// Move Assignment is deleted

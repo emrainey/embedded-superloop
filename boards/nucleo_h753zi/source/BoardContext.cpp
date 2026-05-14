@@ -17,21 +17,31 @@ LINKER_SECTION(".dma_buffers") alignas(alignof(std::max_align_t)) static core::A
 static core::BitMapHeap<DmaBlockSize, DmaBlockCount> dma_heap_allocator{&dma_memory[0], dma_memory.size()};
 
 /// @brief The Clock configuration for this board.
+/// @note HSI @ 64 MHz: M=8 -> 8 MHz VCO input, N=100 -> 800 MHz VCO, P=2 -> 400 MHz sys_ck, Q=4, R=8
 ClockConfiguration const default_clock_configuration = {
     /* .use_internal = */ true,
     /* .use_bypass = */ false,
-    /* .external_clock_frequency */ high_speed_external_oscillator_frequency,
-    /* .low_speed_external_oscillator_frequency */ low_speed_external_oscillator_frequency,
-    /* .ahb_divider = */ 0b0000,               // /1
+    /* .use_csi = */ false,
+    /* .use_pll_fracn = */ false,
+    /* .external_clock_frequency = */ high_speed_external_oscillator_frequency,
+    /* .low_speed_external_oscillator_frequency = */ low_speed_external_oscillator_frequency,
+    /* .voltage_scaling = */ 0b11,             // VOS1 (up to 400 MHz without VOS0 boost)
+    /* .d1_core_prescaler = */ 0b0000,         // /1 (cpu_ck = sys_ck)
+    /* .ahb_divider = */ 0b0000,               // /1 (hclk = sys_ck)
     /* .apb1_low_speed_divider = */ 0b101,     // /4
     /* .apb2_high_speed_divider = */ 0b100,    // /2
+    /* .apb3_divider = */ 0b100,               // /2
+    /* .apb4_divider = */ 0b100,               // /2
     /* .mcu_clock1_divider = */ 0b111,         // /5
     /* .mcu_clock2_divider = */ 0b111,         // /5
-    /* .rtc_divider = */ 8,
-    /* .pll_m = */ 8,
-    /* .pll_n = */ 336,
-    /* .pll_p = */ 0b00,    // /2
-    /* .pll_q = */ 7
+    /* .rtc_divider = */ 8U,                   // /9 (40 kHz clock for RTC)
+    /* .pll_source = */ 0U,                    // HSI
+    /* .pll_m = */ 8U,                         // 64 MHz / 8 = 8 MHz
+    /* .pll_n = */ 100U - 1U,                  // 8 MHz * 100 = 800 MHz VCO
+    /* .pll_p = */ 2U - 1U,                    // 800 MHz / 2 = 400 MHz sys_ck
+    /* .pll_q = */ 4U - 1U,                    // 800 MHz / 4 = 200 MHz
+    /* .pll_r = */ 8U - 1U,                    // 800 MHz / 8 = 100 MHz
+    /* .pll_fracn = */ 0
 };
 
 }    // namespace stm32
@@ -197,7 +207,7 @@ core::Status BoardContext::Initialize(void) {
 
     stm32::h7xx::ResetAndClockControl::AHB1PeripheralClockEnable ahb1_enable;
     stm32::h7xx::ResetAndClockControl::AHB2PeripheralClockEnable ahb2_enable;
-    stm32::h7xx::ResetAndClockControl::APB1PeripheralClockEnable apb1_enable;
+    stm32::h7xx::ResetAndClockControl::APB1LowClockEnable apb1_enable;
     stm32::h7xx::ResetAndClockControl::APB2PeripheralClockEnable apb2_enable;
 
     // Enable the RNG in the AHB2 Periperhals
@@ -214,12 +224,12 @@ core::Status BoardContext::Initialize(void) {
     stm32::h7xx::reset_and_clock_control.ahb2_peripheral_reset = reset;    // write
 
     // enable the APB1 peripherals in the Reset and Clock Control register
-    apb1_enable = stm32::h7xx::reset_and_clock_control.apb1_peripheral_clock_enable;    // read
-    apb1_enable.bits.timer2_enable = 1U;                                                // modify
-    apb1_enable.bits.i2c1_enable = 1U;                                                  // modify
-    apb1_enable.bits.i2c2_enable = 1U;                                                  // modify
-    apb1_enable.bits.usart3_enable = 1U;                                                // modify
-    stm32::h7xx::reset_and_clock_control.apb1_peripheral_clock_enable = apb1_enable;    // write
+    apb1_enable = stm32::h7xx::reset_and_clock_control.apb1_low_clock_enable;    // read
+    apb1_enable.bits.timer2_enable = 1U;                                         // modify
+    apb1_enable.bits.i2c1_enable = 1U;                                           // modify
+    apb1_enable.bits.i2c2_enable = 1U;                                           // modify
+    apb1_enable.bits.usart3_enable = 1U;                                         // modify
+    stm32::h7xx::reset_and_clock_control.apb1_low_clock_enable = apb1_enable;    // write
 
     // enable the AHB1 peripherals in the Reset and Clock Control register
     ahb1_enable = stm32::h7xx::reset_and_clock_control.ahb1_peripheral_clock_enable;    // read
@@ -387,43 +397,43 @@ namespace initialize {
 void gpio(void) {
     using namespace stm32::peripherals;
     // Enable GPIO Clocks (for the ones enabled per board)
-    ResetAndClockControl::AHB1PeripheralClockEnable ahb1_enable;
-    ResetAndClockControl::AHB1PeripheralReset ahb1_reset;
+    ResetAndClockControl::AHB4ClockEnable ahb4_enable;
+    ResetAndClockControl::AHB4Reset ahb4_reset;
 
-    ahb1_enable = reset_and_clock_control.ahb1_peripheral_clock_enable;    // load
-    ahb1_enable.bits.gpioa_enable = 1U;
-    ahb1_enable.bits.gpiob_enable = 1U;
-    ahb1_enable.bits.gpioc_enable = 1U;
-    ahb1_enable.bits.gpiod_enable = 1U;
-    ahb1_enable.bits.gpioe_enable = 1U;
-    ahb1_enable.bits.gpiof_enable = 1U;
-    ahb1_enable.bits.gpiog_enable = 1U;
-    ahb1_enable.bits.gpioh_enable = 1U;
-    ahb1_enable.bits.gpioi_enable = 1U;
-    reset_and_clock_control.ahb1_peripheral_clock_enable = ahb1_enable;    // store
+    ahb4_enable = reset_and_clock_control.ahb4_clock_enable;    // load
+    ahb4_enable.bits.gpioa_enable = 1U;
+    ahb4_enable.bits.gpiob_enable = 1U;
+    ahb4_enable.bits.gpioc_enable = 1U;
+    ahb4_enable.bits.gpiod_enable = 1U;
+    ahb4_enable.bits.gpioe_enable = 1U;
+    ahb4_enable.bits.gpiof_enable = 1U;
+    ahb4_enable.bits.gpiog_enable = 1U;
+    ahb4_enable.bits.gpioh_enable = 1U;
+    ahb4_enable.bits.gpioi_enable = 1U;
+    reset_and_clock_control.ahb4_clock_enable = ahb4_enable;    // store
     // Reset GPIO Ports
-    ahb1_reset = reset_and_clock_control.ahb1_peripheral_reset;    // load
-    ahb1_reset.bits.gpioa_reset = 1U;
-    ahb1_reset.bits.gpiob_reset = 1U;
-    ahb1_reset.bits.gpioc_reset = 1U;
-    ahb1_reset.bits.gpiod_reset = 1U;
-    ahb1_reset.bits.gpioe_reset = 1U;
-    ahb1_reset.bits.gpiof_reset = 1U;
-    ahb1_reset.bits.gpiog_reset = 1U;
-    ahb1_reset.bits.gpioh_reset = 1U;
-    ahb1_reset.bits.gpioi_reset = 1U;
-    reset_and_clock_control.ahb1_peripheral_reset = ahb1_reset;    // store
+    ahb4_reset = reset_and_clock_control.ahb4_reset;    // load
+    ahb4_reset.bits.gpioa_reset = 1U;
+    ahb4_reset.bits.gpiob_reset = 1U;
+    ahb4_reset.bits.gpioc_reset = 1U;
+    ahb4_reset.bits.gpiod_reset = 1U;
+    ahb4_reset.bits.gpioe_reset = 1U;
+    ahb4_reset.bits.gpiof_reset = 1U;
+    ahb4_reset.bits.gpiog_reset = 1U;
+    ahb4_reset.bits.gpioh_reset = 1U;
+    ahb4_reset.bits.gpioi_reset = 1U;
+    reset_and_clock_control.ahb4_reset = ahb4_reset;    // store
     // Release GPIO Ports
-    ahb1_reset.bits.gpioa_reset = 0U;
-    ahb1_reset.bits.gpiob_reset = 0U;
-    ahb1_reset.bits.gpioc_reset = 0U;
-    ahb1_reset.bits.gpiod_reset = 0U;
-    ahb1_reset.bits.gpioe_reset = 0U;
-    ahb1_reset.bits.gpiof_reset = 0U;
-    ahb1_reset.bits.gpiog_reset = 0U;
-    ahb1_reset.bits.gpioh_reset = 0U;
-    ahb1_reset.bits.gpioi_reset = 0U;
-    reset_and_clock_control.ahb1_peripheral_reset = ahb1_reset;    // store
+    ahb4_reset.bits.gpioa_reset = 0U;
+    ahb4_reset.bits.gpiob_reset = 0U;
+    ahb4_reset.bits.gpioc_reset = 0U;
+    ahb4_reset.bits.gpiod_reset = 0U;
+    ahb4_reset.bits.gpioe_reset = 0U;
+    ahb4_reset.bits.gpiof_reset = 0U;
+    ahb4_reset.bits.gpiog_reset = 0U;
+    ahb4_reset.bits.gpioh_reset = 0U;
+    ahb4_reset.bits.gpioi_reset = 0U;
+    reset_and_clock_control.ahb4_reset = ahb4_reset;    // store
 }
 
 bool drivers(void) {

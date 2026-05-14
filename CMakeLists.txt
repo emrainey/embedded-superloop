@@ -75,6 +75,7 @@ add_family(FAMILY stm32h7xx
     ARCHITECTURE armv7e-m
     PRECISION DOUBLE
     NAMESPACE h7xx
+    DEFINES STM32H7_REV_V
 )
 
 add_chip(NAME stm32h753zi

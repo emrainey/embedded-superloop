@@ -70,7 +70,7 @@ Driver::Driver(
     }
 }
 
-stm32::peripherals::SerialPeripheralInterface::Control1::BaudRateDivider Driver::FindClosestDivider(
+stm32::peripherals::SerialPeripheralInterface::BaudRateDivider Driver::FindClosestDivider(
     core::units::Hertz peripheral_frequency, core::units::Hertz desired_spi_clock_frequency
 ) {
     std::uint32_t divisor = peripheral_frequency.value() / desired_spi_clock_frequency.value();
@@ -79,29 +79,29 @@ stm32::peripherals::SerialPeripheralInterface::Control1::BaudRateDivider Driver:
     // e.g. 168MHz / 50MHz = 3.36 -> 3
     // e.g. 168MHz / 133MHz = 1.26 -> 1
     if (divisor <= 2U) {
-        return stm32::peripherals::SerialPeripheralInterface::Control1::BaudRateDivider::By2;
+        return stm32::peripherals::SerialPeripheralInterface::BaudRateDivider::By2;
     } else if (divisor <= 4U) {
-        return stm32::peripherals::SerialPeripheralInterface::Control1::BaudRateDivider::By4;
+        return stm32::peripherals::SerialPeripheralInterface::BaudRateDivider::By4;
     } else if (divisor <= 8U) {
-        return stm32::peripherals::SerialPeripheralInterface::Control1::BaudRateDivider::By8;
+        return stm32::peripherals::SerialPeripheralInterface::BaudRateDivider::By8;
     } else if (divisor <= 16U) {
-        return stm32::peripherals::SerialPeripheralInterface::Control1::BaudRateDivider::By16;
+        return stm32::peripherals::SerialPeripheralInterface::BaudRateDivider::By16;
     } else if (divisor <= 32U) {
-        return stm32::peripherals::SerialPeripheralInterface::Control1::BaudRateDivider::By32;
+        return stm32::peripherals::SerialPeripheralInterface::BaudRateDivider::By32;
     } else if (divisor <= 64U) {
-        return stm32::peripherals::SerialPeripheralInterface::Control1::BaudRateDivider::By64;
+        return stm32::peripherals::SerialPeripheralInterface::BaudRateDivider::By64;
     } else if (divisor <= 128U) {
-        return stm32::peripherals::SerialPeripheralInterface::Control1::BaudRateDivider::By128;
+        return stm32::peripherals::SerialPeripheralInterface::BaudRateDivider::By128;
     } else {
-        return stm32::peripherals::SerialPeripheralInterface::Control1::BaudRateDivider::By256;
+        return stm32::peripherals::SerialPeripheralInterface::BaudRateDivider::By256;
     }
 }
 
 core::Status Driver::Initialize(core::units::Hertz peripheral_frequency, core::units::Hertz desired_spi_clock_frequency) {
     if constexpr (configure::use_spi_as == configure::Mode::Dma) {
-        jarnax::print("STM32 SPI Driver: Using DMA for SPI transactions.\r\n");
+        jarnax::print("STM32F4 SPI Driver: Using DMA for SPI transactions.\r\n");
     } else {
-        jarnax::print("STM32 SPI Driver: Using interrupts for SPI transactions.\r\n");
+        jarnax::print("STM32F4 SPI Driver: Using interrupts for SPI transactions.\r\n");
     }
     core::Status status{};
     peripheral_frequency_ = peripheral_frequency;

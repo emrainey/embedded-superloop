@@ -49,7 +49,7 @@ void usart6_isr(void) {
 
 namespace usart {
 Driver::Driver(
-    peripherals::UniversalSynchronousAsynchronousReceiverTransmitter volatile& usart, dma::Manager& dma_driver, cortex::Peripheral rx_peripheral,
+    f4xx::UniversalSynchronousAsynchronousReceiverTransmitter volatile& usart, dma::Manager& dma_driver, cortex::Peripheral rx_peripheral,
     cortex::Peripheral tx_peripheral, core::Allocator& dma_allocator, std::size_t dma_allocation_size
 )
     : Statistician{}
@@ -66,16 +66,16 @@ Driver::Driver(
     , tx_ready_{true}
     , tx_span_{}
     , tx_index_{0U} {
-    if (&usart == &peripherals::usart1) {
+    if (&usart == &f4xx::usart1) {
         usart_instances[0] = this;
         usart_statistics[0] = &statistics_;
-    } else if (&usart == &peripherals::usart2) {
+    } else if (&usart == &f4xx::usart2) {
         usart_instances[1] = this;
         usart_statistics[1] = &statistics_;
-    } else if (&usart == &peripherals::usart3) {
+    } else if (&usart == &f4xx::usart3) {
         usart_instances[2] = this;
         usart_statistics[2] = &statistics_;
-    } else if (&usart == &peripherals::usart6) {
+    } else if (&usart == &f4xx::usart6) {
         usart_instances[3] = this;
         usart_statistics[3] = &statistics_;
     }
@@ -89,8 +89,8 @@ void Driver::ComputeBaudRate(uint32_t baud_rate) const {
     // The minimum value is 0.
     // The divider is rounded to the nearest integer.
     // The divider is set in the BRR register.
-    stm32::peripherals::UniversalSynchronousAsynchronousReceiverTransmitter::BaudRate brr;
-    stm32::peripherals::UniversalSynchronousAsynchronousReceiverTransmitter::Control1 control1;
+    stm32::f4xx::UniversalSynchronousAsynchronousReceiverTransmitter::BaudRate brr;
+    stm32::f4xx::UniversalSynchronousAsynchronousReceiverTransmitter::Control1 control1;
     control1 = usart_.control1;    // read
     uint32_t over8u = control1.bits.oversampling_mode == 1 ? 8 : 16;
     float over8f = control1.bits.oversampling_mode ? 8.0f : 16.0f;
@@ -113,8 +113,8 @@ void Driver::ComputeBaudRate(uint32_t baud_rate) const {
 }
 
 uint32_t Driver::GetBaudRate(void) const {
-    stm32::peripherals::UniversalSynchronousAsynchronousReceiverTransmitter::Control1 control1 = usart_.control1;    // read
-    stm32::peripherals::UniversalSynchronousAsynchronousReceiverTransmitter::BaudRate brr = usart_.baud_rate;        // read
+    stm32::f4xx::UniversalSynchronousAsynchronousReceiverTransmitter::Control1 control1 = usart_.control1;    // read
+    stm32::f4xx::UniversalSynchronousAsynchronousReceiverTransmitter::BaudRate brr = usart_.baud_rate;        // read
     // uint32_t over8u = control1.bits.oversampling_mode == 1 ? 8 : 16;
     float over8f = control1.bits.oversampling_mode ? 8.0f : 16.0f;
     float divider = (static_cast<float>(brr.bits.div_mantissa) + (static_cast<float>(brr.bits.div_fraction) / over8f));
@@ -151,9 +151,9 @@ core::Status Driver::Initialize(core::units::Hertz peripheral_frequency) {
     rx_dma_resource_->Initialize(rx_peripheral_);
     tx_dma_resource_->Initialize(tx_peripheral_);
 
-    stm32::peripherals::UniversalSynchronousAsynchronousReceiverTransmitter::Control1 control1;
-    stm32::peripherals::UniversalSynchronousAsynchronousReceiverTransmitter::Control2 control2;
-    stm32::peripherals::UniversalSynchronousAsynchronousReceiverTransmitter::Control3 control3;
+    stm32::f4xx::UniversalSynchronousAsynchronousReceiverTransmitter::Control1 control1;
+    stm32::f4xx::UniversalSynchronousAsynchronousReceiverTransmitter::Control2 control2;
+    stm32::f4xx::UniversalSynchronousAsynchronousReceiverTransmitter::Control3 control3;
     // disable the USART
     control1 = usart_.control1;    // read
     control1.whole = 0U;           // clear
@@ -170,9 +170,9 @@ core::Status Driver::Initialize(core::units::Hertz peripheral_frequency) {
 }
 
 core::Status Driver::Configure(uint32_t desired_baud_rate, bool parity, uint8_t stop_bits) {
-    stm32::peripherals::UniversalSynchronousAsynchronousReceiverTransmitter::Control1 control1;
-    stm32::peripherals::UniversalSynchronousAsynchronousReceiverTransmitter::Control2 control2;
-    stm32::peripherals::UniversalSynchronousAsynchronousReceiverTransmitter::Control3 control3;
+    stm32::f4xx::UniversalSynchronousAsynchronousReceiverTransmitter::Control1 control1;
+    stm32::f4xx::UniversalSynchronousAsynchronousReceiverTransmitter::Control2 control2;
+    stm32::f4xx::UniversalSynchronousAsynchronousReceiverTransmitter::Control3 control3;
 
     control1 = usart_.control1;    // read
     control2 = usart_.control2;    // read
@@ -223,7 +223,7 @@ core::Status Driver::Configure(uint32_t desired_baud_rate, bool parity, uint8_t 
 }
 
 void Driver::HandleInterrupt(void) {
-    peripherals::UniversalSynchronousAsynchronousReceiverTransmitter::Status status = usart_.status;    // read
+    f4xx::UniversalSynchronousAsynchronousReceiverTransmitter::Status status = usart_.status;    // read
     if constexpr (debug::UsartIsr) {
         jarnax::print(
             "USART Status: %" PRIx32 " pe:%" PRIu32 " fe:%" PRIu32 " nf:%" PRIu32 " oe:%" PRIu32 " id:%" PRIu32 " rxne:%" PRIu32 " txe:%" PRIu32
@@ -260,9 +260,9 @@ void Driver::HandleInterrupt(void) {
                 statistics_.bytes_transmitted++;
             } else {
                 // disable TXE interrupt in Control1
-                peripherals::UniversalSynchronousAsynchronousReceiverTransmitter::Control1 control1 = usart_.control1;    // read
-                control1.bits.transmit_empty_interrupt_enable = 0;                                                        // disable TXE interrupt
-                usart_.control1 = control1;                                                                               // write
+                f4xx::UniversalSynchronousAsynchronousReceiverTransmitter::Control1 control1 = usart_.control1;    // read
+                control1.bits.transmit_empty_interrupt_enable = 0;                                                 // disable TXE interrupt
+                usart_.control1 = control1;                                                                        // write
             }
         } else {
             // DMA is used for TX, so we don't need to do anything here
@@ -271,9 +271,9 @@ void Driver::HandleInterrupt(void) {
     }
     if (status.bits.transmit_complete) {
         // disable TC interrupt in Control1
-        peripherals::UniversalSynchronousAsynchronousReceiverTransmitter::Control1 control1 = usart_.control1;    // read
-        control1.bits.transfer_complete_interrupt_enable = 0;                                                     // disable TC interrupt
-        usart_.control1 = control1;                                                                               // write
+        f4xx::UniversalSynchronousAsynchronousReceiverTransmitter::Control1 control1 = usart_.control1;    // read
+        control1.bits.transfer_complete_interrupt_enable = 0;                                              // disable TC interrupt
+        usart_.control1 = control1;                                                                        // write
 
         tx_ready_ = true;      // set the flag to indicate that the DMA is ready to send more data
     }
@@ -292,7 +292,7 @@ core::Status Driver::Enqueue(core::Span<DataUnit const> const& data) {
         status = core::Status{core::Result::InvalidValue, core::Cause::Parameter};
         return status;
     }
-    peripherals::UniversalSynchronousAsynchronousReceiverTransmitter::Control1 control1;
+    f4xx::UniversalSynchronousAsynchronousReceiverTransmitter::Control1 control1;
     if (tx_ready_) {
         // get a span of the rx buffer
         tx_span_ = tx_dma_buffer_.as_span<DataUnit>();
@@ -312,14 +312,14 @@ core::Status Driver::Enqueue(core::Span<DataUnit const> const& data) {
             // setup the DMA stream
             tx_dma_resource_->ConfigureCopyToPeripheral(tx_span_, reinterpret_cast<std::uintptr_t>(&usart_.data.whole));
             // enable the DMA transmit stream in the USART
-            peripherals::UniversalSynchronousAsynchronousReceiverTransmitter::Control3 control3 = usart_.control3;    // read
-            control3.bits.direct_memory_access_transmitter = 1;                                                       // DMA transmitter enabled
-            usart_.control3 = control3;                                                                               // write
+            f4xx::UniversalSynchronousAsynchronousReceiverTransmitter::Control3 control3 = usart_.control3;    // read
+            control3.bits.direct_memory_access_transmitter = 1;                                                // DMA transmitter enabled
+            usart_.control3 = control3;                                                                        // write
             // clear the TC flag to indicate that the DMA is ready to send more data
-            peripherals::UniversalSynchronousAsynchronousReceiverTransmitter::Status status_reg = usart_.status;    // read
-            status_reg.bits.transmit_complete = 0;                                                                  // clear TC flag
-            usart_.status = status_reg;                                                                             // write
-            tx_dma_resource_->Enable();                                                                             // start the DMA stream
+            f4xx::UniversalSynchronousAsynchronousReceiverTransmitter::Status status_reg = usart_.status;    // read
+            status_reg.bits.transmit_complete = 0;                                                           // clear TC flag
+            usart_.status = status_reg;                                                                      // write
+            tx_dma_resource_->Enable();                                                                      // start the DMA stream
         } else {
             // don't write anything yet, let the TXE interrupt do it
             // enable TC interrupt in Control1 (we'll use that to end the TX sequence)

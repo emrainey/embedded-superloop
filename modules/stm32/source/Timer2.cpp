@@ -5,6 +5,7 @@
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 #include "core/Conversions.hpp"
 #include "stm32/Timer.hpp"
+#include "stm32/family.hpp"
 #include "stm32/stm32.hpp"
 
 namespace core {
@@ -88,10 +89,17 @@ core::Status Timer::Initialize(core::units::Hertz internal_clock, core::units::H
     timer_.direct_memory_access_interrupt_enable = dma_interrupt;    // write
 
     // stop the timer while we're in debug mode
-    stm32::peripherals::Debug::APB1Freeze apb1_freeze;
+#if defined(STM32F4)
+    stm32::f4xx::Debug::APB1Freeze apb1_freeze;
     apb1_freeze = stm32::peripherals::debug.apb1_freeze;    // read
-    apb1_freeze.bits.dbg_tim2_stop = 1U;                    // stop
-    stm32::peripherals::debug.apb1_freeze = apb1_freeze;    // write
+    apb1_freeze.bits.timer_2_stop_in_debug = 1U;            // stop
+    stm32::f4xx::debug.apb1_freeze = apb1_freeze;           // write
+#elif defined(STM32H7)
+    stm32::h7xx::Debug::APB1LowFreeze1 apb1_low_freeze1;
+    apb1_low_freeze1 = stm32::peripherals::debug.apb1_low_freeze1;    // read
+    apb1_low_freeze1.bits.timer2_stop_in_debug = 1U;                  // stop
+    stm32::h7xx::debug.apb1_low_freeze1 = apb1_low_freeze1;           // write
+#endif
 
     // initialize the high order bits
     timer2_high_order_bits = 0U;

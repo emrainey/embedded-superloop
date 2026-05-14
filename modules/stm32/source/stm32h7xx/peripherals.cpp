@@ -34,7 +34,11 @@ UniversalAsynchronousReceiverTransmitter volatile uart8;
 InterIntegratedCircuit volatile i2c1;
 InterIntegratedCircuit volatile i2c2;
 InterIntegratedCircuit volatile i2c3;
+PowerController volatile power_controller;
 }    // namespace h7xx
+namespace peripherals {
+using namespace stm32::h7xx;
+}    // namespace peripherals
 }    // namespace stm32
 
 #endif    // UNITTEST

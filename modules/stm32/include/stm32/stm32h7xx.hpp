@@ -105,8 +105,8 @@ enum class InterruptRequest : cortex::InterruptRequestType {
     SerialDataMultimediaCard1 = 49U,         ///< SDMMC1
     Timer5 = 50U,
     SerialPeripheralInterface3 = 51U,
-    UniversalAsynchronousReceiverTransmitter4 = 52U,    ///< UART4
-    UniversalAsynchronousReceiverTransmitter5 = 53U,    ///< UART5
+    UniversalSynchronousAsynchronousReceiverTransmitter4 = 52U,    ///< UART4
+    UniversalSynchronousAsynchronousReceiverTransmitter5 = 53U,    ///< UART5
     Timer6 = 54U,
     DigitalToAnalogConverter1 = 54U,
     DigitalToAnalogConverter2 = 54U,
@@ -131,57 +131,57 @@ enum class InterruptRequest : cortex::InterruptRequestType {
     UniversalSynchronousAsynchronousReceiverTransmitter6 = 71U,    ///< USART6
     InterIntegratedCircuit3_Event = 72U,
     InterIntegratedCircuit3_Error = 73U,
-    UniversalSerialBusOnTheGoHighSpeedEndPoint1Out = 74U,    ///< USB OTG HS EP1 Out
-    UniversalSerialBusOnTheGoHighSpeedEndPoint1In = 75U,     ///< USB OTG HS EP1 In
-    UniversalSerialBusOnTheGoHighSpeedWakeUp = 76U,          ///< USB OTG HS WKUP
-    UniversalSerialBusOnTheGoHighSpeed = 77U,                ///< USB OTG HS
+    UniversalSerialBusOnTheGoHighSpeedEndPoint1Out = 74U,          ///< USB OTG HS EP1 Out
+    UniversalSerialBusOnTheGoHighSpeedEndPoint1In = 75U,           ///< USB OTG HS EP1 In
+    UniversalSerialBusOnTheGoHighSpeedWakeUp = 76U,                ///< USB OTG HS WKUP
+    UniversalSerialBusOnTheGoHighSpeed = 77U,                      ///< USB OTG HS
 #if defined(STM32_HAS_CAMERA) && (STM32_HAS_CAMERA == 1)
-    DigitalCameraInterface = 78U,                            ///< DCMI
+    DigitalCameraInterface = 78U,                                  ///< DCMI
 #endif
-    Cryptography = 79U,                                      ///< CRYP and HASH
-    RandomNumberGenerator = 80U,                             ///< RNG
-    FloatingPointUnit = 81U,                                 ///< FPU
-    UniversalAsynchronousReceiverTransmitter7 = 82U,         ///< UART7
-    UniversalAsynchronousReceiverTransmitter8 = 83U,         ///< UART8
-    SerialPeripheralInterface4 = 84U,                        ///< SPI4
-    SerialPeripheralInterface5 = 85U,                        ///< SPI5
-    SerialPeripheralInterface6 = 86U,                        ///< SPI6
-    SerialAudioInterface1 = 87U,                             ///< SAI1
-    LiquidCrystalDisplayTFT = 88U,                           ///< LTDC
-    LiquidCrystalDisplayTFTError = 89U,                      ///< LTDC ERR
-    DirectMemoryAccess2D = 90U,                              ///< DMA2D
-    SerialAudioInterface2 = 91U,                             ///< SAI2
-    QuadSPI = 92U,                                           ///< QUADSPI
-    LowPowerTimer1 = 93U,                                    ///< LPTIM1
-    HDMIConsumerElectronicsControl = 94U,                    ///< HDMI CEC
-    InterIntegratedCircuit4_Event = 95U,                     ///< I2C4 Event
-    InterIntegratedCircuit4_Error = 96U,                     ///< I2C4 Error
-    SonyPhilipsDigitalInterfaceReceive = 97U,                ///< SPDIFRX
-    UniversalSerialBusOnTheGoFullSpeedEndPoint1Out = 98U,    ///< USB OTG FS EP1 Out
-    UniversalSerialBusOnTheGoFullSpeedEndPoint1In = 99U,     ///< USB OTG FS EP1 In
-    UniversalSerialBusOnTheGoFullSpeedWakeUp = 100U,         ///< USB OTG FS WKUP
-    UniversalSerialBusOnTheGoFullSpeed = 101U,               ///< USB OTG FS
-    DirectMemoryAccessMultiplexerOverrun = 102U,             ///< DMAMUX1 Overrun
-    HighResolutionTimer1Master = 103U,                       ///< HRTIM1 Master
-    HighResolutionTimer1TimerA = 104U,                       ///< HRTIM1 Timer A
-    HighResolutionTimer1TimerB = 105U,                       ///< HRTIM1 Timer
-    HighResolutionTimer1TimerC = 106U,                       ///< HRTIM1 Timer C
-    HighResolutionTimer1TimerD = 107U,                       ///< HRTIM1 Timer
-    HighResolutionTimer1TimerE = 108U,                       ///< HRTIM1 Timer E
-    HighResolutionTimer1Fault = 109U,                        ///< HRTIM1 Fault
-    DigitalFilterForSigmaDeltaModulators0 = 110U,            ///< DFSDM0
-    DigitalFilterForSigmaDeltaModulators1 = 111U,            ///< DFSDM1
-    DigitalFilterForSigmaDeltaModulators2 = 112U,            ///< DFSDM2
-    DigitalFilterForSigmaDeltaModulators3 = 113U,            ///< DFSDM3
-    SerialAudioInterface3 = 114U,                            ///< SAI3
-    SingleWireProtocolMasterInterface = 115U,                ///< SWPMI1
-    Timer15 = 116U,                                          ///< Timer 15
-    Timer16 = 117U,                                          ///< Timer 16
-    Timer17 = 118U,                                          ///< Timer 17
-    ManagementInputOutputWakeup = 119U,                      ///< MDIOS WKUP
-    ManagementInputOutput = 120U,                            ///< MDIOS
-    JointPhotographicExpertsGroupInterface = 121U,           ///< JPEG
-    MasterDirectMemoryAccessController = 122U,               ///< MDMA
+    Cryptography = 79U,                                            ///< CRYP and HASH
+    RandomNumberGenerator = 80U,                                   ///< RNG
+    FloatingPointUnit = 81U,                                       ///< FPU
+    UniversalSynchronousAsynchronousReceiverTransmitter7 = 82U,    ///< UART7
+    UniversalSynchronousAsynchronousReceiverTransmitter8 = 83U,    ///< UART8
+    SerialPeripheralInterface4 = 84U,                              ///< SPI4
+    SerialPeripheralInterface5 = 85U,                              ///< SPI5
+    SerialPeripheralInterface6 = 86U,                              ///< SPI6
+    SerialAudioInterface1 = 87U,                                   ///< SAI1
+    LiquidCrystalDisplayTFT = 88U,                                 ///< LTDC
+    LiquidCrystalDisplayTFTError = 89U,                            ///< LTDC ERR
+    DirectMemoryAccess2D = 90U,                                    ///< DMA2D
+    SerialAudioInterface2 = 91U,                                   ///< SAI2
+    QuadSPI = 92U,                                                 ///< QUADSPI
+    LowPowerTimer1 = 93U,                                          ///< LPTIM1
+    HDMIConsumerElectronicsControl = 94U,                          ///< HDMI CEC
+    InterIntegratedCircuit4_Event = 95U,                           ///< I2C4 Event
+    InterIntegratedCircuit4_Error = 96U,                           ///< I2C4 Error
+    SonyPhilipsDigitalInterfaceReceive = 97U,                      ///< SPDIFRX
+    UniversalSerialBusOnTheGoFullSpeedEndPoint1Out = 98U,          ///< USB OTG FS EP1 Out
+    UniversalSerialBusOnTheGoFullSpeedEndPoint1In = 99U,           ///< USB OTG FS EP1 In
+    UniversalSerialBusOnTheGoFullSpeedWakeUp = 100U,               ///< USB OTG FS WKUP
+    UniversalSerialBusOnTheGoFullSpeed = 101U,                     ///< USB OTG FS
+    DirectMemoryAccessMultiplexerOverrun = 102U,                   ///< DMAMUX1 Overrun
+    HighResolutionTimer1Master = 103U,                             ///< HRTIM1 Master
+    HighResolutionTimer1TimerA = 104U,                             ///< HRTIM1 Timer A
+    HighResolutionTimer1TimerB = 105U,                             ///< HRTIM1 Timer
+    HighResolutionTimer1TimerC = 106U,                             ///< HRTIM1 Timer C
+    HighResolutionTimer1TimerD = 107U,                             ///< HRTIM1 Timer
+    HighResolutionTimer1TimerE = 108U,                             ///< HRTIM1 Timer E
+    HighResolutionTimer1Fault = 109U,                              ///< HRTIM1 Fault
+    DigitalFilterForSigmaDeltaModulators0 = 110U,                  ///< DFSDM0
+    DigitalFilterForSigmaDeltaModulators1 = 111U,                  ///< DFSDM1
+    DigitalFilterForSigmaDeltaModulators2 = 112U,                  ///< DFSDM2
+    DigitalFilterForSigmaDeltaModulators3 = 113U,                  ///< DFSDM3
+    SerialAudioInterface3 = 114U,                                  ///< SAI3
+    SingleWireProtocolMasterInterface = 115U,                      ///< SWPMI1
+    Timer15 = 116U,                                                ///< Timer 15
+    Timer16 = 117U,                                                ///< Timer 16
+    Timer17 = 118U,                                                ///< Timer 17
+    ManagementInputOutputWakeup = 119U,                            ///< MDIOS WKUP
+    ManagementInputOutput = 120U,                                  ///< MDIOS
+    JointPhotographicExpertsGroupInterface = 121U,                 ///< JPEG
+    MasterDirectMemoryAccessController = 122U,                     ///< MDMA
     // Reserved = 123U,
     SerialDataMultimediaCard2 = 124U,    ///< SDMMC2
     HardwareSemaphore1 = 125U,           ///< HSEM1
@@ -351,32 +351,48 @@ struct ClockTree {
 /// @note This does NOT map to hardware but it does have register values which will so we limit
 /// their possible value ranges.
 struct ClockConfiguration {
-    bool use_internal;
-    bool use_bypass;
-    Hertz external_clock_frequency;
-    Hertz low_speed_external_oscillator_frequency;
+    bool use_internal;                                ///< Whether to use the internal (HSI) or external (HSE) high speed oscillator
+    bool use_bypass;                                  ///< Whether to use bypass mode for the external high speed oscillator
+    bool use_csi;                                     ///< Whether to enable the internal 4 MHz CSI oscillator
+    bool use_pll_fracn;                               ///< Whether to enable fractional PLL mode (PLL1FRACR)
+    Hertz external_clock_frequency;                   ///< The frequency of the external high speed oscillator
+    Hertz low_speed_external_oscillator_frequency;    ///< The frequency of the external low speed oscillator
     //---
-    std::uint32_t ahb_divider             : 4;
+    std::uint32_t voltage_scaling         : 2;    ///< Voltage Scaling (PWR_D3CR VOS: 1=VOS3 .. 3=VOS1; use VOS0 via SYSCFG ODEN)
+    std::uint32_t                         : 30;
+    std::uint32_t d1_core_prescaler       : 4;    ///< Domain 1 CPU core clock prescaler (D1CFGR D1CPRE)
     std::uint32_t                         : 28;
-    std::uint32_t apb1_low_speed_divider  : 3;
+    std::uint32_t ahb_divider             : 4;    ///< AHB bus divider (D1CFGR HPRE)
+    std::uint32_t                         : 28;
+    std::uint32_t apb1_low_speed_divider  : 3;    ///< APB1 (D2) Low Speed Divider (D2CFGR D2PPRE1)
     std::uint32_t                         : 29;
-    std::uint32_t apb2_high_speed_divider : 3;
+    std::uint32_t apb2_high_speed_divider : 3;    ///< APB2 (D2) High Speed Divider (D2CFGR D2PPRE2)
     std::uint32_t                         : 29;
-    std::uint32_t mcu_clock1_divider      : 3;
+    std::uint32_t apb3_divider            : 3;    ///< APB3 (D1) Divider (D1CFGR D1PPRE)
     std::uint32_t                         : 29;
-    std::uint32_t mcu_clock2_divider      : 3;
+    std::uint32_t apb4_divider            : 3;    ///< APB4 (D3) Divider (D3CFGR D3PPRE)
     std::uint32_t                         : 29;
-    std::uint32_t rtc_divider             : 5;
+    std::uint32_t mcu_clock1_divider      : 3;    ///< MCU Clock 1 Divider (CFGR MCO1PRE)
+    std::uint32_t                         : 29;
+    std::uint32_t mcu_clock2_divider      : 3;    ///< MCU Clock 2 Divider (CFGR MCO2PRE)
+    std::uint32_t                         : 29;
+    std::uint32_t rtc_divider             : 5;    ///< RTC Divider (CFGR RTCPRE)
     std::uint32_t                         : 27;
     //---
-    std::uint32_t pll_m                   : 6;
+    std::uint32_t pll_source              : 2;     ///< PLL1 source (PLLCKSELR PLLSRC: 0=HSI, 1=CSI, 2=HSE, 3=none)
+    std::uint32_t                         : 30;
+    std::uint32_t pll_m                   : 6;     ///< PLL1 M Input Divider (PLLCKSELR DIVM1)
     std::uint32_t                         : 32 - 6;
-    std::uint32_t pll_n                   : 9;
+    std::uint32_t pll_n                   : 9;     ///< PLL1 N VCO Multiplier (PLL1DIVR DIVN1)
     std::uint32_t                         : 32 - 9;
-    std::uint32_t pll_p                   : 2;
-    std::uint32_t                         : 32 - 2;
-    std::uint32_t pll_q                   : 4;
-    std::uint32_t                         : 32 - 4;
+    std::uint32_t pll_p                   : 7;     ///< PLL1 P Output Divider (PLL1DIVR DIVP1)
+    std::uint32_t                         : 32 - 7;
+    std::uint32_t pll_q                   : 7;     ///< PLL1 Q Output Divider (PLL1DIVR DIVQ1)
+    std::uint32_t                         : 32 - 7;
+    std::uint32_t pll_r                   : 7;     ///< PLL1 R Output Divider (PLL1DIVR DIVR1)
+    std::uint32_t                         : 32 - 7;
+    std::uint32_t pll_fracn               : 13;    ///< PLL1 Fractional N (PLL1FRACR FRACN1, only used when use_pll_fracn is true)
+    std::uint32_t                         : 32 - 13;
 };
 
 // Vendor Chips declare this structure

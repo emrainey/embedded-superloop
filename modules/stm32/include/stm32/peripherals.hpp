@@ -26,6 +26,7 @@
 #include "stm32/h7xx/FlashControl.hpp"
 #include "stm32/h7xx/GeneralPurposeInputOutput.hpp"
 #include "stm32/h7xx/InterIntegratedCircuit.hpp"
+#include "stm32/h7xx/PowerController.hpp"
 #include "stm32/h7xx/RandomNumberGenerator.hpp"
 #include "stm32/h7xx/ResetAndClockControl.hpp"
 #include "stm32/h7xx/SerialPeripheralInterface.hpp"

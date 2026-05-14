@@ -238,7 +238,7 @@ struct FlashControl final {
             /// (reserved)
             uint32_t        : 8;    // bits 8:15
             /// Busy (BSY)
-            uint32_t bsy    : 1;    // bit 16
+            uint32_t busy   : 1;    // bit 16
             /// (reserved)
             uint32_t        : 15;    // bits 17:31
         };

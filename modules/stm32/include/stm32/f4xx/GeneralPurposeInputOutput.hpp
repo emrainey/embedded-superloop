@@ -1179,6 +1179,5 @@ static constexpr std::size_t NumberOfGeneralPurposeInputOutputInstances = 11UL;
 extern GeneralPurposeInputOutput volatile general_purpose_input_output[NumberOfGeneralPurposeInputOutputInstances];
 
 }    // namespace f4xx
-
 }    // namespace stm32
 #endif    // STM32_F4XX_GENERALPURPOSEINPUTOUTPUT__HPP_

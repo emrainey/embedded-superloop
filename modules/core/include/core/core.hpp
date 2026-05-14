@@ -15,6 +15,7 @@
 #include "core/Split.hpp"
 #include "core/Stack.hpp"
 #include "core/Status.hpp"
+#include "core/Uint.hpp"
 #include "core/Variant.hpp"
 #include "core/std.hpp"
 // #include "core/Optional.hpp"

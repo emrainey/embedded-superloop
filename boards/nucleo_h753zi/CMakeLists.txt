@@ -20,7 +20,7 @@ add_board(NAME nucleo_h753zi
     MODULES # Have to know the chip and the configuration
         stm32-spi-driver
         stm32-i2c-driver
-        stm32-uart-driver
+        # stm32-uart-driver # no UARTs on the H753ZI, only USART
         stm32-usart-driver
         jarnax
         stm32
