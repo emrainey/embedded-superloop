@@ -8,11 +8,15 @@ define reset
     # Reset configuration
     monitor reset halt
     monitor flash probe 0
-    load @LOCAL_TARGET_BINARY_PATH@
+    load @CMAKE_SOURCE_DIR@/@LOCAL_TARGET_BINARY_PATH@
+    monitor rtt server stop 2333
+    monitor rtt setup 0x20000000 0x80000 "SEGGER RTT"
+    monitor rtt start
+    monitor rtt server start 2333 0
 end
 
 define setup
-    file @LOCAL_TARGET_BINARY_PATH@
+    file @CMAKE_SOURCE_DIR@/@LOCAL_TARGET_BINARY_PATH@
     break cortex::initialize::on_startup
     break vendor::initialize::clocks
     break cortex::system::main

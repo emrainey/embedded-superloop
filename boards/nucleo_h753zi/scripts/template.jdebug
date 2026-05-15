@@ -2,17 +2,18 @@ void OnProjectLoad(void) {
     //
     // Dialog-generated settings
     //
+    Project.ConfigSemihosting("ModeBKPT=2");
     Debug.SetResetMode(RM_RESET_HALT);
     Project.SetTraceSource("SWO");
     Project.SetDevice("STM32H753ZI");
     Project.SetHostIF("USB", "");
     // Project.SetHostIF("IP", "192.168.0.3");
     Project.SetTargetIF("SWD");
-    Project.SetTIFSpeed("20 MHz");
+    Project.SetTIFSpeed("auto");
     Project.ConfigSemihosting("AllowOpenRead=1,AllowOpenWrite=1,AllowRename=1,AllowRemove=1,ModeBP=1,ModeSVC=2,TargetCmdLine=42");
     Project.AddSvdFile("$(InstallDir)/Config/CPU/Cortex-M7F.svd");
-    Project.AddSvdFile("$(ProjectDir)/modules/stm32/scripts/STM32H753.svd");
-    File.Open("$(ProjectDir)/@LOCAL_TARGET_BINARY_PATH@");
+    Project.AddSvdFile("@CMAKE_SOURCE_DIR@/modules/stm32/scripts/STM32H753.svd");
+    File.Open("@CMAKE_SOURCE_DIR@/@LOCAL_TARGET_BINARY_PATH@");
     //
     // User settings
     //
@@ -20,7 +21,7 @@ void OnProjectLoad(void) {
     Edit.SysVar(VAR_RTT_ENABLED, 1);
     Edit.SysVar(VAR_TARGET_POWER_ON, 1);
     Edit.SysVar(VAR_STARTUP_COMPLETION_POINT, "jarnax::entry_after_stack");
-    Project.AddRTTSearchRange(0x20000000, 0x80000);
+    Project.AddRTTSearchRange(0x24000000, 0x80000);
     // Breaks on major milestones in boot
     Break.SetOnSrc("reset_entry");
     Break.SetOnSrc("jarnax::entry_after_stack");

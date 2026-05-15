@@ -2,17 +2,18 @@ void OnProjectLoad(void) {
     //
     // Dialog-generated settings
     //
+    Project.ConfigSemihosting("ModeBKPT=2");
     Debug.SetResetMode(RM_RESET_HALT);
     Project.SetTraceSource("SWO");
     Project.SetDevice("STM32F407VE");
     Project.SetHostIF("USB", "");
     // Project.SetHostIF("IP", "192.168.0.3");
     Project.SetTargetIF("SWD");
-    Project.SetTIFSpeed("20 MHz");
+    Project.SetTIFSpeed("auto");
     Project.ConfigSemihosting("AllowOpenRead=1,AllowOpenWrite=1,AllowRename=1,AllowRemove=1,ModeBP=1,ModeSVC=2,TargetCmdLine=42");
     Project.AddSvdFile("$(InstallDir)/Config/CPU/Cortex-M4F.svd");
-    Project.AddSvdFile("$(ProjectDir)/modules/stm32/scripts/STM32F407.svd");
-    File.Open("$(ProjectDir)/@LOCAL_TARGET_BINARY_PATH@");
+    Project.AddSvdFile("@CMAKE_SOURCE_DIR@/modules/stm32/scripts/STM32F407.svd");
+    File.Open("@CMAKE_SOURCE_DIR@/@LOCAL_TARGET_BINARY_PATH@");
     //
     // User settings
     //

@@ -1,4 +1,3 @@
-
 # define hookpost-connect
 #     monitor swo EnableTarget 0 0 0xFFFFFFFF 0
 #     monitor swo start 480000000 64000
@@ -9,7 +8,7 @@ define reset
     # Reset configuration
     monitor reset halt
     monitor flash probe 0
-    load @LOCAL_TARGET_BINARY_PATH@
+    load @CMAKE_SOURCE_DIR@/@LOCAL_TARGET_BINARY_PATH@
     monitor rtt server stop 2333
     monitor rtt setup 0x24000000 0x80000 "SEGGER RTT"
     monitor rtt start
@@ -17,7 +16,7 @@ define reset
 end
 
 define setup
-    file @LOCAL_TARGET_BINARY_PATH@
+    file @CMAKE_SOURCE_DIR@/@LOCAL_TARGET_BINARY_PATH@
     break cortex::initialize::on_startup
     break vendor::initialize::clocks
     break cortex::system::main
