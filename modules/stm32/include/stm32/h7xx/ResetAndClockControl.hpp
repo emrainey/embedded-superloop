@@ -307,6 +307,13 @@ struct ResetAndClockControl final {
     static_assert(sizeof(ClockRecoveryCalibrationControl) == 4UL, "Must be this exact size");
     /// RCC Clock Configuration Register (CFGR)
     struct Configuration final {
+        /// System clock switch (SW)
+        enum class SystemClockSwitch : uint32_t {
+            HighSpeedInternalClock = 0b00,            ///<  (HSI_CLOCK)
+            CalibratedSiliconInternalClock = 0b01,    ///<  (CSI_CLOCK)
+            HighSpeedExternalClock = 0b10,            ///<  (HSE_CLOCK)
+            PhaseLockLoopClock = 0b11,                ///<  (PLL_CLOCK)
+        };
         /// Default Constructor
         Configuration()
             : whole{0u} {}
@@ -330,29 +337,29 @@ struct ResetAndClockControl final {
         /// The internal bitfield for the register
         struct Fields final {
             /// System clock switch (SW)
-            uint32_t system_clock_switch          : 3;    // bits 0:2
+            SystemClockSwitch system_clock_switch        : 3;    // bits 0:2
             /// System clock switch status (SWS)
-            uint32_t system_clock_switch_status   : 3;    // bits 3:5
+            SystemClockSwitch system_clock_switch_status : 3;    // bits 3:5
             /// System clock selection after a wake up from system Stop (STOPWUCK)
-            uint32_t stop_wakeup_clock            : 1;    // bit 6
+            uint32_t stop_wakeup_clock                   : 1;    // bit 6
             /// Kernel clock selection after a wake up from system Stop (STOPKERWUCK)
-            uint32_t stop_kernel_wakeup_clock     : 1;    // bit 7
+            uint32_t stop_kernel_wakeup_clock            : 1;    // bit 7
             /// HSE division factor for RTC clock (RTCPRE)
-            uint32_t real_time_clock_prescaler    : 6;    // bits 8:13
+            uint32_t real_time_clock_prescaler           : 6;    // bits 8:13
             /// High Resolution Timer clock prescaler selection (HRTIMSEL)
-            uint32_t high_resolution_timer_select : 1;    // bit 14
+            uint32_t high_resolution_timer_select        : 1;    // bit 14
             /// Timers clocks prescaler selection (TIMPRE)
-            uint32_t timers_clock_prescaler       : 1;    // bit 15
+            uint32_t timers_clock_prescaler              : 1;    // bit 15
             /// (reserved)
-            uint32_t                              : 2;    // bits 16:17
+            uint32_t                                     : 2;    // bits 16:17
             /// MCO1 prescaler (MCO1PRE)
-            uint32_t mco1_prescaler               : 4;    // bits 18:21
+            uint32_t mco1_prescaler                      : 4;    // bits 18:21
             /// Micro-controller clock output 1 (MCO1SEL)
-            uint32_t mco1_selection               : 3;    // bits 22:24
+            uint32_t mco1_selection                      : 3;    // bits 22:24
             /// MCO2 prescaler (MCO2PRE)
-            uint32_t mco2_prescaler               : 4;    // bits 25:28
+            uint32_t mco2_prescaler                      : 4;    // bits 25:28
             /// Micro-controller clock output 2 (MCO2SEL)
-            uint32_t mco2_selection               : 3;    // bits 29:31
+            uint32_t mco2_selection                      : 3;    // bits 29:31
         };
         //+=MEMORY======================================+
         union {
@@ -5970,11 +5977,11 @@ struct ResetAndClockControl final {
 
     //+=MEMORY======================================+
     /// clock control register (CR)
-    Control control;                                                    // offset 0x0UL
+    Control control;                                                       // offset 0x0UL
 #if defined(STM32H7_REV_Y)
-    InternalClockSourcesCalibration internalclocksourcescalibration;    // offset 0x4UL
+    InternalClockSourcesCalibration internal_clock_sources_calibration;    // offset 0x4UL
 #elif defined(STM32H7_REV_V)
-    HighSpeedInternalConfiguration highspeedinternalconfiguration;    // offset 0x4UL
+    HighSpeedInternalConfiguration high_speed_internal_configuration;    // offset 0x4UL
 #endif
     /// RCC Clock Recovery RC Register (CRRCR)
     ClockRecoveryCalibrationControl clock_recovery_calibration_control;    // offset 0x8UL
@@ -6016,12 +6023,12 @@ struct ResetAndClockControl final {
     Domain3PeripheralClockSelection domain3_peripheral_clock_selection;    // offset 0x58UL
     uint32_t : 32;                                                         // offset 0x5cUL
     /// RCC Clock Source Interrupt Enable Register (CIER)
-    ClockInterruptEnable clockinterruptenable;    // offset 0x60UL
+    ClockInterruptEnable clock_interrupt_enable;    // offset 0x60UL
     /// RCC Clock Source Interrupt Flag Register (CIFR)
-    ClockInterruptFlags clockinterruptflags;    // offset 0x64UL
+    ClockInterruptFlags clock_interrupt_flags;    // offset 0x64UL
     /// RCC Clock Source Interrupt Clear Register (CICR)
-    ClockInterruptClear clockinterruptclear;    // offset 0x68UL
-    uint32_t : 32;                              // offset 0x6cUL
+    ClockInterruptClear clock_interrupt_clear;    // offset 0x68UL
+    uint32_t : 32;                                // offset 0x6cUL
     /// RCC Backup Domain Control Register (BDCR)
     BackupDomainControl backup_domain_control;    // offset 0x70UL
     /// RCC Clock Control and Status Register (CSR)
@@ -6324,9 +6331,9 @@ static_assert(offsetof(ResetAndClockControl, domain1_peripheral_clock_selection)
 static_assert(offsetof(ResetAndClockControl, domain2_peripheral_clock_selection1) == 0x50UL, "Must be located at this offset");
 static_assert(offsetof(ResetAndClockControl, domain2_peripheral_clock_selection2) == 0x54UL, "Must be located at this offset");
 static_assert(offsetof(ResetAndClockControl, domain3_peripheral_clock_selection) == 0x58UL, "Must be located at this offset");
-static_assert(offsetof(ResetAndClockControl, clockinterruptenable) == 0x60UL, "Must be located at this offset");
-static_assert(offsetof(ResetAndClockControl, clockinterruptflags) == 0x64UL, "Must be located at this offset");
-static_assert(offsetof(ResetAndClockControl, clockinterruptclear) == 0x68UL, "Must be located at this offset");
+static_assert(offsetof(ResetAndClockControl, clock_interrupt_enable) == 0x60UL, "Must be located at this offset");
+static_assert(offsetof(ResetAndClockControl, clock_interrupt_flags) == 0x64UL, "Must be located at this offset");
+static_assert(offsetof(ResetAndClockControl, clock_interrupt_clear) == 0x68UL, "Must be located at this offset");
 static_assert(offsetof(ResetAndClockControl, backup_domain_control) == 0x70UL, "Must be located at this offset");
 static_assert(offsetof(ResetAndClockControl, clock_control_status) == 0x74UL, "Must be located at this offset");
 static_assert(offsetof(ResetAndClockControl, ahb3_peripheral_reset) == 0x7cUL, "Must be located at this offset");

@@ -1,6 +1,7 @@
 add_module(NAME stm32
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32f4xx/vectors.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32f4xx/power.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32f4xx/clocks.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gpio/Pin.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Conversions.cpp
@@ -30,6 +31,7 @@ add_module(NAME stm32
 add_module(NAME stm32
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32h7xx/vectors.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32h7xx/power.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32h7xx/clocks.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gpio/Pin.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Conversions.cpp

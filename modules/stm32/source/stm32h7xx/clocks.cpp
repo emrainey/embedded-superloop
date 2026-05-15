@@ -1,10 +1,12 @@
 #include "core/Status.hpp"
 #include "core/core.hpp"
+#include "cortex/halt.hpp"
+#include "cortex/thumb.hpp"
 #include "cortex/tick.hpp"
 #include "cortex/vectors.hpp"
 #include "stm32/Initialize.hpp"
-
-#include "stm32/h7xx/PowerController.hpp"
+#include "stm32/f4xx/ResetAndClockControl.hpp"
+#include "stm32/h7xx/ResetAndClockControl.hpp"
 #include "stm32/peripherals.hpp"
 
 namespace stm32 {
@@ -34,6 +36,8 @@ std::uint32_t pll_clock_stabilization_counter{0u};
 std::uint32_t system_clock_switch_counter{0u};
 
 void clocks(void) {
+    // @FIXME until I can figure out the linker problem, this has to be called here instead of in configure.cpp
+    early_power();
     auto& cfg = stm32::default_clock_configuration;
     if ((cfg.pll_m < 1U or 63U < cfg.pll_m) or (cfg.pll_n < 4U or 512U < cfg.pll_n) or (cfg.pll_p < 1U or 128U < cfg.pll_p) or
         (cfg.pll_q < 1U or 128U < cfg.pll_q) or (cfg.pll_r < 1U or 128U < cfg.pll_r)) {
@@ -46,6 +50,7 @@ void clocks(void) {
 static std::uint32_t GetAHBDivider(std::uint32_t value) {
     switch (value) {
         case 0b0000:
+            return 1U;
         case 0b1000:
             return 2U;
         case 0b1001:
@@ -103,13 +108,12 @@ static std::uint32_t GetAPBDivider(std::uint32_t value) {
 void clocks(ClockConfiguration const& clkcfg) {
     using namespace stm32::peripherals;
     using namespace core::units;
-    constexpr std::uint32_t pll1_system_clock_switch = 0b011U;
     constexpr std::uint32_t mco1_hsi = 0b000U;
     constexpr std::uint32_t mco1_hse = 0b010U;
     constexpr std::uint32_t mco2_system_clock = 0b000U;
-    constexpr Hertz csi_oscillator_frequency = 4_MHz;
 
-    if (reset_and_clock_control.configuration.bits.system_clock_switch_status == pll1_system_clock_switch) {
+    if (reset_and_clock_control.configuration.bits.system_clock_switch_status ==
+        h7xx::ResetAndClockControl::Configuration::SystemClockSwitch::PhaseLockLoopClock) {
         // we're already using the PLL, so don't change anything
         return;
     }
@@ -134,20 +138,12 @@ void clocks(ClockConfiguration const& clkcfg) {
     bool const use_csi = (clkcfg.pll_source == 1U) or clkcfg.use_csi;
     bool const use_hse = (clkcfg.pll_source == 2U) or (not clkcfg.use_internal);
 
-    // Configure D3 voltage scaling before clock ramp.
-    h7xx::PowerController::Domain3Control pwr_d3_control;
-    pwr_d3_control = h7xx::power_controller.domain3_control;
-    pwr_d3_control.bits.voltage_scaling_selection = clkcfg.voltage_scaling;
-    h7xx::power_controller.domain3_control = pwr_d3_control;
-    do {
-        pwr_d3_control = h7xx::power_controller.domain3_control;
-    } while (pwr_d3_control.bits.voltage_scaling_output_ready == 0U);
-
     control = reset_and_clock_control.control;    // read
     control.bits.high_speed_external_bypass = (use_hse and clkcfg.use_bypass) ? 1U : 0U;
     control.bits.high_speed_external_enable = use_hse ? 1U : 0U;
     control.bits.high_speed_internal_enable = use_hsi ? 1U : 0U;
     control.bits.low_power_internal_oscillator_enable = use_csi ? 1U : 0U;
+    control.bits.pll1_enable = 0U;                // disable PLL1 before configuration
     reset_and_clock_control.control = control;    // write
 
     if (use_hsi) {
@@ -172,7 +168,7 @@ void clocks(ClockConfiguration const& clkcfg) {
     if (clkcfg.pll_source == 0U) {
         clock_tree.pll_input = high_speed_internal_oscillator_frequency;
     } else if (clkcfg.pll_source == 1U) {
-        clock_tree.pll_input = csi_oscillator_frequency;
+        clock_tree.pll_input = calibrated_silicon_internal_oscillator_frequency;
     } else {
         clock_tree.pll_input = clkcfg.external_clock_frequency;
     }
@@ -203,6 +199,8 @@ void clocks(ClockConfiguration const& clkcfg) {
     // Set the PLL Configuration
     ResetAndClockControl::PhaseLockLoopConfiguration pll_config;
     pll_config = reset_and_clock_control.pll_configuration;    // read
+    pll_config.bits.pll1_input_range =
+        (clock_tree.pll_input.value() <= 2'000'000) ? 0b00U : ((clock_tree.pll_input.value() <= 4'000'000) ? 0b01U : 0b10U);
     pll_config.bits.divider_p1_enable = 1U;
     pll_config.bits.divider_q1_enable = 1U;
     pll_config.bits.divider_r1_enable = 1U;
@@ -218,6 +216,7 @@ void clocks(ClockConfiguration const& clkcfg) {
     pll_fractional = reset_and_clock_control.pll1_fractional_configuration;
     pll_fractional.bits.fractional_n1 = clkcfg.pll_fracn;
 
+    // now write the values back in order
     reset_and_clock_control.pll_clock_source_selection = pll_source;
     reset_and_clock_control.pll_configuration = pll_config;
     reset_and_clock_control.pll1_divider_configuration = pll_divider;
@@ -240,12 +239,12 @@ void clocks(ClockConfiguration const& clkcfg) {
 
     // Choose PLL1 as the system clock
     config = reset_and_clock_control.configuration;        // read
-    config.bits.system_clock_switch = pll1_system_clock_switch;
+    config.bits.system_clock_switch = h7xx::ResetAndClockControl::Configuration::SystemClockSwitch::PhaseLockLoopClock;
     reset_and_clock_control.configuration = config;        // write
     do {
         config = reset_and_clock_control.configuration;    // read
         system_clock_switch_counter++;
-    } while (config.bits.system_clock_switch_status != pll1_system_clock_switch);
+    } while (config.bits.system_clock_switch_status != h7xx::ResetAndClockControl::Configuration::SystemClockSwitch::PhaseLockLoopClock);
 
     // Compute the Clock Tree values from what we just set
     clock_tree.low_speed_internal = low_speed_internal_oscillator_frequency;
@@ -254,9 +253,9 @@ void clocks(ClockConfiguration const& clkcfg) {
     clock_tree.high_speed_external = clkcfg.external_clock_frequency;
 
     std::uint32_t pllm = clkcfg.pll_m;
-    std::uint32_t plln = clkcfg.pll_n;
-    std::uint32_t pllp = clkcfg.pll_p;
-    std::uint32_t pllq = clkcfg.pll_q;
+    std::uint32_t plln = clkcfg.pll_n + 1U;    // the actual multiplier is N+1
+    std::uint32_t pllp = clkcfg.pll_p + 1U;
+    std::uint32_t pllq = clkcfg.pll_q + 1U;
     std::uint32_t d1cpre = GetD1CoreDivider(clkcfg.d1_core_prescaler);
     std::uint32_t hpre = GetAHBDivider(clkcfg.ahb_divider);
     // VCO = F_in * (N/M) but if N *F_in is too large (exceeds 32 bits), then we need to divide first
@@ -265,18 +264,24 @@ void clocks(ClockConfiguration const& clkcfg) {
     clock_tree.pll_48ck = clock_tree.pll_vco / pllq;
     // SYSCLK is sourced from PLL1P.
     clock_tree.sysclk = clock_tree.pll_output;
-    clock_tree.eth_ptp = clock_tree.sysclk;
     clock_tree.fclk = clock_tree.sysclk / d1cpre;
-    clock_tree.hclk = clock_tree.fclk / hpre;
     clock_tree.system_timer = clock_tree.fclk / 8U;
+    clock_tree.hclk = clock_tree.sysclk / hpre;
+    clock_tree.ahb1_peripheral = clock_tree.hclk;    // Assuming AHB1 is directly derived from HCLK
+    clock_tree.ahb2_peripheral = clock_tree.hclk;    // Assuming AHB2 is directly derived from HCLK
+    clock_tree.ahb3_peripheral = clock_tree.hclk;    // Assuming AHB3 is directly derived from HCLK
+    clock_tree.ahb4_peripheral = clock_tree.hclk;    // Assuming AHB4 is directly derived from HCLK
     clock_tree.apb1_peripheral = clock_tree.hclk / GetAPBDivider(clkcfg.apb1_low_speed_divider);
     clock_tree.apb2_peripheral = clock_tree.hclk / GetAPBDivider(clkcfg.apb2_high_speed_divider);
+    clock_tree.apb3_peripheral = clock_tree.hclk / GetAPBDivider(clkcfg.apb3_divider);
+    clock_tree.apb4_peripheral = clock_tree.hclk / GetAPBDivider(clkcfg.apb4_divider);
+    clock_tree.eth_ptp = clock_tree.sysclk;
+    clock_tree.rng = clock_tree.apb2_peripheral;
     clock_tree.rtc = clock_tree.high_speed_external / clkcfg.rtc_divider;
     clock_tree.apb1_timer_clk =
         clock_tree.apb1_peripheral * (GetAPBDivider(clkcfg.apb1_low_speed_divider) == 1 ? 1U : 2U);     // APB1 is doubled if the divider is not 1
     clock_tree.apb2_timer_clk =
         clock_tree.apb2_peripheral * (GetAPBDivider(clkcfg.apb2_high_speed_divider) == 1 ? 1U : 2U);    // APB2 is doubled if the divider is not 1
-    // clock_tree.rng = clock_tree.sysclk;
 }
 
 }    // namespace initialize

@@ -2,7 +2,6 @@ void OnProjectLoad(void) {
     //
     // Dialog-generated settings
     //
-    Project.ConfigSemihosting("ModeBKPT=2");
     Debug.SetResetMode(RM_RESET_HALT);
     Project.SetTraceSource("SWO");
     Project.SetDevice("STM32F405RG");

@@ -198,7 +198,7 @@
         _stm32_crypto = . ;
         . = ORIGIN(AHB2) + 0x1040;
         _stm32_hash = . ;
-        . = ORIGIN(AHB2) + 0x1080;
+        . = ORIGIN(AHB2) + 0x1800;
         _stm32_rng = . ;
         . = ORIGIN(AHB2) + 0x2400;
         _stm32_sdmmc2 = . ;

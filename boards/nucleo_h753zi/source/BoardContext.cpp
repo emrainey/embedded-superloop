@@ -7,6 +7,7 @@
 #include "lps35hw.hpp"
 #include "lsm9ds1.hpp"
 #include "segger/rtt.hpp"
+#include "stm32/h7xx/ResetAndClockControl.hpp"
 #include "strings.hpp"
 
 namespace stm32 {
@@ -27,10 +28,10 @@ ClockConfiguration const default_clock_configuration = {
     /* .low_speed_external_oscillator_frequency = */ low_speed_external_oscillator_frequency,
     /* .voltage_scaling = */ 0b11,             // VOS1 (up to 400 MHz without VOS0 boost)
     /* .d1_core_prescaler = */ 0b0000,         // /1 (cpu_ck = sys_ck)
-    /* .ahb_divider = */ 0b0000,               // /1 (hclk = sys_ck)
+    /* .ahb_divider = */ 0b1000,               // /2 (hclk3 = sys_ck/2)
     /* .apb1_low_speed_divider = */ 0b101,     // /4
     /* .apb2_high_speed_divider = */ 0b100,    // /2
-    /* .apb3_divider = */ 0b100,               // /2
+    /* .apb3_divider = */ 0b100,               // /2 (apb3 = hclk3/2)
     /* .apb4_divider = */ 0b100,               // /2
     /* .mcu_clock1_divider = */ 0b111,         // /5
     /* .mcu_clock2_divider = */ 0b111,         // /5
@@ -206,22 +207,32 @@ core::Status BoardContext::Initialize(void) {
         .SetOutputType(stm32::gpio::OutputType::PushPull);
 
     stm32::h7xx::ResetAndClockControl::AHB1PeripheralClockEnable ahb1_enable;
+    stm32::h7xx::ResetAndClockControl::AHB1PeripheralReset ahb1_reset;
     stm32::h7xx::ResetAndClockControl::AHB2PeripheralClockEnable ahb2_enable;
+    stm32::h7xx::ResetAndClockControl::AHB2PeripheralReset ahb2_reset;
     stm32::h7xx::ResetAndClockControl::APB1LowClockEnable apb1_enable;
     stm32::h7xx::ResetAndClockControl::APB2PeripheralClockEnable apb2_enable;
+
+    // Reset the AHB1 peripherals
+    ahb1_reset = stm32::h7xx::reset_and_clock_control.ahb1_peripheral_reset;    // read
+    ahb1_reset.bits.dma1_reset = 1U;
+    ahb1_reset.bits.dma2_reset = 1U;
+    stm32::h7xx::reset_and_clock_control.ahb1_peripheral_reset = ahb1_reset;    // write
+    ahb1_reset.bits.dma1_reset = 0U;
+    ahb1_reset.bits.dma2_reset = 0U;
+    stm32::h7xx::reset_and_clock_control.ahb1_peripheral_reset = ahb1_reset;    // write
+
+    // Reset the AHB2 peripherals
+    ahb2_reset = stm32::h7xx::reset_and_clock_control.ahb2_peripheral_reset;    // read
+    ahb2_reset.bits.random_number_generator_reset = 1U;
+    stm32::h7xx::reset_and_clock_control.ahb2_peripheral_reset = ahb2_reset;    // write
+    ahb2_reset.bits.random_number_generator_reset = 0U;
+    stm32::h7xx::reset_and_clock_control.ahb2_peripheral_reset = ahb2_reset;    // write
 
     // Enable the RNG in the AHB2 Periperhals
     ahb2_enable = stm32::h7xx::reset_and_clock_control.ahb2_peripheral_clock_enable;    // read
     ahb2_enable.bits.random_number_generator_enable = 1U;
     stm32::h7xx::reset_and_clock_control.ahb2_peripheral_clock_enable = ahb2_enable;    // write
-
-    // Reset the RNG
-    stm32::h7xx::ResetAndClockControl::AHB2PeripheralReset reset;
-    reset = stm32::h7xx::reset_and_clock_control.ahb2_peripheral_reset;    // read
-    reset.bits.random_number_generator_reset = 1U;
-    stm32::h7xx::reset_and_clock_control.ahb2_peripheral_reset = reset;    // write
-    reset.bits.random_number_generator_reset = 0U;
-    stm32::h7xx::reset_and_clock_control.ahb2_peripheral_reset = reset;    // write
 
     // enable the APB1 peripherals in the Reset and Clock Control register
     apb1_enable = stm32::h7xx::reset_and_clock_control.apb1_low_clock_enable;    // read
@@ -242,22 +253,16 @@ core::Status BoardContext::Initialize(void) {
     apb2_enable.bits.spi1_enable = 1;                                                   // modify
     stm32::h7xx::reset_and_clock_control.apb2_peripheral_clock_enable = apb2_enable;    // write
 
-    jarnax::print(
-        "Feature Clock is %" PRIu32
-        "\r\n"
-        "APB1 Timer Clock is %" PRIu32
-        "\r\n"
-        "APB2 Timer Clock is %" PRIu32
-        "\r\n"
-        "APB1 Clock is %" PRIu32
-        "\r\n"
-        "APB2 Clock is %" PRIu32 "\r\n",
-        stm32::GetClockTree().fclk.value(),
-        stm32::GetClockTree().apb1_timer_clk.value(),
-        stm32::GetClockTree().apb2_timer_clk.value(),
-        stm32::GetClockTree().apb1_peripheral.value(),
-        stm32::GetClockTree().apb2_peripheral.value()
-    );
+    jarnax::print("Feature Clock is %" PRIu32 "\r\n", stm32::GetClockTree().fclk.value());
+    jarnax::print("APB1 Timer Clock is %" PRIu32 "\r\n", stm32::GetClockTree().apb1_timer_clk.value());
+    jarnax::print("APB2 Timer Clock is %" PRIu32 "\r\n", stm32::GetClockTree().apb2_timer_clk.value());
+    jarnax::print("APB1 Clock is %" PRIu32 "\r\n", stm32::GetClockTree().apb1_peripheral.value());
+    jarnax::print("APB2 Clock is %" PRIu32 "\r\n", stm32::GetClockTree().apb2_peripheral.value());
+    jarnax::print("APB3 Clock is %" PRIu32 "\r\n", stm32::GetClockTree().apb3_peripheral.value());
+    jarnax::print("APB4 Clock is %" PRIu32 "\r\n", stm32::GetClockTree().apb4_peripheral.value());
+    jarnax::print("AHB1 Clock is %" PRIu32 "\r\n", stm32::GetClockTree().ahb1_peripheral.value());
+    jarnax::print("AHB2 Clock is %" PRIu32 "\r\n", stm32::GetClockTree().ahb2_peripheral.value());
+
     do {
         // RNG
         status = random_number_generator_.Initialize();
@@ -281,7 +286,7 @@ core::Status BoardContext::Initialize(void) {
         // I2C2
         status = i2c2_driver_.Initialize(stm32::GetClockTree().apb1_peripheral, ::stm32::i2c2_bus_frequency);
         if (not status.IsSuccess()) {
-            jarnax::print("I2C1 failed to initialize\r\n");
+            jarnax::print("I2C2 failed to initialize\r\n");
             break;
         }
 

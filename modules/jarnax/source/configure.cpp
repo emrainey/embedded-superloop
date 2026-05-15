@@ -24,6 +24,9 @@ void ATTRIBUTE((used)) configure(void) {
 
     jarnax::print("Vector Table @ %p\r\n", static_cast<void const *>(&cortex::vector_table));
     if constexpr (cortex::initialize_system_clocks) {
+        // @FIXME this should work since the clock tree works, but doesn't link.
+        // jarnax::print("Initializing Early Power\r\n");
+        // vendor::initialize::early_power();
         jarnax::print("Initializing System Clocks\r\n");
         // each vendors clock tree is a unique and confusing flower, let them deal with it!
         vendor::initialize::clocks();

@@ -10,6 +10,9 @@ namespace stm32 {
 /// Used to initialize chip specific drivers which need to be brought up very early.
 namespace initialize {
 
+/// @brief Initializes any Power needed to start the clock tree (e.g. enabling the voltage regulator)
+void early_power(void);
+
 /// @brief The required Clock initialization for all STM32 chips
 void clocks(void);
 

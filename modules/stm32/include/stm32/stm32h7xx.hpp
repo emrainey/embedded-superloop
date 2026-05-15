@@ -31,6 +31,9 @@ constexpr Hertz high_speed_internal_oscillator_frequency = 64_MHz;
 /// @brief The speed of the HSE oscillator on most STM32 parts
 constexpr Hertz low_speed_internal_oscillator_frequency = 32_KHz;
 
+/// @brief The speed of the CSI oscillator on STM32H7 parts
+constexpr Hertz calibrated_silicon_internal_oscillator_frequency = 4_MHz;
+
 /// The clock speed of the STM32H7xxxx
 constexpr Hertz top_clock_frequency = 480_MHz;
 
@@ -328,23 +331,31 @@ struct ClockTree {
     Hertz low_speed_external;
     Hertz high_speed_internal;
     Hertz high_speed_external;
-    Hertz pll_input;          ///< The frequency of the input to the PLL
-    Hertz pll_vco;            ///< The frequency of the VCO
-    Hertz pll_output;         ///< The frequency of the PLL output
-    Hertz sysclk;             ///< the clock before the AHB/APB divider
-    Hertz eth_ptp;            ///< The frequency of the Ethernet PTP clock
-    Hertz fclk;               ///< The frequency of the cortex free running clock
-    Hertz hclk;               ///< The frequency of the AHB bus, DMA and Core Memory (HCLK)
-    Hertz system_timer;       ///< The frequency of the Cortex SYSTICK
-    Hertz apb1_peripheral;    ///< The frequency of the APB1 bus (low speed)
-    Hertz apb2_peripheral;    ///< The frequency of the APB2 bus (high speed)
+    Hertz pll_input;                    ///< The frequency of the input to the PLL
+    Hertz pll_vco;                      ///< The frequency of the VCO
+    Hertz pll_output;                   ///< The frequency of the PLL output
+    Hertz sysclk;                       ///< the clock before the D1CPRE dividers
+    Hertz fclk;                         ///< The frequency of the cortex free running clock
+    Hertz hclk;                         ///< The frequency of the AHB bus (HCLK in D1, HCLK1 in D2, HCLK3 in D3, and HCLK in D1)
+    Hertz system_timer;                 ///< The frequency of the Cortex SYSTICK is the CPU clock divided by 8 (HCLK/8)
+    Hertz apb1_peripheral;              ///< The frequency of the APB1 bus (low speed in D2)
+    Hertz apb2_peripheral;              ///< The frequency of the APB2 bus (high speed in D2)
+    Hertz apb3_peripheral;              ///< The frequency of the APB3 bus (in D1)
+    Hertz apb4_peripheral;              ///< The frequency of the APB4 bus (in D3)
+    Hertz ahb1_peripheral;              ///< The frequency of the AHB1 peripheral clock (HCLK1 in D2)
+    Hertz ahb2_peripheral;              ///< The frequency of the AHB2 peripheral clock (HCLK2 == HCLK1 in D2)
+    Hertz ahb3_peripheral;              ///< The frequency of the HCLK3 peripheral clock (HCLK3 in D1)
+    Hertz ahb4_peripheral;              ///< The frequency of the HCLK4 peripheral clock (HCLK4 in D3)
+    Hertz apb1_timer_clk;               ///< The frequency of the TIMx clocks  (TIMxCLK)
+    Hertz apb2_timer_clk;               ///< The frequency of the TIMx clocks  (TIMxCLK)
+    Hertz high_resolution_timer_clk;    ///< The frequency of the HRTIMx clocks (HRTIMxCLK)
+    // Specific Peripheral Clocks
+    Hertz eth_ptp;    ///< The frequency of the Ethernet PTP clock
     Hertz pll_i2s;
     Hertz pll_48ck;
     Hertz rtc;
     Hertz rng;
     Hertz usbotg;
-    Hertz apb1_timer_clk;    ///< The frequency of the TIMx clocks  (TIMxCLK)
-    Hertz apb2_timer_clk;    ///< The frequency of the TIMx clocks  (TIMxCLK)
 };
 
 /// @brief The STM32H7xxx clock configuration.
