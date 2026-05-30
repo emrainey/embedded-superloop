@@ -1012,9 +1012,6 @@ static_assert(offsetof(PowerController, wakeup_enable_polarity_register) == 0x28
 // Ensure the sizeof the entire structure is correct.
 static_assert(sizeof(PowerController) == 0x400UL, "Must be this exact size");
 
-/// The external volatile power_controller which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern PowerController volatile power_controller;
 }    // namespace h7xx
 }    // namespace stm32
 #endif    // STM32_H7XX_POWERCONTROLLER__HPP_

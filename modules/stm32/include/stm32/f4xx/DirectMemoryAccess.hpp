@@ -958,13 +958,6 @@ static_assert(offsetof(DirectMemoryAccess, streams[0].fifo_control) == 0x24UL, "
 // Ensure the sizeof the entire structure is correct.
 static_assert(sizeof(DirectMemoryAccess) == 0x400UL, "Must be this exact size");
 #endif
-
-static constexpr size_t NumberOfDmaControllers{2U};
-static constexpr size_t NumberOfDmaStreamsPerController{8U};
-
-/// The external volatile direct_memory_access which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern DirectMemoryAccess volatile direct_memory_access[NumberOfDmaControllers];
 }    // namespace f4xx
 }    // namespace stm32
 #endif    // STM32_F4XX_DIRECTMEMORYACCESS__HPP_

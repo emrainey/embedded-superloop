@@ -592,9 +592,6 @@ static_assert(offsetof(Debug, apb2_freeze) == 0xcUL, "Must be located at this of
 // Ensure the sizeof the entire structure is correct.
 static_assert(sizeof(Debug) == 0x400UL, "Must be this exact size");
 
-/// The external volatile debug which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern Debug volatile debug;
 }    // namespace f4xx
 }    // namespace stm32
 #endif    // STM32_F4XX_DEBUG__HPP_

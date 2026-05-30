@@ -1252,21 +1252,6 @@ static_assert(offsetof(UniversalSynchronousAsynchronousReceiverTransmitter, pres
 // Ensure the sizeof the entire structure is correct.
 static_assert(sizeof(UniversalSynchronousAsynchronousReceiverTransmitter) == 0x400UL, "Must be this exact size");
 
-/// The external volatile universal_synchronous_asynchronous_receiver_transmitter which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern UniversalSynchronousAsynchronousReceiverTransmitter volatile usart1;
-
-/// The external volatile universal_synchronous_asynchronous_receiver_transmitter which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern UniversalSynchronousAsynchronousReceiverTransmitter volatile usart2;
-
-/// The external volatile universal_synchronous_asynchronous_receiver_transmitter which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern UniversalSynchronousAsynchronousReceiverTransmitter volatile usart3;
-
-/// The external volatile universal_synchronous_asynchronous_receiver_transmitter which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern UniversalSynchronousAsynchronousReceiverTransmitter volatile usart6;
 }    // namespace h7xx
 }    // namespace stm32
 #endif    // STM32_H7XX_UNIVERSALSYNCHRONOUSASYNCHRONOUSRECEIVERTRANSMITTER__HPP_

@@ -2239,9 +2239,6 @@ static_assert(offsetof(ResetAndClockControl, pll_i2s_configuration) == 0x84UL, "
 // Ensure the sizeof the entire structure is correct.
 static_assert(sizeof(ResetAndClockControl) == 0x400UL, "Must be this exact size");
 
-/// The external volatile reset_and_clock_control which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern ResetAndClockControl volatile reset_and_clock_control;
 }    // namespace f4xx
 }    // namespace stm32
 #endif    // STM32_F4XX_RESETANDCLOCKCONTROL__HPP_

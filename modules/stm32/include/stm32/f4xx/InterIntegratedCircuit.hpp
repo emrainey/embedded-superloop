@@ -926,18 +926,6 @@ static_assert(offsetof(InterIntegratedCircuit, rise_time) == 0x20UL, "Must be lo
 // Ensure the sizeof the entire structure is correct.
 static_assert(sizeof(InterIntegratedCircuit) == 0x400UL, "Must be this exact size");
 
-/// The external volatile inter_integrated_circuit which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern InterIntegratedCircuit volatile i2c1;
-
-/// The external volatile inter_integrated_circuit2 which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern InterIntegratedCircuit volatile i2c2;
-
-/// The external volatile inter_integrated_circuit3 which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern InterIntegratedCircuit volatile i2c3;
-
 }    // namespace f4xx
 }    // namespace stm32
 #endif    // STM32_F4XX_INTERINTEGRATEDCIRCUIT__HPP_

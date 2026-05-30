@@ -704,9 +704,6 @@ static_assert(offsetof(FlashControl, optcr) == 0x14UL, "Must be located at this 
 // Ensure the sizeof the entire structure is correct.
 static_assert(sizeof(FlashControl) == 0x400UL, "Must be this exact size");
 
-/// The external volatile flash_control which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern FlashControl volatile flash_control;
 }    // namespace f4xx
 }    // namespace stm32
 #endif    // STM32_F4XX_FLASHCONTROL__HPP_

@@ -156,45 +156,45 @@ struct InterIntegratedCircuit final {
             /// Follower address bit 0 (leader mode) In 7-bit addressing mode (ADD10 = 0): This bit is dont care In 10-bit addressing mode (ADD10 =
             /// 1): This bit should be written with bit 0 of the follower address to be sent Note: Changing these bits when the START bit is set is
             /// not allowed. (SADD0-9)
-            uint32_t follower_address                : 10;    // bit 0-9
+            uint32_t follower_address : 10;    // bit 0-9
             /// Transfer direction (leader mode) Note: Changing this bit when the START bit is set is not allowed. (RD_WRN)
-            uint32_t read_write                      : 1;    // bit 10
+            uint32_t read_write       : 1;    // bit 10
             /// 10-bit addressing mode (leader mode) Note: Changing this bit when the START bit is set is not allowed. (ADD10)
-            uint32_t address10                       : 1;    // bit 11
+            uint32_t address10        : 1;    // bit 11
             /// 10-bit address header only read direction (leader receiver mode) Note: Changing this bit when the START bit is set is not allowed.
             /// (HEAD10R)
-            uint32_t head10r           : 1;    // bit 12
+            uint32_t head10r          : 1;    // bit 12
             /// Start generation This bit is set by software, and cleared by hardware after the Start followed by the address sequence is sent, by an
             /// arbitration loss, by a timeout error detection, or when PE = 0. It can also be cleared by software by writing 1 to the ADDRCF bit in
             /// the I2C_ICR register. If the I2C is already in master mode with AUTOEND = 0, setting this bit generates a Repeated Start condition
             /// when RELOAD=0, after the end of the NBYTES transfer. Otherwise setting this bit will generate a START condition once the bus is free.
             /// Note: Writing 0 to this bit has no effect. The START bit can be set even if the bus is BUSY or I2C is in slave mode. This bit has no
             /// effect when RELOAD is set. (START)
-            uint32_t start             : 1;    // bit 13
+            uint32_t start            : 1;    // bit 13
             /// Stop generation (master mode) The bit is set by software, cleared by hardware when a Stop condition is detected, or when PE = 0. In
             /// Master Mode: Note: Writing 0 to this bit has no effect. (STOP)
-            uint32_t stop              : 1;    // bit 14
+            uint32_t stop             : 1;    // bit 14
             /// NACK generation (slave mode) The bit is set by software, cleared by hardware when the NACK is sent, or when a STOP condition or an
             /// Address matched is received, or when PE=0. Note: Writing 0 to this bit has no effect. This bit is used in slave mode only: in master
             /// receiver mode, NACK is automatically generated after last byte preceding STOP or RESTART condition, whatever the NACK bit value. When
             /// an overrun occurs in slave receiver NOSTRETCH mode, a NACK is automatically generated whatever the NACK bit value. When hardware PEC
             /// checking is enabled (PECBYTE=1), the PEC acknowledge value does not depend on the NACK value. (NACK)
-            uint32_t smart_card_nack   : 1;    // bit 15
+            uint32_t smart_card_nack  : 1;    // bit 15
             /// Number of bytes The number of bytes to be transmitted/received is programmed there. This field is dont care in slave mode with SBC=0.
             /// Note: Changing these bits when the START bit is set is not allowed. (NBYTES)
-            uint32_t byte_count        : 8;    // bits 16:23
+            uint32_t byte_count       : 8;    // bits 16:23
             /// NBYTES reload mode This bit is set and cleared by software. (RELOAD)
-            uint32_t transfer_reload   : 1;    // bit 24
+            uint32_t transfer_reload  : 1;    // bit 24
             /// Automatic end mode (master mode) This bit is set and cleared by software. Note: This bit has no effect in slave mode or when the
             /// RELOAD bit is set. (AUTOEND)
-            uint32_t autoend           : 1;    // bit 25
+            uint32_t autoend          : 1;    // bit 25
             /// Packet error checking byte This bit is set by software, and cleared by hardware when the PEC is transferred, or when a STOP condition
             /// or an Address matched is received, also when PE=0. Note: Writing 0 to this bit has no effect. This bit has no effect when RELOAD is
             /// set. This bit has no effect is slave mode when SBC=0. If the SMBus feature is not supported, this bit is reserved and forced by
             /// hardware to 0. Please refer to Section25.3: I2C implementation. (PECBYTE)
-            uint32_t pecbyte           : 1;    // bit 26
+            uint32_t pecbyte          : 1;    // bit 26
             /// (reserved)
-            uint32_t                   : 5;    // bits 27:31
+            uint32_t                  : 5;    // bits 27:31
         };
         //+=MEMORY======================================+
         union {
@@ -1185,22 +1185,6 @@ static_assert(offsetof(InterIntegratedCircuit, transmit_data) == 0x28UL, "Must b
 
 // Ensure the sizeof the entire structure is correct.
 static_assert(sizeof(InterIntegratedCircuit) == 0x400UL, "Must be this exact size");
-
-/// The external volatile inter_integrated_circuit which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern InterIntegratedCircuit volatile i2c1;
-
-/// The external volatile inter_integrated_circuit2 which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern InterIntegratedCircuit volatile i2c2;
-
-/// The external volatile inter_integrated_circuit3 which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern InterIntegratedCircuit volatile i2c3;
-
-/// The external volatile inter_integrated_circuit4 which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern InterIntegratedCircuit volatile i2c4;
 
 }    // namespace h7xx
 }    // namespace stm32

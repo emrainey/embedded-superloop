@@ -1719,9 +1719,6 @@ static_assert(offsetof(Timer2, timer_input_selection) == 0x68UL, "Must be locate
 // Ensure the sizeof the entire structure is correct.
 static_assert(sizeof(Timer2) == 0x400UL, "Must be this exact size");
 
-/// The external volatile timer2 which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern Timer2 volatile timer2;
 }    // namespace h7xx
 }    // namespace stm32
 #endif    // STM32_H7XX_TIMER2__HPP_

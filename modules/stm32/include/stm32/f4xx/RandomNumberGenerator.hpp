@@ -474,9 +474,6 @@ static_assert(offsetof(RandomNumberGenerator, data) == 0x8UL, "Must be located a
 // Ensure the sizeof the entire structure is correct.
 static_assert(sizeof(RandomNumberGenerator) == 0x400UL, "Must be this exact size");
 
-/// The external volatile random_number_generator which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern RandomNumberGenerator volatile random_number_generator;
 }    // namespace f4xx
 }    // namespace stm32
 #endif    // STM32_F4XX_RANDOMNUMBERGENERATOR__HPP_

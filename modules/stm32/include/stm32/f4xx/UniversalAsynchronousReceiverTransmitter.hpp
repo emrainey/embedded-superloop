@@ -718,22 +718,6 @@ static_assert(offsetof(UniversalAsynchronousReceiverTransmitter, control3) == 0x
 // Ensure the sizeof the entire structure is correct.
 static_assert(sizeof(UniversalAsynchronousReceiverTransmitter) == 0x400UL, "Must be this exact size");
 
-/// The external volatile universal_asynchronous_receiver_transmitter4 which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern UniversalAsynchronousReceiverTransmitter volatile uart4;
-
-/// The external volatile universal_asynchronous_receiver_transmitter4 which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern UniversalAsynchronousReceiverTransmitter volatile uart5;
-
-/// The external volatile universal_asynchronous_receiver_transmitter4 which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern UniversalAsynchronousReceiverTransmitter volatile uart7;
-
-/// The external volatile universal_asynchronous_receiver_transmitter4 which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern UniversalAsynchronousReceiverTransmitter volatile uart8;
-
 }    // namespace f4xx
 }    // namespace stm32
 #endif    // STM32_F4XX_UNIVERSALASYNCHRONOUSRECEIVERTRANSMITTER__HPP_

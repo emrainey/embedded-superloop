@@ -1288,29 +1288,6 @@ static_assert(offsetof(SerialPeripheralInterface, configuration) == 0x50UL, "Mus
 // Ensure the sizeof the entire structure is correct.
 static_assert(sizeof(SerialPeripheralInterface) == 0x400UL, "Must be this exact size");
 
-/// The external volatile serial_peripheral_interface which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern SerialPeripheralInterface volatile spi1;
-
-/// The external volatile serial_peripheral_interface which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern SerialPeripheralInterface volatile spi2;
-
-/// The external volatile serial_peripheral_interface which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern SerialPeripheralInterface volatile spi3;
-
-/// The external volatile serial_peripheral_interface which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern SerialPeripheralInterface volatile spi4;
-
-/// The external volatile serial_peripheral_interface which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern SerialPeripheralInterface volatile spi5;
-
-/// The external volatile serial_peripheral_interface which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern SerialPeripheralInterface volatile spi6;
 }    // namespace h7xx
 }    // namespace stm32
 #endif    // STM32_H7XX_SERIALPERIPHERALINTERFACE__HPP_

@@ -432,9 +432,6 @@ static_assert(offsetof(PowerController, control_status) == 0x4UL, "Must be locat
 // Ensure the sizeof the entire structure is correct.
 static_assert(sizeof(PowerController) == 0x400UL, "Must be this exact size");
 
-/// The external volatile power_controller which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern PowerController volatile power_controller;
 }    // namespace f4xx
 }    // namespace stm32
 #endif    // STM32_F4XX_POWERCONTROLLER__HPP_

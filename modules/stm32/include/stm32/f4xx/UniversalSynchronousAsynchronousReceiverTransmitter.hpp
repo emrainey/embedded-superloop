@@ -332,7 +332,7 @@ struct UniversalSynchronousAsynchronousReceiverTransmitter final {
             /// (reserved)
             uint32_t                                                                  : 1;    // bit 7
             /// Last bit clock pulse (LBCL)
-            uint32_t last_bit_clock_pulse                  : 1;    // bit 8
+            uint32_t last_bit_clock_pulse                                             : 1;    // bit 8
             /// Clock phase (CPHA)
             uint32_t clock_phase                                                      : 1;    // bit 9
             /// Clock polarity (CPOL)
@@ -795,22 +795,6 @@ static_assert(offsetof(UniversalSynchronousAsynchronousReceiverTransmitter, guar
 
 // Ensure the sizeof the entire structure is correct.
 static_assert(sizeof(UniversalSynchronousAsynchronousReceiverTransmitter) == 0x400UL, "Must be this exact size");
-
-/// The external volatile universal_synchronous_asynchronous_receiver_transmitter which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern UniversalSynchronousAsynchronousReceiverTransmitter volatile usart1;
-
-/// The external volatile USART which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern UniversalSynchronousAsynchronousReceiverTransmitter volatile usart2;
-
-/// The external volatile USART which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern UniversalSynchronousAsynchronousReceiverTransmitter volatile usart3;
-
-/// The external volatile USART which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern UniversalSynchronousAsynchronousReceiverTransmitter volatile usart6;
 
 }    // namespace f4xx
 }    // namespace stm32

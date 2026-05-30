@@ -11,12 +11,125 @@
 #include "stm32/h7xx/FlashControl.hpp"
 #include "stm32/h7xx/GeneralPurposeInputOutput.hpp"
 #include "stm32/h7xx/InterIntegratedCircuit.hpp"
+#include "stm32/h7xx/PowerController.hpp"
 #include "stm32/h7xx/RandomNumberGenerator.hpp"
 #include "stm32/h7xx/ResetAndClockControl.hpp"
 #include "stm32/h7xx/SerialPeripheralInterface.hpp"
 #include "stm32/h7xx/Timer2.hpp"
 #include "stm32/h7xx/UniversalAsynchronousReceiverTransmitter.hpp"
 #include "stm32/h7xx/UniversalSynchronousAsynchronousReceiverTransmitter.hpp"
+
+namespace stm32::h7xx {
+
+static constexpr size_t NumberOfDmaControllers{2U};
+static constexpr size_t NumberOfDmaStreamsPerController{8U};
+static constexpr std::size_t NumberOfGeneralPurposeInputOutputInstances = 11UL;
+
+/// The external volatile debug which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern Debug volatile debug;
+
+/// The external volatile direct_memory_access which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern DirectMemoryAccess volatile direct_memory_access[NumberOfDmaControllers];
+
+/// The external volatile flash_control which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern FlashControl volatile flash_control;
+
+/// The external volatile gpio which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern GeneralPurposeInputOutput volatile general_purpose_input_output[NumberOfGeneralPurposeInputOutputInstances];
+
+/// The external volatile inter_integrated_circuit which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern InterIntegratedCircuit volatile i2c1;
+
+/// The external volatile inter_integrated_circuit2 which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern InterIntegratedCircuit volatile i2c2;
+
+/// The external volatile inter_integrated_circuit3 which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern InterIntegratedCircuit volatile i2c3;
+
+/// The external volatile inter_integrated_circuit4 which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern InterIntegratedCircuit volatile i2c4;
+
+/// The external volatile power_controller which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern PowerController volatile power_controller;
+
+/// The external volatile random_number_generator which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern RandomNumberGenerator volatile random_number_generator;
+
+/// The external volatile reset_and_clock_control which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern ResetAndClockControl volatile reset_and_clock_control;
+
+/// The external volatile spi1 which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern SerialPeripheralInterface volatile spi1;
+
+/// The external volatile spi2 which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern SerialPeripheralInterface volatile spi2;
+
+/// The external volatile spi3 which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern SerialPeripheralInterface volatile spi3;
+
+/// The external volatile spi4 which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern SerialPeripheralInterface volatile spi4;
+
+/// The external volatile spi5 which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern SerialPeripheralInterface volatile spi5;
+
+/// The external volatile spi6 which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern SerialPeripheralInterface volatile spi6;
+
+/// The external volatile timer2 which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern Timer2 volatile timer2;
+
+/// The external volatile universal_asynchronous_receiver_transmitter4 which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern UniversalAsynchronousReceiverTransmitter volatile uart4;
+
+/// The external volatile universal_asynchronous_receiver_transmitter5 which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern UniversalAsynchronousReceiverTransmitter volatile uart5;
+
+/// The external volatile universal_asynchronous_receiver_transmitter7 which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern UniversalAsynchronousReceiverTransmitter volatile uart7;
+
+/// The external volatile universal_asynchronous_receiver_transmitter8 which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern UniversalAsynchronousReceiverTransmitter volatile uart8;
+
+/// The external volatile universal_synchronous_asynchronous_receiver_transmitter1 which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern UniversalSynchronousAsynchronousReceiverTransmitter volatile usart1;
+
+/// The external volatile universal_synchronous_asynchronous_receiver_transmitter2 which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern UniversalSynchronousAsynchronousReceiverTransmitter volatile usart2;
+
+/// The external volatile universal_synchronous_asynchronous_receiver_transmitter3 which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern UniversalSynchronousAsynchronousReceiverTransmitter volatile usart3;
+
+/// The external volatile universal_synchronous_asynchronous_receiver_transmitter6 which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern UniversalSynchronousAsynchronousReceiverTransmitter volatile usart6;
+
+}    // namespace stm32::h7xx
 
 namespace stm32 {
 

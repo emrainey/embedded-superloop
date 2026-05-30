@@ -1248,11 +1248,6 @@ static_assert(offsetof(GeneralPurposeInputOutput, alternative_function_high) == 
 // Ensure the sizeof the entire structure is correct.
 static_assert(sizeof(GeneralPurposeInputOutput) == 0x400UL, "Must be this exact size");
 
-static constexpr std::size_t NumberOfGeneralPurposeInputOutputInstances = 11UL;
-
-/// The external volatile gpio which is a memory mapped register or peripheral.
-/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
-extern GeneralPurposeInputOutput volatile general_purpose_input_output[NumberOfGeneralPurposeInputOutputInstances];
 }    // namespace h7xx
 }    // namespace stm32
 #endif    // STM32_H7XX_GENERALPURPOSEINPUTOUTPUT__HPP_
