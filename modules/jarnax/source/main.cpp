@@ -2,6 +2,9 @@
 #include "jarnax/Assertion.hpp"
 #include "jarnax/Context.hpp"
 
+#include "cmake.hpp"
+#include "git.hpp"
+
 namespace jarnax {
 void ATTRIBUTE((weak)) banner(void) {
     jarnax::print(
@@ -11,8 +14,12 @@ void ATTRIBUTE((weak)) banner(void) {
         "       _/  _/_/_/_/  _/_/_/    _/  _/  _/  _/    _/      _/         \r\n"
         "_/    _/  _/    _/  _/    _/  _/    _/_/  _/_/  _/    _/  _/        \r\n"
         " _/_/    _/    _/  _/    _/  _/      _/    _/_/    _/      _/       \r\n"
-        " -- %s\r\n",
-        jarnax::VersionString
+        " %s -- %u.%u.%u from git commit %s\r\n",
+        cmake::project::name_version,
+        cmake::project::version.major,
+        cmake::project::version.minor,
+        cmake::project::version.patch,
+        git::short_hash
     );
 }
 }    // namespace jarnax

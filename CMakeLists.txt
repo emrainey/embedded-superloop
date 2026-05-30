@@ -15,6 +15,37 @@ set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_STANDARD 17)
 
+
+# Create the CMake Project Variables as a Header
+configure_file(${CMAKE_SOURCE_DIR}/include/cmake.hpp.in
+    ${CMAKE_BINARY_DIR}/generated/include/cmake.hpp)
+
+# Parse the Git information and create a header with that information
+find_package(Git REQUIRED)
+execute_process(
+    COMMAND ${GIT_EXECUTABLE} rev-parse --short=7 HEAD
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_SHORT_HASH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+execute_process(
+    COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_FULL_HASH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+execute_process(
+    COMMAND ${GIT_EXECUTABLE} describe --tags --abrev=32
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_TAG
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+# Force Everyone to include the generated header location
+include_directories(${CMAKE_BINARY_DIR}/generated/include)
+
+# Inform all binaries what the Git information is at compile time, so it can be used in the application for logging or displaying version information.
+add_compile_options(-DGIT_SHORT_HASH="${GIT_SHORT_HASH}" -DGIT_FULL_HASH="${GIT_FULL_HASH}" -DGIT_TAG="${GIT_TAG}")
+
 if ((CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 11)
     OR (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_SYSTEM_NAME STREQUAL "Linux"))
     message(STATUS "Using C++ Link Group with RESCAN")

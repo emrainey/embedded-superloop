@@ -9,7 +9,6 @@
 #include "jarnax/customize.hpp"
 #include "jarnax/print.hpp"
 #include "jarnax/system.hpp"
-#include "jarnax/version.hpp"    // [GENERATED]
 #include "memory.hpp"
 
 namespace jarnax {

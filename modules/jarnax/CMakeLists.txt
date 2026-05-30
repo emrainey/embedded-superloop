@@ -1,7 +1,3 @@
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/jarnax/version.hpp.in
-    ${CMAKE_CURRENT_BINARY_DIR}/include/jarnax/version.hpp)
-
 # Drivers and other modules that are not part of the jarnax module but need it's interface definitions take
 # a dependency on this library.
 add_library(jarnax-interfaces INTERFACE)
@@ -105,6 +101,21 @@ add_module(NAME jarnax-lsm9ds1-driver
         ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/lsm9ds1/Driver.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/lsm9ds1/StateChart.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/generated/drivers/lsm9ds1/ag/StateChart.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/include # Internal includes
+    LIBRARIES
+        strict jarnax-interfaces
+    GENERIC_MODULES
+        memory core
+    NO_CONFIGURATIONS
+    NO_BOARDS
+)
+
+add_module(NAME jarnax-net
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/net/ip/v4/Interface.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/net/ip/v4/Route.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/source/include # Internal includes

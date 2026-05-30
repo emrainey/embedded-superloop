@@ -1,0 +1,51 @@
+#ifndef CMAKE_HPP_
+#define CMAKE_HPP_
+
+/// The CMake Namespace used to define several aspects of the project, such as the project name and version. This allows us to have a single source of truth for this information, which can be used throughout the codebase without having to hardcode it in multiple places. The CMake variables are replaced with their actual values at compile time, so we can use them to create constexpr variables that hold this information.
+namespace cmake {
+
+/// The enumeration of possible build types in CMake, which allows us to differentiate between different build configurations at compile time.
+enum class BuildType : uint8_t {
+    Undefined = 0,
+    Debug = 1,
+    Release = 2,
+    RelWithDebInfo = 3,
+    MinSizeRel = 4
+};
+
+/// The known build type of the project, which is determined at compile time based on the CMAKE_BUILD_TYPE variable defined in the CMakeLists.txt file. This allows us to use this information in our code to conditionally compile certain features or optimizations based on the build type.
+constexpr static BuildType build_type = BuildType::@CMAKE_BUILD_TYPE@;
+
+/// The CMake Namespace used to define several aspects of the project, such as the project name and version. This allows us to have a single source of truth for this information, which can be used throughout the codebase without having to hardcode it in multiple places. The CMake variables are replaced with their actual values at compile time, so we can use them to create constexpr variables that hold this information.
+namespace project {
+
+/// The version of the project in CMake is defined using the project() command, which sets the major, minor, and patch version numbers. We can use these version numbers to create a Version struct that holds this information at compile time.
+struct Version {
+    constexpr Version(uint8_t maj, uint8_t min, uint16_t pat)
+        : major{maj}
+        , minor{min}
+        , patch{pat} {}
+    uint8_t major;
+    uint8_t minor;
+    uint16_t patch;
+};
+
+/// The CMake Project Version is defined in the CMakeLists.txt file using the project() command, and we can use it to initialize our Version struct at compile time.
+constexpr static Version version{@PROJECT_VERSION_MAJOR@, @PROJECT_VERSION_MINOR@, @PROJECT_VERSION_PATCH@};
+
+/// The project name is also defined in the CMakeLists.txt file using the project() command, and we can use it to create a constexpr string that represents the project name.
+using Name = char[32U];
+
+/// The project name is defined as a constexpr static variable, which allows us to use it in other parts of the code where we might need to reference the project name.
+constexpr static Name name = "@PROJECT_NAME@";
+
+//// A conjoined name and string version of the build
+using NameVersion = char[64U];
+
+/// The version string is a human-readable representation of the version, which can be useful for logging or displaying the version information in the application. We can create a constexpr string that combines the project name and version information.
+constexpr NameVersion name_version = "@PROJECT_NAME@-@PROJECT_VERSION@";
+
+}    // namespace project
+}    // namespace cmake
+
+#endif    // CMAKE_HPP_
