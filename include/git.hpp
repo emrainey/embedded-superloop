@@ -33,7 +33,7 @@ constexpr static FullHash const full_hash = GIT_FULL_HASH;
 #define GIT_TAG "unknown"
 #endif
 
-using Tag = char[32U];
+using Tag = char[64U];
 
 /// The Git Tag is a human-readable identifier for a specific version of the codebase, which can be useful for logging or displaying the version
 /// information in the application. We can create a constexpr string that holds this information at compile time.

@@ -35,7 +35,7 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 execute_process(
-    COMMAND ${GIT_EXECUTABLE} describe --tags --abrev=32
+    COMMAND ${GIT_EXECUTABLE} describe --tags --abbrev=32
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     OUTPUT_VARIABLE GIT_TAG
     OUTPUT_STRIP_TRAILING_WHITESPACE
