@@ -65,12 +65,12 @@ SECTIONS {
 
     /* Initialized Constant Static Storage */
     .rodata ALIGN(4) : {
-        __const_static_data_load = .;
         *(.rodata)
         *(.rodata.*)
     } >REGION_TEXT
 
     /* Initialized Static Storage in RAM (no longer really Constant!)*/
+    __const_static_data_load = LOADADDR(.data);
     .data : {
         __const_static_data_start = .;
         *(.data)

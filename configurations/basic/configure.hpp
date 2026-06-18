@@ -90,7 +90,7 @@ constexpr static bool allow_thread_mode_exception_return{false};
 
 /// Enable trapping of unaligned accesses into a Usage Fault.
 /// @note Halfword and Word Acceases using LDM, STM, LDRD, and STRD will always fault when this is enabled.
-constexpr static bool trap_unaligned_access{true};
+constexpr static bool trap_unaligned_access{false};
 
 /// Enable trapping of divide by zero operations into a Usage Fault.
 /// @note This only applies to hardware divide instructions (SDIV and UDIV).When disabled, a value of zero is returned.
