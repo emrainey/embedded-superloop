@@ -17,6 +17,7 @@
             "davidanson.vscode-markdownlint",
             "gruntfuggly.todo-tree",
             "xaver.clang-format",
+            "vadimcn.vscode-lldb",
             "llvm-vs-code-extensions.vscode-clangd",
             "ms-vscode.hexeditor"
         ],

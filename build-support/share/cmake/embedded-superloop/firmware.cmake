@@ -215,6 +215,10 @@ function(add_firmware)
                 )
                 add_custom_target(hex-${LOCAL_TARGET} ALL DEPENDS ${ARG_HEX})
                 message(STATUS "Adding hex-${LOCAL_TARGET}")
+
+                # Accumulate debug target information for generate_launch_json.py
+                set(TARGET_JSON_OBJ "  {\n    \"name\": \"${LOCAL_TARGET}\",\n    \"device\": \"${BOARD_DEVICE}\",\n    \"executable\": \"${ARG_ELF}\"\n  }")
+                append_global(CROSS_DEBUG_TARGETS "${TARGET_JSON_OBJ}")
             else()
                 target_compile_definitions(${LOCAL_TARGET}.elf
                     PUBLIC

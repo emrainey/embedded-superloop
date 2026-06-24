@@ -1,0 +1,23 @@
+{
+    "mcpServers": {
+        "mcpls": {
+            "command": "mcpls",
+            "args": [],
+            "env": {}
+        },
+        "embedded-debugger": {
+            "command": "embedded-debugger-mcp",
+            "args": [],
+            "env": {
+                "RUST_LOG": "info"
+            }
+        },
+        "pdf-reader": {
+            "command": "npx",
+            "args": [
+                "@sylphx/pdf-reader-mcp"
+            ],
+            "cwd": "documentation/pdfs"
+        }
+    }
+}

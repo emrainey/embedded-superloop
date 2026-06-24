@@ -1,0 +1,21 @@
+[[lsp_servers]]
+language_id = "cpp"
+command = "clangd"
+args = [
+  "--background-index",
+  "--query-driver=/**/arm-none-eabi-*",
+  "--clang-tidy",
+  "--enable-config",
+  "--header-insertion=iwyu",
+  "--pretty"
+]
+file_patterns = [
+  "**/*.cpp",
+  "**/*.hpp",
+  "**/*.c",
+  "**/*.h",
+  "**/*.inc",
+  "**/*.ipp",
+  "**/*.tcc",
+  "**/*.in"
+]

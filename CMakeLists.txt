@@ -154,3 +154,29 @@ foreach(test IN LISTS LOCAL_UNITTESTS)
         add_subdirectory(${EMBEDDED_SUPERLOOP_PROJECT_ROOT}/modules/${test}/tests)
     endif()
 endforeach()
+
+# Write the accumulated debug targets to a JSON file
+get_property(ACCUMULATED_DEBUG_TARGETS GLOBAL PROPERTY CROSS_DEBUG_TARGETS)
+string(REPLACE ";" ",\n" ACCUMULATED_TARGETS_JSON "${ACCUMULATED_DEBUG_TARGETS}")
+set(JSON_CONTENT "[\n${ACCUMULATED_TARGETS_JSON}\n]\n")
+file(WRITE "${CMAKE_BINARY_DIR}/debug_targets.json" "${JSON_CONTENT}")
+
+# Generate .vscode/launch.json on configure and as a custom target
+add_custom_target(generate-launch-json
+    COMMAND ${STATERATOR_PYTHON} ${CMAKE_SOURCE_DIR}/scripts/generate_launch_json.py --build-dir ${CMAKE_BINARY_DIR}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Generating .vscode/launch.json from build targets"
+)
+
+if(NOT ENV{CI})
+    # Run the generator script at configure time to automatically update launch.json
+    execute_process(
+        COMMAND ${STATERATOR_PYTHON} ${CMAKE_SOURCE_DIR}/scripts/generate_launch_json.py --build-dir ${CMAKE_BINARY_DIR}
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        RESULT_VARIABLE GENERATE_LAUNCH_JSON_RESULT
+    )
+    if(NOT GENERATE_LAUNCH_JSON_RESULT EQUAL 0)
+        message(WARNING "Failed to generate .vscode/launch.json")
+    endif()
+endif()
+
