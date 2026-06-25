@@ -79,5 +79,10 @@ ISR void i2c2_error_isr(void);
 /// I2C3 ISR Handler
 ISR void i2c3_event_isr(void);
 ISR void i2c3_error_isr(void);
+/// RNG
+ISR void random_number_isr(void);
+/// Ethernet
+ISR void ethernet_isr(void);
+
 }    // namespace stm32
 #endif    // STM32_VECTORS_HPP

@@ -2,7 +2,6 @@
 #include "jarnax/Context.hpp"
 #include "jarnax/Monitor.hpp"
 #include "jarnax/console/Service.hpp"
-#include "jarnax/drivers/ssd1306/Driver.hpp"
 
 #include "Demo.hpp"
 
@@ -31,6 +30,7 @@ public:
         result &= GetSuperLoop().Enlist(jarnax::GetBoardContext().GetI2cB());
         result &= GetSuperLoop().Enlist(jarnax::GetBoardContext().GetSpiA());
         result &= GetSuperLoop().Enlist(jarnax::GetBoardContext().GetUsartB());
+        result &= GetSuperLoop().Enlist(jarnax::GetBoardContext().GetEthernet());
         result &= GetSuperLoop().Enlist(console_);
         if (result) {
             return core::Status{};

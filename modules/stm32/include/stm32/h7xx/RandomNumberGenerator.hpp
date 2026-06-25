@@ -50,7 +50,7 @@ struct RandomNumberGenerator final {
             /// Clock error detection Note: The clock error detection can be used only when ck_rc48 or ck_pll1_q (ck_pll1_q = 48MHz) source is
             /// selected otherwise, CED bit must be equal to 1. The clock error detection cannot be enabled nor disabled on the fly when RNG
             /// peripheral is enabled, to enable or disable CED the RNG must be disabled. (CED)
-            uint32_t ced                            : 1;    // bit 5
+            uint32_t clock_error_detection          : 1;    // bit 5
             /// (reserved)
             uint32_t                                : 26;    // bits 6:31
         };

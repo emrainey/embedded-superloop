@@ -74,8 +74,14 @@ struct DataAndInstructionCacheControl final {
 static_assert(sizeof(DataAndInstructionCacheControl) == 0x30UL, "Must be this exact size");
 #endif
 
+} // namespace m7
+
+namespace peripherals {
 /// Memory-mapped register block for cache control operations
-extern DataAndInstructionCacheControl volatile data_and_instruction_cache_control;
+extern m7::DataAndInstructionCacheControl volatile data_and_instruction_cache_control;
+} // namespace peripherals
+
+namespace m7 {
 
 /// The Auxiliary Control Register (ACTLR) is outside the System Control Block (SCB)
 /// @warning Only use these if you know EXACTLY what you are doing!

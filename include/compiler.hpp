@@ -34,7 +34,7 @@
 #define LINKER_SECTION(x)
 #define NAKED
 #define ALWAYS_INLINE
-#define ISR
+#define ISR ATTRIBUTE((weak))
 // ELse if using GCC/Clang for ARM, define the attributes for the target
 #elif (defined(__GNUC__) or defined(__clang__)) and defined(__arm__)
 
@@ -58,7 +58,7 @@
 #if __has_attribute(alias) and not(defined(__APPLE__) or defined(__MACH__))
 #define ALIAS(x) ATTRIBUTE((weak, alias(#x)))
 #else
-#define ALIAS(x) ATTRIBUTE((weak))
+#define ALIAS(x) { x(); } extern void compiler_dummy_declaration()
 #endif
 #endif
 

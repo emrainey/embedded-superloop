@@ -88,6 +88,7 @@ target_compile_options(strict
         $<$<CXX_COMPILER_ID:GCC>:-Wsuggest-final-methods>
         $<$<CXX_COMPILER_ID:GCC>:-Wsuggest-final-types>
         $<$<CXX_COMPILER_ID:GCC>:-Wvolatile>
+        $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:-Wno-unknown-attributes>
 )
 
 function(set_configuration_name VAR CFG)

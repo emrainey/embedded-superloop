@@ -84,6 +84,17 @@ def main():
             "preResetCommands": [
                 "monitor reset 0"
             ],
+            "rttConfig": {
+                "enabled": True,
+                "address": "auto",
+                "decoders": [
+                    {
+                        "port": 0,
+                        "type": "console",
+                        "label": "RTT Channel 0 (Log)"
+                    }
+                ]
+            }
         }
 
         if rel_svd:
@@ -112,6 +123,19 @@ def main():
         c for c in existing_launch.get("configurations", [])
         if c.get("type") != "cortex-debug"
     ]
+
+    # Ensure Local Debug via LLDB is present
+    has_lldb = any(c.get("name") == "Local Debug via LLDB" for c in non_cortex_configs)
+    if not has_lldb:
+        non_cortex_configs.insert(0, {
+            "name": "Local Debug via LLDB",
+            "cwd": "${workspaceRoot}",
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "linux": {},
+            "osx": {}
+        })
 
     # Merge
     merged_configs = non_cortex_configs + new_configs

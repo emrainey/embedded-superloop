@@ -10,6 +10,29 @@
 #include "stm32/h7xx/ResetAndClockControl.hpp"
 #include "strings.hpp"
 
+LINKER_TYPED_SYMBOL(__sram1_start, std::uint32_t);
+LINKER_TYPED_SYMBOL(__sram1_limit, std::uint32_t);
+LINKER_TYPED_SYMBOL(__sram2_start, std::uint32_t);
+LINKER_TYPED_SYMBOL(__sram2_limit, std::uint32_t);
+LINKER_TYPED_SYMBOL(__sram3_start, std::uint32_t);
+LINKER_TYPED_SYMBOL(__sram3_limit, std::uint32_t);
+LINKER_TYPED_SYMBOL(__sram4_start, std::uint32_t);
+LINKER_TYPED_SYMBOL(__sram4_limit, std::uint32_t);
+
+#if defined(UNITTEST)
+static std::uint32_t mock_sram1[256];
+static std::uint32_t mock_sram2[256];
+static std::uint32_t mock_sram3[256];
+static std::uint32_t mock_sram4[256];
+std::uint32_t *__sram1_start = mock_sram1;
+std::uint32_t *__sram1_limit = mock_sram1 + 256;
+std::uint32_t *__sram2_start = mock_sram2;
+std::uint32_t *__sram2_limit = mock_sram2 + 256;
+std::uint32_t *__sram3_start = mock_sram3;
+std::uint32_t *__sram3_limit = mock_sram3 + 256;
+std::uint32_t *__sram4_start = mock_sram4;
+std::uint32_t *__sram4_limit = mock_sram4 + 256;
+#endif
 namespace stm32 {
 
 /// @brief Dedicate a chunk of memory for the DMA buffers
@@ -309,6 +332,7 @@ core::Status BoardContext::Initialize(void) {
             break;
         }
 
+
         // force out
         break;
     } while (true);
@@ -388,6 +412,7 @@ core::Allocator& BoardContext::GetDmaAllocator() {
 jarnax::console::Service& BoardContext::GetConsole() {
     return usart_console_;
 }
+
 
 BoardContext& GetBoardContext() {
     static BoardContext board_context;
@@ -483,6 +508,14 @@ void nvic(void) {
     // enable the USART1 interrupt
     cortex::nvic::Enable(polyfill::to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter1));
     cortex::nvic::Prioritize(polyfill::to_underlying(stm32::InterruptRequest::UniversalSynchronousAsynchronousReceiverTransmitter1), 5);
+
+    // enable the Ethernet Interrupts
+    cortex::nvic::Enable(polyfill::to_underlying(stm32::InterruptRequest::Ethernet));
+    cortex::nvic::Prioritize(polyfill::to_underlying(stm32::InterruptRequest::Ethernet), 6);
+
+    // enable the RNG interrupt
+    cortex::nvic::Enable(polyfill::to_underlying(stm32::InterruptRequest::RandomNumberGenerator));
+    cortex::nvic::Prioritize(polyfill::to_underlying(stm32::InterruptRequest::RandomNumberGenerator), 7);
 }
 
 }    // namespace initialize

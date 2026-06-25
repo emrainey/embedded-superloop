@@ -22,13 +22,27 @@ public:
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     core::Status Initialize() override;
     std::uint32_t GetNextRandom(void) override;
+    bool IsReady(void) const override;
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    void HandleInterrupt(void);
+
+    struct Statistics {
+        std::size_t readings{0U};
+        std::size_t errors{0U};
+    };
+
+    // @TODO should be a Statistican!
+    Statistics const& GetStatistics(void) const { return statistics_; }
 
 protected:
     constexpr static std::size_t kInitializeLimit{1000U};               ///< Don't let the object initialize forever.
     stm32::peripherals::RandomNumberGenerator volatile& peripheral_;    ///< The reference to the peripheral registers
     std::uint32_t first_;                                               ///< The first value read to check for an active generation
     bool initialized_;                                                  ///< True when the object has been initialized.
+    std::uint32_t volatile value_;                                               ///< The latest value read. 
+    bool volatile value_ready_;                                                  ///< True when the value is ready to be read.
+    Statistics statistics_;                                             ///< Statistics about the random number generator.
 };
 }    // namespace stm32
 

@@ -12,7 +12,9 @@ namespace jarnax {
 /// @brief The Random Number Generator Interface
 class RandomNumberGenerator {
 public:
-    /// Returns a random 32 bit number.
+    /// Returns true if a random number is ready to be read.
+    virtual bool IsReady(void) const = 0;
+    /// Returns a random 32 bit number, if @ref IsReady() return true. Otherwise, returns the previous number.
     virtual std::uint32_t GetNextRandom(void) = 0;
 
 protected:

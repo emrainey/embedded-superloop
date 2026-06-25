@@ -85,6 +85,9 @@ public:
     /// Return the Console Service
     jarnax::console::Service& GetConsole();
 
+    /// Return the Ethernet Driver
+    jarnax::net::ethernet::Driver& GetEthernet();
+
 protected:
     stm32::Timer timer_;
     /// The Random Number Generator

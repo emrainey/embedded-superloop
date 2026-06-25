@@ -16,6 +16,9 @@ void bus(void) {
         cortex::built_in_self_test.trigger_bus_fault.has_passed = true;
     }
     static_cast<void>(frame);
+    if (not cortex::built_in_self_test.trigger_bus_fault.is_testing) {
+        cortex::spinhalt(); // something is seriously wrong
+    }
     thumb::interrupt_service_routine_context_restore();    // also returns
 }
 

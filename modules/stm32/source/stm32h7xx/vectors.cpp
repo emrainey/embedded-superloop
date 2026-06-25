@@ -164,6 +164,14 @@ void i2c3_error_isr(void) {
     dummy_isr();
 }
 
+void random_number_isr(void) {
+    dummy_isr();
+}
+
+void ethernet_isr(void) {
+    dummy_isr();
+}
+
 }    // namespace stm32
 #else
 // Compiler supports alias attribute - define aliases in this TU where dummy_isr is defined
@@ -208,6 +216,10 @@ ISR void i2c2_event_isr(void) ALIAS(dummy_isr);
 ISR void i2c2_error_isr(void) ALIAS(dummy_isr);
 ISR void i2c3_event_isr(void) ALIAS(dummy_isr);
 ISR void i2c3_error_isr(void) ALIAS(dummy_isr);
+
+ISR void ethernet_isr(void) ALIAS(dummy_isr);
+
+ISR void random_number_isr(void) ALIAS(dummy_isr);
 
 }    // namespace stm32
 #endif
@@ -280,12 +292,12 @@ ExtendedVectors const extended_vectors = {{
     stm32::dma2_stream2_isr,    // 58
     stm32::dma2_stream3_isr,    // 59
     stm32::dma2_stream4_isr,    // 60
-    dummy_isr,           // 61
-    dummy_isr,           // 62
-    dummy_isr,           // 63
-    dummy_isr,           // 64
-    dummy_isr,           // 65
-    dummy_isr,           // 66
+    stm32::ethernet_isr,        // 61
+    dummy_isr,                  // 62
+    dummy_isr,                  // 63
+    dummy_isr,                  // 64
+    dummy_isr,                  // 65
+    dummy_isr,                  // 66
     dummy_isr,           // 67
     stm32::dma2_stream5_isr,    // 68
     stm32::dma2_stream6_isr,    // 69
@@ -299,7 +311,7 @@ ExtendedVectors const extended_vectors = {{
     dummy_isr,           // 77 - USB OTG HS
     dummy_isr,           // 78 - DCMI
     dummy_isr,           // 79 - CRYP / HASH
-    dummy_isr,           // 80 - RNG
+    stm32::random_number_isr, // 80 - RNG
     dummy_isr,           // 81 - FPU
     stm32::usart7_isr,   // 82 - UART7
     stm32::usart8_isr,   // 83 - UART8

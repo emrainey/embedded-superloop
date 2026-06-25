@@ -7,39 +7,62 @@ using core::Status;
 
 namespace stm32 {
 
+static RandomNumberGenerator *random_number_driver{nullptr};
+
+/// @brief The Random Number ISR
+void random_number_isr(void) {
+    if (random_number_driver) {
+        random_number_driver->HandleInterrupt();
+    }
+}
+
+
 RandomNumberGenerator::RandomNumberGenerator(stm32::peripherals::RandomNumberGenerator volatile& peripheral)
     : peripheral_{peripheral}
     , first_{0U}
-    , initialized_(false) {}
+    , initialized_{false}
+    , value_{0U}
+    , value_ready_{false}
+    , statistics_{} {
+        random_number_driver = this;
+    }
 
 Status RandomNumberGenerator::Initialize(void) {
-    std::size_t counter = kInitializeLimit;
-
-    // enable but with no interrupts
     stm32::peripherals::RandomNumberGenerator::Control ctrl;
     ctrl = peripheral_.control;    // read
-    ctrl.bits.interrupt_enable = 0U;
+    ctrl.bits.interrupt_enable = 1U; 
+#if defined(STM32H7)
+    ctrl.bits.clock_error_detection = 1U;
+#endif
     ctrl.bits.random_number_generator_enable = 1U;
     peripheral_.control = ctrl;    // write
-    // wait until first read?
-    while (not peripheral_.status.bits.data_ready and counter > 0U) {
-        counter--;
-    }
-    initialized_ = (counter > 0U);
-    // save the first read (even if not initialized)
-    first_ = uint32_t(peripheral_.data);
     return Status{};
 }
 
+void RandomNumberGenerator::HandleInterrupt(void) {
+    // clear the interrupt
+    stm32::peripherals::RandomNumberGenerator::Status status;
+    status = peripheral_.status;    // read
+    if (status.bits.data_ready == 1U) {
+        statistics_.readings++;
+        value_ = peripheral_.data.bits.random_number_data;
+        value_ready_ = true;
+    }
+    if (status.bits.clock_error_current_status or status.bits.seed_error_current_status) {
+        statistics_.errors++;
+        // write status back to clear either value
+        status.whole = 0; 
+        peripheral_.status = status;
+    }
+}
+
+bool RandomNumberGenerator::IsReady(void) const {
+    return value_ready_;
+}
+
 std::uint32_t RandomNumberGenerator::GetNextRandom(void) {
-    // wait until first read?
-    auto ready = false;
-    do {
-        // FIXME this could take several milliseconds, so we should probably have a timeout here, but for now we'll just wait indefinitely
-        ready = (peripheral_.status.bits.data_ready == 1U);
-    } while (not ready);
-    // return the value
-    return peripheral_.data.bits.random_number_data;
+    value_ready_ = false;
+    return value_;
 }
 
 }    // namespace stm32
