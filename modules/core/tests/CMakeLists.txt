@@ -23,6 +23,7 @@ host_unit_test(NAME core
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-tokenizer.cpp
         # ${CMAKE_CURRENT_SOURCE_DIR}/catch2-units.cpp # requires information from the Configuration and Architecture
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-variants.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/catch2-vsnprint.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/conversions.cpp
         ${_GENERATED_CORE_TESTS}
     LIBRARIES

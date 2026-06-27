@@ -38,7 +38,7 @@ static U clamp_to_range(T value, U min, U max) {
 /// @param base The base to parse the number in
 /// @return The index at the exclusive end of the number
 template <typename T>
-static unsigned long print_number(unsigned long start, char buffer[], T num, unsigned int base) {
+static unsigned long print_number(unsigned long start, char buffer[], T num, unsigned int base, unsigned int width = 0, bool leading_zero = false, bool uppercase = false, bool is_negative = false) {
     // the digits cover base 2, base 8 (don't use) base 10, base 12, base 16 and base 64
     static constexpr char const *const digits =
         "0123456789abcdef"
@@ -49,72 +49,72 @@ static unsigned long print_number(unsigned long start, char buffer[], T num, uns
     unsigned long offset = 0;
     char backwards_digits[digit_places_limit];    // hold the value temporarily
 
-    if (base == base2) {
-        if (num < 0b10) {
-            buffer[start] = digits[num];
-            return start + 1;
-        } else {
+    if (num == 0) {
+        backwards_digits[offset++] = '0';
+    } else {
+        if (base == base2) {
             while (num != 0) {
-                backwards_digits[offset] = digits[num & 1];
-                offset++;
+                backwards_digits[offset++] = digits[num & 1];
                 num >>= 1;
             }
-        }
-    }
-    if (base == base8) {
-        if (num < 8) {
-            buffer[start] = digits[num];
-            return start + 1;
-        } else {
+        } else if (base == base8) {
             while (num != 0) {
-                backwards_digits[offset] = digits[num & 7];
-                offset++;
+                backwards_digits[offset++] = digits[num & 7];
                 num >>= 3;
             }
-        }
-    }
-    if (base == base10) {
-        if (num < 10) {
-            buffer[start] = digits[num];
-            return start + 1;
-        } else {
+        } else if (base == base10) {
             while (num != 0) {
-                backwards_digits[offset] = digits[num % 10];
-                offset++;
+                backwards_digits[offset++] = digits[num % 10];
                 num /= 10;
             }
-        }
-    }
-    if (base == base16) {
-        if (num < 0x10) {
-            buffer[start] = digits[num];
-            return start + 1;
-        } else {
+        } else if (base == base16) {
             while (num != 0) {
-                backwards_digits[offset] = digits[num & 0xF];
-                offset++;
+                char d = digits[num & 0xF];
+                if (uppercase && d >= 'a' && d <= 'z') {
+                    d = d - 'a' + 'A';
+                }
+                backwards_digits[offset++] = d;
                 num >>= 4;
             }
-        }
-    }
-    if (base == base64) {
-        if (num < 0x40) {
-            buffer[start] = digits[num];
-            return start + 1;
-        } else {
+        } else if (base == base64) {
             while (num != 0) {
-                backwards_digits[offset] = digits[num & 0x3F];
-                offset++;
+                backwards_digits[offset++] = digits[num & 0x3F];
                 num >>= 6;
             }
         }
     }
-    if (offset > 0) {
-        for (unsigned int i = 0; i < offset; i++) {
-            buffer[start + i] = backwards_digits[offset - i - 1];
+
+    // Determine how many characters we will print before padding
+    unsigned int total_chars = static_cast<unsigned int>(offset) + (is_negative ? 1U : 0U);
+    unsigned long current = start;
+
+    // Space padding (leading_zero = false) goes before the sign
+    if (!leading_zero && width > total_chars) {
+        unsigned int padding = width - total_chars;
+        for (unsigned int i = 0; i < padding; i++) {
+            buffer[current++] = ' ';
         }
     }
-    return start + offset;
+
+    // Print the sign if negative
+    if (is_negative) {
+        buffer[current++] = '-';
+    }
+
+    // Zero padding (leading_zero = true) goes after the sign
+    if (leading_zero && width > total_chars) {
+        unsigned int padding = width - total_chars;
+        for (unsigned int i = 0; i < padding; i++) {
+            buffer[current++] = '0';
+        }
+    }
+
+    // Print the digits in correct order (reverse of backwards_digits)
+    for (unsigned int i = 0; i < offset; i++) {
+        buffer[current++] = backwards_digits[offset - i - 1];
+    }
+
+    return current;
 }
 
 /// @brief Parses the number and prints it in the specified base in the buffer
@@ -125,12 +125,13 @@ static unsigned long print_number(unsigned long start, char buffer[], T num, uns
 /// @param base The base to parse the number in
 /// @return The index at the exclusive end of the number
 template <typename T>
-static unsigned long print_signed_number(unsigned long start, char buffer[], T num, unsigned int base) {
+static unsigned long print_signed_number(unsigned long start, char buffer[], T num, unsigned int base, unsigned int width = 0, bool leading_zero = false) {
     if (num < 0) {
-        buffer[start] = '-';
-        return print_number(start + 1, buffer, -num, base);
+        // Safe absolute value conversion using uint64_t to avoid signed integer overflow on INT_MIN
+        uint64_t abs_val = static_cast<uint64_t>(-static_cast<int64_t>(num));
+        return print_number(start, buffer, abs_val, base, width, leading_zero, false, true);
     } else {
-        return print_number(start, buffer, num, base);
+        return print_number(start, buffer, static_cast<uint64_t>(num), base, width, leading_zero, false, false);
     }
 }
 
@@ -144,6 +145,25 @@ unsigned long vsnprint(char buffer[], size_t buffer_size, const char *format, va
     while (*format) {
         if (*format == '%') {
             format++;
+
+            // Handle leading zero modifier
+            bool leading_zero = false;
+            if (*format == '0') {
+                leading_zero = true;
+                format++;
+            }
+
+            // Handle width modifier
+            unsigned int width = 0;
+            if (is_digit(*format)) {
+                while (is_digit(*format)) {
+                    width = width * 10U + static_cast<unsigned int>(*format - '0');
+                    format++;
+                }
+                if (width > digit_places_limit) {
+                    width = digit_places_limit;
+                }
+            }
 
             // Handle %l modifiers
             bool longlong_modifier = false;
@@ -177,27 +197,6 @@ unsigned long vsnprint(char buffer[], size_t buffer_size, const char *format, va
                 format++;
             }
 
-            // Handle leading zero modifier
-            // bool leading_zero = false;
-            // if (*format == '0') {
-            //     leading_zero = true;
-            //     format++;
-            // }
-            // bool specific_digits = false;
-            // if (is_digit(*format)) {
-            //     specific_digits = true;
-            //     unsigned int digits = 0;
-            //     while (is_digit(*format)) {
-            //         digits = digits * 10 + (*format - '0');
-            //         format++;
-            //     }
-            //     if (digits > digit_places_limit) {
-            //         digits = digit_places_limit;
-            //     }
-            // }
-            // (void)leading_zero;       // @TODO unused
-            // (void)specific_digits;    // @TODO unused
-
             switch (*format) {
                 case 's': {
                     const char *str = va_arg(args, const char *);
@@ -212,26 +211,22 @@ unsigned long vsnprint(char buffer[], size_t buffer_size, const char *format, va
                     if (longlong_modifier) {
                         int64_t num = va_arg(args, int64_t);
                         num = clamp_to_range(num, std::numeric_limits<int64_t>::min(), std::numeric_limits<int64_t>::max());
-                        index = print_signed_number(index, buffer, num, base10);
+                        index = print_signed_number(index, buffer, num, base10, width, leading_zero);
                     } else if (long_modifier) {
                         int32_t num = va_arg(args, int32_t);
                         num = clamp_to_range(num, std::numeric_limits<int32_t>::min(), std::numeric_limits<int32_t>::max());
-                        index = print_signed_number(index, buffer, num, base10);
+                        index = print_signed_number(index, buffer, num, base10, width, leading_zero);
                     } else if (half_modifier) {
                         int value = static_cast<int16_t>(va_arg(args, int));
                         int16_t num = clamp_to_range(value, std::numeric_limits<int16_t>::min(), std::numeric_limits<int16_t>::max());
-                        index = print_signed_number(index, buffer, num, base10);
+                        index = print_signed_number(index, buffer, num, base10, width, leading_zero);
                     } else if (halfhalf_modifier) {
                         int value = va_arg(args, int);
                         int8_t num = clamp_to_range(value, std::numeric_limits<int8_t>::min(), std::numeric_limits<int8_t>::max());
-                        index = print_signed_number(index, buffer, num, base10);
-                        // } else if (size_modifier) {
-                        //     ssize_t value = va_arg(args, ssize_t);
-                        //     num = clamp_to_range(value, std::numeric_limits<ssize_t>::min(), std::numeric_limits<ssize_t>::max());
-                        //     index = print_signed_number(index, buffer, num, base10);
+                        index = print_signed_number(index, buffer, num, base10, width, leading_zero);
                     } else {
                         auto num = va_arg(args, int);
-                        index = print_signed_number(index, buffer, num, base10);
+                        index = print_signed_number(index, buffer, num, base10, width, leading_zero);
                     }
                     break;
                 }
@@ -239,51 +234,76 @@ unsigned long vsnprint(char buffer[], size_t buffer_size, const char *format, va
                     if (longlong_modifier) {
                         uint64_t num = va_arg(args, uint64_t);
                         num = clamp_to_range(num, std::numeric_limits<uint64_t>::min(), std::numeric_limits<uint64_t>::max());
-                        index = print_number(index, buffer, num, base10);
+                        index = print_number(index, buffer, num, base10, width, leading_zero);
                     } else if (long_modifier) {
                         uint32_t num = va_arg(args, uint32_t);
                         num = clamp_to_range(num, std::numeric_limits<uint32_t>::min(), std::numeric_limits<uint32_t>::max());
-                        index = print_number(index, buffer, num, base10);
+                        index = print_number(index, buffer, num, base10, width, leading_zero);
                     } else if (half_modifier) {
                         unsigned int value = va_arg(args, unsigned int);
                         uint16_t num = clamp_to_range(value, std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max());
-                        index = print_number(index, buffer, num, base10);
+                        index = print_number(index, buffer, num, base10, width, leading_zero);
                     } else if (halfhalf_modifier) {
                         unsigned int value = va_arg(args, unsigned int);
                         uint8_t num = clamp_to_range(value, std::numeric_limits<uint8_t>::min(), std::numeric_limits<uint8_t>::max());
-                        index = print_number(index, buffer, num, base10);
+                        index = print_number(index, buffer, num, base10, width, leading_zero);
                     } else if (size_modifier) {
                         size_t num = va_arg(args, size_t);
-                        index = print_number(index, buffer, num, base10);
+                        index = print_number(index, buffer, num, base10, width, leading_zero);
                     } else {
                         unsigned int num = va_arg(args, unsigned int);
-                        index = print_number(index, buffer, num, base10);
+                        index = print_number(index, buffer, num, base10, width, leading_zero);
                     }
                     break;
                 }
                 case 'x': {
                     buffer[index++] = '0';
                     buffer[index++] = 'x';
+                    unsigned int sub_width = (width > 2) ? (width - 2) : 0;
                     if (longlong_modifier) {
                         uint64_t num = va_arg(args, uint64_t);
-                        index = print_number(index, buffer, num, base16);
+                        index = print_number(index, buffer, num, base16, sub_width, leading_zero, false);
                     } else if (long_modifier) {
-                        uint32_t num = va_arg(args, uint32_t);    // 32 bits
-                        index = print_number(index, buffer, num, base16);
+                        uint32_t num = va_arg(args, uint32_t);
+                        index = print_number(index, buffer, num, base16, sub_width, leading_zero, false);
                     } else if (half_modifier) {
                         unsigned int value = va_arg(args, unsigned int);
                         uint16_t num = clamp_to_range(value, std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max());
-                        index = print_number(index, buffer, num, base16);
+                        index = print_number(index, buffer, num, base16, sub_width, leading_zero, false);
                     } else if (halfhalf_modifier) {
                         unsigned int value = va_arg(args, unsigned int);
                         uint8_t num = clamp_to_range(value, std::numeric_limits<uint8_t>::min(), std::numeric_limits<uint8_t>::max());
-                        index = print_number(index, buffer, num, base16);
+                        index = print_number(index, buffer, num, base16, sub_width, leading_zero, false);
                     } else if (size_modifier) {
                         size_t num = va_arg(args, size_t);
-                        index = print_number(index, buffer, num, base16);
+                        index = print_number(index, buffer, num, base16, sub_width, leading_zero, false);
                     } else {
                         uint32_t num = va_arg(args, unsigned int);
-                        index = print_number(index, buffer, num, base16);
+                        index = print_number(index, buffer, num, base16, sub_width, leading_zero, false);
+                    }
+                    break;
+                }
+                case 'X': {
+                    if (longlong_modifier) {
+                        uint64_t num = va_arg(args, uint64_t);
+                        index = print_number(index, buffer, num, base16, width, leading_zero, true);
+                    } else if (long_modifier) {
+                        uint32_t num = va_arg(args, uint32_t);
+                        index = print_number(index, buffer, num, base16, width, leading_zero, true);
+                    } else if (half_modifier) {
+                        unsigned int value = va_arg(args, unsigned int);
+                        uint16_t num = clamp_to_range(value, std::numeric_limits<uint16_t>::min(), std::numeric_limits<uint16_t>::max());
+                        index = print_number(index, buffer, num, base16, width, leading_zero, true);
+                    } else if (halfhalf_modifier) {
+                        unsigned int value = va_arg(args, unsigned int);
+                        uint8_t num = clamp_to_range(value, std::numeric_limits<uint8_t>::min(), std::numeric_limits<uint8_t>::max());
+                        index = print_number(index, buffer, num, base16, width, leading_zero, true);
+                    } else if (size_modifier) {
+                        size_t num = va_arg(args, size_t);
+                        index = print_number(index, buffer, num, base16, width, leading_zero, true);
+                    } else {
+                        uint32_t num = va_arg(args, unsigned int);
+                        index = print_number(index, buffer, num, base16, width, leading_zero, true);
                     }
                     break;
                 }
@@ -321,7 +341,8 @@ unsigned long vsnprint(char buffer[], size_t buffer_size, const char *format, va
                     }
                     buffer[index++] = '0';
                     buffer[index++] = 'b';
-                    index = print_number(index, buffer, num, base2);
+                    unsigned int sub_width = (width > 2) ? (width - 2) : 0;
+                    index = print_number(index, buffer, num, base2, sub_width, leading_zero, false);
                     break;
                 }
                 default:
@@ -335,8 +356,6 @@ unsigned long vsnprint(char buffer[], size_t buffer_size, const char *format, va
         }
         format++;
     }
-
-    // FIXME determine if we've run over.
 
     // null terminate the string
     if (index >= buffer_size) {
