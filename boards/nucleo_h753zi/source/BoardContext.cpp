@@ -1,6 +1,7 @@
 #include <compiler.hpp>
 
 #include "BoardContext.hpp"
+#include <cortex/linker.hpp>
 #include "configure.hpp"
 #include "cortex/mcu.hpp"
 #include "jarnax.hpp"
