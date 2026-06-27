@@ -13,7 +13,6 @@
 #include "jarnax/Ticker.hpp"
 #include "jarnax/Timer.hpp"
 #include "jarnax/i2c/Driver.hpp"
-#include "jarnax/net/ethernet/Driver.hpp"
 #include "jarnax/usart/Driver.hpp"
 
 using jarnax::Loopable;
