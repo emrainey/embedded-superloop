@@ -67,7 +67,7 @@ void Demo::OnEntry(DemoState state) {
 }
 
 DemoState Demo::OnCycle(DemoState state) {
-    jarnax::print("Demo::OnCycle: %u\r\n", static_cast<std::uint8_t>(state));
+    // jarnax::print("Demo::OnCycle: %u\r\n", static_cast<std::uint8_t>(state));
     if (state == DemoState::StartUp) {
         state = DemoState::KeyLoop;
     } else if (state == DemoState::KeyLoop) {
