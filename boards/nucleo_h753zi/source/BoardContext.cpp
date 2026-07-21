@@ -154,7 +154,8 @@ BoardContext::BoardContext()
     , eth_rxd1_{stm32::gpio::Port::C, 5}       // RMII_RXD1
     , eth_tx_en_{stm32::gpio::Port::G, 11}     // RMII_TX_EN
     , eth_txd0_{stm32::gpio::Port::G, 13}      // RMII_TXD0
-    , ethernet_{stm32::ethernet_stack_heap, stm32::ethernet_dma_heap, stm32::ethernet_tx_descriptors, stm32::ethernet_rx_descriptors} {
+    , ethernet_{stm32::ethernet_stack_heap, stm32::ethernet_dma_heap, stm32::ethernet_tx_descriptors, stm32::ethernet_rx_descriptors}
+    , lan8742a_driver_{timer_, core::units::ConvertToIota(jarnax::net::ethernet::lan8742a::DefaultPollingInterval), ethernet_, 0U} {
     // construct the driver objects as part of the constructor above.
 }
 
@@ -430,6 +431,13 @@ core::Status BoardContext::Initialize(void) {
             jarnax::print("Ethernet failed to configure\r\n");
             break;
         }
+
+        status = lan8742a_driver_.Initialize();
+        if (not status.IsSuccess()) {
+            jarnax::print("LAN8742A PHY failed to initialize\r\n");
+            break;
+        }
+
         jarnax::print(
             "Ethernet MAC address is %02X:%02X:%02X:%02X:%02X:%02X\r\n",
             ethernet_.GetMacAddress()[0],
@@ -520,6 +528,14 @@ core::Allocator& BoardContext::GetDmaAllocator() {
 
 jarnax::console::Service& BoardContext::GetConsole() {
     return usart_console_;
+}
+
+jarnax::net::ethernet::Driver& BoardContext::GetEthernet() {
+    return ethernet_;
+}
+
+jarnax::net::ethernet::lan8742a::Driver& BoardContext::GetLan8742aDriver() {
+    return lan8742a_driver_;
 }
 
 core::Container<BoardContext> board_context_container;

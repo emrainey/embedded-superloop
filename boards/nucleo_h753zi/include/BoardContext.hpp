@@ -11,6 +11,7 @@
 #include "jarnax/console/UsartConsole.hpp"
 #include "jarnax/drivers/lps35hw/Driver.hpp"
 #include "jarnax/drivers/lsm9ds1/Driver.hpp"
+#include "jarnax/net/ethernet/LAN8742A.hpp"
 #include "jarnax/gpio/Output.hpp"
 #include "stm32/Button.hpp"
 #include "stm32/Indicator.hpp"
@@ -89,6 +90,9 @@ public:
     /// Return the Ethernet Driver
     // jarnax::net::ethernet::Driver& GetEthernet();
 
+    /// Returns the LAN8742A PHY Driver
+    jarnax::net::ethernet::lan8742a::Driver& GetLan8742aDriver();
+
 protected:
     stm32::Timer timer_;
     /// The Random Number Generator
@@ -164,6 +168,8 @@ protected:
     stm32::gpio::Pin eth_txd0_;
     /// The Ethernet Driver
     stm32::ethernet::Driver ethernet_;
+    /// The Ethernet PHY Driver
+    jarnax::net::ethernet::lan8742a::Driver lan8742a_driver_;
 };
 
 /// Gets the reference to the BoardContext

@@ -17,6 +17,7 @@ add_board(NAME nucleo_h753zi
         jarnax-w25q16bv-driver
         jarnax-ssd1306-driver
         jarnax-lsm9ds1-driver
+        jarnax-lan8742a-driver
     MODULES # Have to know the chip and the configuration
         stm32-spi-driver
         stm32-i2c-driver

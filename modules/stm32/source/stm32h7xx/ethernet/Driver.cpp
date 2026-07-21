@@ -275,6 +275,7 @@ bool Driver::Execute(void) {
                 mdio_transaction_->Inform(
                     jarnax::net::ethernet::mdio::Transaction::Event::Completed, core::Status{core::Result::NotSupported, core::Cause::Configuration}
                 );
+                (void)mdio_transaction_->NotifyCompletionListener();
                 mdio_transaction_ = nullptr;
                 return true;
             }
@@ -287,6 +288,7 @@ bool Driver::Execute(void) {
                 mdio_transaction_->Inform(
                     jarnax::net::ethernet::mdio::Transaction::Event::Completed, core::Status{core::Result::NotSupported, core::Cause::Configuration}
                 );
+                (void)mdio_transaction_->NotifyCompletionListener();
                 mdio_transaction_ = nullptr;
                 return true;
             }
@@ -295,6 +297,7 @@ bool Driver::Execute(void) {
                 mdio_transaction_->Inform(
                     jarnax::net::ethernet::mdio::Transaction::Event::Completed, core::Status{core::Result::NotSupported, core::Cause::Configuration}
                 );
+                (void)mdio_transaction_->NotifyCompletionListener();
                 mdio_transaction_ = nullptr;
                 return true;
             }
@@ -352,6 +355,7 @@ bool Driver::Execute(void) {
             mdio_transaction_->Inform(
                 jarnax::net::ethernet::mdio::Transaction::Event::Completed, core::Status{core::Result::Success, core::Cause::State}
             );
+            (void)mdio_transaction_->NotifyCompletionListener();
             mdio_transaction_ = nullptr;
         }
     }
@@ -506,6 +510,14 @@ core::Status Driver::Schedule(jarnax::net::ethernet::mdio::Transaction* transact
 
     mdio_transaction_ = transaction;
 
+    return core::Status{};
+}
+
+core::Status Driver::ConfigureMacLink(bool speed_100m, bool full_duplex) {
+    auto mac_mode = stm32::peripherals::ethernet_mac.operating_mode_configuration;
+    mac_mode.bits.fast_ethernet_speed = speed_100m ? 1U : 0U;
+    mac_mode.bits.duplex_mode = full_duplex ? 1U : 0U;
+    stm32::peripherals::ethernet_mac.operating_mode_configuration = mac_mode;
     return core::Status{};
 }
 

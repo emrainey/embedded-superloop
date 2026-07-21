@@ -1,6 +1,7 @@
 #ifndef JARNAX_NET_EUI48_ADDRESS_HPP
 #define JARNAX_NET_EUI48_ADDRESS_HPP
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>

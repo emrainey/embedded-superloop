@@ -72,3 +72,25 @@ Make sure that the cross builds are not broken either by building them:
 - ⚠️ **Ask First** before modifying source code or documentation in a major way.
 - 🚫 **NEVER** modify the git repository or the .git folder.
 - 🚫 **NEVER** use the `kCamelCase` naming convention (e.g. `kNaming`) for global, static, or namespace-scope constants. Use the project's established style (typically `snake_case` or `PascalCase` where already exists).
+- 🚫 **NEVER** use `std::` functions in the on-target firmware code unless it is _certain_ that it does not use heap. Even then, try to use the `core::` equivalents instead.
+- 🚫 **NEVER** use `new` or `delete` in the on-target firmware code. Only placement-new is allowed and should only be used inside the `core::Container`. Prefer to use the `core::Container` over the `static` variable in a function style of allocation.
+
+## For Direct Debugging
+
+- Use the existing `tools/pylink-square-mcp` to flash and debug the device through a SEGGER device.
+- Recommend new scripts if they are genuinely reusable.
+
+## Other MCP
+
+- Always prefer to use clangd connected MCP servers (mcpls) if available over grepping source files.
+- Always prefer ripgrep over grep over find. Only use find when the -exec feature is actually worth asking for permission.
+
+## Workflow
+
+- Always look for an issue on Github and pull it into your plan. If you cannot find one, create one and assign it to yourself. If it is a task that requires cross-functional work, assign it to yourself and the appropriate team members.
+- Branches for issues should be named after the issue number (e.g. `issue-123`).
+- Issue Branches should be tracking develop.
+- PRs should be made against develop.
+- Update the Issue comments as progress is made.
+- The `./scripts/build-all-presets.sh` script must be run before pushing a PR, and it must pass. Fix any break before pushing the PR.
+- Once the PR is merged, delete the issue branch

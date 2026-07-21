@@ -89,6 +89,19 @@ add_module(NAME jarnax-lps35hw-driver
     NO_CONFIGURATIONS
 )
 
+add_module(NAME jarnax-lan8742a-driver
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/net/ethernet/LAN8742A.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/include # Internal includes
+    LIBRARIES
+        strict jarnax-interfaces
+    GENERIC_MODULES
+        memory core
+    NO_CONFIGURATIONS
+)
+
 generate_statechart(
     YAML_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/source/drivers/lsm9ds1/ag/
     YAML_FILE StateChart.yaml

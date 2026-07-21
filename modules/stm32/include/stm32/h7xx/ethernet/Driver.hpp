@@ -65,6 +65,7 @@ public:
     //+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     // jarnax::net::ethernet::Phy Interface
     core::Status Schedule(jarnax::net::ethernet::mdio::Transaction* txn) override;
+    core::Status ConfigureMacLink(bool speed_100m, bool full_duplex) override;
     //+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     // jarnax::net::ethernet::Allocator Interface
     jarnax::net::ethernet::Frame* Acquire(void) override;

@@ -46,6 +46,9 @@ constexpr static std::size_t DefaultRetries{3U};
 /// which are two different formats for communicating with the PHY over the MDIO interface. The address field can be used to specify the register
 /// address for Clause 22 transactions, or the device address and register address for Clause 45 transactions.
 struct Transaction final : public jarnax::Transactable<Transaction, DefaultRetries> {
+    Transaction(Timer const& timer)
+        : jarnax::Transactable<Transaction, DefaultRetries>{timer} {}
+
     Clause clause;    ///< The MDIO clause for the transaction, indicating the format of the MDIO transaction (e.g., Clause 22 or Clause 45).
     //+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     /// The MDIO operation type for the transaction, indicating the type of MDIO transaction being performed (e.g., read,
@@ -92,6 +95,11 @@ public:
     /// and the data to write or read from the PHY register. The Ethernet Driver can use this method to perform PHY operations as needed to configure
     /// the PHY or to read status information from the PHY during the execution of the Driver.
     virtual core::Status Schedule(mdio::Transaction* mdio) = 0;
+
+    /// Configures the MAC speed and duplex settings when resolved by the PHY.
+    /// @param speed_100m True for 100 Mbps, false for 10 Mbps
+    /// @param full_duplex True for full duplex, false for half duplex
+    virtual core::Status ConfigureMacLink(bool speed_100m, bool full_duplex) = 0;
 
 protected:
     ~Phy() = default;
