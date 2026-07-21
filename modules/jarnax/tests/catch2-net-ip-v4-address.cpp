@@ -19,7 +19,7 @@ public:
     bool Execute(void) override { return true; }
     core::Status Configure(Addresses const&) override { return core::Status{}; }
     jarnax::net::eui48::Address GetMacAddress(size_t) const override { return jarnax::net::eui48::Address{}; }
-    core::Status Transmit(ethernet::Frame const*) override { return core::Status{}; }
+    core::Status Transmit(ethernet::Frame*) override { return core::Status{}; }
     core::Status Receive(Listener&) override { return core::Status{}; }
     // core::Status Schedule(ethernet::mdio::Transaction*) override { return core::Status{}; }
 };
@@ -84,6 +84,34 @@ TEST_CASE("Masks for Networks [Masks]") {
         REQUIRE(this_::network == network_test);
         Address broadcast_test = this_::network | ~this_::mask;
         REQUIRE(this_::broadcast == broadcast_test);
+    }
+
+    SECTION("Byte Constructor") {
+        Address address_from_bytes{192, 168, 1, 2};
+        REQUIRE(address_from_bytes == Address{192, 168, 1, 2});
+    }
+
+    SECTION("Uin32_t Contructor") {
+        uint32_t raw_address = static_cast<uint32_t>((192 << 24) | (168 << 16) | (1 << 8) | 1);
+        Address address_from_uint32{raw_address};
+        REQUIRE(address_from_uint32 == Address{192, 168, 1, 1});
+    }
+
+    SECTION("Bitwise NOT Operator") {
+        Address address{192, 168, 1, 1};
+        Address not_address = ~address;
+        REQUIRE(not_address == Address{63, 87, 254, 254});    // Assuming 8-bit NOT for each octet
+    }
+
+    SECTION("Exhaustive Prefix Division") {
+        ip::v4::Address test = limited_broadcast;
+        for (uint8_t prefix = 0; prefix <= 32; ++prefix) {
+            Address network_test = test / prefix;
+            Address broadcast_test = test | ~(test / prefix);
+            std::cout << "Test " << static_cast<uint32_t>(test) << " Prefix: " << static_cast<uint32_t>(prefix) << " Network: " << network_test
+                      << " Broadcast: " << broadcast_test << std::endl;
+            REQUIRE(network_test == (test & (test / prefix)));
+        }
     }
 
     SECTION("Multicast") {

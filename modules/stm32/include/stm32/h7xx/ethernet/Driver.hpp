@@ -10,6 +10,8 @@
 #include <core/Buffer.hpp>
 
 #include "jarnax/Driver.hpp"
+#include "jarnax/net/arp/Table.hpp"
+#include "jarnax/net/configuration.hpp"
 #include "jarnax/net/ethernet/Allocator.hpp"
 #include "jarnax/net/ethernet/Driver.hpp"
 #include "jarnax/net/ethernet/Frame.hpp"
@@ -60,8 +62,9 @@ public:
     // jarnax::net::ethernet::Driver Interface
     core::Status Configure(Addresses const& addresses) override;
     jarnax::net::eui48::Address GetMacAddress(size_t index = 0) const override;
-    core::Status Transmit(jarnax::net::ethernet::Frame const* frame) override;
+    core::Status Transmit(jarnax::net::ethernet::Frame* frame) override;
     core::Status Receive(Listener& listener) override;
+    bool IsReady() const override;
     //+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     // jarnax::net::ethernet::Phy Interface
     core::Status Schedule(jarnax::net::ethernet::mdio::Transaction* txn) override;
@@ -87,6 +90,7 @@ protected:
     std::size_t transmit_producer_index_{0U};
     std::size_t receive_consumer_index_{0U};
     jarnax::net::ethernet::mdio::Transaction* mdio_transaction_{nullptr};
+    bool is_ready_;
 };
 
 namespace dma {

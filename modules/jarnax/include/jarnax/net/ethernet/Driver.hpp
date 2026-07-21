@@ -33,14 +33,14 @@ public:
     virtual net::eui48::Address GetMacAddress(size_t index = 0) const = 0;
 
     /// Sends an Ethernet frame on the network. This method is used by higher-level network protocols (e.g., ARP, IP) to send data over the network.
-    /// The Ethernet Driver is responsible for constructing the Ethernet frame with the appropriate headers and payload, and then transmitting it on
+    /// The user is responsible for constructing the Ethernet frame with the appropriate headers and payload, and then transmitting it on
     /// the network.
-    /// @param frame The Ethernet frame to send on the network. The frame should be constructed with the appropriate headers and payload before being
-    /// passed to this method.
+    /// @param frame The Ethernet frame to send on the network. The payloads should be constructed, but the Driver will take care of the Ethernet
+    /// Header
     /// @return A core::Status indicating the success or failure of the send operation. If the send operation is successful, the status will indicate
     /// success. If there is an error during the send operation (e.g., if the Ethernet controller is not initialized or if there is a hardware
     /// failure), the status will indicate the type of error that occurred.
-    virtual core::Status Transmit(net::ethernet::Frame const* frame) = 0;
+    virtual core::Status Transmit(net::ethernet::Frame* frame) = 0;
 
     /// The Listener class is an interface that higher-level network protocols (e.g., ARP, IP) can implement to receive Ethernet frames from the
     /// network. The Ethernet Driver is responsible for listening for incoming Ethernet frames on the network, and when a frame is received it should
@@ -67,6 +67,9 @@ public:
     /// indicate success. If there is an error during the receive operation (e.g., if the Ethernet controller is not initialized or if there is a
     /// hardware failure), the status will indicate the type of error that occurred.
     virtual core::Status Receive(Listener& listener) = 0;
+
+    /// Indicates when the driver is ready to transmit and receive Ethernet frames.
+    virtual bool IsReady() const = 0;
 
 protected:
     ~Driver() = default;

@@ -100,7 +100,8 @@ Driver::Driver(
     , stack_frame_allocator_{stack_frame_allocator}
     , dma_frame_allocator_{dma_frame_allocator}
     , transmit_descriptors_{transmit_descriptors}
-    , receive_descriptors_{receive_descriptors} {}
+    , receive_descriptors_{receive_descriptors}
+    , is_ready_{false} {}
 
 Driver::~Driver() {
     ReleaseRings();
@@ -263,7 +264,14 @@ core::Status Driver::Initialize(void) {
     dma_rx_control.bits.status = 1U;
     stm32::peripherals::ethernet_dma.channel_receive_control = dma_rx_control;
 
+    // everything should be setup to run
+    is_ready_ = true;
+
     return core::Status{};
+}
+
+bool Driver::IsReady() const {
+    return is_ready_;
 }
 
 bool Driver::Execute(void) {
@@ -406,7 +414,7 @@ jarnax::net::eui48::Address Driver::GetMacAddress(size_t index) const {
     }
 }
 
-core::Status Driver::Transmit(jarnax::net::ethernet::Frame const* frame) {
+core::Status Driver::Transmit(jarnax::net::ethernet::Frame* frame) {
     if (frame == nullptr) {
         return core::Status{core::Result::InvalidValue, core::Cause::Parameter};
     }
@@ -481,10 +489,15 @@ core::Status Driver::Receive(jarnax::net::ethernet::Driver::Listener& listener) 
     }
 
     CopyFrameBytes(stack_frame, receive_ring_frames_[receive_consumer_index_]);
-    listener.OnFrameReceived(stack_frame);
 
     rearm_receive_descriptor();
-    receive_consumer_index_ = (receive_consumer_index_ + 1U) % ReceiveDescriptorCount;
+    receive_consumer_index_ = (receive_consumer_index_ + 1U) % receive_descriptors_.count();
+
+    // pass to the interface to process, the driver is not involved in any "business" logic
+    listener.OnFrameReceived(stack_frame);
+
+    // now the driver has finished with the frame and it can be released back to the stack frame allocator
+    Release(stack_frame);
 
     return core::Status{};
 }

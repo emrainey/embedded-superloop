@@ -13,52 +13,65 @@
 #include "jarnax/Ticker.hpp"
 #include "jarnax/Timer.hpp"
 #include "jarnax/i2c/Driver.hpp"
+#include "jarnax/net/ethernet/Driver.hpp"
 #include "jarnax/usart/Driver.hpp"
 
 using jarnax::Loopable;
 using jarnax::LoopInfo;
 using jarnax::Ticks;
 
+enum class Inputs : std::uint8_t {
+    None = 0U,
+    UserButtonPressed,
+    UserButtonReleased,
+};
+
+enum class Outputs : std::uint8_t {
+    None = 0U,
+    ErrorIndicatorActive,
+    ErrorIndicatorInactive,
+};
+
 enum class DemoState : std::uint8_t {
     Undefined = 0U,
     StartUp,
-    KeyLoop,
-    CopierTest,
     Idle,
+    Next,
     Error,
+    Final,
 };
 
-class Demo final : public jarnax::Loopable, protected core::StateMachine<DemoState>::Callback {
+class Demo final : public jarnax::Loopable, protected core::StateChart<DemoState>::Callback {
 public:
+    using Ordinal = core::StateChart<DemoState>::Ordinal;
     Demo();
     bool Execute() override;
 
 protected:
-    void InitializeTransaction(void);
-    void KeyLoop(void);
-    void CopierTest(void);
-    void TestI2C(void);
+    void InitializeTransaction();
 
+    //+=== StateChart Callback Overrides ===+//
     void OnEnter() override;
     void OnEntry(DemoState state) override;
-    DemoState OnCycle(DemoState state) override;
+    void OnCycle(DemoState state) override;
     void OnExit(DemoState state) override;
-    void OnTransition(DemoState from, DemoState to) override;
+    Ordinal OnGuard(DemoState state) const override;
+    DemoState OnTransition(DemoState from, Ordinal ordinal) override;
     void OnExit() override;
+    //+======================================//
 
     jarnax::Ticker& ticker_;
     jarnax::Timer const& timer_;
     jarnax::usart::Driver& usart_driver_;
     jarnax::RandomNumberGenerator& rng_;
+    jarnax::net::ethernet::Driver& ethernet_driver_;
     jarnax::Indicator& error_indicator_;
     jarnax::Button& user_button_;
-    jarnax::Copier& copier_;
     jarnax::CountDown countdown_;
-
-    uint8_t buffer_one_[256U];
-    uint8_t buffer_two_[256U];
-    bool buffer_test_{false};
-    core::StateMachine<DemoState> state_machine_;
+    core::StateChart<DemoState> state_chart_;
+    Inputs inputs_;
+    bool button_was_pressed_;
+    Outputs outputs_;
 };
 
 #endif    // APP_DEMO_HPP

@@ -1,5 +1,6 @@
 #include "Demo.hpp"
 #include "board.hpp"
+#include "core/Conversions.hpp"
 #include "jarnax/Assertion.hpp"
 #include "memory.h"
 
@@ -10,39 +11,38 @@ Demo::Demo()
     , timer_{jarnax::GetBoardContext().GetTimer()}
     , usart_driver_{jarnax::GetBoardContext().GetUsartB()}
     , rng_{jarnax::GetBoardContext().GetRandomNumberGenerator()}
+    , ethernet_driver_{jarnax::GetBoardContext().GetEthernet()}
     , error_indicator_{jarnax::GetBoardContext().GetErrorIndicator()}
     , user_button_{jarnax::GetBoardContext().GetUserButton()}
-    , copier_{jarnax::GetBoardContext().GetCopier()}    // , winbond_driver_{jarnax::GetBoardContext().GetWinbondDriver()}
     , countdown_{timer_, core::units::Iota{250'000U}}
-    , buffer_one_{}
-    , buffer_two_{}
-    , state_machine_{*this, DemoState::StartUp} {}
-
-void Demo::KeyLoop() {
-    if (user_button_.IsPressed()) {
-        jarnax::print("User Button Pressed\r\n");
-    }
-}
-
-void Demo::CopierTest() {
-    if (not buffer_test_) {
-        memory::fill(buffer_one_, 0x5A, sizeof(buffer_one_));
-        memory::fill(buffer_two_, 0x00, sizeof(buffer_two_));
-        copier_.Copy(&buffer_one_[0], &buffer_two_[0], sizeof(buffer_one_));
-        if (memory::compare(&buffer_one_[0], &buffer_two_[0], sizeof(buffer_one_)) == 0) {
-            jarnax::print("PASSED: Buffers are the same\r\n");
-        } else {
-            jarnax::print("FAILED: Buffers are different\r\n");
-        }
-        buffer_test_ = true;
-    }
-}
+    , state_chart_{*this}
+    , inputs_{Inputs::None}
+    , button_was_pressed_{false} {}
 
 bool Demo::Execute() {
-    if (state_machine_.IsFinal()) {
-        state_machine_.Enter();
+    if (state_chart_.IsFinal()) {
+        state_chart_.Enter();
     }
-    state_machine_.RunOnce();
+    if (not button_was_pressed_ and user_button_.IsPressed()) {
+        inputs_ = Inputs::UserButtonPressed;
+        button_was_pressed_ = true;
+        jarnax::print("User Button Pressed\r\n");
+    } else if (button_was_pressed_ and not user_button_.IsPressed()) {
+        inputs_ = Inputs::UserButtonReleased;
+        button_was_pressed_ = false;
+        jarnax::print("User Button Released\r\n");
+    }
+
+    outputs_ = Outputs::None;
+    state_chart_.RunOnce();
+    inputs_ = Inputs::None;
+
+    if (outputs_ == Outputs::ErrorIndicatorActive) {
+        error_indicator_.Active();
+    } else if (outputs_ == Outputs::ErrorIndicatorInactive) {
+        error_indicator_.Inactive();
+    }
+
     return true;
 }
 
@@ -53,31 +53,20 @@ void Demo::OnEnter() {
 void Demo::OnEntry(DemoState state) {
     jarnax::print("Demo::OnEntry: %u\r\n", static_cast<std::uint8_t>(state));
     if (state == DemoState::StartUp) {
-        countdown_.Restart(1'000'000_iota);
         auto hello = core::SpanFrom("Hello World\r\n");
         usart_driver_.Enqueue(hello);
-    } else if (state == DemoState::KeyLoop) {
-        countdown_.Restart(2'000'000_iota);
-    } else if (state == DemoState::CopierTest) {
     } else if (state == DemoState::Idle) {
-        countdown_.Restart(500'000_iota);
+        outputs_ = Outputs::ErrorIndicatorInactive;
+        // when entering the Idle state, set the timer to go off 2 seconds later
+        countdown_.Restart(core::units::ConvertToIota(2'000'000_usec));
     } else if (state == DemoState::Error) {
-        error_indicator_.Active();
+        outputs_ = Outputs::ErrorIndicatorActive;
     }
 }
 
-DemoState Demo::OnCycle(DemoState state) {
-    // jarnax::print("Demo::OnCycle: %u\r\n", static_cast<std::uint8_t>(state));
+void Demo::OnCycle(DemoState state) {
     if (state == DemoState::StartUp) {
-        state = DemoState::KeyLoop;
-    } else if (state == DemoState::KeyLoop) {
-        KeyLoop();
-        if (countdown_.IsExpired()) {
-            state = DemoState::CopierTest;
-        }
-    } else if (state == DemoState::CopierTest) {
-        CopierTest();
-        state = DemoState::Idle;
+        // do nothing
     } else if (state == DemoState::Idle) {
         if (countdown_.IsExpired()) {
             jarnax::Ticks ticks = ticker_.GetTicksSinceBoot();
@@ -96,22 +85,60 @@ DemoState Demo::OnCycle(DemoState state) {
     } else if (state == DemoState::Error) {
         // do nothing, the error indicator is already active
     }
-    return state;
+}
+
+Demo::Ordinal Demo::OnGuard(DemoState state) const {
+    if (state == DemoState::StartUp) {
+        if (ethernet_driver_.IsReady()) {
+            return 1;    // Take transition 1
+        }
+    } else if (state == DemoState::Idle) {
+        if (inputs_ == Inputs::UserButtonPressed) {
+            return 1;    // Take transition 1 when the user button is pressed
+        }
+    } else if (state == DemoState::Next) {
+        if (inputs_ == Inputs::UserButtonReleased) {
+            return 1;    // Take transition 1 when the user button is released
+        }
+    }
+    return 0;    // Return 0 to indicate the state should not be exited
 }
 
 void Demo::OnExit(DemoState state) {
     jarnax::print("Demo::OnExit: %u\r\n", static_cast<std::uint8_t>(state));
     if (state == DemoState::StartUp) {
-    } else if (state == DemoState::KeyLoop) {
-    } else if (state == DemoState::CopierTest) {
     } else if (state == DemoState::Idle) {
+    } else if (state == DemoState::Next) {
     } else if (state == DemoState::Error) {
         error_indicator_.Inactive();
+    } else if (state == DemoState::Final) {
     }
 }
 
-void Demo::OnTransition(DemoState from, DemoState to) {
-    jarnax::print("Demo::OnTransition: %u -> %u\r\n", static_cast<std::uint8_t>(from), static_cast<std::uint8_t>(to));
+DemoState Demo::OnTransition(DemoState from, Ordinal ordinal) {
+    jarnax::print("Demo::OnTransition: %u Ordinal: %u\r\n", static_cast<std::uint8_t>(from), static_cast<std::uint8_t>(ordinal));
+    if (from == DemoState::StartUp) {
+        if (ordinal == 1) {
+            return DemoState::Idle;    // Transition to the Idle state
+        }
+    } else if (from == DemoState::Idle) {
+        if (ordinal == 1) {
+            // Handle the transition from Idle state with ordinal 1
+            return DemoState::Next;    // Transition to the Next state
+        }
+    } else if (from == DemoState::Next) {
+        if (ordinal == 1) {
+            // Handle the transition from Next state with ordinal 1
+            return DemoState::Idle;    // Transition to the Idle state
+        }
+    } else if (from == DemoState::Error) {
+        // always go back to idle
+        return DemoState::Idle;    // Transition to the Idle state
+    } else if (from == DemoState::Undefined) {
+        // the default first state
+        return DemoState::StartUp;    // Transition to the StartUp state
+    }
+    return from;                      // if nothing taken, return existing state
 }
 
 void Demo::OnExit() {

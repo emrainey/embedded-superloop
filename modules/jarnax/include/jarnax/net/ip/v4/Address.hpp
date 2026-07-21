@@ -2,6 +2,7 @@
 #define JARNAX_NET_IP_V4_ADDRESS_HPP
 
 #include <cstdint>
+#include <limits>
 #if defined(UNITTEST)
 #include <ostream>
 #endif
@@ -16,20 +17,22 @@ namespace v4 {
 union Address {
 public:
     constexpr Address()
-        : address{0} {}
+        : Address{0, 0, 0, 0} {}
     constexpr Address(std::uint8_t a, std::uint8_t b, std::uint8_t c, std::uint8_t d)
         : octets{a, b, c, d} {}
     constexpr Address(std::uint32_t addr)
-        : address{addr} {}
+        : Address{
+              static_cast<std::uint8_t>((addr >> 24) & 0xFF),
+              static_cast<std::uint8_t>((addr >> 16) & 0xFF),
+              static_cast<std::uint8_t>((addr >> 8) & 0xFF),
+              static_cast<std::uint8_t>(addr & 0xFF)
+          } {}
 
     constexpr Address(Address const& other) = default;
     constexpr Address& operator=(Address const& other) = default;
 
     constexpr Address(Address&& other) = default;
     constexpr Address& operator=(Address&& other) = default;
-
-    // An explicit conversion to a uint32_t for easy use with hardware registers and such
-    constexpr explicit operator std::uint32_t() const { return address; }
 
     /// @brief Checks if this address is a "this" network address (i.e. in the 0.x.x.x range)
     constexpr bool IsThisNetwork() const { return (octets.a == 0); }
@@ -72,14 +75,27 @@ public:
     }
 
     /// @brief Checks if the address is identical to another address
-    constexpr bool operator==(Address const& other) const { return address == other.address; }
+    constexpr bool operator==(Address const& other) const {
+        return octets.a == other.octets.a && octets.b == other.octets.b && octets.c == other.octets.c && octets.d == other.octets.d;
+    }
 
     /// @brief Checks if the address is different from another address
-    constexpr bool operator!=(Address const& other) const { return address != other.address; }
+    constexpr bool operator!=(Address const& other) const { return !(*this == other); }
 
     /// @brief A bitwise flip of the address (i.e. the inverse).
     /// Useful for flipping masks to get broadcast addresses and such.
-    constexpr Address operator~() const { return Address{~address}; }
+    constexpr Address operator~() const {
+        return Address{
+            static_cast<uint8_t>(~octets.a), static_cast<uint8_t>(~octets.b), static_cast<uint8_t>(~octets.c), static_cast<uint8_t>(~octets.d)
+        };
+    }
+
+    /// @brief Extract the address as a single uint32_t value
+    explicit operator std::uint32_t() const {
+        // return a 32-bit representation of the address from the bytes
+        return (static_cast<std::uint32_t>(octets.a) << 24) | (static_cast<std::uint32_t>(octets.b) << 16) |
+               (static_cast<std::uint32_t>(octets.c) << 8) | static_cast<std::uint32_t>(octets.d);
+    }
 
 #if defined(UNITTEST)
     /// @brief The Stream Print for Addresses for unit testing purposes
@@ -99,8 +115,6 @@ protected:
         std::uint8_t c;
         std::uint8_t d;
     } octets;
-    /// The address as a single 32-bit value in network order (big endian)
-    std::uint32_t address;
     //+=== MEMORY LAYOUT ===+
 };
 static_assert(sizeof(Address) == sizeof(std::uint32_t), "Address must be 4 bytes in size");
@@ -217,19 +231,13 @@ static_assert(ntp.IsMulticast(), "NTP address should be multicast");
 /// 11111111.11111111.11111111.00000000 (or 0xFFFFFF00 in hexadecimal)
 /// If the prefix length is greater than 32, it will be clamped to 32 (i.e. a prefix of 33 or more will create a mask of all 1s)
 constexpr Address operator/(Address const& ip, uint8_t prefix_length) {
-    if (prefix_length > 32) {
-        prefix_length = 32;    // clamp to 32 bits
-    }
+    constexpr uint8_t bits = sizeof(std::uint32_t) * 8U;
+    constexpr uint32_t limit = std::numeric_limits<uint32_t>::max();
+    prefix_length = (prefix_length > bits) ? bits : prefix_length;
     if (prefix_length == 0) {
         return Address{0};    // A prefix of 0 means no bits are in the network portion, so the mask is all 0s
     }
-    std::uint32_t mask_value = (0xFFFF'FFFFU << (32 - prefix_length));
-    if constexpr (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__) {
-        // If the system is little endian, we need to swap the bytes to get the correct mask value in network order (big endian)
-        mask_value = __builtin_bswap32(mask_value);
-    } else {
-        // If the system is big endian, we can use the mask value as is since our Address is stored in network order (big endian)
-    }
+    std::uint32_t mask_value = (limit << (bits - prefix_length));
     return Address(static_cast<std::uint32_t>(ip) & mask_value);
 }
 

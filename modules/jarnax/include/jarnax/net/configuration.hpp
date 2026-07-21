@@ -1,6 +1,9 @@
 #ifndef JARNAX_NET_CONFIGURATION__HPP_
 #define JARNAX_NET_CONFIGURATION__HPP_
 
+#include <cstddef>
+#include <cstdint>
+
 /// @file
 /// The generic types of the Jarnax Networking Stack. This includes things like the MTU, header sizes, and other constants that are used throughout
 /// the networking stack. This file is included by all of the networking stack headers, so it should only contain things that are used by multiple
@@ -20,6 +23,10 @@ constexpr static std::size_t const MaxMACAddressCount{2U};    // One for real MA
 
 /// The size of a non-VLAN Ethernet header in bytes. Does not get included in the MTU calculation.
 constexpr static std::size_t const HeaderSize{14U};
+
+/// The maximum number of filter entries that the Ethernet controller can handle. This is used to define the size of the filter table in the Ethernet
+/// Driver.
+constexpr static std::size_t const MaximumFilterEntries{8U};
 
 #if not defined(MTU)
 #define MTU 1536U
@@ -56,7 +63,12 @@ namespace arp {
 /// by the size of the ARP table and the size of each entry (1 IP-MAC mapping). The maximum number for a
 /// local most networks is 256 entries, but we can set it to a lower value to save memory if we know that we won't have that many devices on the
 /// network. This allows us to have a fixed-size ARP table, which can simplify the implementation and reduce memory fragmentation.
-constexpr static std::size_t MaxARPEntries{128U};
+constexpr static std::size_t MaxEntries{128U};
+
+/// When enabled the Ethernet Driver will scrap incoming IPv4 packets to automatically learn the MAC-to-IP mappings.
+/// @note This is a tad dangerous as the IP Header hasn't been checked yet in the Ethernet Driver if the hardware offloads IP checksum verification is
+/// not turned on!
+constexpr static bool LearnAddresses{true};
 }    // namespace arp
 
 }    // namespace net

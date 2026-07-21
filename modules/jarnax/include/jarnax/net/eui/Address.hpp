@@ -133,6 +133,8 @@ namespace eui48 {
 /// Also known as MAC-48 or just MAC addresses, EUI-48 addresses are 48 bits long and consist of a 24-bit OUI and a 24-bit NIC. They are commonly used
 /// for network interfaces and other hardware devices.
 using Address = eui::Address_<3, 3>;
+static_assert(sizeof(Address) == 6);
+static_assert(alignof(Address) == 1);
 
 /// The invalid address is a special address that is used to indicate an invalid or uninitialized address. In EUI-48, the invalid address is
 /// represented by all bits set to 0 (i.e., 00:00:00:00:00:00).
@@ -153,6 +155,16 @@ namespace eui64 {
 /// EUI-64 addresses are 64 bits long and consist of a 24-bit OUI and a 40-bit NIC. They are commonly used for network interfaces in IPv6 and other
 /// applications that require a larger address space.
 using Address = eui::Address_<3, 5>;
+static_assert(sizeof(Address) == 8);
+static_assert(alignof(Address) == 1);
+
+/// The invalid address is a special address that is used to indicate an invalid or uninitialized address. In EUI-48, the invalid address is
+/// represented by all bits set to 0 (i.e., 00:00:00:00:00:00:00:00).
+constexpr static Address invalid{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};    // An invalid address is all bits set to 0
+
+/// The broadcast address is a special address that is used to send a message to all devices on the network. In EUI-48, the broadcast address is
+/// represented by all bits set to 1 (i.e., FF:FF:FF:FF:FF:FF:FF:FF).
+constexpr static Address broadcast{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};    // The broadcast address is all bits set to 1
 }    // namespace eui64
 
 }    // namespace net

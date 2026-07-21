@@ -20,7 +20,7 @@ namespace arp {
 
 /// @brief Fixed-size ARP table indexed by IPv4 address.
 /// @tparam CAPACITY Maximum number of entries in the table.
-template <std::size_t CAPACITY = MaxARPEntries>
+template <std::size_t CAPACITY = MaxEntries>
 class Table {
 public:
     using EntryType = Entry;

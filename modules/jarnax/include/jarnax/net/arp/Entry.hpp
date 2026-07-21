@@ -20,7 +20,7 @@ namespace arp {
 struct Entry final {
     constexpr Entry()
         : ipv4{}
-        , mac{{0x00, 0x00, 0x00, 0x00, 0x00, 0x00}}
+        , mac{eui48::invalid}
         , ttl{0} {}
     /// Parameterized Constructor for constant references
     constexpr Entry(ip::v4::Address const& ipv4_address, eui48::Address const& mac_address, uint32_t time_to_live)
@@ -82,7 +82,7 @@ struct Entry final {
     void Clear() {
         ttl = 0;
         ipv4 = ip::v4::Address{};    // reset to default value
-        mac = eui48::Address{{0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
+        mac = eui48::invalid;
     }
 
     /// Decrements the TTL of the ARP entry by 1, which can be used to simulate the passage of time and the expiration of ARP entries in the ARP

@@ -12,6 +12,7 @@
 #include "jarnax/drivers/lps35hw/Driver.hpp"
 #include "jarnax/drivers/lsm9ds1/Driver.hpp"
 #include "jarnax/net/ethernet/LAN8742A.hpp"
+#include "jarnax/net/ethernet/Driver.hpp"
 #include "jarnax/gpio/Output.hpp"
 #include "stm32/Button.hpp"
 #include "stm32/Indicator.hpp"
@@ -88,7 +89,7 @@ public:
     jarnax::console::Service& GetConsole();
 
     /// Return the Ethernet Driver
-    // jarnax::net::ethernet::Driver& GetEthernet();
+    jarnax::net::ethernet::Driver& GetEthernet();
 
     /// Returns the LAN8742A PHY Driver
     jarnax::net::ethernet::lan8742a::Driver& GetLan8742aDriver();

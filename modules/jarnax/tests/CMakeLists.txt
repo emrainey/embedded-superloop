@@ -55,14 +55,13 @@ host_unit_test(NAME jarnax-googletest
         ${CMAKE_CURRENT_SOURCE_DIR}/gtest-w25q16bv-statemachine.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/gtest-lps35hw-statemachine.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/gtest-lsm9ds1-statemachine.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/gtest-lan8742a-statemachine.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/mocks
     LIBRARIES
         strict jarnax-interfaces
     GENERIC_MODULES
-        memory core jarnax-lan8742a-driver
+        memory core
     MODULES
         jarnax
     GOOGLETEST
@@ -70,4 +69,24 @@ host_unit_test(NAME jarnax-googletest
         basic
     BOARDS
         stm32_f4ve_v2
+)
+
+host_unit_test(NAME jarnax-googletest-net
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/gtest-lan8742a-statemachine.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/gtest-ethernet-filter.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/mocks
+    LIBRARIES
+        strict jarnax-interfaces
+    GENERIC_MODULES
+        memory core jarnax-net jarnax-lan8742a-driver
+    MODULES
+        jarnax
+    GOOGLETEST
+    CONFIGURATIONS
+        basic
+    BOARDS
+        nucleo_h753zi
 )

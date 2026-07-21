@@ -5,6 +5,7 @@
 /// Statistics Tracking Mixin Class
 
 #include <cstdint>
+#include <type_traits>
 
 namespace core {
 

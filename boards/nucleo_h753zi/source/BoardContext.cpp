@@ -1,7 +1,6 @@
+#include "BoardContext.hpp"
 #include <array>
 #include <compiler.hpp>
-#include <cortex/linker.hpp>
-#include "BoardContext.hpp"
 #include <cortex/linker.hpp>
 #include "configure.hpp"
 #include "core/Container.hpp"
@@ -28,14 +27,14 @@ static std::uint32_t mock_sram1[256];
 static std::uint32_t mock_sram2[256];
 static std::uint32_t mock_sram3[256];
 static std::uint32_t mock_sram4[256];
-std::uint32_t *__sram1_start = mock_sram1;
-std::uint32_t *__sram1_limit = mock_sram1 + 256;
-std::uint32_t *__sram2_start = mock_sram2;
-std::uint32_t *__sram2_limit = mock_sram2 + 256;
-std::uint32_t *__sram3_start = mock_sram3;
-std::uint32_t *__sram3_limit = mock_sram3 + 256;
-std::uint32_t *__sram4_start = mock_sram4;
-std::uint32_t *__sram4_limit = mock_sram4 + 256;
+std::uint32_t* __sram1_start = mock_sram1;
+std::uint32_t* __sram1_limit = mock_sram1 + 256;
+std::uint32_t* __sram2_start = mock_sram2;
+std::uint32_t* __sram2_limit = mock_sram2 + 256;
+std::uint32_t* __sram3_start = mock_sram3;
+std::uint32_t* __sram3_limit = mock_sram3 + 256;
+std::uint32_t* __sram4_start = mock_sram4;
+std::uint32_t* __sram4_limit = mock_sram4 + 256;
 #endif
 namespace stm32 {
 
@@ -100,13 +99,13 @@ ClockConfiguration const default_clock_configuration = {
 
 // Secondary Zero Init for SRAMx
 struct SRAM {
-    std::uint32_t *start;
-    std::uint32_t *limit;
+    std::uint32_t* start;
+    std::uint32_t* limit;
 } srams[] = {
-    { __sram1_start, __sram1_limit },
-    { __sram2_start, __sram2_limit },
-    { __sram3_start, __sram3_limit },
-    { __sram4_start, __sram4_limit },
+    {__sram1_start, __sram1_limit},
+    {__sram2_start, __sram2_limit},
+    {__sram3_start, __sram3_limit},
+    {__sram4_start, __sram4_limit},
 };
 
 }    // namespace stm32
@@ -167,7 +166,7 @@ core::Status BoardContext::Initialize(void) {
     core::Status status;
     mco1_pin_.SetOutputSpeed(stm32::gpio::Speed::VeryHigh).SetMode(stm32::gpio::Mode::AlternateFunction).SetAlternative(0);    // Alt 0 is MCO1
     mco2_pin_.SetOutputSpeed(stm32::gpio::Speed::VeryHigh).SetMode(stm32::gpio::Mode::AlternateFunction).SetAlternative(0);    // Alt 0 is MCO2
-    user_button_pin_.SetMode(stm32::gpio::Mode::Input).SetResistor(stm32::gpio::Resistor::PullUp);
+    user_button_pin_.SetMode(stm32::gpio::Mode::Input).SetResistor(stm32::gpio::Resistor::PullDown);
     error_pin_.SetMode(stm32::gpio::Mode::Output)
         .SetOutputSpeed(stm32::gpio::Speed::Medium)
         .SetOutputType(stm32::gpio::OutputType::OpenDrain)
@@ -353,7 +352,7 @@ core::Status BoardContext::Initialize(void) {
     }
 
     // Since we just enabled SRAM1,2,3,4 we need to memset the whole parts for ECC
-    // TODO: This is a hacky way to do this. We should be able to do this at compile time, but these 
+    // TODO: This is a hacky way to do this. We should be able to do this at compile time, but these
     // CAN'T be done in the zero table as the parts aren't enable at boot
     for (size_t r = 0; r < dimof(stm32::srams); r++) {
         std::size_t size = static_cast<size_t>(stm32::srams[r].limit - stm32::srams[r].start) / sizeof(*stm32::srams[r].start);

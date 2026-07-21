@@ -7,26 +7,15 @@
 /// is no padding between the fields,
 
 #include "jarnax/net/configuration.hpp"
+#include "jarnax/net/ethernet/Types.hpp"
 #include "jarnax/net/eui/Address.hpp"
 #include "jarnax/net/ip/v4/Packet.hpp"
 // #include "jarnax/net/ip/v6/Packet.hpp"
+#include "jarnax/net/arp/Packet.hpp"
 
 namespace jarnax {
 namespace net {
 namespace ethernet {
-
-/// The EtherType field of an Ethernet frame, which indicates the protocol encapsulated in the payload of the frame. This enumeration defines some
-/// common EtherType values, such as IPv4, ARP, and IPv6. The values are represented in hexadecimal, as they appear in the actual Ethernet frame.
-/// @note This is not an exhaustive list of EtherTypes, but it can be expanded as needed to include additional protocols.
-/// @warning This is defined in host byte order, so it may need to be converted to network byte order (big-endian) when constructing or parsing
-/// Ethernet frames, depending on the endianness of the host system.
-enum class EtherType : uint16_t {
-    IPv4 = 0x0800,    ///< Internet Protocol version 4 (IPv4)
-    ARP = 0x0806,     ///< Address Resolution Protocol (ARP)
-    // WakeOnLan = 0x0842,    ///< Wake-on-LAN
-    // IPv6 = 0x86DD,         ///< Internet Protocol version 6 (IPv6)
-    // VLAN = 0x8100,         ///< IEEE 802.1Q VLAN-tagged frame
-};
 
 /// The Ethernet Frame structure definition. This structure is used to represent an Ethernet frame in memory, allowing for easy manipulation and
 /// access to the various fields of the frame. The structure is designed to be packed, ensuring that there is no padding between the fields, which is
@@ -67,13 +56,16 @@ struct Frame final {
     union Payload {
         Payload()
             : data{} {}
-
+        arp::Packet arp;        ///< The payload of the Ethernet frame, interpreted as an ARP packet if the EtherType indicates ARP.
         ip::v4::Packet ipv4;    ///< The payload of the Ethernet frame, interpreted as an IPv4 packet if the EtherType indicates IPv4.
         // ip::v6::Packet ipv6;    ///< The payload of the Ethernet frame, interpreted as an IPv6 packet if the EtherType indicates IPv6.
         uint8_t data[ethernet::MediaTransmissionUnit];    ///< The payload of the Ethernet frame, which can contain up to the MTU size of data.
     } payload;
     //+=== MEMORY ======================================+
 };
+
+static_assert(sizeof(Frame) >= 64, "Ethernet frames must be at least 64 bytes");
+static_assert(sizeof(Frame) <= 9000, "Ethernet frames must be at most 9000 bytes");
 
 /// A helper function to check if a given EtherType is a known type that we can handle in our Ethernet driver implementation. This can be used to
 /// quickly determine if we can parse the payload of an Ethernet frame based on its EtherType, and can help us identify unsupported or unknown

@@ -24,6 +24,7 @@ enum class Protocol : uint16_t {
 /// the various fields of the packet. The structure is designed to be packed, ensuring that there is no padding between the fields, which is important
 /// for correctly interpreting the raw bytes of an IPv4 packet.
 class Packet final {
+public:
     /// The Header structure represents the header of the IPv4 packet, containing all the fields defined in the IPv4 specification. The fields are
     /// defined according to the standard layout of an IPv4 header, and the structure is packed to ensure that there is no padding between the fields,
     /// which is crucial for correctly interpreting the raw bytes of an IPv4 packet.
@@ -87,11 +88,11 @@ class Packet final {
     static_assert(HeaderSize == 20U, "The IPv4 header must be 20 bytes. No options supported.");
 
     // +=== MEMORY ======================================+
-    Header header;                 ///< The header of the IPv4 packet, containing all the fields defined in the Header structure.
+    Header header;                         ///< The header of the IPv4 packet, containing all the fields defined in the Header structure.
     union {
-        udp::Datagram datagram;    ///< The payload of the IPv4 packet, interpreted as an IPv4 datagram.
+        udp::Datagram datagram;            ///< The payload of the IPv4 packet, interpreted as an IPv4 datagram.
         uint8_t payload[MaxPacketSize];    ///< The payload of the IPv4 packet, which can contain up to the MTU
-                                                                              ///< size of data.
+                                           ///< size of data.
     };
     // +=== MEMORY ======================================+
 };
