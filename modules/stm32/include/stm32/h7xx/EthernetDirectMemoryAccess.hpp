@@ -761,7 +761,7 @@ struct EthernetDirectMemoryAccess final {
         /// Copy Assign a complete value from the base type uint32_t into a volatile version
         /// This allows you to assign the whole register to a literal value or a known constant of the same type.
         /// @note Does not return a reference
-        inline void operator=(uint32_t const& value) volatile { whole = value; }
+        inline void operator=(uint32_t const& value) volatile { whole = value & 0x3FFU; }
         /// Returns a copy of the register as an uint32_t.
         inline explicit operator uint32_t(void) const { return whole; }
         /// Returns a copy of the volatile register as an uint32_t
@@ -819,7 +819,7 @@ struct EthernetDirectMemoryAccess final {
         /// Copy Assign a complete value from the base type uint32_t into a volatile version
         /// This allows you to assign the whole register to a literal value or a known constant of the same type.
         /// @note Does not return a reference
-        inline void operator=(uint32_t const& value) volatile { whole = value; }
+        inline void operator=(uint32_t const& value) volatile { whole = value & 0x3FFU; }
         /// Returns a copy of the register as an uint32_t.
         inline explicit operator uint32_t(void) const { return whole; }
         /// Returns a copy of the volatile register as an uint32_t

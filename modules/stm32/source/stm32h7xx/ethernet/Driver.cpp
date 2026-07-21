@@ -91,15 +91,16 @@ namespace stm32 {
 namespace ethernet {
 
 Driver::Driver(
-    core::Allocator& stack_frame_allocator, core::Allocator& dma_frame_allocator, core::Allocator& transmit_descriptor_allocator,
-    core::Allocator& receive_descriptor_allocator
+    core::Allocator& stack_frame_allocator, core::Allocator& dma_frame_allocator,
+    core::Array<dma::Descriptor, TransmitDescriptorCount>& transmit_descriptors,
+    core::Array<dma::Descriptor, ReceiveDescriptorCount>& receive_descriptors
 )
     : jarnax::net::ethernet::Driver()
     , jarnax::net::ethernet::Phy()
     , stack_frame_allocator_{stack_frame_allocator}
     , dma_frame_allocator_{dma_frame_allocator}
-    , transmit_descriptor_allocator_{transmit_descriptor_allocator}
-    , receive_descriptor_allocator_{receive_descriptor_allocator} {}
+    , transmit_descriptors_{transmit_descriptors}
+    , receive_descriptors_{receive_descriptors} {}
 
 Driver::~Driver() {
     ReleaseRings();
@@ -117,15 +118,6 @@ void Driver::ReleaseRings() {
             DeallocateFrame(dma_frame_allocator_, frame);
             frame = nullptr;
         }
-    }
-
-    if (transmit_descriptors_ != nullptr) {
-        transmit_descriptor_allocator_.deallocate(transmit_descriptors_, sizeof(dma::Descriptor) * TransmitDescriptorCount, alignof(dma::Descriptor));
-        transmit_descriptors_ = nullptr;
-    }
-    if (receive_descriptors_ != nullptr) {
-        receive_descriptor_allocator_.deallocate(receive_descriptors_, sizeof(dma::Descriptor) * ReceiveDescriptorCount, alignof(dma::Descriptor));
-        receive_descriptors_ = nullptr;
     }
 }
 
@@ -160,29 +152,15 @@ core::Status Driver::Initialize(void) {
         return core::Status{core::Result::Timeout, core::Cause::Peripheral};
     }
 
-    transmit_descriptors_ = static_cast<dma::Descriptor*>(
-        transmit_descriptor_allocator_.allocate(sizeof(dma::Descriptor) * TransmitDescriptorCount, alignof(dma::Descriptor))
-    );
-    if (transmit_descriptors_ == nullptr) {
-        ReleaseRings();
-        return core::Status{core::Result::NotEnough, core::Cause::Resource};
-    }
-    for (std::size_t i = 0; i < TransmitDescriptorCount; ++i) {
-        new (&transmit_descriptors_[i]) dma::Descriptor{};
+    for (std::size_t i = 0; i < transmit_descriptors_.count(); ++i) {
+        transmit_descriptors_[i] = dma::Descriptor{};
     }
 
-    receive_descriptors_ = static_cast<dma::Descriptor*>(
-        receive_descriptor_allocator_.allocate(sizeof(dma::Descriptor) * ReceiveDescriptorCount, alignof(dma::Descriptor))
-    );
-    if (receive_descriptors_ == nullptr) {
-        ReleaseRings();
-        return core::Status{core::Result::NotEnough, core::Cause::Resource};
-    }
-    for (std::size_t i = 0; i < ReceiveDescriptorCount; ++i) {
-        new (&receive_descriptors_[i]) dma::Descriptor{};
+    for (std::size_t i = 0; i < receive_descriptors_.count(); ++i) {
+        receive_descriptors_[i] = dma::Descriptor{};
     }
 
-    for (std::size_t i = 0; i < TransmitDescriptorCount; ++i) {
+    for (std::size_t i = 0; i < transmit_descriptors_.count(); ++i) {
         transmit_ring_frames_[i] = AllocateFrame(dma_frame_allocator_);
         if (transmit_ring_frames_[i] == nullptr) {
             ReleaseRings();
@@ -202,7 +180,7 @@ core::Status Driver::Initialize(void) {
         descriptor.transmit_read.own = 0U;
     }
 
-    for (std::size_t i = 0; i < ReceiveDescriptorCount; ++i) {
+    for (std::size_t i = 0; i < receive_descriptors_.count(); ++i) {
         receive_ring_frames_[i] = AllocateFrame(dma_frame_allocator_);
         if (receive_ring_frames_[i] == nullptr) {
             ReleaseRings();
@@ -230,27 +208,29 @@ core::Status Driver::Initialize(void) {
     stm32::peripherals::ethernet_dma.channel_receive_control = dma_rx_control;
 
     stm32::peripherals::EthernetDirectMemoryAccess::ChannelTransmitDescriptorListAddress tx_descriptor_list_address;
-    tx_descriptor_list_address.whole = DescriptorAddressRegisterValue(reinterpret_cast<std::uintptr_t>(transmit_descriptors_));
+    tx_descriptor_list_address.whole = DescriptorAddressRegisterValue(reinterpret_cast<std::uintptr_t>(transmit_descriptors_.data()));
     stm32::peripherals::ethernet_dma.channel_transmit_descriptor_list_address = tx_descriptor_list_address;
 
     stm32::peripherals::EthernetDirectMemoryAccess::ChannelReceiveDescriptorListAddress rx_descriptor_list_address;
-    rx_descriptor_list_address.whole = DescriptorAddressRegisterValue(reinterpret_cast<std::uintptr_t>(receive_descriptors_));
+    rx_descriptor_list_address.whole = DescriptorAddressRegisterValue(reinterpret_cast<std::uintptr_t>(receive_descriptors_.data()));
     stm32::peripherals::ethernet_dma.channel_receive_descriptor_list_address = rx_descriptor_list_address;
 
     stm32::peripherals::EthernetDirectMemoryAccess::ChannelTransmitDescriptorRingLength tx_ring_length;
-    tx_ring_length.bits.transmit_descriptor_ring_length = static_cast<std::uint32_t>(TransmitDescriptorCount - 1U);
+    tx_ring_length = static_cast<std::uint32_t>(transmit_descriptors_.count() - 1U);
     stm32::peripherals::ethernet_dma.channel_transmit_descriptor_ring_length = tx_ring_length;
 
     stm32::peripherals::EthernetDirectMemoryAccess::ChannelReceiveDescriptorRingLength rx_ring_length;
-    rx_ring_length.bits.receive_descriptor_ring_length = static_cast<std::uint32_t>(ReceiveDescriptorCount - 1U);
+    rx_ring_length = static_cast<std::uint32_t>(receive_descriptors_.count() - 1U);
     stm32::peripherals::ethernet_dma.channel_receive_descriptor_ring_length = rx_ring_length;
 
     stm32::peripherals::EthernetDirectMemoryAccess::ChannelTransmitDescriptorTailPointer tx_tail_pointer;
-    tx_tail_pointer.whole = DescriptorAddressRegisterValue(reinterpret_cast<std::uintptr_t>(&transmit_descriptors_[TransmitDescriptorCount - 1U]));
+    tx_tail_pointer.whole =
+        DescriptorAddressRegisterValue(reinterpret_cast<std::uintptr_t>(&transmit_descriptors_[transmit_descriptors_.count() - 1U]));
     stm32::peripherals::ethernet_dma.channel_transmit_descriptor_tail_pointer = tx_tail_pointer;
 
     stm32::peripherals::EthernetDirectMemoryAccess::ChannelReceiveDescriptorTailPointer rx_tail_pointer;
-    rx_tail_pointer.whole = DescriptorAddressRegisterValue(reinterpret_cast<std::uintptr_t>(&receive_descriptors_[ReceiveDescriptorCount - 1U]));
+    rx_tail_pointer.whole =
+        DescriptorAddressRegisterValue(reinterpret_cast<std::uintptr_t>(&receive_descriptors_[receive_descriptors_.count() - 1U]));
     stm32::peripherals::ethernet_dma.channel_receive_descriptor_tail_pointer = rx_tail_pointer;
 
     stm32::peripherals::EthernetMediaTransactionLayer::TransmitQueueOperatingMode tx_queue;
@@ -427,7 +407,7 @@ core::Status Driver::Transmit(jarnax::net::ethernet::Frame const* frame) {
         return core::Status{core::Result::InvalidValue, core::Cause::Parameter};
     }
 
-    if ((transmit_descriptors_ == nullptr) || (transmit_ring_frames_[transmit_producer_index_] == nullptr)) {
+    if (transmit_ring_frames_[transmit_producer_index_] == nullptr) {
         return core::Status{core::Result::NotInitialized, core::Cause::State};
     }
 
@@ -453,13 +433,13 @@ core::Status Driver::Transmit(jarnax::net::ethernet::Frame const* frame) {
     tx_tail_pointer.whole = DescriptorAddressRegisterValue(reinterpret_cast<std::uintptr_t>(&descriptor));
     stm32::peripherals::ethernet_dma.channel_transmit_descriptor_tail_pointer = tx_tail_pointer;
 
-    transmit_producer_index_ = (transmit_producer_index_ + 1U) % TransmitDescriptorCount;
+    transmit_producer_index_ = (transmit_producer_index_ + 1U) % transmit_descriptors_.count();
 
     return core::Status{};
 }
 
 core::Status Driver::Receive(jarnax::net::ethernet::Driver::Listener& listener) {
-    if ((receive_descriptors_ == nullptr) || (receive_ring_frames_[receive_consumer_index_] == nullptr)) {
+    if (receive_ring_frames_[receive_consumer_index_] == nullptr) {
         return core::Status{core::Result::NotInitialized, core::Cause::State};
     }
 
@@ -484,7 +464,7 @@ core::Status Driver::Receive(jarnax::net::ethernet::Driver::Listener& listener) 
     std::uint32_t const descriptor_status = descriptor.des[3];
     if (((descriptor_status & kDescriptorFirstMask) == 0U) || ((descriptor_status & kDescriptorLastMask) == 0U)) {
         rearm_receive_descriptor();
-        receive_consumer_index_ = (receive_consumer_index_ + 1U) % ReceiveDescriptorCount;
+        receive_consumer_index_ = (receive_consumer_index_ + 1U) % receive_descriptors_.count();
         return core::Status{core::Result::NotSupported, core::Cause::State};
     }
 
@@ -492,7 +472,7 @@ core::Status Driver::Receive(jarnax::net::ethernet::Driver::Listener& listener) 
     jarnax::net::ethernet::Frame* stack_frame = Acquire();
     if (stack_frame == nullptr) {
         rearm_receive_descriptor();
-        receive_consumer_index_ = (receive_consumer_index_ + 1U) % ReceiveDescriptorCount;
+        receive_consumer_index_ = (receive_consumer_index_ + 1U) % receive_descriptors_.count();
         return core::Status{core::Result::NotEnough, core::Cause::Resource};
     }
 

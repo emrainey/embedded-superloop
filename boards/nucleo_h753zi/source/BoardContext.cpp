@@ -1,3 +1,4 @@
+#include <array>
 #include <compiler.hpp>
 
 #include "BoardContext.hpp"
@@ -58,34 +59,16 @@ static core::BitMapHeap<ethernet_dma_block_size, ethernet_dma_block_count, align
 };
 
 /// @brief Dedicated descriptor-ring memory for Ethernet TX descriptors.
-constexpr static std::size_t ethernet_tx_descriptor_bytes =
-    sizeof(stm32::ethernet::dma::Descriptor) * stm32::ethernet::Driver::TransmitDescriptorCount;
-constexpr static std::size_t ethernet_tx_descriptor_block_count = 8U;
-constexpr static std::size_t ethernet_tx_descriptor_block_size =
-    (ethernet_tx_descriptor_bytes + (ethernet_tx_descriptor_block_count - 1U)) / ethernet_tx_descriptor_block_count;
 LINKER_SECTION(".dma_buffers")
 alignas(
     alignof(stm32::ethernet::dma::Descriptor)
-) static core::Array<uint8_t, ethernet_tx_descriptor_block_size * ethernet_tx_descriptor_block_count> ethernet_tx_descriptor_memory;
-/// @brief Allocator for Ethernet TX descriptor-ring storage.
-static core::BitMapHeap<
-    ethernet_tx_descriptor_block_size, ethernet_tx_descriptor_block_count, alignof(stm32::ethernet::dma::Descriptor), std::uint8_t>
-    ethernet_tx_descriptor_heap{&ethernet_tx_descriptor_memory[0], ethernet_tx_descriptor_memory.size()};
+) static core::Array<stm32::ethernet::dma::Descriptor, stm32::ethernet::Driver::TransmitDescriptorCount> ethernet_tx_descriptors{};
 
 /// @brief Dedicated descriptor-ring memory for Ethernet RX descriptors.
-constexpr static std::size_t ethernet_rx_descriptor_bytes =
-    sizeof(stm32::ethernet::dma::Descriptor) * stm32::ethernet::Driver::ReceiveDescriptorCount;
-constexpr static std::size_t ethernet_rx_descriptor_block_count = 8U;
-constexpr static std::size_t ethernet_rx_descriptor_block_size =
-    (ethernet_rx_descriptor_bytes + (ethernet_rx_descriptor_block_count - 1U)) / ethernet_rx_descriptor_block_count;
 LINKER_SECTION(".dma_buffers")
 alignas(
     alignof(stm32::ethernet::dma::Descriptor)
-) static core::Array<uint8_t, ethernet_rx_descriptor_block_size * ethernet_rx_descriptor_block_count> ethernet_rx_descriptor_memory;
-/// @brief Allocator for Ethernet RX descriptor-ring storage.
-static core::BitMapHeap<
-    ethernet_rx_descriptor_block_size, ethernet_rx_descriptor_block_count, alignof(stm32::ethernet::dma::Descriptor), std::uint8_t>
-    ethernet_rx_descriptor_heap{&ethernet_rx_descriptor_memory[0], ethernet_rx_descriptor_memory.size()};
+) static core::Array<stm32::ethernet::dma::Descriptor, stm32::ethernet::Driver::ReceiveDescriptorCount> ethernet_rx_descriptors{};
 
 /// @brief The Clock configuration for this board.
 /// @note HSI @ 64 MHz: M=8 -> 8 MHz VCO input, N=100 -> 800 MHz VCO, P=2 -> 400 MHz sys_ck, Q=4, R=8
@@ -160,7 +143,7 @@ BoardContext::BoardContext()
     , eth_rxd1_{stm32::gpio::Port::C, 5}       // RMII_RXD1
     , eth_tx_en_{stm32::gpio::Port::G, 11}     // RMII_TX_EN
     , eth_txd0_{stm32::gpio::Port::G, 13}      // RMII_TXD0
-    , ethernet_{stm32::ethernet_stack_heap, stm32::ethernet_dma_heap, stm32::ethernet_tx_descriptor_heap, stm32::ethernet_rx_descriptor_heap} {
+    , ethernet_{stm32::ethernet_stack_heap, stm32::ethernet_dma_heap, stm32::ethernet_tx_descriptors, stm32::ethernet_rx_descriptors} {
     // construct the driver objects as part of the constructor above.
 }
 

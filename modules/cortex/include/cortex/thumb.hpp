@@ -45,14 +45,14 @@ namespace interrupts {
 /// Disables Interrupts
 ALWAYS_INLINE inline void disable(void) {
 #if defined(__arm__)
-    asm volatile("cpsid if" :::);
+    asm volatile("cpsid if" ::: "memory");
 #endif
 }
 
 /// Enables Interrupts
 ALWAYS_INLINE inline void enable(void) {
 #if defined(__arm__)
-    asm volatile("cpsie if" :::);
+    asm volatile("cpsie if" ::: "memory");
 #endif
 }
 }    // namespace interrupts
@@ -62,35 +62,35 @@ ALWAYS_INLINE inline void enable(void) {
 template <std::uint8_t IMM>
 ALWAYS_INLINE inline void breakpoint(void) {
 #if defined(__arm__)
-    asm volatile("bkpt %0" : : "n"(IMM) :);
+    asm volatile("bkpt %0" : : "n"(IMM) : "memory");
 #endif
 }
 
 /// Injects an instruction barrier
 ALWAYS_INLINE inline void instruction_barrier(void) {
 #if defined(__arm__)
-    asm volatile("isb sy" :::);
+    asm volatile("isb sy" ::: "memory");
 #endif
 }
 
 /// Injects a data memory barrier
 ALWAYS_INLINE inline void data_memory_barrier(void) {
 #if defined(__arm__)
-    asm volatile("dmb" :::);
+    asm volatile("dmb" ::: "memory");
 #endif
 }
 
 /// Injects a data synchronization barrier
 ALWAYS_INLINE inline void data_synchronization_barrier(void) {
 #if defined(__arm__)
-    asm volatile("dsb" :::);
+    asm volatile("dsb" ::: "memory");
 #endif
 }
 
 /// Injects a Wait for Event Mode
 ALWAYS_INLINE inline void wait_for_event_mode(void) {
 #if defined(__arm__)
-    asm volatile("wfe" :::);
+    asm volatile("wfe" ::: "memory");
 #endif
 }
 
@@ -165,7 +165,7 @@ ALWAYS_INLINE inline std::uint32_t supervisor(Stacked* stacked) {
         "bx %1 \r\n"
         :                          // outputs
         : "r"(stack), "r"(func)    // inputs
-        : "cc"                     // clobbers
+        : "cc", "memory"           // clobbers
     );
     __builtin_unreachable();
 #else
@@ -340,14 +340,14 @@ inline float convert(std::uint32_t value) {
 /// Saves the Callee-Saved Registers
 ALWAYS_INLINE inline void save_callee_registers(void) {
 #if defined(__arm__)
-    asm volatile("push {r4-r11}\r\n" :::);
+    asm volatile("push {r4-r11}\r\n" : : : "memory");
 #endif
 }
 
 /// Restores the Callee-Saved Registers
 ALWAYS_INLINE inline void restore_callee_registers(void) {
 #if defined(__arm__)
-    asm volatile("pop {r4-r11}\r\n" :::);
+    asm volatile("pop {r4-r11}\r\n" : : : "memory");
 #endif
 }
 

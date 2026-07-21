@@ -49,6 +49,8 @@ namespace handlers {
     // Enable ITCM if present
     if constexpr (variant::configuration::has_itcm) {
         cortex::peripherals::itcm_control.bits.enable = 1U;
+        thumb::data_synchronization_barrier();
+        thumb::instruction_barrier();
     }
 #endif
 
@@ -56,6 +58,8 @@ namespace handlers {
     // Enable DTCM if present
     if constexpr (variant::configuration::has_dtcm) {
         cortex::peripherals::dtcm_control.bits.enable = 1U;
+        thumb::data_synchronization_barrier();
+        thumb::instruction_barrier();
     }
 #endif
 
