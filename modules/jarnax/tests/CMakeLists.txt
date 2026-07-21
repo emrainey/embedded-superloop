@@ -26,6 +26,23 @@ host_unit_test(NAME jarnax-catch
         stm32_f4ve_v2
 )
 
+host_unit_test(NAME jarnax-network
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/catch2-net-ip-v4-address.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/catch2-net-eui-address.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+    LIBRARIES
+        strict
+        jarnax-interfaces
+    GENERIC_MODULES
+        memory core jarnax-net
+    CATCH2
+    FAKEIT
+    NO_CONFIGURATIONS
+    NO_BOARDS
+)
+
 host_unit_test(NAME jarnax-googletest
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/gtest-mocks.cpp
