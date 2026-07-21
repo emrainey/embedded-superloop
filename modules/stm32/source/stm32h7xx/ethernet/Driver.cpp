@@ -21,7 +21,7 @@ std::uint32_t PackAddressLow(Address const& address) {
 }
 
 std::uint16_t PackAddressHigh(Address const& address) {
-    return static_cast<std::uint16_t>(address[4]) | (static_cast<std::uint16_t>(address[5]) << 8U);
+    return static_cast<std::uint16_t>(static_cast<std::uint16_t>(address[4]) | (static_cast<std::uint16_t>(address[5]) << 8U));
 }
 
 Address UnpackAddress(std::uint32_t low, std::uint16_t high) {
@@ -36,19 +36,23 @@ Address UnpackAddress(std::uint32_t low, std::uint16_t high) {
 }
 
 bool OwnBitCorrect() {
-    stm32::ethernet::dma::Descriptor d0;
-    d0.transmit_read.own = 1;
-    bool read = (d0.des[3] & (1U << 31)) != 0;
-    stm32::ethernet::dma::Descriptor d1;
-    d1.receive_read.own = 1;
-    bool write = (d1.des[3] & (1U << 31)) != 0;
-    stm32::ethernet::dma::Descriptor d2;
-    d2.transmit_write_back.own = 1;
-    bool write_back = (d2.des[3] & (1U << 31)) != 0;
-    stm32::ethernet::dma::Descriptor d3;
-    d3.transmit_context.own = 1;
-    bool context = (d3.des[3] & (1U << 31)) != 0;
-    return read && write && write_back && context;
+    stm32::ethernet::dma::Descriptor des;
+    des.transmit_read.own = 1;
+    bool read = (des.des[3] & (1U << 31)) != 0;
+    des.des[3] = 0;    // Clear the word to avoid false positives from other bits
+    des.receive_read.own = 1;
+    bool write = (des.des[3] & (1U << 31)) != 0;
+    des.des[3] = 0;    // Clear the word to avoid false positives from other bits
+    des.transmit_write_back.own = 1;
+    bool write_back = (des.des[3] & (1U << 31)) != 0;
+    des.des[3] = 0;    // Clear the word to avoid false positives from other bits
+    des.transmit_context.own = 1;
+    bool context = (des.des[3] & (1U << 31)) != 0;
+    des.des[3] = 0;    // Clear the word to avoid false positives from other bits
+    des.receive_write_back.own = 1;
+    bool receive_write_back = (des.des[3] & (1U << 31)) != 0;
+    des.des[3] = 0;    // Clear the word
+    return read && write && write_back && context && receive_write_back;
 }
 
 std::uint32_t DescriptorAddressRegisterValue(std::uintptr_t address) {
@@ -98,6 +102,10 @@ Driver::Driver(
     , receive_descriptor_allocator_{receive_descriptor_allocator} {}
 
 Driver::~Driver() {
+    ReleaseRings();
+}
+
+void Driver::ReleaseRings() {
     for (auto& frame : transmit_ring_frames_) {
         if (frame != nullptr) {
             DeallocateFrame(dma_frame_allocator_, frame);
@@ -122,35 +130,7 @@ Driver::~Driver() {
 }
 
 core::Status Driver::Initialize(void) {
-    auto release_rings = [this]() {
-        for (auto& frame : transmit_ring_frames_) {
-            if (frame != nullptr) {
-                DeallocateFrame(dma_frame_allocator_, frame);
-                frame = nullptr;
-            }
-        }
-        for (auto& frame : receive_ring_frames_) {
-            if (frame != nullptr) {
-                DeallocateFrame(dma_frame_allocator_, frame);
-                frame = nullptr;
-            }
-        }
-
-        if (transmit_descriptors_ != nullptr) {
-            transmit_descriptor_allocator_.deallocate(
-                transmit_descriptors_, sizeof(dma::Descriptor) * TransmitDescriptorCount, alignof(dma::Descriptor)
-            );
-            transmit_descriptors_ = nullptr;
-        }
-        if (receive_descriptors_ != nullptr) {
-            receive_descriptor_allocator_.deallocate(
-                receive_descriptors_, sizeof(dma::Descriptor) * ReceiveDescriptorCount, alignof(dma::Descriptor)
-            );
-            receive_descriptors_ = nullptr;
-        }
-    };
-
-    release_rings();
+    ReleaseRings();
     transmit_producer_index_ = 0U;
     receive_consumer_index_ = 0U;
 
@@ -158,13 +138,21 @@ core::Status Driver::Initialize(void) {
         return core::Status{core::Result::Failure, core::Cause::Configuration};
     }
 
-    // Ethernet DMA is part of the ETH peripheral block; trigger its software reset and wait for completion.
-    stm32::peripherals::EthernetDirectMemoryAccess::Mode dma_mode;
-    dma_mode = stm32::peripherals::ethernet_dma.mode;
-    dma_mode.bits.software_reset = 1U;
-    stm32::peripherals::ethernet_dma.mode = dma_mode;
-
     std::size_t timeout = kDmaSoftwareResetTimeout;
+    while ((stm32::peripherals::ethernet_dma.mode.bits.software_reset != 0U) && (timeout > 0U)) {
+        timeout--;
+    }
+    if (timeout == 0U) {
+        return core::Status{core::Result::Timeout, core::Cause::Peripheral};
+    }
+
+    // Ethernet DMA is part of the ETH peripheral block; trigger its software reset and wait for completion.
+    stm32::peripherals::EthernetDirectMemoryAccess::Mode dma_mode{stm32::peripherals::ethernet_dma.mode};    // load
+    dma_mode.bits.software_reset = 1U;                                                                       // modify
+    stm32::peripherals::ethernet_dma.mode = dma_mode;                                                        // store
+
+    // reset the timeout
+    timeout = kDmaSoftwareResetTimeout;
     while ((stm32::peripherals::ethernet_dma.mode.bits.software_reset != 0U) && (timeout > 0U)) {
         timeout--;
     }
@@ -176,7 +164,7 @@ core::Status Driver::Initialize(void) {
         transmit_descriptor_allocator_.allocate(sizeof(dma::Descriptor) * TransmitDescriptorCount, alignof(dma::Descriptor))
     );
     if (transmit_descriptors_ == nullptr) {
-        release_rings();
+        ReleaseRings();
         return core::Status{core::Result::NotEnough, core::Cause::Resource};
     }
     for (std::size_t i = 0; i < TransmitDescriptorCount; ++i) {
@@ -187,7 +175,7 @@ core::Status Driver::Initialize(void) {
         receive_descriptor_allocator_.allocate(sizeof(dma::Descriptor) * ReceiveDescriptorCount, alignof(dma::Descriptor))
     );
     if (receive_descriptors_ == nullptr) {
-        release_rings();
+        ReleaseRings();
         return core::Status{core::Result::NotEnough, core::Cause::Resource};
     }
     for (std::size_t i = 0; i < ReceiveDescriptorCount; ++i) {
@@ -197,7 +185,7 @@ core::Status Driver::Initialize(void) {
     for (std::size_t i = 0; i < TransmitDescriptorCount; ++i) {
         transmit_ring_frames_[i] = AllocateFrame(dma_frame_allocator_);
         if (transmit_ring_frames_[i] == nullptr) {
-            release_rings();
+            ReleaseRings();
             return core::Status{core::Result::NotEnough, core::Cause::Resource};
         }
 
@@ -217,7 +205,7 @@ core::Status Driver::Initialize(void) {
     for (std::size_t i = 0; i < ReceiveDescriptorCount; ++i) {
         receive_ring_frames_[i] = AllocateFrame(dma_frame_allocator_);
         if (receive_ring_frames_[i] == nullptr) {
-            release_rings();
+            ReleaseRings();
             return core::Status{core::Result::NotEnough, core::Cause::Resource};
         }
 

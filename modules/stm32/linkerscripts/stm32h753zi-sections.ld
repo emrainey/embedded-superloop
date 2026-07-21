@@ -85,10 +85,10 @@
     _stm32_dmamux1 = ORIGIN(AHB1) + 0x0800;
     _stm32_adc1 = ORIGIN(AHB1) + 0x2000;
     _stm32_adc2 = ORIGIN(AHB1) + 0x2200;
-    _stm32_ethernet_mac = ORIGIN(AHB1) + 0x2800;
-    _stm32_ethernet_mtl = ORIGIN(AHB1) + 0x3400;
-    _stm32_ethernet_dma = ORIGIN(AHB1) + 0x3800;
-    
+    _stm32_ethernet_mac = ORIGIN(AHB1) + 0x8000;
+    _stm32_ethernet_mtl = ORIGIN(AHB1) + 0x8C00;
+    _stm32_ethernet_dma = ORIGIN(AHB1) + 0x9000;
+
     /* USB On-The-Go Full Speed */
     _stm32_usb_otg_fs_device = ORIGIN(USB_OTG_FS) + 0x0000;
 

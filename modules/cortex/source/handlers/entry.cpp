@@ -39,6 +39,12 @@ namespace handlers {
     // reinstall the vector table to the read-only version in FLASH
     peripherals::system_control_block.vector_table = &cortex::vector_table;
 
+    if constexpr (reset_entry_countdown_value > 0) {
+        // If the spin count is > 0, then we want to spin here to allow a debugger to attach before we do anything else.
+        // This is useful for debugging early initialization code, but should be set to 0 for production code.
+        thumb::spin_until_zero<reset_entry_countdown_value>();
+    }
+
 #if defined(CORTEX_HAS_ITCM) and (CORTEX_HAS_ITCM == 1)
     // Enable ITCM if present
     if constexpr (variant::configuration::has_itcm) {

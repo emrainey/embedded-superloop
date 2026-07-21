@@ -70,6 +70,10 @@ public:
     ~Driver();
 
 protected:
+    /// Released the Ring Allocated Descriptors and Frames, and resets the producer and consumer indices. This should be called on initialization
+    /// failure to clean up any partial
+    void ReleaseRings();
+
     core::Allocator& stack_frame_allocator_;            ///< Allocator used for stack-owned Ethernet frame memory management
     core::Allocator& dma_frame_allocator_;              ///< Allocator used for DMA-owned Ethernet ring frame storage
     core::Allocator& transmit_descriptor_allocator_;    ///< Allocator used for TX descriptor ring memory
@@ -144,8 +148,10 @@ union Descriptor {
         std::uint32_t                                       : 16;    // Reserved, this would be tcp_payload length if we supported that.
         ChecksumInsertionControl checksum_insertion_control : 2;     ///< Whether to control the checksum insertion for this frame
         std::uint32_t tcp_segmentation_control              : 1;     ///< Whether to control the TCP segmentation for this frame
-        std::uint32_t total_header_length : 3;    ///< The length of the TCP header, if TCP segmentation is enabled for this frame (UDP => 2)
-        SourceAddressInsertionControl source_address_insertion_control : 3;    ///< Whether to control the source address insertion for this frame
+        std::uint32_t total_header_length : 4;    ///< The length of the TCP header, if TCP segmentation is enabled for this frame (UDP => 2)
+        SourceAddressInsertionControl source_address_insertion_control : 2;    ///< Whether to control the source address insertion for this frame
+        /// The source MAC address to use for this frame if source address insertion is enabled (0: MAC address 0, 1: MAC address 1)
+        std::uint32_t mac_address_source                               : 1;
         CRCPadControl crc_pad_control                                  : 2;    ///< Whether to control the CRC and padding of the frame
         /// Whether this descriptor is the last descriptor of a frame (i.e. whether it contains the end of a frame to be transmitted)
         std::uint32_t last                                             : 1;
@@ -214,12 +220,17 @@ union Descriptor {
         std::uint32_t context_descriptor_error   : 1;    ///< Whether there was an error in this context descriptor (e.g. whether the DMA controller
                                                          ///< encountered an error while processing this context descriptor)
         std::uint32_t                            : 2;    // Reserved
-        std::uint32_t one_time_timestamp_correction : 1;    ///< Whether to apply a one-time correction to the timestamp for the next frame to be
-                                                            ///< transmitted, if timestamping is enabled for that frame
+        /// (TCMSSV) Whether to apply the timestamp in this context descriptor as a one-time correction to the timestamp for the next
+        /// frame to be transmitted, if timestamping is enabled for that frame (i.e. whether to use this timestamp as a reference for a
+        /// one-time correction to the timestamp of the next frame, which can be used to correct for clock drift between the Ethernet
+        /// controller and the actual time of transmission)
+        std::uint32_t one_time_timestamp_correction_input_or_mss_valid : 1;
+        std::uint32_t one_time_timestamp_correction : 1;    ///< (OSTC) Whether to apply a one-time correction to the timestamp for the next frame to
+                                                            ///< be transmitted, if timestamping is enabled for that frame
         std::uint32_t                               : 2;    // Reserved
-        std::uint32_t context : 1;    ///< Whether this descriptor is a context descriptor (i.e. whether it contains context information for the next
-                                      ///< frame to be transmitted)
-        std::uint32_t own     : 1;    ///< Whether the DMA controller owns this descriptor (i.e. whether it is ready to be transmitted)
+        std::uint32_t context : 1;    ///< (CTXT) Whether this descriptor is a context descriptor (i.e. whether it contains context information for
+                                      ///< the next frame to be transmitted)
+        std::uint32_t own     : 1;    ///< (OWN) Whether the DMA controller owns this descriptor (i.e. whether it is ready to be transmitted)
     } transmit_context;
 #if defined(__arm__) || defined(__thumb__)
     static_assert(sizeof(TransmitContext) == 16UL, "TransmitContext descriptor must be exactly this size");
@@ -245,15 +256,34 @@ union Descriptor {
 #endif
     struct ReceiveWriteBack final {
         // RDES0
-        std::uint32_t outer_vlan_tag
-            : 16;    ///< The outer VLAN tag of the received frame, if a VLAN tag was detected in the frame and the frame contained an outer VLAN tag
-        std::uint32_t inner_vlan_tag
-            : 16;    ///< The inner VLAN tag of the received frame, if a VLAN tag was detected in the frame and the frame contained an inner VLAN tag
+        /// The outer VLAN tag of the received frame, if a VLAN tag was detected in the frame and the frame contained an outer VLAN tag
+        std::uint32_t outer_vlan_tag      : 16;
+        /// The inner VLAN tag of the received frame, if a VLAN tag was detected in the frame and the frame contained an inner VLAN tag
+        std::uint32_t inner_vlan_tag      : 16;
         // RDES1
-        std::uint32_t                                 : 16;    // Extended Status
-        std::uint32_t mac_control_opcode              : 16;    ///< The MAC control opcode of the received frame, if a MAC control frame was received
+        /// The payload type of the received frame (e.g. whether it is an IPv4 frame, an IPv6 frame, an ARP frame, etc.)
+        std::uint32_t payload_type        : 3;
+        std::uint32_t ip_header_error     : 1;    ///< Whether there was an IP header error in the frame that was received
+        /// Whether an IPv4 header was present in the frame that was received (this is not necessarily mutually exclusive with the
+        /// ip_header_error field, as there could be an IP header that is present but has an error)
+        std::uint32_t ipv4_header_present : 1;
+        /// Whether an IPv6 header was present in the frame that was received (this is not necessarily mutually exclusive with the
+        /// ip_header_error field, as there could be an IP header that is present but has an error)
+        std::uint32_t ipv6_header_present : 1;
+        /// Whether the IP checksum was bypassed for this frame (i.e. whether the DMA controller did not check the IP checksum, which
+        /// could indicate that the frame was received with an invalid IP checksum)
+        std::uint32_t ip_checksum_bypass  : 1;
+        std::uint32_t payload_error    : 1;    ///< Whether there was a payload error in the frame that was received (e.g. a TCP/UDP checksum error)
+        std::uint32_t ptp_message_type : 4;    ///< If the received frame is a PTP frame, the message type of the PTP frame
+        std::uint32_t ptp_packet_type : 1;    ///< Whether the received PTP frame is a two-step frame (i.e. whether it contains a follow-up message in
+                                              ///< addition to the sync message)
+        std::uint32_t ptp_version     : 1;    ///< If the received frame is a PTP frame, the version of the PTP protocol used in the frame
+        std::uint32_t timestamp_available : 1;     ///< Whether a timestamp is available for this frame (i.e. whether the timestamp field is valid)
+        std::uint32_t timestamp_dropped   : 1;     ///< Whether a timestamp was dropped for this frame (i.e. whether the DMA controller was unable to
+                                                   ///< capture a timestamp for this frame)
+        std::uint32_t mac_control_opcode  : 16;    ///< The MAC control opcode of the received frame, if a MAC control frame was received
         // RDES2
-        std::uint32_t                                 : 10;    // Reserved
+        std::uint32_t                     : 10;    // Reserved
         /// If an ARP frame was received, whether the Ethernet controller did not generate an ARP reply for the frame
         std::uint32_t arp_reply_not_generated         : 1;
         std::uint32_t                                 : 4;    // Reserved
@@ -261,29 +291,42 @@ union Descriptor {
         std::uint32_t source_address_filter_fail      : 1;    ///< Whether the received frame failed the source address filter
         std::uint32_t destination_address_filter_fail : 1;    ///< Whether the received frame failed the destination address filter
         std::uint32_t hash_filter_status              : 1;    ///< Whether the received frame passed the hash filter
-        std::uint32_t hash_or_mac_index : 1;    ///< Whether the hash filter or the MAC address index filter matched the received frame (i.e. whether
+        std::uint32_t hash_or_mac_index : 8;    ///< Whether the hash filter or the MAC address index filter matched the received frame (i.e. whether
                                                 ///< the hash index or the MAC address index field contains a valid index for this frame)
         std::uint32_t layer3_filter_match            : 1;    ///< Whether the received frame matched the layer 3 filter
         std::uint32_t layer4_filter_match            : 1;    ///< Whether the received frame matched the layer 4 filter
         /// The index of the layer 3 and layer 4 filters that matched the received frame, if any (0-7)
         std::uint32_t layer3_and_layer4_filter_index : 3;
         // RDES3
-        std::uint32_t payload_checksum_error
-            : 1;    ///< Whether there was a payload checksum error in the frame that was received (i.e. a TCP/UDP checksum error)
-        std::uint32_t crc_error    : 1;    ///< Whether there was a CRC error in the frame that was received
-        std::uint32_t length_error : 1;    ///< Whether there was a length error in the frame that was received (i.e. whether the length of the frame
-                                           ///< did not match the length specified in the descriptor)
+        std::uint32_t packet_length                  : 15;    ///< The length of the received frame
+        /// Whether there was any error during the reception of this frame (i.e. whether any of the above errors occurred)
+        std::uint32_t error_summary                  : 1;
+        std::uint32_t length_or_type    : 3;    ///< Whether the packet_length field contains the length of the received frame or the type of the
+                                                ///< received frame (i.e. whether this is a short frame or a long frame)
+        std::uint32_t dribble_bit_error : 1;    ///< Whether there was a dribble bit error in the frame that was received (i.e. whether there was an
+                                                ///< extra bit at the end of the frame, which could indicate a problem with the medium)
+        std::uint32_t receive_error : 1;    ///< Whether there was a receive error in the frame that was received (e.g. whether the frame was received
+                                            ///< with an invalid CRC, which could indicate a problem with the medium)
+        std::uint32_t overflow_error : 1;    ///< Whether there was an overflow error during the reception of this frame (i.e. whether the DMA
+                                             ///< controller ran out of buffer space while receiving this frame, which could indicate a problem with
+                                             ///< the medium or with the configuration of the DMA descriptors)
         std::uint32_t receive_watchdog_timeout : 1;    ///< Whether there was a receive watchdog timeout for this frame (i.e. whether the frame took
                                                        ///< too long to be received, which could indicate a problem with the medium)
-        std::uint32_t late_collision           : 1;    ///< Whether there was a late collision during the reception of this frame
-        std::uint32_t collision_count          : 4;    ///< The number of collisions that occurred during the reception of this frame
-        std::uint32_t vlan_tag_detected        : 1;    ///< Whether a VLAN tag was detected in this frame
-        std::uint32_t last                     : 1;    ///< Whether this descriptor contains the end of a received frame
-        std::uint32_t first                    : 1;    ///< Whether this descriptor contains the start of a received frame
+        std::uint32_t giant_packet : 1;    ///< Whether the received frame was a giant packet (i.e. whether the length of the frame exceeded the
+                                           ///< maximum frame size, which could indicate a
+        std::uint32_t crc_error    : 1;    ///< Whether there was a CRC error in the frame that was received
+        /// Whether the receive status in RDES0 is valid (i.e. whether the buffer1_valid and buffer2_valid fields are valid)
+        std::uint32_t receive_status_des0_valid : 1;
+        /// Whether the receive status in RDES1 is valid (i.e. whether the payload_type, error, and timestamp fields are valid)
+        std::uint32_t receive_status_des1_valid : 1;
+        /// Whether the receive status in RDES2 is valid (i.e. whether the fields in RDES2 are valid)
+        std::uint32_t receive_status_des2_valid : 1;
+        std::uint32_t last                      : 1;    ///< Whether this descriptor contains the end of a received frame
+        std::uint32_t first                     : 1;    ///< Whether this descriptor contains the start of a received frame
         std::uint32_t context : 1;    ///< Whether this descriptor is a context descriptor (i.e. whether it contains context information for the next
                                       ///< frame to be received)
         std::uint32_t own     : 1;    ///< Whether the DMA controller owns this descriptor (i.e. whether it is ready to be received into)
-    };
+    } receive_write_back;
 #if defined(__arm__) || defined(__thumb__)
     static_assert(sizeof(ReceiveWriteBack) == 16UL, "Write descriptor must be exactly this size");
 #endif

@@ -67,6 +67,43 @@ TEST_CASE("BitMapHeap - Simple") {
     }
 }
 
+TEST_CASE("BitMapHeap - Exact Fit Alignment") {
+    alignas(8) uint8_t storage[64];
+    core::BitMapHeap<8U, 8U, 8U, std::uint8_t> heap(storage, sizeof(storage), nullptr);
+
+    SECTION("64-byte allocation with 8-byte alignment fits exactly") {
+        void* pointer = heap.allocate(64U, 8U);
+        CHECK(pointer != nullptr);
+        CHECK(heap.GetStatistics().used_blocks == 8U);
+        CHECK(heap.GetStatistics().free_blocks == 0U);
+        CHECK(heap.GetStatistics().waste_bytes == 0U);
+
+        heap.deallocate(pointer, 64U, 8U);
+        CHECK(heap.GetStatistics().used_blocks == 0U);
+        CHECK(heap.GetStatistics().free_blocks == 8U);
+        CHECK(heap.GetStatistics().waste_bytes == 0U);
+    }
+}
+
+TEST_CASE("BitMapHeap - Fallback Alignment") {
+    alignas(16) uint8_t storage[128];
+    core::BitMapHeap<8U, 16U, 16U, std::uint8_t> heap(storage, sizeof(storage), nullptr);
+
+    SECTION("64-byte allocation with 16-byte alignment uses fallback block math") {
+        void* pointer = heap.allocate(64U, 16U);
+        CHECK(pointer != nullptr);
+        CHECK((reinterpret_cast<std::uintptr_t>(pointer) % 16U) == 0U);
+        CHECK(heap.GetStatistics().used_blocks == 10U);
+        CHECK(heap.GetStatistics().free_blocks == 6U);
+        CHECK(heap.GetStatistics().waste_bytes == 16U);
+
+        heap.deallocate(pointer, 64U, 16U);
+        CHECK(heap.GetStatistics().used_blocks == 0U);
+        CHECK(heap.GetStatistics().free_blocks == 16U);
+        CHECK(heap.GetStatistics().waste_bytes == 0U);
+    }
+}
+
 TEST_CASE("Buffers Casting Down") {
     alignas(16) uint8_t storage[1024];
     SmallHeap heap(storage, sizeof(storage), nullptr);

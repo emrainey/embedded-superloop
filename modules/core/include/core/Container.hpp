@@ -79,8 +79,10 @@ public:
         if (that_) {
             return *that_;
         } else {
-            // this is potentially uninitialized or undefined storage!
-            return *reinterpret_cast<TYPE*>(&storage_[0]);
+            /// @warning this is potentially uninitialized or undefined storage and the user hasn't emplaced yet!
+            void* tmp = static_cast<void*>(&storage_[0]);
+            // we have to double case to remove the -Werror for "cast-align"
+            return *reinterpret_cast<TYPE*>(tmp);
         }
     }
 
@@ -100,7 +102,7 @@ public:
 
 protected:
     /// @brief The storage for the object
-    alignas(alignof(TYPE)) std::uint8_t storage_[sizeof(TYPE)];
+    alignas(TYPE) std::byte storage_[sizeof(TYPE)];
     /// @brief The pointer to the object
     /// @note This is not a pointer to the storage, but a pointer to the object in the storage, if null the object is not constructed
     TYPE* that_;

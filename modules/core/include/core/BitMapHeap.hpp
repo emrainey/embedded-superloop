@@ -187,7 +187,7 @@ public:
         if (contained) {
             std::size_t offset = reinterpret_cast<uintptr_t>(pointer) - reinterpret_cast<uintptr_t>(buffer_);
             std::size_t startBlock = offset / BlockSize;
-            std::size_t blocks = (bytes + alignment - 1 + BlockSize - 1) / BlockSize;
+            std::size_t blocks = bytes_to_blocks(bytes, alignment);
             GetPrinter()("%p: Deallocated %" PRIz " bytes at %p (offset %" PRIz ")\r\n", reinterpret_cast<void*>(this), bytes, pointer, offset);
             stats_.waste_bytes -= (blocks * BlockSize) - bytes;
             markBlocksAsFree(startBlock, blocks);
@@ -204,7 +204,14 @@ protected:
     /// @param bytes The desired number of bytes
     /// @param alignment The alignment of the bytes
     /// @return The number of blocks needed.
-    inline std::size_t bytes_to_blocks(std::size_t bytes, std::size_t alignment) { return (bytes + alignment - 1 + BlockSize - 1) / BlockSize; }
+    inline std::size_t bytes_to_blocks(std::size_t bytes, std::size_t alignment) {
+        // When block boundaries are naturally aligned for this request, no extra
+        // alignment slack block is needed.
+        if ((BlockSize % alignment) == 0U) {
+            return (bytes + BlockSize - 1U) / BlockSize;
+        }
+        return (bytes + alignment - 1U + BlockSize - 1U) / BlockSize;
+    }
 
     /// @brief Determines of a pointer and number of bytes is contained in the Heap or not.
     /// @param pointer Pointer to memory

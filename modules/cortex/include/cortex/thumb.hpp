@@ -101,6 +101,29 @@ ALWAYS_INLINE inline void nop(void) {
 #endif
 }
 
+template <std::uint32_t VALUE>
+ALWAYS_INLINE inline void spin_until_zero() {
+#if defined(__arm__)
+    // move the value into a register and decrement it
+    asm volatile(
+        "movw r0, %[lo]         \n\t"
+        "movt r0, %[hi]         \n\t"
+        "1:                     \n\t"
+        "subs r0, r0, #1        \n\t"
+        "bne  1b                \n\t"
+        :                                     // no outputs
+        : [lo] "I"(VALUE & 0xFFFF),           // lower 16
+          [hi] "I"((VALUE >> 16) & 0xFFFF)    // upper 16
+        : "r0", "cc"
+    );
+#else
+    volatile std::uint32_t value = VALUE;
+    while (value > 0) {
+        value = value - 1;
+    }
+#endif
+}
+
 /// @brief A set of 4 word sized parameters used in exceptions which typically contains exception related information.
 struct Stacked {
     /// The stacked parameters

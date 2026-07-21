@@ -14,6 +14,10 @@
 
 namespace cortex {
 
+/// The number of cycles we'll spin at the reset entry point waiting for a debugger to attach before we do anything else. Set this to 0 to skip the
+/// spin and boot immediately.
+constexpr static std::uint32_t reset_entry_countdown_value = 0;
+
 /// When false, the boost up self tests will not run
 constexpr static bool perform_boot_self_test{false};
 

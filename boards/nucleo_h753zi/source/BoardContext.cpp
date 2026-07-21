@@ -3,8 +3,10 @@
 #include "BoardContext.hpp"
 #include <cortex/linker.hpp>
 #include "configure.hpp"
+#include "core/Container.hpp"
 #include "cortex/mcu.hpp"
 #include "jarnax.hpp"
+#include "jarnax/print.hpp"
 #include "lps35hw.hpp"
 #include "lsm9ds1.hpp"
 #include "segger/rtt.hpp"
@@ -317,6 +319,7 @@ core::Status BoardContext::Initialize(void) {
     ahb1_enable.bits.dma1_enable = 1;                                                   // modify
     ahb1_enable.bits.dma2_enable = 1;                                                   // modify
     ahb1_enable.bits.ethernet1_mac_enable = 1;                                          // modify
+    ahb1_enable.bits.ethernet1_transmit_clock_enable = 1;                               // modify
     ahb1_enable.bits.ethernet1_receive_clock_enable = 1;                                // modify
     stm32::h7xx::reset_and_clock_control.ahb1_peripheral_clock_enable = ahb1_enable;    // write
 
@@ -425,6 +428,8 @@ core::Status BoardContext::Initialize(void) {
     } while (true);
 
     if (not status.IsSuccess()) {
+        jarnax::print("BoardContext failed to initialize, halting...\r\n");
+        jarnax::print("Driver Init: ", status);
         cortex::spinhalt();
     }
 
@@ -500,10 +505,13 @@ jarnax::console::Service& BoardContext::GetConsole() {
     return usart_console_;
 }
 
+core::Container<BoardContext> board_context_container;
 
 BoardContext& GetBoardContext() {
-    static BoardContext board_context;
-    return board_context;
+    if (not board_context_container) {
+        board_context_container.emplace();
+    }
+    return *board_context_container;
 }
 
 }    // namespace jarnax
