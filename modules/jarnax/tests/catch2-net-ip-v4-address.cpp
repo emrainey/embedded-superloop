@@ -1,6 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include "jarnax/net/ip/v4/Address.hpp"
-#include "jarnax/net/ip/v4/Interface.hpp"
+#include "jarnax/net/Interface.hpp"
 
 #include <iostream>
 

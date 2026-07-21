@@ -4,7 +4,7 @@
 /// @file
 /// IPv4 Route Definitions
 
-#include "jarnax/net/ip/v4/Interface.hpp"
+#include "jarnax/net/Interface.hpp"
 
 namespace jarnax {
 namespace net {
@@ -30,7 +30,7 @@ public:
     Address network;    ///< The destination network for this route (defined by an address and a mask). This can either a the same as or a subset of
                         ///< the interface network.
     Address netmask;    ///< The subnet mask for the destination network
-    Interface& interface;    ///< The interface to use for this route
+    net::Interface& interface;    ///< The interface to use for this route
 };
 
 namespace local {

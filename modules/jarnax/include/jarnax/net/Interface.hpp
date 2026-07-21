@@ -1,5 +1,5 @@
-#ifndef JARNAX_NET_IP_V4_INTERFACE_HPP
-#define JARNAX_NET_IP_V4_INTERFACE_HPP
+#ifndef JARNAX_NET_INTERFACE_HPP
+#define JARNAX_NET_INTERFACE_HPP
 
 #include "jarnax/net/ip/v4/Address.hpp"
 
@@ -40,4 +40,4 @@ extern Interface loopback_interface;
 }    // namespace net
 }    // namespace jarnax
 
-#endif    // JARNAX_NET_IP_V4_INTERFACE_HPP
+#endif    // JARNAX_NET_INTERFACE_HPP

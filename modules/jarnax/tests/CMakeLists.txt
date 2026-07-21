@@ -28,6 +28,8 @@ host_unit_test(NAME jarnax-catch
 
 host_unit_test(NAME jarnax-network
     SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/catch2-net-arp-entry.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/catch2-net-arp-table.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-net-ip-v4-address.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-net-eui-address.cpp
     INCLUDES

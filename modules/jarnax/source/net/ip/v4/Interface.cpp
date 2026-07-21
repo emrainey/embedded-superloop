@@ -1,4 +1,4 @@
-#include "jarnax/net/ip/v4/Interface.hpp"
+#include "jarnax/net/Interface.hpp"
 
 namespace jarnax {
 namespace net {
