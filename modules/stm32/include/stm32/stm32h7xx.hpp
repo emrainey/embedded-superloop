@@ -18,6 +18,7 @@
 #include "stm32/h7xx/RandomNumberGenerator.hpp"
 #include "stm32/h7xx/ResetAndClockControl.hpp"
 #include "stm32/h7xx/SerialPeripheralInterface.hpp"
+#include "stm32/h7xx/SystemConfiguration.hpp"
 #include "stm32/h7xx/Timer2.hpp"
 #include "stm32/h7xx/UniversalAsynchronousReceiverTransmitter.hpp"
 #include "stm32/h7xx/UniversalSynchronousAsynchronousReceiverTransmitter.hpp"
@@ -71,6 +72,10 @@ extern RandomNumberGenerator volatile random_number_generator;
 /// The external volatile reset_and_clock_control which is a memory mapped register or peripheral.
 /// @note The address of the peripheral is set either by the linkerscript or by a unit test.
 extern ResetAndClockControl volatile reset_and_clock_control;
+
+/// The external volatile system_configuration which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern SystemConfiguration volatile system_configuration;
 
 /// The external volatile spi1 which is a memory mapped register or peripheral.
 /// @note The address of the peripheral is set either by the linkerscript or by a unit test.

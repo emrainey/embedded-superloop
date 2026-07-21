@@ -26,8 +26,10 @@ constexpr static Hertz high_speed_external_oscillator_frequency = 0_MHz;
 constexpr static Hertz low_speed_external_oscillator_frequency{32768U};    // 32_KiHz
 /// @brief The desired frequency of the Timer2 counter
 constexpr static Hertz timer2_frequency = 40_MHz;
-/// @brief The external PHY clock frequency
-constexpr static Hertz external_phy_clock_frequency = 25_MHz;
+/// @brief Select Ethernet PHY interface mode at compile time (true: RMII, false: MII)
+constexpr static bool use_rmii_for_ethernet = true;
+/// @brief The RMII reference clock frequency (PHY is fed 25 MHz and doubles it to 50 MHz)
+constexpr static Hertz rmii_reference_clock_frequency = 50_MHz;
 /// Number of bytes per DMA block for the Drivers
 constexpr static size_t DmaBlockSize{64U};
 /// Number of DMA blocks for the Drivers
@@ -49,7 +51,7 @@ constexpr static std::uint32_t usart_dma_buffer_size = 128U;
 constexpr static std::uint32_t i2c_dma_buffer_size = 256U;
 /// The SPI1 DMA Buffer Size
 constexpr static std::uint32_t spi1_dma_buffer_size = 256U;
-/// The Ethernet DMA BLock Size (a frame)
+/// The Ethernet DMA BLock Size (a frame and should be multiple of the align size on the platform)
 constexpr static std::uint32_t ethernet_dma_block_size = 1536U;
 /// The Ethernet DMA Block Count (should be enough for 8 frames of 1536 bytes each)
 constexpr static std::uint32_t ethernet_dma_block_count = 8U;

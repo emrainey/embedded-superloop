@@ -104,6 +104,7 @@
     /* Provide as the base for an array of peripherals */
     PROVIDE(_ZN5stm324h7xx28general_purpose_input_outputE = _stm32_gpio);
     PROVIDE(_ZN5stm324h7xx23reset_and_clock_controlE = _stm32_reset_and_clock_control);
+    PROVIDE(_ZN5stm324h7xx20system_configurationE = _stm32_syscfg);
     PROVIDE(_ZN5stm324h7xx13flash_controlE = _stm32_flash_control);
     ASSERT((_stm32_bkpsram_end - _stm32_bkpsram_start) <= BKPRSRAM_SIZE, ".bkpsram has overrun!")
     __cortex_backup_start = _stm32_bkpsram_start;
@@ -117,7 +118,7 @@
     PROVIDE(_ZN5stm324h7xx21direct_memory_access2E = _stm32_dma2);
     PROVIDE(_ZN5stm324h7xx12ethernet_macE = _stm32_ethernet_mac);
     PROVIDE(_ZN5stm324h7xx12ethernet_mtlE = _stm32_ethernet_mtl);
-    PROVIDE(_ZN5stm324h7xx18ethernet_direct_memory_accessE = _stm32_ethernet_dma);
+    PROVIDE(_ZN5stm324h7xx12ethernet_dmaE = _stm32_ethernet_dma);
     PROVIDE(_ZN5stm324h7xx143dma2d_controlE = _stm32_dma2d);
 
     /* Arm High Performance Bus 2 */

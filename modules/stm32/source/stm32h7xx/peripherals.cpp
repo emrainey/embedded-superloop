@@ -12,6 +12,7 @@ namespace stm32 {
 namespace h7xx {
 GeneralPurposeInputOutput volatile general_purpose_input_output[NumberOfGeneralPurposeInputOutputInstances];
 ResetAndClockControl volatile reset_and_clock_control;
+SystemConfiguration volatile system_configuration;
 RandomNumberGenerator volatile random_number_generator;
 FlashControl volatile flash_control;
 Timer2 volatile timer2;

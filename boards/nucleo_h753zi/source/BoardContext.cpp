@@ -48,6 +48,43 @@ static core::BitMapHeap<ethernet_dma_block_size, ethernet_dma_block_count, align
     &ethernet_dma_memory[0], ethernet_dma_memory.size()
 };
 
+/// @brief Separate stack-owned Ethernet frame memory pool (decoupled from DMA rings).
+alignas(alignof(std::max_align_t)) static core::Array<uint8_t, ethernet_dma_buffer_size> ethernet_stack_memory;
+/// @brief Allocator for stack-owned Ethernet frames delivered up the network stack.
+static core::BitMapHeap<ethernet_dma_block_size, ethernet_dma_block_count, alignof(std::max_align_t), std::uint8_t> ethernet_stack_heap{
+    &ethernet_stack_memory[0], ethernet_stack_memory.size()
+};
+
+/// @brief Dedicated descriptor-ring memory for Ethernet TX descriptors.
+constexpr static std::size_t ethernet_tx_descriptor_bytes =
+    sizeof(stm32::ethernet::dma::Descriptor) * stm32::ethernet::Driver::TransmitDescriptorCount;
+constexpr static std::size_t ethernet_tx_descriptor_block_count = 8U;
+constexpr static std::size_t ethernet_tx_descriptor_block_size =
+    (ethernet_tx_descriptor_bytes + (ethernet_tx_descriptor_block_count - 1U)) / ethernet_tx_descriptor_block_count;
+LINKER_SECTION(".dma_buffers")
+alignas(
+    alignof(stm32::ethernet::dma::Descriptor)
+) static core::Array<uint8_t, ethernet_tx_descriptor_block_size * ethernet_tx_descriptor_block_count> ethernet_tx_descriptor_memory;
+/// @brief Allocator for Ethernet TX descriptor-ring storage.
+static core::BitMapHeap<
+    ethernet_tx_descriptor_block_size, ethernet_tx_descriptor_block_count, alignof(stm32::ethernet::dma::Descriptor), std::uint8_t>
+    ethernet_tx_descriptor_heap{&ethernet_tx_descriptor_memory[0], ethernet_tx_descriptor_memory.size()};
+
+/// @brief Dedicated descriptor-ring memory for Ethernet RX descriptors.
+constexpr static std::size_t ethernet_rx_descriptor_bytes =
+    sizeof(stm32::ethernet::dma::Descriptor) * stm32::ethernet::Driver::ReceiveDescriptorCount;
+constexpr static std::size_t ethernet_rx_descriptor_block_count = 8U;
+constexpr static std::size_t ethernet_rx_descriptor_block_size =
+    (ethernet_rx_descriptor_bytes + (ethernet_rx_descriptor_block_count - 1U)) / ethernet_rx_descriptor_block_count;
+LINKER_SECTION(".dma_buffers")
+alignas(
+    alignof(stm32::ethernet::dma::Descriptor)
+) static core::Array<uint8_t, ethernet_rx_descriptor_block_size * ethernet_rx_descriptor_block_count> ethernet_rx_descriptor_memory;
+/// @brief Allocator for Ethernet RX descriptor-ring storage.
+static core::BitMapHeap<
+    ethernet_rx_descriptor_block_size, ethernet_rx_descriptor_block_count, alignof(stm32::ethernet::dma::Descriptor), std::uint8_t>
+    ethernet_rx_descriptor_heap{&ethernet_rx_descriptor_memory[0], ethernet_rx_descriptor_memory.size()};
+
 /// @brief The Clock configuration for this board.
 /// @note HSI @ 64 MHz: M=8 -> 8 MHz VCO input, N=100 -> 800 MHz VCO, P=2 -> 400 MHz sys_ck, Q=4, R=8
 ClockConfiguration const default_clock_configuration = {
@@ -121,7 +158,7 @@ BoardContext::BoardContext()
     , eth_rxd1_{stm32::gpio::Port::C, 5}       // RMII_RXD1
     , eth_tx_en_{stm32::gpio::Port::G, 11}     // RMII_TX_EN
     , eth_txd0_{stm32::gpio::Port::G, 13}      // RMII_TXD0
-    , ethernet_{stm32::ethernet_dma_heap} {
+    , ethernet_{stm32::ethernet_stack_heap, stm32::ethernet_dma_heap, stm32::ethernet_tx_descriptor_heap, stm32::ethernet_rx_descriptor_heap} {
     // construct the driver objects as part of the constructor above.
 }
 
@@ -287,6 +324,20 @@ core::Status BoardContext::Initialize(void) {
     apb2_enable = stm32::h7xx::reset_and_clock_control.apb2_peripheral_clock_enable;    // read
     apb2_enable.bits.spi1_enable = 1;                                                   // modify
     stm32::h7xx::reset_and_clock_control.apb2_peripheral_clock_enable = apb2_enable;    // write
+
+    if constexpr (stm32::use_rmii_for_ethernet) {
+        // enable APB4 SYSCFG so PMCR can select the Ethernet PHY interface mode
+        stm32::h7xx::ResetAndClockControl::APB4ClockEnable apb4_enable;
+        apb4_enable = stm32::h7xx::reset_and_clock_control.apb4_clock_enable;    // read
+        apb4_enable.bits.syscfg_enable = 1U;                                     // modify
+        stm32::h7xx::reset_and_clock_control.apb4_clock_enable = apb4_enable;    // write
+
+        // Select RMII in SYSCFG PMCR EPIS (0b100 = RMII, 0b000 = MII)
+        stm32::h7xx::SystemConfiguration::PeripheralModeControl peripheral_mode_control;
+        peripheral_mode_control = stm32::h7xx::system_configuration.peripheral_mode_control;    // read
+        peripheral_mode_control.bits.ethernet_physical_interface_selection = 0b100U;            // RMII
+        stm32::h7xx::system_configuration.peripheral_mode_control = peripheral_mode_control;    // write
+    }
 
     jarnax::print("Feature Clock is %" PRIu32 "\r\n", stm32::GetClockTree().fclk.value());
     jarnax::print("APB1 Timer Clock is %" PRIu32 "\r\n", stm32::GetClockTree().apb1_timer_clk.value());

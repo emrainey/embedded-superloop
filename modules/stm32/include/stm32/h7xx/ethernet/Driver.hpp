@@ -4,6 +4,7 @@
 /// @file
 /// STM32H7xx Ethernet Driver Implementation
 
+#include <array>
 #include <core/Allocator.hpp>
 #include <core/Buffer.hpp>
 #include "jarnax/Driver.hpp"
@@ -15,15 +16,38 @@
 namespace stm32 {
 namespace ethernet {
 
+namespace dma {
+union Descriptor;
+}
+
 /// @brief STM32H7xx Ethernet peripheral driver implementation
 /// @details Provides Ethernet communication for STM32H7xx microcontrollers.
 /// Implements the jarnax::net::ethernet::Driver interface with STM32H7xx-specific hardware control and the Phy interface for controlling the Ethernet
 /// PHY.
 class Driver final : public jarnax::net::ethernet::Driver, public jarnax::net::ethernet::Phy, public jarnax::net::ethernet::Allocator {
 public:
+    /// @brief Total descriptors to allocate across RX/TX rings.
+    constexpr static std::size_t RingDescriptorCount = 8U;
+    /// @brief RX ring split ratio numerator (RX descriptors = total * numerator / denominator).
+    constexpr static std::size_t ReceiveRingSplitNumerator = 1U;
+    /// @brief RX ring split ratio denominator.
+    constexpr static std::size_t ReceiveRingSplitDenominator = 2U;
+
+    static_assert(ReceiveRingSplitDenominator > 0U, "Receive ring split denominator must be > 0");
+    constexpr static std::size_t ReceiveDescriptorCount = (RingDescriptorCount * ReceiveRingSplitNumerator) / ReceiveRingSplitDenominator;
+    constexpr static std::size_t TransmitDescriptorCount = RingDescriptorCount - ReceiveDescriptorCount;
+    static_assert(ReceiveDescriptorCount > 0U, "Receive descriptor count must be > 0");
+    static_assert(TransmitDescriptorCount > 0U, "Transmit descriptor count must be > 0");
+
     /// @brief Constructor
-    /// @param allocator The Allocator to use for Ethernet frame memory management
-    Driver(core::Allocator& allocator);
+    /// @param stack_frame_allocator The allocator used for stack-owned Ethernet frame memory management
+    /// @param dma_frame_allocator The allocator used for DMA-owned Ethernet ring frame storage
+    /// @param transmit_descriptor_allocator The allocator used for TX descriptor ring memory
+    /// @param receive_descriptor_allocator The allocator used for RX descriptor ring memory
+    Driver(
+        core::Allocator& stack_frame_allocator, core::Allocator& dma_frame_allocator, core::Allocator& transmit_descriptor_allocator,
+        core::Allocator& receive_descriptor_allocator
+    );
 
     //+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     // Jarnax::Driver Interface
@@ -43,10 +67,20 @@ public:
     jarnax::net::ethernet::Frame* Acquire(void) override;
     void Release(jarnax::net::ethernet::Frame* frame) override;
 
-    ~Driver() = default;
+    ~Driver();
 
 protected:
-    core::Allocator& allocator_;    ///< The Allocator used for Ethernet frame memory management
+    core::Allocator& stack_frame_allocator_;            ///< Allocator used for stack-owned Ethernet frame memory management
+    core::Allocator& dma_frame_allocator_;              ///< Allocator used for DMA-owned Ethernet ring frame storage
+    core::Allocator& transmit_descriptor_allocator_;    ///< Allocator used for TX descriptor ring memory
+    core::Allocator& receive_descriptor_allocator_;     ///< Allocator used for RX descriptor ring memory
+    dma::Descriptor* transmit_descriptors_{nullptr};
+    dma::Descriptor* receive_descriptors_{nullptr};
+    std::array<jarnax::net::ethernet::Frame*, TransmitDescriptorCount> transmit_ring_frames_{};
+    std::array<jarnax::net::ethernet::Frame*, ReceiveDescriptorCount> receive_ring_frames_{};
+    std::size_t transmit_producer_index_{0U};
+    std::size_t receive_consumer_index_{0U};
+    jarnax::net::ethernet::mdio::Transaction* mdio_transaction_{nullptr};
 };
 
 namespace dma {

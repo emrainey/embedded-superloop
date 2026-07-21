@@ -3712,8 +3712,8 @@ BKPRAMLPEN:
   - RCC.AHB4LPENR
   - RCC.C1_AHB4LPENR
 BKS:
-  as_type: BKS
-  as_variable: bks
+  as_type: BankSwap
+  as_variable: bank_swap
   context:
   - SYSCFG.UR0
 BKSCD:
@@ -3913,13 +3913,13 @@ BOOST:
   - ADC2.CR
   - ADC3.CR
 BOOSTE:
-  as_type: BOOSTE
-  as_variable: booste
+  as_type: BoosterEnable
+  as_variable: booster_enable
   context:
   - SYSCFG.PMCR
 BOOSTVDDSEL:
-  as_type: BOOSTVDDSEL
-  as_variable: boostvddsel
+  as_type: AnalogSwitchSupplyVoltageSelection
+  as_variable: analog_switch_supply_voltage_selection
   context:
   - SYSCFG.PMCR
 BOOTACKEN:
@@ -3941,8 +3941,8 @@ BOOTMODE:
   - SDMMC1.CMDR
   - SDMMC2.CMDR
 BOOT_ADD0:
-  as_type: BOOT_ADD0
-  as_variable: boot_add0
+  as_type: BootAddress0
+  as_variable: boot_address0
   context:
   - FLASH.BOOT_CURR
   - FLASH.BOOT_CURR_
@@ -3954,8 +3954,8 @@ BOOT_ADD0:
   - Flash.BOOT_PRGR_
   - SYSCFG.UR2
 BOOT_ADD1:
-  as_type: BOOT_ADD1
-  as_variable: boot_add1
+  as_type: BootAddress1
+  as_variable: boot_address1
   context:
   - FLASH.BOOT_CURR
   - FLASH.BOOT_CURR_
@@ -3995,8 +3995,8 @@ BOOT_PRGR_:
   - FLASH.BOOT_PRGR_
   - Flash
 BORH:
-  as_type: BORH
-  as_variable: borh
+  as_type: BrownoutResetLevel
+  as_variable: brownout_reset_level
   context:
   - SYSCFG.UR2
 BORRSTF:
@@ -6872,14 +6872,14 @@ CC6P:
   - TIM1.CCER
   - TIM8.CCER
 CCCR:
-  as_type: CCCR
-  as_variable: cccr
+  as_type: CompensationCellControl
+  as_variable: compensation_cell_control
   context:
   - SYSCFG
   - SYSCFG.CCCR
 CCCSR:
-  as_type: CCCSR
-  as_variable: cccsr
+  as_type: CompensationCellCodeSelection
+  as_variable: compensation_cell_code_selection
   context:
   - SYSCFG
   - SYSCFG.CCCSR
@@ -7422,8 +7422,8 @@ CCUS:
   - TIM17.CR2
   - TIM8.CR2
 CCVR:
-  as_type: CCVR
-  as_variable: ccvr
+  as_type: CompensationCellValue
+  as_variable: compensation_cell_value
   context:
   - SYSCFG
   - SYSCFG.CCVR
@@ -11337,6 +11337,10 @@ CS:
   - DMA2D.FGPFCCR
   - SPDIFRX.CSR
   - SYSCFG.CCCSR
+  overrides:
+    SYSCFG.CCCSR:
+      as_type: CompensationCodeSelection
+      as_variable: compensation_code_selection
 CSA:
   as_type: CSA
   as_variable: csa
@@ -12675,13 +12679,13 @@ D1RSTF:
   - RCC.C1_RSR
   - RCC.RSR
 D1SBRST:
-  as_type: D1SBRST
-  as_variable: d1sbrst
+  as_type: Domain1StandbyReset
+  as_variable: domain1_standby_reset
   context:
   - SYSCFG.UR13
 D1STPRST:
-  as_type: D1STPRST
-  as_variable: d1stprst
+  as_type: Domain1StopReset
+  as_variable: domain1_stop_reset
   context:
   - SYSCFG.UR14
 D2CCIP1R:
@@ -17898,6 +17902,10 @@ EN:
   - MDMA.MDMA_C9CR
   - QUADSPI.CR
   - SYSCFG.CCCSR
+  overrides:
+    SYSCFG.CCCSR:
+      as_type: CompensationCellEnable
+      as_variable: compensation_cell_enable
 EN1:
   as_type: EN1
   as_variable: en1
@@ -18349,8 +18357,8 @@ EPENA:
   - OTG2_HS_DEVICE.OTG_HS_DOEPCTL6
   - OTG2_HS_DEVICE.OTG_HS_DOEPCTL7
 EPIS:
-  as_type: EPIS
-  as_variable: epis
+  as_type: EthernetPhysicalInterfaceSelection
+  as_variable: ethernet_physical_interface_selection
   context:
   - SYSCFG.PMCR
 EPL:
@@ -19322,26 +19330,26 @@ EXTI9:
   context:
   - SYSCFG.EXTICR3
 EXTICR1:
-  as_type: EXTICR1
-  as_variable: exticr1
+  as_type: ExternalInterruptConfiguration1
+  as_variable: external_interrupt_configuration1
   context:
   - SYSCFG
   - SYSCFG.EXTICR1
 EXTICR2:
-  as_type: EXTICR2
-  as_variable: exticr2
+  as_type: ExternalInterruptConfiguration2
+  as_variable: external_interrupt_configuration2
   context:
   - SYSCFG
   - SYSCFG.EXTICR2
 EXTICR3:
-  as_type: EXTICR3
-  as_variable: exticr3
+  as_type: ExternalInterruptConfiguration3
+  as_variable: external_interrupt_configuration3
   context:
   - SYSCFG
   - SYSCFG.EXTICR3
 EXTICR4:
-  as_type: EXTICR4
-  as_variable: exticr4
+  as_type: ExternalInterruptConfiguration4
+  as_variable: external_interrupt_configuration4
   context:
   - SYSCFG
   - SYSCFG.EXTICR4
@@ -21271,13 +21279,13 @@ FW2:
   - FLASH.CR2
   - Flash.CR2
 FZIWDGSTB:
-  as_type: FZIWDGSTB
-  as_variable: fziwdgstb
+  as_type: FreezeIndependentWatchdogInStandby
+  as_variable: freeze_independent_watchdog_in_standby
   context:
   - SYSCFG.UR15
 FZIWDGSTP:
-  as_type: FZIWDGSTP
-  as_variable: fziwdgstp
+  as_type: FreezeIndependentWatchdogInStop
+  as_variable: freeze_independent_watchdog_in_stop
   context:
   - SYSCFG.UR16
 FZ_IWDG_SDBY:
@@ -22959,8 +22967,8 @@ HSITRIM:
   - RCC.HSICFGR
   - RCC.ICSCR
 HSLV:
-  as_type: HSLV
-  as_variable: hslv
+  as_type: HighSpeedLowVoltage
+  as_variable: high_speed_low_voltage
   context:
   - SYSCFG.CCCSR
 HSPOL:
@@ -23206,8 +23214,8 @@ I2C1EN:
   - RCC.APB1LENR
   - RCC.C1_APB1LENR
 I2C1FMP:
-  as_type: I2C1FMP
-  as_variable: i2c1fmp
+  as_type: I2C1FastModePlus
+  as_variable: i2c1_fast_mode_plus
   context:
   - SYSCFG.PMCR
 I2C1LPEN:
@@ -23233,8 +23241,8 @@ I2C2EN:
   - RCC.APB1LENR
   - RCC.C1_APB1LENR
 I2C2FMP:
-  as_type: I2C2FMP
-  as_variable: i2c2fmp
+  as_type: I2C2FastModePlus
+  as_variable: i2c2_fast_mode_plus
   context:
   - SYSCFG.PMCR
 I2C2LPEN:
@@ -23260,8 +23268,8 @@ I2C3EN:
   - RCC.APB1LENR
   - RCC.C1_APB1LENR
 I2C3FMP:
-  as_type: I2C3FMP
-  as_variable: i2c3fmp
+  as_type: I2C3FastModePlus
+  as_variable: i2c3_fast_mode_plus
   context:
   - SYSCFG.PMCR
 I2C3LPEN:
@@ -23292,8 +23300,8 @@ I2C4EN:
   - RCC.APB4ENR
   - RCC.C1_APB4ENR
 I2C4FMP:
-  as_type: I2C4FMP
-  as_variable: i2c4fmp
+  as_type: I2C4FastModePlus
+  as_variable: i2c4_fast_mode_plus
   context:
   - SYSCFG.PMCR
 I2C4LPEN:
@@ -24455,8 +24463,8 @@ IOSWP:
   - SPI5.CFG2
   - SPI6.CFG2
 IO_HSLV:
-  as_type: IO_HSLV
-  as_variable: io_hslv
+  as_type: IoHighSpeedLowVoltage
+  as_variable: io_high_speed_low_voltage
   context:
   - FLASH.OPTSR_CUR
   - FLASH.OPTSR_CUR_
@@ -25585,8 +25593,8 @@ IWDG:
   context:
   - null
 IWDG1M:
-  as_type: IWDG1M
-  as_variable: iwdg1m
+  as_type: IndependentWatchdog1Mode
+  as_variable: independent_watchdog1_mode
   context:
   - SYSCFG.UR11
 IWDG1RSTF:
@@ -29568,7 +29576,7 @@ MACL3A30:
   - Ethernet_MAC.MACL3A30
 MACL3A31R:
   as_type: Layer3Address3Filter1
-  as_variable: layer_3_address_3_filter_1
+  as_variable: layer3_address_3_filter_1
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACL3A31R
@@ -31651,13 +31659,13 @@ MEMWAIT:
   context:
   - FMC.PMEM
 MEPAD_1:
-  as_type: MEPAD_1
-  as_variable: mepad_1
+  as_type: MassEraseProtectedAreaDisabledBank1
+  as_variable: mass_erase_protected_area_disabled_bank1
   context:
   - SYSCFG.UR4
 MEPAD_2:
-  as_type: MEPAD_2
-  as_variable: mepad_2
+  as_type: MassEraseProtectedAreaDisabledBank2
+  as_variable: mass_erase_protected_area_disabled_bank2
   context:
   - SYSCFG.UR8
 MER:
@@ -31667,13 +31675,13 @@ MER:
   - FLASH.OPTCR
   - FLASH.OPTCR_
 MESAD_1:
-  as_type: MESAD_1
-  as_variable: mesad_1
+  as_type: MassEraseSecuredAreaDisabledBank1
+  as_variable: mass_erase_secured_area_disabled_bank1
   context:
   - SYSCFG.UR5
 MESAD_2:
-  as_type: MESAD_2
-  as_variable: mesad_2
+  as_type: MassEraseSecuredAreaDisabledBank2
+  as_variable: mass_erase_secured_area_disabled_bank2
   context:
   - SYSCFG.UR8
 MFC:
@@ -33679,8 +33687,8 @@ NCARR:
   context:
   - Ethernet_MAC.MACRxTxSR
 NCC:
-  as_type: NCC
-  as_variable: ncc
+  as_type: NmosCompensationCode
+  as_variable: nmos_compensation_code
   context:
   - SYSCFG.CCCR
 NCF:
@@ -33705,8 +33713,8 @@ NCL:
   - FDCAN2.CAN_TTGTP
   - FDCAN2.FDCAN_TURCF
 NCV:
-  as_type: NCV
-  as_variable: ncv
+  as_type: NmosCompensationValue
+  as_variable: nmos_compensation_value
   context:
   - SYSCFG.CCVR
 ND0:
@@ -35141,8 +35149,8 @@ ODDFRM:
   - OTG2_HS_HOST.OTG_HS_HCCHAR8
   - OTG2_HS_HOST.OTG_HS_HCCHAR9
 ODEN:
-  as_type: ODEN
-  as_variable: oden
+  as_type: OverdriveEnable
+  as_variable: overdrive_enable
   context:
   - SYSCFG.PWRCR
 ODMAEN:
@@ -38324,13 +38332,13 @@ PA:
       as_type: PhysicalAddress
       as_variable: physical_address
 PA0SO:
-  as_type: PA0SO
-  as_variable: pa0so
+  as_type: Pa0SwitchOpen
+  as_variable: pa0_switch_open
   context:
   - SYSCFG.PMCR
 PA1SO:
-  as_type: PA1SO
-  as_variable: pa1so
+  as_type: Pa1SwitchOpen
+  as_variable: pa1_switch_open
   context:
   - SYSCFG.PMCR
 PAM:
@@ -38366,43 +38374,43 @@ PATT:
   - FMC
   - FMC.PATT
 PA_BEG_1:
-  as_type: PA_BEG_1
-  as_variable: pa_beg_1
+  as_type: ProtectedAreaStartBank1
+  as_variable: protected_area_start_bank1
   context:
   - SYSCFG.UR6
 PA_BEG_2:
-  as_type: PA_BEG_2
-  as_variable: pa_beg_2
+  as_type: ProtectedAreaStartBank2
+  as_variable: protected_area_start_bank2
   context:
   - SYSCFG.UR9
 PA_END_1:
-  as_type: PA_END_1
-  as_variable: pa_end_1
+  as_type: ProtectedAreaEndBank1
+  as_variable: protected_area_end_bank1
   context:
   - SYSCFG.UR6
 PA_END_2:
-  as_type: PA_END_2
-  as_variable: pa_end_2
+  as_type: ProtectedAreaEndBank2
+  as_variable: protected_area_end_bank2
   context:
   - SYSCFG.UR10
 PB6FMP:
-  as_type: PB6FMP
-  as_variable: pb6fmp
+  as_type: Pb6FastModePlus
+  as_variable: pb6_fast_mode_plus
   context:
   - SYSCFG.PMCR
 PB7FMP:
-  as_type: PB7FMP
-  as_variable: pb7fmp
+  as_type: Pb7FastModePlus
+  as_variable: pb7_fast_mode_plus
   context:
   - SYSCFG.PMCR
 PB8FMP:
-  as_type: PB8FMP
-  as_variable: pb8fmp
+  as_type: Pb8FastModePlus
+  as_variable: pb8_fast_mode_plus
   context:
   - SYSCFG.PMCR
 PB9FMP:
-  as_type: PB9FMP
-  as_variable: pb9fmp
+  as_type: Pb9FastModePlus
+  as_variable: pb9_fast_mode_plus
   context:
   - SYSCFG.PMCR
 PBKEN:
@@ -38436,18 +38444,18 @@ PBURST:
   - DMA2.S6CR
   - DMA2.S7CR
 PC2SO:
-  as_type: PC2SO
-  as_variable: pc2so
+  as_type: Pc2SwitchOpen
+  as_variable: pc2_switch_open
   context:
   - SYSCFG.PMCR
 PC3SO:
-  as_type: PC3SO
-  as_variable: pc3so
+  as_type: Pc3SwitchOpen
+  as_variable: pc3_switch_open
   context:
   - SYSCFG.PMCR
 PCC:
-  as_type: PCC
-  as_variable: pcc
+  as_type: PmosCompensationCode
+  as_variable: pmos_compensation_code
   context:
   - SYSCFG.CCCR
 PCCI:
@@ -38673,8 +38681,8 @@ PCSTS:
   - OTG1_HS_HOST.OTG_HS_HPRT
   - OTG2_HS_HOST.OTG_HS_HPRT
 PCV:
-  as_type: PCV
-  as_variable: pcv
+  as_type: PmosCompensationValue
+  as_variable: pmos_compensation_value
   context:
   - SYSCFG.CCVR
 PDDS_D1:
@@ -39141,19 +39149,19 @@ PKE:
   - MDMA.MDMA_C8TCR
   - MDMA.MDMA_C9TCR
 PKG:
-  as_type: PKG
-  as_variable: pkg
+  as_type: PackageType
+  as_variable: package_type
   context:
   - SYSCFG.PKGR
 PKGR:
-  as_type: PKGR
-  as_variable: pkgr
+  as_type: Package
+  as_variable: package
   context:
   - SYSCFG
   - SYSCFG.PKGR
 PKP:
-  as_type: PKP
-  as_variable: pkp
+  as_type: PrivateKeyProgrammed
+  as_variable: private_key_programmed
   context:
   - SYSCFG.UR16
 PKTCNT:
@@ -39530,8 +39538,8 @@ PM:
       as_type: AmPmNotation
       as_variable: am_pm_notation
 PMCR:
-  as_type: PMCR
-  as_variable: pmcr
+  as_type: PeripheralModeControl
+  as_variable: peripheral_mode_control
   context:
   - SYSCFG
   - SYSCFG.PMCR
@@ -41120,6 +41128,10 @@ READY:
   as_variable: ready
   context:
   - SYSCFG.CCCSR
+  overrides:
+    SYSCFG.CCCSR:
+      as_type: CompensationCellReady
+      as_variable: compensation_cell_ready
 READ_ISS_OVERRIDE:
   as_type: READ_ISS_OVERRIDE
   as_variable: read_iss_override
@@ -44202,23 +44214,23 @@ SARC:
   context:
   - Ethernet_MAC.MACCR
 SA_BEG_1:
-  as_type: SA_BEG_1
-  as_variable: sa_beg_1
+  as_type: SecuredAreaStartBank1
+  as_variable: secured_area_start_bank1
   context:
   - SYSCFG.UR7
 SA_BEG_2:
-  as_type: SA_BEG_2
-  as_variable: sa_beg_2
+  as_type: SecuredAreaStartBank2
+  as_variable: secured_area_start_bank2
   context:
   - SYSCFG.UR10
 SA_END_1:
-  as_type: SA_END_1
-  as_variable: sa_end_1
+  as_type: SecuredAreaEndBank1
+  as_variable: secured_area_end_bank1
   context:
   - SYSCFG.UR7
 SA_END_2:
-  as_type: SA_END_2
-  as_variable: sa_end_2
+  as_type: SecuredAreaEndBank2
+  as_variable: secured_area_end_bank2
   context:
   - SYSCFG.UR11
 SBC:
@@ -44636,8 +44648,8 @@ SDMMCSEL:
   context:
   - RCC.D1CCIPR
 SDRS:
-  as_type: SDRS
-  as_variable: sdrs
+  as_type: SecuredDtcmRamSize
+  as_variable: secured_dtcm_ram_size
   context:
   - SYSCFG.UR13
 SDRTR:
@@ -44768,8 +44780,8 @@ SECS:
   context:
   - RNG.SR
 SECURE:
-  as_type: SECURE
-  as_variable: secure
+  as_type: SecureMode
+  as_variable: secure_mode
   context:
   - SYSCFG.UR12
 SECURITY:
@@ -52612,104 +52624,104 @@ UPIE:
   - LPTIM4.IER
   - LPTIM5.IER
 UR0:
-  as_type: UR0
-  as_variable: ur0
+  as_type: User0
+  as_variable: user0
   context:
   - SYSCFG
   - SYSCFG.UR0
 UR10:
-  as_type: UR10
-  as_variable: ur10
+  as_type: User10
+  as_variable: user10
   context:
   - SYSCFG
   - SYSCFG.UR10
 UR11:
-  as_type: UR11
-  as_variable: ur11
+  as_type: User11
+  as_variable: user11
   context:
   - SYSCFG
   - SYSCFG.UR11
 UR12:
-  as_type: UR12
-  as_variable: ur12
+  as_type: User12
+  as_variable: user12
   context:
   - SYSCFG
   - SYSCFG.UR12
 UR13:
-  as_type: UR13
-  as_variable: ur13
+  as_type: User13
+  as_variable: user13
   context:
   - SYSCFG
   - SYSCFG.UR13
 UR14:
-  as_type: UR14
-  as_variable: ur14
+  as_type: User14
+  as_variable: user14
   context:
   - SYSCFG
   - SYSCFG.UR14
 UR15:
-  as_type: UR15
-  as_variable: ur15
+  as_type: User15
+  as_variable: user15
   context:
   - SYSCFG
   - SYSCFG.UR15
 UR16:
-  as_type: UR16
-  as_variable: ur16
+  as_type: User16
+  as_variable: user16
   context:
   - SYSCFG
   - SYSCFG.UR16
 UR17:
-  as_type: UR17
-  as_variable: ur17
+  as_type: User17
+  as_variable: user17
   context:
   - SYSCFG
   - SYSCFG.UR17
 UR2:
-  as_type: UR2
-  as_variable: ur2
+  as_type: User2
+  as_variable: user2
   context:
   - SYSCFG
   - SYSCFG.UR2
 UR3:
-  as_type: UR3
-  as_variable: ur3
+  as_type: User3
+  as_variable: user3
   context:
   - SYSCFG
   - SYSCFG.UR3
 UR4:
-  as_type: UR4
-  as_variable: ur4
+  as_type: User4
+  as_variable: user4
   context:
   - SYSCFG
   - SYSCFG.UR4
 UR5:
-  as_type: UR5
-  as_variable: ur5
+  as_type: User5
+  as_variable: user5
   context:
   - SYSCFG
   - SYSCFG.UR5
 UR6:
-  as_type: UR6
-  as_variable: ur6
+  as_type: User6
+  as_variable: user6
   context:
   - SYSCFG
   - SYSCFG.UR6
 UR7:
-  as_type: UR7
-  as_variable: ur7
+  as_type: User7
+  as_variable: user7
   context:
   - SYSCFG
   - SYSCFG.UR7
 UR8:
-  as_type: UR8
-  as_variable: ur8
+  as_type: User8
+  as_variable: user8
   context:
   - SYSCFG
   - SYSCFG.UR8
 UR9:
-  as_type: UR9
-  as_variable: ur9
+  as_type: User9
+  as_variable: user9
   context:
   - SYSCFG
   - SYSCFG.UR9
@@ -53861,13 +53873,13 @@ WRPERRIE2:
   context:
   - FLASH.CR2
 WRPN_1:
-  as_type: WRPN_1
-  as_variable: wrpn_1
+  as_type: WriteProtectionBank1
+  as_variable: write_protection_bank1
   context:
   - SYSCFG.UR5
 WRPN_2:
-  as_type: WRPN_2
-  as_variable: wrpn_2
+  as_type: WriteProtectionBank2
+  as_variable: write_protection_bank2
   context:
   - SYSCFG.UR9
 WRPSn1:
