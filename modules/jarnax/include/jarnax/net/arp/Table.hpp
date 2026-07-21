@@ -29,9 +29,7 @@ public:
 
     /// @brief Constructs and inserts an ARP entry.
     /// @return True when inserted or updated, false when no capacity was available.
-    bool Insert(ip::v4::Address const& ipv4, eui48::Address const& mac, std::uint32_t ttl) {
-        return Insert(EntryType{ipv4, mac, ttl});
-    }
+    bool Insert(ip::v4::Address const& ipv4, eui48::Address const& mac, std::uint32_t ttl) { return Insert(EntryType{ipv4, mac, ttl}); }
 
     /// @brief Inserts an ARP entry, replacing the existing value for the same IPv4 key.
     /// @return True when inserted or updated, false when no capacity was available.
@@ -165,27 +163,42 @@ public:
 private:
     static constexpr IndexType InvalidIndex = std::numeric_limits<IndexType>::max();
 
+    /// @brief AVL key for ARP table lookup.
+    /// @details The IPv4 address is the logical lookup key. The index fields track the paired
+    /// pooled entry and node so the table can keep the two storage pools in sync.
     struct Key {
+        /// @brief IPv4 address used for ordering and lookup.
         ip::v4::Address ipv4{};
+        /// @brief Index of the stored ARP entry in the entry pool.
         IndexType entry_index{InvalidIndex};
+        /// @brief Index of the backing AVL node in the node pool.
         IndexType node_index{InvalidIndex};
 
+        /// @brief Converts the key to its IPv4 value for ordering comparisons.
         constexpr explicit operator std::uint32_t() const { return static_cast<std::uint32_t>(ipv4); }
 
+        /// @brief Compares keys by IPv4 address.
         bool operator==(Key const& other) const { return static_cast<std::uint32_t>(*this) == static_cast<std::uint32_t>(other); }
+        /// @brief Compares keys by IPv4 address.
         bool operator!=(Key const& other) const { return not(*this == other); }
+        /// @brief Compares keys by IPv4 address.
         bool operator<(Key const& other) const { return static_cast<std::uint32_t>(*this) < static_cast<std::uint32_t>(other); }
+        /// @brief Compares keys by IPv4 address.
         bool operator<=(Key const& other) const { return static_cast<std::uint32_t>(*this) <= static_cast<std::uint32_t>(other); }
+        /// @brief Compares keys by IPv4 address.
         bool operator>(Key const& other) const { return static_cast<std::uint32_t>(*this) > static_cast<std::uint32_t>(other); }
+        /// @brief Compares keys by IPv4 address.
         bool operator>=(Key const& other) const { return static_cast<std::uint32_t>(*this) >= static_cast<std::uint32_t>(other); }
 
-        std::strong_ordering operator<=>(Key const& other) const {
-            return static_cast<std::uint32_t>(*this) <=> static_cast<std::uint32_t>(other);
-        }
+        /// @brief Provides three-way ordering by IPv4 address.
+        std::strong_ordering operator<=>(Key const& other) const { return static_cast<std::uint32_t>(*this) <=> static_cast<std::uint32_t>(other); }
     };
 
+    /// The AVL tree node is a Key wrapped in a Node for indexing the ARP entries by IPv4 address. The node pool is used to manage the memory of the
+    /// AVL nodes, and the entry pool is used to manage the memory of the ARP entries.
     using NodeType = core::avl::Node<Key>;
 
+    /// @brief Finds the AVL node for a given IPv4 address.
     NodeType* FindNode(ip::v4::Address const& ipv4) {
         if (root_ == nullptr) {
             return nullptr;
@@ -193,6 +206,7 @@ private:
         return root_->Find(Key{ipv4, InvalidIndex, InvalidIndex});
     }
 
+    /// @brief Finds the AVL node for a given IPv4 address.
     NodeType const* FindNode(ip::v4::Address const& ipv4) const {
         if (root_ == nullptr) {
             return nullptr;
@@ -200,6 +214,7 @@ private:
         return root_->Find(Key{ipv4, InvalidIndex, InvalidIndex});
     }
 
+    /// @brief Recomputes the root of the AVL tree.
     void RecomputeRoot() {
         root_ = nullptr;
         for (IndexType index = 0U; index < CAPACITY; ++index) {
@@ -215,8 +230,11 @@ private:
         }
     }
 
+    /// @brief AVL tree of ARP entries indexed by IPv4 address, with a separate pool for the ARP entries themselves.
     core::Pool<EntryType, CAPACITY> entries_{};
+    /// @brief AVL tree of ARP entries indexed by IPv4 address, with a separate pool for the ARP entries themselves.
     core::Pool<NodeType, CAPACITY> nodes_{};
+    /// @brief Root of the AVL tree of ARP entries indexed by IPv4 address, with a separate pool for the ARP entries themselves.
     NodeType* root_{nullptr};
 };
 

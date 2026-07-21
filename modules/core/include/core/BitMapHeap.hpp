@@ -10,6 +10,8 @@
 #include <core/Buffer.hpp>
 #include <core/Printer.hpp>
 
+#include <type_traits>
+
 namespace core {
 namespace debug {
 /// @brief The boolean flag to control debugging Heap
@@ -23,16 +25,20 @@ static constexpr bool Heap =
 
 /// @brief A simple bitmap heap allocator.
 /// This allocator uses a bitmap to track the allocation of blocks in a static memory area.
-/// @tparam BlockSize
-/// @tparam BlockCount
-/// @tparam MaxAlignment
-template <std::size_t BlockSize, std::size_t BlockCount, std::size_t MaxAlignment = alignof(std::max_align_t)>
+/// @tparam BlockSize The size of each block in bytes
+/// @tparam BlockCount The total number of blocks in the heap
+/// @tparam MaxAlignment The maximum alignment supported by the heap (must be a power of 2)
+/// @tparam TBitMapUnit The type of the bitfield used to track the allocation of blocks (must be an unsigned integral type)
+template <std::size_t BlockSize, std::size_t BlockCount, std::size_t MaxAlignment = alignof(std::max_align_t), typename TBitMapUnit = std::uint32_t>
 class BitMapHeap : public Allocator {
 public:
     /// @brief The type of the bitfield used to track the allocation of blocks.
-    using BitMapUnit = std::uint32_t;
+    using BitMapUnit = TBitMapUnit;
     /// @brief The number of bits in the bitfield unit
     static constexpr std::size_t kBitMapDepth = sizeof(BitMapUnit) * 8U;
+
+    static_assert(std::is_integral<BitMapUnit>::value, "BitMapUnit must be an integral type");
+    static_assert(std::is_unsigned<BitMapUnit>::value, "BitMapUnit must be an unsigned type");
 
     static_assert(BlockCount % kBitMapDepth == 0U, "BlockCount must be a multiple of the BitMapUnit type bit depth");
 
@@ -228,7 +234,8 @@ private:
         for (std::size_t i = 0; i < bitmap_.size(); ++i) {
             if (bitmap_[i] != std::numeric_limits<BitMapUnit>::max()) {
                 for (std::size_t j = 0; j < kBitMapDepth; ++j) {
-                    if ((bitmap_[i] & (1u << j)) == 0) {
+                    BitMapUnit const mask = static_cast<BitMapUnit>(BitMapUnit{1} << j);
+                    if ((bitmap_[i] & mask) == 0) {
                         ++freeBlocks;
                         if (freeBlocks == blocks) {
                             // printf("Found %" PRIu32 " contiguous blocks at %" PRIu32 "\r\n", blocks, startBlock);
@@ -255,7 +262,8 @@ private:
         for (std::size_t i = startBlock; i < startBlock + blocks; ++i) {
             std::size_t bitmapIndex = i / kBitMapDepth;
             std::size_t bitIndex = i % kBitMapDepth;
-            bitmap_[bitmapIndex] |= (1u << bitIndex);
+            BitMapUnit const mask = static_cast<BitMapUnit>(BitMapUnit{1} << bitIndex);
+            bitmap_[bitmapIndex] = static_cast<BitMapUnit>(bitmap_[bitmapIndex] | mask);
         }
         stats_.count++;
         stats_.used_blocks += blocks;
@@ -269,7 +277,8 @@ private:
         for (std::size_t i = startBlock; i < startBlock + blocks; ++i) {
             std::size_t bitmapIndex = i / kBitMapDepth;
             std::size_t bitIndex = i % kBitMapDepth;
-            bitmap_[bitmapIndex] &= ~(1u << bitIndex);
+            BitMapUnit const mask = static_cast<BitMapUnit>(BitMapUnit{1} << bitIndex);
+            bitmap_[bitmapIndex] = static_cast<BitMapUnit>(bitmap_[bitmapIndex] & static_cast<BitMapUnit>(~mask));
         }
         stats_.count--;
         stats_.used_blocks -= blocks;
@@ -290,7 +299,8 @@ private:
         );
         for (std::size_t i = 0U; i < bitmap_.size(); ++i) {
             for (std::size_t j = 0; j < kBitMapDepth; ++j) {
-                char const c = (bitmap_[i] & (1u << j)) ? 'X' : '_';
+                BitMapUnit const mask = static_cast<BitMapUnit>(BitMapUnit{1} << j);
+                char const c = (bitmap_[i] & mask) ? 'X' : '_';
                 printf("%c", c);
             }
             printf("\r\n");
@@ -303,7 +313,7 @@ private:
     /// The size of the static memory area
     std::size_t size_;
     /// The array of bitmaps
-    Array<uint32_t, (BlockCount + (kBitMapDepth - 1)) / kBitMapDepth> bitmap_;
+    Array<BitMapUnit, (BlockCount + (kBitMapDepth - 1)) / kBitMapDepth> bitmap_;
     /// The statistics of the heap
     Statistics stats_;
     /// The upstream allocator

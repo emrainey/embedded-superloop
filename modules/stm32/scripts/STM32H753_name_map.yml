@@ -4,8 +4,8 @@ AAH:
   context:
   - LTDC.AWCR
 AAL:
-  as_type: AAL
-  as_variable: aal
+  as_type: AddressAlignedBeats
+  as_variable: address_aligned_beats
   context:
   - Ethernet_DMA.DMASBMR
 AAV:
@@ -270,8 +270,8 @@ ACR_:
   - FLASH.ACR_
   - Flash
 ACS:
-  as_type: ACS
-  as_variable: acs
+  as_type: AutomaticCRCStripping
+  as_variable: automatic_crc_stripping
   context:
   - Ethernet_MAC.MACCR
 ACT:
@@ -904,8 +904,8 @@ ADDR:
   - I2C3.ISR
   - I2C4.ISR
 ADDR64:
-  as_type: ADDR64
-  as_variable: addr64
+  as_type: AddressWidth
+  as_variable: address_width
   context:
   - Ethernet_MAC.MACHWF1R
 ADDRCF:
@@ -922,8 +922,8 @@ ADDRESS:
   context:
   - QUADSPI.AR
 ADDRHI:
-  as_type: ADDRHI
-  as_variable: addrhi
+  as_type: AddressHigh
+  as_variable: address_high
   context:
   - Ethernet_MAC.MACA0HR
   - Ethernet_MAC.MACA1HR
@@ -938,8 +938,8 @@ ADDRIE:
   - I2C3.CR1
   - I2C4.CR1
 ADDRLO:
-  as_type: ADDRLO
-  as_variable: addrlo
+  as_type: AddressLow
+  as_variable: address_low
   context:
   - Ethernet_MAC.MACA0LR
   - Ethernet_MAC.MACA1LR
@@ -958,8 +958,8 @@ ADDSET:
   - FMC.BWTR3
   - FMC.BWTR4
 ADDSUB:
-  as_type: ADDSUB
-  as_variable: addsub
+  as_type: AddOrSubtractTime
+  as_variable: add_or_sub_time
   context:
   - Ethernet_MAC.MACSTNUR
 ADD_SECT:
@@ -1041,13 +1041,13 @@ ADVREGEN:
   - ADC2.CR
   - ADC3.CR
 ADVTHWORD:
-  as_type: ADVTHWORD
-  as_variable: advthword
+  as_type: IEEE1588HighWordEnable
+  as_variable: iee1588_high_word_enable
   context:
   - Ethernet_MAC.MACHWF1R
 AE:
-  as_type: AE
-  as_variable: ae
+  as_type: AddressEnable
+  as_variable: address_enable
   context:
   - Ethernet_MAC.MACA0HR
   - Ethernet_MAC.MACA1HR
@@ -1575,13 +1575,13 @@ AI:
   - DMA2D.FGPFCCR
   - DMA2D.OPFCCR
 AIE:
-  as_type: AIE
-  as_variable: aie
+  as_type: AbnormalInterruptSummaryEnable
+  as_variable: abnormal_interrupt_summary_enable
   context:
   - Ethernet_DMA.DMACIER
 AIS:
-  as_type: AIS
-  as_variable: ais
+  as_type: AbnormalInterruptSummary
+  as_variable: abnormal_interrupt_summary
   context:
   - Ethernet_DMA.DMACSR
 ALERT:
@@ -1854,13 +1854,13 @@ APB4RSTR:
   - RCC
   - RCC.APB4RSTR
 APDREQEN:
-  as_type: APDREQEN
-  as_variable: apdreqen
+  as_type: AutomaticPTPDelayMessageEnable
+  as_variable: automatic_ptp_delay_message_enable
   context:
   - Ethernet_MAC.MACPOCR
 APDREQTRIG:
-  as_type: APDREQTRIG
-  as_variable: apdreqtrig
+  as_type: AutomaticPTPDelayMessageTrigger
+  as_variable: automatic_ptp_delay_message_trigger
   context:
   - Ethernet_MAC.MACPOCR
 APMS:
@@ -1947,15 +1947,15 @@ ARPE:
   - TIM7.CR1
   - TIM8.CR1
 ARPEN:
-  as_type: ARPEN
-  as_variable: arpen
+  as_type: AddressResolutionProtocolEnable
+  as_variable: arp_enable
   context:
   - Ethernet_MAC.MACCR
   - OTG1_HS_DEVICE.OTG_HS_DTHRCTL
   - OTG2_HS_DEVICE.OTG_HS_DTHRCTL
 ARPPA:
-  as_type: ARPPA
-  as_variable: arppa
+  as_type: AddressResolutionProtocolIPv4Address
+  as_variable: arp_ipv4_addres
   context:
   - Ethernet_MAC.MACARPAR
 ARR:
@@ -2119,13 +2119,13 @@ ASVLD:
   - OTG1_HS_GLOBAL.OTG_HS_GOTGCTL
   - OTG2_HS_GLOBAL.OTG_HS_GOTGCTL
 ASYNCEN:
-  as_type: ASYNCEN
-  as_variable: async_enable
+  as_type: AutomaticPTPSyncEnable
+  as_variable: automatic_ptp_sync_enable
   context:
   - Ethernet_MAC.MACPOCR
 ASYNCTRIG:
-  as_type: ASYNCTRIG
-  as_variable: asynctrig
+  as_type: AutomaticPTPSyncTrigger
+  as_variable: automatic_ptp_sync_trigger
   context:
   - Ethernet_MAC.MACPOCR
 ASYNCWAIT:
@@ -2137,43 +2137,43 @@ ASYNCWAIT:
   - FMC.BCR3
   - FMC.BCR4
 ATSEN0:
-  as_type: ATSEN0
-  as_variable: atsen0
+  as_type: AuxiliarySnapshotEnable0
+  as_variable: aux_snapshot_enable0
   context:
   - Ethernet_MAC.MACACR
 ATSEN1:
-  as_type: ATSEN1
-  as_variable: atsen1
+  as_type: AuxiliarySnapshotEnable1
+  as_variable: aux_snapshot_enable1
   context:
   - Ethernet_MAC.MACACR
 ATSEN2:
-  as_type: ATSEN2
-  as_variable: atsen2
+  as_type: AuxiliarySnapshotEnable2
+  as_variable: aux_snapshot_enable2
   context:
   - Ethernet_MAC.MACACR
 ATSEN3:
-  as_type: ATSEN3
-  as_variable: atsen3
+  as_type: AuxiliarySnapshotEnable3
+  as_variable: aux_snapshot_enable3
   context:
   - Ethernet_MAC.MACACR
 ATSFC:
-  as_type: ATSFC
-  as_variable: atsfc
+  as_type: AuxiliarySnapshotFIFOClear
+  as_variable: aux_snapshot_fifo_clear
   context:
   - Ethernet_MAC.MACACR
 ATSNS:
-  as_type: ATSNS
-  as_variable: atsns
+  as_type: NumberOfAuxiliaryTimestampSnapshots
+  as_variable: aux_timestamp_snapshots
   context:
   - Ethernet_MAC.MACTSSR
 ATSSTM:
-  as_type: ATSSTM
-  as_variable: atsstm
+  as_type: AuxiliaryTimestampSnapshotTriggerMissed
+  as_variable: aux_timestamp_snapshot_trigger_missed
   context:
   - Ethernet_MAC.MACTSSR
 ATSSTN:
-  as_type: ATSSTN
-  as_variable: atsstn
+  as_type: AuxiliaryTimestampSnapshotTriggerIdentifier
+  as_variable: aux_timestamp_snapshot_trigger_id
   context:
   - Ethernet_MAC.MACTSSR
 ATTHIZ:
@@ -2217,23 +2217,23 @@ AUTOTRIMEN:
   context:
   - CRS.CR
 AUXSNAPNUM:
-  as_type: AUXSNAPNUM
-  as_variable: auxsnapnum
+  as_type: AuxiliarySnapshotInputs
+  as_variable: aux_snapshot_inputs
   context:
   - Ethernet_MAC.MACHWF2R
 AUXTSHI:
-  as_type: AUXTSHI
-  as_variable: auxtshi
+  as_type: AuxiliaryTimestampSeconds
+  as_variable: aux_timestamp_secs
   context:
   - Ethernet_MAC.MACATSSR
 AUXTSLO:
-  as_type: AUXTSLO
-  as_variable: auxtslo
+  as_type: AuxiliaryTimestampNanoSeconds
+  as_variable: aux_timestamp_ns
   context:
   - Ethernet_MAC.MACATSNR
 AUXTSTRIG:
-  as_type: AUXTSTRIG
-  as_variable: auxtstrig
+  as_type: AuxiliaryTimestampTriggerSnapshot
+  as_variable: aux_timestamp_trigger_snapshot
   context:
   - Ethernet_MAC.MACTSSR
 AVALOEN:
@@ -2264,8 +2264,8 @@ AVDO:
   context:
   - PWR.CSR1
 AVSEL:
-  as_type: AVSEL
-  as_variable: avsel
+  as_type: AudioVideoBridgeSelected
+  as_variable: audio_video_bridge_selected
   context:
   - Ethernet_MAC.MACHWF1R
 AW:
@@ -2815,8 +2815,8 @@ AXI_TARG7_FN_MOD_ISS_BM:
   - AXI
   - AXI.AXI_TARG7_FN_MOD_ISS_BM
 AXWHSTS:
-  as_type: AXWHSTS
-  as_variable: axwhsts
+  as_type: AHBMasterWriteChannel
+  as_variable: ahb_master_write_channel
   context:
   - Ethernet_DMA.DMADSR
 B2BSTUP:
@@ -3729,8 +3729,8 @@ BKSCD:
   - DFSDM.CH6AWSCDR
   - DFSDM.CH7AWSCDR
 BL:
-  as_type: BL
-  as_variable: bl
+  as_type: BackoffLimit
+  as_variable: backoff_limit
   context:
   - Ethernet_MAC.MACCR
 BLANKING:
@@ -4840,8 +4840,8 @@ BSY2:
   - FLASH.SR2
   - Flash.SR2
 BTB:
-  as_type: BTB
-  as_variable: btb
+  as_type: BackToBackTransactions
+  as_variable: back_to_back
   context:
   - Ethernet_MAC.MACMDIOAR
 BTIE:
@@ -5868,8 +5868,8 @@ C3CR:
   - DMAMUX2
   - DMAMUX2.C3CR
 C45E:
-  as_type: C45E
-  as_variable: c45e
+  as_type: Clause45PhyEnable
+  as_variable: clause45_phy_enable
   context:
   - Ethernet_MAC.MACMDIOAR
 C4CR:
@@ -7428,13 +7428,13 @@ CCVR:
   - SYSCFG
   - SYSCFG.CCVR
 CDE:
-  as_type: CDE
-  as_variable: cde
+  as_type: ContextDescriptorError
+  as_variable: context_descriptor_error
   context:
   - Ethernet_DMA.DMACSR
 CDEE:
-  as_type: CDEE
-  as_variable: cdee
+  as_type: ContextDescriptorErrorEnable
+  as_variable: context_descriptor_error_enable
   context:
   - Ethernet_DMA.DMACIER
 CDIV:
@@ -8484,7 +8484,7 @@ CHTIF7:
   - DMA2.HIFCR
 CICR:
   as_type: ClockInterruptClear
-  as_variable: clockinterruptclear
+  as_variable: clock_interrupt_clear
   context:
   - RCC
   - RCC.CICR
@@ -8508,13 +8508,13 @@ CIDSTS:
   - OTG2_HS_GLOBAL.OTG_HS_GOTGCTL
 CIER:
   as_type: ClockInterruptEnable
-  as_variable: clockinterruptenable
+  as_variable: clock_interrupt_enable
   context:
   - RCC
   - RCC.CIER
 CIFR:
   as_type: ClockInterruptFlags
-  as_variable: clockinterruptflags
+  as_variable: clock_interrupt_flags
   context:
   - RCC
   - RCC.CIFR
@@ -9863,8 +9863,8 @@ CNTAR:
   - HRTIM_TIMA
   - HRTIM_TIMA.CNTAR
 CNTCLR:
-  as_type: CNTCLR
-  as_variable: cntclr
+  as_type: CounterClear
+  as_variable: counter_clear
   context:
   - Ethernet_MTL.MTLOMR
 CNTCR:
@@ -9886,19 +9886,19 @@ CNTER:
   - HRTIM_TIME
   - HRTIM_TIME.CNTER
 CNTFREEZ:
-  as_type: CNTFREEZ
-  as_variable: cntfreez
+  as_type: CounterFreeze
+  as_variable: counter_freeze
   context:
   - Ethernet_MAC.MMC_CONTROL
 CNTPRST:
-  as_type: CNTPRST
-  as_variable: cntprst
+  as_type: CounterPreset
+  as_variable: counter_preset
   context:
   - Ethernet_MAC.MMC_CONTROL
   - Ethernet_MTL.MTLOMR
 CNTPRSTLVL:
-  as_type: CNTPRSTLVL
-  as_variable: cntprstlvl
+  as_type: CounterPresetLevel
+  as_variable: counter_preset_level
   context:
   - Ethernet_MAC.MMC_CONTROL
 CNTR:
@@ -9908,13 +9908,13 @@ CNTR:
   - HRTIM_TIMB
   - HRTIM_TIMB.CNTR
 CNTRST:
-  as_type: CNTRST
-  as_variable: cntrst
+  as_type: CountersReset
+  as_variable: counters_reset
   context:
   - Ethernet_MAC.MMC_CONTROL
 CNTSTOPRO:
-  as_type: CNTSTOPRO
-  as_variable: cntstopro
+  as_type: CounterStopRollover
+  as_variable: counter_stop_rollover
   context:
   - Ethernet_MAC.MMC_CONTROL
 CNTSTRT:
@@ -11344,8 +11344,8 @@ CSA:
   - FDCAN1.FDCAN_CCCR
   - FDCAN2.FDCAN_CCCR
 CSC:
-  as_type: CSC
-  as_variable: csc
+  as_type: CalibrationStateChanged
+  as_variable: calibration_state_changed
   context:
   - CAN_CCU.IR
   - Ethernet_MAC.MACTSCR
@@ -12067,8 +12067,8 @@ CSSF:
   context:
   - PWR.CPUCR
 CST:
-  as_type: CST
-  as_variable: cst
+  as_type: CRCStrippingForTypePackets
+  as_variable: crc_stripping_for_type_packets
   context:
   - Ethernet_MAC.MACCR
 CSTART:
@@ -12098,8 +12098,8 @@ CSUSP:
   - SPI5.CR1
   - SPI6.CR1
 CSVL:
-  as_type: CSVL
-  as_variable: csvl
+  as_type: CorS_VLAN
+  as_variable: c_or_s_vlan
   context:
   - Ethernet_MAC.MACIVIR
   - Ethernet_MAC.MACVIR
@@ -12545,23 +12545,23 @@ CURMOD:
   - OTG1_HS_GLOBAL.OTG_HS_GOTGCTL
   - OTG2_HS_GLOBAL.OTG_HS_GOTGCTL
 CURRBUFAPTR:
-  as_type: CURRBUFAPTR
-  as_variable: currbufaptr
+  as_type: ApplicationReceiveBufferAddressPointer
+  as_variable: application_receive_buffer_address_pointer
   context:
   - Ethernet_DMA.DMACCARxBR
 CURRDESAPTR:
-  as_type: CURRDESAPTR
-  as_variable: currdesaptr
+  as_type: ApplicationReceiveDescriptorAddressPointer
+  as_variable: application_receive_descriptor_address_pointer
   context:
   - Ethernet_DMA.DMACCARxDR
 CURTBUFAPTR:
-  as_type: CURTBUFAPTR
-  as_variable: curtbufaptr
+  as_type: ApplicationTransmitBufferAddressPointer
+  as_variable: application_transmit_buffer_address_pointer
   context:
   - Ethernet_DMA.DMACCATxBR
 CURTDESAPTR:
-  as_type: CURTDESAPTR
-  as_variable: curtdesaptr
+  as_type: ApplicationTransmitDescriptorAddressPointer
+  as_variable: application_transmit_descriptor_address_pointer
   context:
   - Ethernet_DMA.DMACCATxDR
 CUST_MOD_NUM:
@@ -12806,8 +12806,8 @@ D3PPRE:
   context:
   - RCC.D3CFGR
 DA:
-  as_type: DA
-  as_variable: da
+  as_type: DMATransmitReceiveArbitrationScheme
+  as_variable: dma_transmit_receive_arbitration_scheme
   context:
   - Ethernet_DMA.DMAMR
 DABORT:
@@ -12929,8 +12929,8 @@ DAD:
   - OTG2_HS_HOST.OTG_HS_HCCHAR8
   - OTG2_HS_HOST.OTG_HS_HCCHAR9
 DAIF:
-  as_type: DAIF
-  as_variable: daif
+  as_type: DestinationAddressInverseFiltering
+  as_variable: destination_address_inverse_filtering
   context:
   - Ethernet_MAC.MACPFR
 DAMDF:
@@ -13190,8 +13190,8 @@ DBECCERRIE2:
   - FLASH.CR2
   - Flash.CR2
 DBF:
-  as_type: DBF
-  as_variable: dbf
+  as_type: DisableBroadcastFilter
+  as_variable: disable_broadcast_filter
   context:
   - Ethernet_MAC.MACPFR
 DBGMCU:
@@ -13200,8 +13200,8 @@ DBGMCU:
   context:
   - null
 DBGMEMA:
-  as_type: DBGMEMA
-  as_variable: debug_mema
+  as_type: DirectMemoryAccessDebugRegistersEnable
+  as_variable: dma_debug_registers_enable
   context:
   - Ethernet_MAC.MACHWF1R
 DBGSLEEP_D1:
@@ -13489,15 +13489,15 @@ DBW:
   context:
   - LTDC.GCR
 DC:
-  as_type: DC
-  as_variable: dc
+  as_type: DeferralCheck
+  as_variable: deferral_check
   context:
   - Ethernet_MAC.MACCR
   - FDCAN1.FDCAN_TURCF
   - FDCAN2.FDCAN_TURCF
 DC0IS:
-  as_type: DC0IS
-  as_variable: dc0is
+  as_type: DMAChannelInterruptStatus
+  as_variable: dma_channel_interrupt_status
   context:
   - Ethernet_DMA.DMAISR
 DCAL:
@@ -13512,8 +13512,8 @@ DCALPHA:
   - LTDC.L1DCCR
   - LTDC.L2DCCR
 DCBEN:
-  as_type: DCBEN
-  as_variable: dcben
+  as_type: DataCenterBridgingEnable
+  as_variable: data_center_bridging_enable
   context:
   - Ethernet_MAC.MACHWF1R
 DCBLUE:
@@ -13600,8 +13600,8 @@ DCR:
   - TIM8
   - TIM8.DCR
 DCRCC:
-  as_type: DCRCC
-  as_variable: dcrcc
+  as_type: DisableCRCCheckingForReceivedPackets
+  as_variable: disable_crc_checking_for_received_packets
   context:
   - Ethernet_MAC.MACECR
 DCRCFAIL:
@@ -13629,8 +13629,8 @@ DCRED:
   - LTDC.L1DCCR
   - LTDC.L2DCCR
 DCRS:
-  as_type: DCRS
-  as_variable: dcrs
+  as_type: DisableCarrierSenseDuringTransmission
+  as_variable: disable_carrier_sense_during_transmission
   context:
   - Ethernet_MAC.MACCR
 DCTRL:
@@ -15010,8 +15010,8 @@ DIS_NSS:
   - USART3.CR2
   - USART6.CR2
 DIS_TCP_EF:
-  as_type: DIS_TCP_EF
-  as_variable: dis_tcp_ef
+  as_type: DisableDroppingTcpIpOnChecksumError
+  as_variable: disable_dropping_tcpip_on_checksum_error
   context:
   - Ethernet_MTL.MTLRxQOMR
 DIVM1:
@@ -15295,8 +15295,8 @@ DLYPRTIE:
   - HRTIM_TIMD.TIMDDIER5
   - HRTIM_TIME.TIMEDIER5
 DM:
-  as_type: DM
-  as_variable: dm
+  as_type: DuplexMode
+  as_variable: duplex_mode
   context:
   - Ethernet_MAC.MACCR
 DMA1:
@@ -15428,44 +15428,44 @@ DMAB:
   - TIM5.DMAR
   - TIM8.DMAR
 DMACCARxBR:
-  as_type: DMACCARxBR
-  as_variable: dmaccarxbr
+  as_type: ChannelCurrentApplicationReceiveBuffer
+  as_variable: channel_current_application_receive_buffer
   context:
   - Ethernet_DMA
   - Ethernet_DMA.DMACCARxBR
 DMACCARxDR:
-  as_type: DMACCARxDR
-  as_variable: dmaccarxdr
+  as_type: ChannelCurrentApplicationReceiveDescriptor
+  as_variable: channel_current_application_receive_descriptor
   context:
   - Ethernet_DMA
   - Ethernet_DMA.DMACCARxDR
 DMACCATxBR:
-  as_type: DMACCATxBR
-  as_variable: dmaccatxbr
+  as_type: ChannelCurrentApplicationTransmitBuffer
+  as_variable: channel_current_application_transmit_buffer
   context:
   - Ethernet_DMA
   - Ethernet_DMA.DMACCATxBR
 DMACCATxDR:
-  as_type: DMACCATxDR
-  as_variable: dmaccatxdr
+  as_type: ChannelCurrentApplicationTransmitDescriptor
+  as_variable: channel_current_application_transmit_descriptor
   context:
   - Ethernet_DMA
   - Ethernet_DMA.DMACCATxDR
 DMACCR:
-  as_type: DMACCR
-  as_variable: dmaccr
+  as_type: ChannelControl
+  as_variable: channel_control
   context:
   - Ethernet_DMA
   - Ethernet_DMA.DMACCR
 DMACIER:
-  as_type: DMACIER
-  as_variable: dmacier
+  as_type: ChannelInterruptEnable
+  as_variable: channel_interrupt_enable
   context:
   - Ethernet_DMA
   - Ethernet_DMA.DMACIER
 DMACMFCR:
-  as_type: DMACMFCR
-  as_variable: dmacmfcr
+  as_type: ChannelMissedFrameCount
+  as_variable: channel_missed_frame_count
   context:
   - Ethernet_DMA
   - Ethernet_DMA.DMACMFCR
@@ -15476,68 +15476,68 @@ DMACR:
   - CRYP
   - CRYP.DMACR
 DMACRxCR:
-  as_type: DMACRxCR
-  as_variable: dmacrxcr
+  as_type: ChannelReceiveControl
+  as_variable: channel_receive_control
   context:
   - Ethernet_DMA
   - Ethernet_DMA.DMACRxCR
 DMACRxDLAR:
-  as_type: DMACRxDLAR
-  as_variable: dmacrxdlar
+  as_type: ChannelReceiveDescriptorListAddress
+  as_variable: channel_receive_descriptor_list_address
   context:
   - Ethernet_DMA
   - Ethernet_DMA.DMACRxDLAR
 DMACRxDTPR:
-  as_type: DMACRxDTPR
-  as_variable: dmacrxdtpr
+  as_type: ChannelReceiveDescriptorTailPointer
+  as_variable: channel_receive_descriptor_tail_pointer
   context:
   - Ethernet_DMA
   - Ethernet_DMA.DMACRxDTPR
 DMACRxIWTR:
-  as_type: DMACRxIWTR
-  as_variable: dmacrxiwtr
+  as_type: ChannelReceiveInterruptWatchdogTimer
+  as_variable: channel_receive_interrupt_watchdog_timer
   context:
   - Ethernet_DMA
   - Ethernet_DMA.DMACRxIWTR
 DMACRxRLR:
-  as_type: DMACRxRLR
-  as_variable: dmacrxrlr
+  as_type: ChannelReceiveDescriptorRingLength
+  as_variable: channel_receive_descriptor_ring_length
   context:
   - Ethernet_DMA
   - Ethernet_DMA.DMACRxRLR
 DMACSR:
-  as_type: DMACSR
-  as_variable: dmacsr
+  as_type: ChannelStatus
+  as_variable: channel_status
   context:
   - Ethernet_DMA
   - Ethernet_DMA.DMACSR
 DMACTxCR:
-  as_type: DMACTxCR
-  as_variable: dmactxcr
+  as_type: ChannelTransmitControl
+  as_variable: channel_transmit_control
   context:
   - Ethernet_DMA
   - Ethernet_DMA.DMACTxCR
 DMACTxDLAR:
-  as_type: DMACTxDLAR
-  as_variable: dmactxdlar
+  as_type: ChannelTransmitDescriptorListAddress
+  as_variable: channel_transmit_descriptor_list_address
   context:
   - Ethernet_DMA
   - Ethernet_DMA.DMACTxDLAR
 DMACTxDTPR:
-  as_type: DMACTxDTPR
-  as_variable: dmactxdtpr
+  as_type: ChannelTransmitDescriptorTailPointer
+  as_variable: channel_transmit_descriptor_tail_pointer
   context:
   - Ethernet_DMA
   - Ethernet_DMA.DMACTxDTPR
 DMACTxRLR:
-  as_type: DMACTxRLR
-  as_variable: dmactxrlr
+  as_type: ChannelTransmitDescriptorRingLength
+  as_variable: channel_transmit_descriptor_ring_length
   context:
   - Ethernet_DMA
   - Ethernet_DMA.DMACTxRLR
 DMADSR:
-  as_type: DMADSR
-  as_variable: dmadsr
+  as_type: DebugStatus
+  as_variable: debug_status
   context:
   - Ethernet_DMA
   - Ethernet_DMA.DMADSR
@@ -15572,14 +15572,14 @@ DMAEN2:
   context:
   - DAC.CR
 DMAISR:
-  as_type: DMAISR
-  as_variable: dmaisr
+  as_type: InterruptStatus
+  as_variable: interrupt_status
   context:
   - Ethernet_DMA
   - Ethernet_DMA.DMAISR
 DMAMR:
-  as_type: DMAMR
-  as_variable: dmamr
+  as_type: Mode
+  as_variable: mode
   context:
   - Ethernet_DMA
   - Ethernet_DMA.DMAMR
@@ -15842,8 +15842,8 @@ DMAS:
   context:
   - HASH.SR
 DMASBMR:
-  as_type: DMASBMR
-  as_variable: dmasbmr
+  as_type: SystemBusMode
+  as_variable: system_bus_mode
   context:
   - Ethernet_DMA
   - Ethernet_DMA.DMASBMR
@@ -16019,8 +16019,8 @@ DMS:
   - FDCAN1.FDCAN_RXF1S
   - FDCAN2.FDCAN_RXF1S
 DN:
-  as_type: DN
-  as_variable: dn
+  as_type: DomainNumber
+  as_variable: domain_number
   context:
   - Ethernet_MAC.MACPOCR
 DNF:
@@ -16032,8 +16032,8 @@ DNF:
   - I2C3.CR1
   - I2C4.CR1
 DNTU:
-  as_type: DNTU
-  as_variable: dntu
+  as_type: DropNonIpPackets
+  as_variable: drop_non_ip_packets
   context:
   - Ethernet_MAC.MACPFR
 DO:
@@ -16423,8 +16423,8 @@ DOUTR9:
   - MDIOS
   - MDIOS.DOUTR9
 DOVLTC:
-  as_type: DOVLTC
-  as_variable: dovltc
+  as_type: DisableVLANTypeCheck
+  as_variable: disable_vlan_type_check
   context:
   - Ethernet_MAC.MACVTR
 DOWN:
@@ -16561,13 +16561,13 @@ DRNL2:
   context:
   - SPDIFRX.DR_10
 DRRDIS:
-  as_type: DRRDIS
-  as_variable: drrdis
+  as_type: DisablePTODelayResponseGeneration
+  as_variable: disable_pto_delay_response_generation
   context:
   - Ethernet_MAC.MACPOCR
 DRSYNCR:
-  as_type: DRSYNCR
-  as_variable: drsyncr
+  as_type: DelayRequestToSyncRatio
+  as_variable: delay_request_to_sync_ratio
   context:
   - Ethernet_MAC.MACLMIR
 DRW:
@@ -16656,8 +16656,8 @@ DSJW:
   - FDCAN1.FDCAN_DBTP
   - FDCAN2.FDCAN_DBTP
 DSL:
-  as_type: DSL
-  as_variable: dsl
+  as_type: DescriptorSkipLength
+  as_variable: descriptor_skip_length
   context:
   - Ethernet_DMA.DMACCR
 DSPD:
@@ -16939,8 +16939,8 @@ DTSEG2:
   - FDCAN1.FDCAN_DBTP
   - FDCAN2.FDCAN_DBTP
 DTXSTS:
-  as_type: DTXSTS
-  as_variable: dtxsts
+  as_type: DebugTransmitStatus
+  as_variable: debug_transmit_status
   context:
   - Ethernet_MTL.MTLOMR
 DU:
@@ -16994,8 +16994,8 @@ DXP:
   - SPI5.SR
   - SPI6.SR
 DZPQ:
-  as_type: DZPQ
-  as_variable: dzpq
+  as_type: DisableZeroQuantaPause
+  as_variable: disable_zero_quanta_pause
   context:
   - Ethernet_MAC.MACQTxFCR
 ECC:
@@ -17113,8 +17113,8 @@ ECE:
   - TIM5.SMCR
   - TIM8.SMCR
 ECRSFD:
-  as_type: ECRSFD
-  as_variable: ecrsfd
+  as_type: EnableCarrierSEnseBeforeTransmissionInFullDuplexMode
+  as_variable: enable_carrier_sense_before_transmission_in_full_duplex_mode
   context:
   - Ethernet_MAC.MACCR
 ECS:
@@ -17129,8 +17129,8 @@ EDM:
   context:
   - DCMI.CR
 EDVLP:
-  as_type: EDVLP
-  as_variable: edvlp
+  as_type: EnableDoubleVLANProcessing
+  as_variable: enable_double_vlan_processing
   context:
   - Ethernet_MAC.MACVTR
 EE10FLTR:
@@ -17736,8 +17736,8 @@ EHEN:
   - OTG1_HS_GLOBAL.OTG_HS_GOTGCTL
   - OTG2_HS_GLOBAL.OTG_HS_GOTGCTL
 EHFC:
-  as_type: EHFC
-  as_variable: ehfc
+  as_type: EnableHardwareFlowControl
+  as_variable: enable_hardware_flow_control
   context:
   - Ethernet_MTL.MTLRxQOMR
 EIDM:
@@ -17773,23 +17773,23 @@ EINT1:
   - FDCAN1.FDCAN_ILE
   - FDCAN2.FDCAN_ILE
 EIPG:
-  as_type: EIPG
-  as_variable: eipg
+  as_type: ExtendedInterPacketGapBitTimes
+  as_variable: extended_inter_packet_gap_bit_times
   context:
   - Ethernet_MAC.MACECR
 EIPGEN:
-  as_type: EIPGEN
-  as_variable: eipgen
+  as_type: ExtendedInterPacketGapEnable
+  as_variable: extended_inter_packet_gap_enable
   context:
   - Ethernet_MAC.MACECR
 EIVLRXS:
-  as_type: EIVLRXS
-  as_variable: eivlrxs
+  as_type: EnableInnerVLANTagInRX
+  as_variable: enable_inner_vlan_tag_in_receive_status
   context:
   - Ethernet_MAC.MACVTR
 EIVLS:
-  as_type: EIVLS
-  as_variable: eivls
+  as_type: EnableInnerVLANTagStrippingOnReceive
+  as_variable: enable_inner_vlan_stripping_on_receive
   context:
   - Ethernet_MAC.MACVTR
 EL:
@@ -18468,18 +18468,18 @@ EPTYP:
   - OTG2_HS_HOST.OTG_HS_HCCHAR8
   - OTG2_HS_HOST.OTG_HS_HCCHAR9
 ER:
-  as_type: ER
-  as_variable: er
+  as_type: EarlyReceiveInterrupt
+  as_variable: early_receive_interrupt
   context:
   - Ethernet_DMA.DMACSR
 ERIE:
-  as_type: ERIE
-  as_variable: erie
+  as_type: EarlyReceiveInterruptEnable
+  as_variable: early_receive_interrupt_enable
   context:
   - Ethernet_DMA.DMACIER
 ERIVLT:
-  as_type: ERIVLT
-  as_variable: erivlt
+  as_type: EnableInnerVLAGTag
+  as_variable: enable_inner_vlan_tag
   context:
   - Ethernet_MAC.MACVTR
 ERRC:
@@ -18522,8 +18522,8 @@ ERR_RIS:
   context:
   - DCMI.RIS
 ERSVLM:
-  as_type: ERSVLM
-  as_variable: ersvlm
+  as_type: EnableReceiveSVLANMatch
+  as_variable: enable_receive_svlan_match
   context:
   - Ethernet_MAC.MACVTR
 ESCN:
@@ -18562,8 +18562,8 @@ ESUSPM:
   - OTG1_HS_GLOBAL.OTG_HS_GINTMSK
   - OTG2_HS_GLOBAL.OTG_HS_GINTMSK
 ESVL:
-  as_type: ESVL
-  as_variable: esvl
+  as_type: EnableSVLAN
+  as_variable: enable_svlan
   context:
   - Ethernet_MAC.MACVTR
 ESYNCC:
@@ -18582,8 +18582,8 @@ ESYNCIE:
   context:
   - CRS.CR
 ET:
-  as_type: ET
-  as_variable: et
+  as_type: EarlyTransmitInterrupt
+  as_variable: early_transmit_interrupt
   context:
   - Ethernet_DMA.DMACSR
 ETF:
@@ -18641,8 +18641,8 @@ ETH1TXLPEN:
   - RCC.AHB1LPENR
   - RCC.C1_AHB1LPENR
 ETIE:
-  as_type: ETIE
-  as_variable: etie
+  as_type: EarlyTransmitInterruptEnable
+  as_variable: early_transmit_interrupt_enable
   context:
   - Ethernet_DMA.DMACIER
 ETOC:
@@ -18691,20 +18691,20 @@ ETRSEL:
   - TIM5.AF1
   - TIM8.AF1
 ETV:
-  as_type: ETV
-  as_variable: etv
+  as_type: Enable12BitVLANTagComparison
+  as_variable: enable_12bit_vlan_tag_comparison
   context:
   - Ethernet_MAC.MACVTR
   - FDCAN1.FDCAN_ENDN
   - FDCAN2.FDCAN_ENDN
 EVLRXS:
-  as_type: EVLRXS
-  as_variable: evlrxs
+  as_type: EnableVLANTaginReceiveStatus
+  as_variable: enable_vlan_tag_in_receive_status
   context:
   - Ethernet_MAC.MACVTR
 EVLS:
-  as_type: EVLS
-  as_variable: evls
+  as_type: EnableVLANStrippingOnReceive
+  as_variable: enable_vlan_stripping_on_receive
   context:
   - Ethernet_MAC.MACVTR
 EVTP:
@@ -18758,13 +18758,13 @@ EXCH:
   - DFSDM.DFSDM_FLT2CR2
   - DFSDM.DFSDM_FLT3CR2
 EXCOL:
-  as_type: EXCOL
-  as_variable: excol
+  as_type: ExcessiveCollisions
+  as_variable: excessive_collisions
   context:
   - Ethernet_MAC.MACRxTxSR
 EXDEF:
-  as_type: EXDEF
-  as_variable: exdef
+  as_type: ExcessiveDeferral
+  as_variable: excessive_deferral
   context:
   - Ethernet_MAC.MACRxTxSR
 EXEV10CPT:
@@ -19573,18 +19573,18 @@ FAULT2:
   - HRTIM_TIMD.OUTDR
   - HRTIM_TIME.OUTER
 FB:
-  as_type: FB
-  as_variable: fb
+  as_type: FixedBurstLength
+  as_variable: fixed_burst_length
   context:
   - Ethernet_DMA.DMASBMR
 FBE:
-  as_type: FBE
-  as_variable: fbe
+  as_type: FatalBusError
+  as_variable: fatal_bus_error
   context:
   - Ethernet_DMA.DMACSR
 FBEE:
-  as_type: FBEE
-  as_variable: fbee
+  as_type: FatalBusErrorEnable
+  as_variable: fatal_bus_error_enable
   context:
   - Ethernet_DMA.DMACIER
 FBOFF:
@@ -19600,8 +19600,8 @@ FBOFF:
   - SAI4.SAI_ASLOTR
   - SAI4.SAI_BSLOTR
 FCB_BPA:
-  as_type: FCB_BPA
-  as_variable: fcb_bpa
+  as_type: FlowControlBusyOrBackPressureActivate
+  as_variable: flow_control_busy_or_backpressure_activate
   context:
   - Ethernet_MAC.MACQTxFCR
 FCR:
@@ -20333,8 +20333,8 @@ FEMPT:
   context:
   - FMC.SR
 FEP:
-  as_type: FEP
-  as_variable: fep
+  as_type: ForwardErrorPackets
+  as_variable: forward_error_packets
   context:
   - Ethernet_MTL.MTLRxQOMR
 FERR:
@@ -20343,8 +20343,8 @@ FERR:
   context:
   - SPDIFRX.SR
 FES:
-  as_type: FES
-  as_variable: fes
+  as_type: FastEthernetSpeed
+  as_variable: fast_ethernet_speed
   context:
   - Ethernet_MAC.MACCR
 FEU:
@@ -21215,8 +21215,8 @@ FTIE:
   context:
   - QUADSPI.CR
 FTQ:
-  as_type: FTQ
-  as_variable: ftq
+  as_type: FlushTransmitQueue
+  as_variable: flush_transmit_queue
   context:
   - Ethernet_MTL.MTLTxQOMR
 FTREM:
@@ -21254,8 +21254,8 @@ FUIF:
   context:
   - LTDC.ISR
 FUP:
-  as_type: FUP
-  as_variable: fup
+  as_type: ForwardUndersizedGoodPackets
+  as_variable: forward_undersized_good_packets
   context:
   - Ethernet_MTL.MTLRxQOMR
 FW1:
@@ -21532,8 +21532,8 @@ GINT:
   - OTG1_HS_GLOBAL.OTG_HS_GAHBCFG
   - OTG2_HS_GLOBAL.OTG_HS_GAHBCFG
 GLBLUCAST:
-  as_type: GLBLUCAST
-  as_variable: glblucast
+  as_type: GlobalUnicast
+  as_variable: global_unicast
   context:
   - Ethernet_MAC.MACPCSR
 GNBREQ:
@@ -21557,8 +21557,8 @@ GNBREQ:
   - DMAMUX2.RG6CR
   - DMAMUX2.RG7CR
 GOC:
-  as_type: GOC
-  as_variable: goc
+  as_type: MdioOperationCommand
+  as_variable: mdio_operation_command
   context:
   - Ethernet_MAC.MACMDIOAR
 GONAKEFFM:
@@ -21844,13 +21844,13 @@ GPOL:
   - DMAMUX2.RG6CR
   - DMAMUX2.RG7CR
 GPSL:
-  as_type: GPSL
-  as_variable: gpsl
+  as_type: GiantPacketSizeLimit
+  as_variable: giant_packet_size_limit
   context:
   - Ethernet_MAC.MACECR
 GPSLCE:
-  as_type: GPSLCE
-  as_variable: gpslce
+  as_type: GiantPacketSizeLimitControlEnable
+  as_variable: giant_packet_size_limit_control_enable
   context:
   - Ethernet_MAC.MACCR
 GREEN:
@@ -22063,8 +22063,8 @@ HASHRST:
   context:
   - RCC.AHB2RSTR
 HASHTBLSZ:
-  as_type: HASHTBLSZ
-  as_variable: hashtblsz
+  as_type: HashTableSize
+  as_variable: hash_table_size
   context:
   - Ethernet_MAC.MACHWF1R
 HASH_HR0:
@@ -22235,8 +22235,8 @@ HIZ:
   context:
   - VREFBUF.CSR
 HMC:
-  as_type: HMC
-  as_variable: hmc
+  as_type: HashMulticast
+  as_variable: hash_multicast
   context:
   - Ethernet_MAC.MACPFR
 HNGDET:
@@ -22285,8 +22285,8 @@ HPDIE:
   context:
   - JPEG.CR
 HPF:
-  as_type: HPF
-  as_variable: hpf
+  as_type: HashOrPerfectFilter
+  as_variable: hash_or_perfect_filter
   context:
   - Ethernet_MAC.MACPFR
 HPM:
@@ -22999,13 +22999,13 @@ HT:
   - RTC.RTC_TR
   - RTC.RTC_TSTR
 HT31T0:
-  as_type: HT31T0
-  as_variable: ht31t0
+  as_type: HashTableBottom
+  as_variable: hash_table_btm
   context:
   - Ethernet_MAC.MACHT0R
 HT63T32:
-  as_type: HT63T32
-  as_variable: ht63t32
+  as_type: HashTableTop
+  as_variable: hash_table_top
   context:
   - Ethernet_MAC.MACHT1R
 HTIE:
@@ -23173,8 +23173,8 @@ HUBADDR:
   - OTG2_HS_HOST.OTG_HS_HCSPLT8
   - OTG2_HS_HOST.OTG_HS_HCSPLT9
 HUC:
-  as_type: HUC
-  as_variable: huc
+  as_type: HashUnicast
+  as_variable: hash_unicast
   context:
   - Ethernet_MAC.MACPFR
 HWFC_EN:
@@ -24422,8 +24422,8 @@ INTERVAL:
   context:
   - QUADSPI.PIR
 INTM:
-  as_type: INTM
-  as_variable: intm
+  as_type: InterruptMode
+  as_variable: interrupt_mode
   context:
   - Ethernet_DMA.DMAMR
 IOLOCK:
@@ -24464,18 +24464,18 @@ IO_HSLV:
   - FLASH.OPTSR_PRG_
   - SYSCFG.UR17
 IPC:
-  as_type: IPC
-  as_variable: ipc
+  as_type: IpChecksumOffload
+  as_variable: ip_checksum_offload
   context:
   - Ethernet_MAC.MACCR
 IPFE:
-  as_type: IPFE
-  as_variable: ipfe
+  as_type: InversePassFilterEnable
+  as_variable: inverse_pass_filter_enable
   context:
   - Ethernet_MAC.MACPFR
 IPG:
-  as_type: IPG
-  as_variable: ipg
+  as_type: InterPacketGap
+  as_variable: inter_packet_gap
   context:
   - Ethernet_MAC.MACCR
 IPPSTAT:
@@ -25685,8 +25685,8 @@ JCIP:
   - DFSDM.DFSDM_FLT2ISR
   - DFSDM.DFSDM_FLT3ISR
 JD:
-  as_type: JD
-  as_variable: jd
+  as_type: JabberDisable
+  as_variable: jabber_disable
   context:
   - Ethernet_MAC.MACCR
 JDATA:
@@ -25789,8 +25789,8 @@ JDR4:
   - ADC3
   - ADC3.JDR4
 JE:
-  as_type: JE
-  as_variable: je
+  as_type: JumboPackets
+  as_variable: jumbo_packets
   context:
   - Ethernet_MAC.MACCR
 JEDEC:
@@ -27597,188 +27597,188 @@ L3:
   - ADC2.SQR1
   - ADC3.SQR1
 L3A00:
-  as_type: L3A00
-  as_variable: l3a00
+  as_type: Layer3Address0Filter0
+  as_variable: layer3_address_0_filter_0
   context:
   - Ethernet_MAC.MACL3A00R
 L3A01:
-  as_type: L3A01
-  as_variable: l3a01
+  as_type: Layer3Address0Filter1
+  as_variable: layer3_address_0_filter_1
   context:
   - Ethernet_MAC.MACL3A01R
 L3A10:
-  as_type: L3A10
-  as_variable: l3a10
+  as_type: Layer3Address1Filter0
+  as_variable: layer3_address_1_filter_0
   context:
   - Ethernet_MAC.MACL3A10R
 L3A11:
-  as_type: L3A11
-  as_variable: l3a11
+  as_type: Layer3Address1Filter1
+  as_variable: layer3_address_1_filter_1
   context:
   - Ethernet_MAC.MACL3A11R
 L3A20:
-  as_type: L3A20
-  as_variable: l3a20
+  as_type: Layer3Address2Filter0
+  as_variable: layer3_address_2_filter_0
   context:
   - Ethernet_MAC.MACL3A20
 L3A21:
-  as_type: L3A21
-  as_variable: l3a21
+  as_type: Layer3Address2Filter1
+  as_variable: layer3_address_2_filter_1
   context:
   - Ethernet_MAC.MACL3A21R
 L3A30:
-  as_type: L3A30
-  as_variable: l3a30
+  as_type: Layer3Address3Filter0
+  as_variable: layer3_address_3_filter_0
   context:
   - Ethernet_MAC.MACL3A30
 L3A31:
-  as_type: L3A31
-  as_variable: l3a31
+  as_type: Layer3Address3Filter1
+  as_variable: layer3_address_3_filter_1
   context:
   - Ethernet_MAC.MACL3A31R
 L3DAIM0:
-  as_type: L3DAIM0
-  as_variable: l3daim0
+  as_type: Layer3InternetProtocolDestinationAddressInverseMatchEnable
+  as_variable: layer3_ip_destination_address_inverse_match_enable
   context:
   - Ethernet_MAC.MACL3L4C0R
 L3DAIM1:
-  as_type: L3DAIM1
-  as_variable: l3daim1
+  as_type: Layer3InternetProtocolDestinationAddressInverseMatchEnable
+  as_variable: layer3_ip_destination_address_inverse_match_enable
   context:
   - Ethernet_MAC.MACL3L4C1R
 L3DAM0:
-  as_type: L3DAM0
-  as_variable: l3dam0
+  as_type: Layer3InternetProtocolDestinationAddressMatchEnable
+  as_variable: layer3_ip_destination_address_match_enable
   context:
   - Ethernet_MAC.MACL3L4C0R
 L3DAM1:
-  as_type: L3DAM1
-  as_variable: l3dam1
+  as_type: Layer3InternetProtocolDestinationAddressMatchEnable
+  as_variable: layer3_ip_destination_address_match_enable
   context:
   - Ethernet_MAC.MACL3L4C1R
 L3HDBM0:
-  as_type: L3HDBM0
-  as_variable: l3hdbm0
+  as_type: Layer3InternetProtocolDestinationAddressHigherBitMatch
+  as_variable: layer3_ip_destination_address_higher_bits_match
   context:
   - Ethernet_MAC.MACL3L4C0R
 L3HDBM1:
-  as_type: L3HDBM1
-  as_variable: l3hdbm1
+  as_type: Layer3InternetProtocolDestinationAddressHigherBitMatch
+  as_variable: layer3_ip_destination_address_higher_bits_match
   context:
   - Ethernet_MAC.MACL3L4C1R
 L3HSBM0:
-  as_type: L3HSBM0
-  as_variable: l3hsbm0
+  as_type: Layer3InternetProtocolSourceAddressHigherBitMatch
+  as_variable: layer3_ip_source_address_higher_bits_match
   context:
   - Ethernet_MAC.MACL3L4C0R
 L3HSBM1:
-  as_type: L3HSBM1
-  as_variable: l3hsbm1
+  as_type: Layer3InternetProtocolSourceAddressHigherBitMatch
+  as_variable: layer3_ip_source_address_higher_bits_match
   context:
   - Ethernet_MAC.MACL3L4C1R
 L3L4FNUM:
-  as_type: L3L4FNUM
-  as_variable: l3l4fnum
+  as_type: Layer3Layer4FilterNumber
+  as_variable: layer3_layer4_filter_number
   context:
   - Ethernet_MAC.MACHWF1R
 L3PEN0:
-  as_type: L3PEN0
-  as_variable: l3pen0
+  as_type: Layer3ProtocolEnable
+  as_variable: layer3_protocol_enable
   context:
   - Ethernet_MAC.MACL3L4C0R
 L3PEN1:
-  as_type: L3PEN1
-  as_variable: l3pen1
+  as_type: Layer3ProtocolEnable
+  as_variable: layer3_protocol_enable
   context:
   - Ethernet_MAC.MACL3L4C1R
 L3SAIM0:
-  as_type: L3SAIM0
-  as_variable: l3saim0
+  as_type: Layer3InternetProtocolSourceAddressInverseMatchEnable
+  as_variable: layer3_ip_source_address_inverse_match_enable
   context:
   - Ethernet_MAC.MACL3L4C0R
 L3SAIM1:
-  as_type: L3SAIM1
-  as_variable: l3saim1
+  as_type: Layer3InternetProtocolSourceAddressInverseMatchEnable
+  as_variable: layer3_ip_source_address_inverse_match_enable
   context:
   - Ethernet_MAC.MACL3L4C1R
 L3SAM0:
-  as_type: L3SAM0
-  as_variable: l3sam0
+  as_type: Layer3InternetProtocolSourceAddressMatchEnable
+  as_variable: layer3_ip_source_address_match_enable
   context:
   - Ethernet_MAC.MACL3L4C0R
 L3SAM1:
-  as_type: L3SAM1
-  as_variable: l3sam1
+  as_type: Layer3InternetProtocolSourceAddressMatchEnable
+  as_variable: layer3_ip_source_address_match_enable
   context:
   - Ethernet_MAC.MACL3L4C1R
 L4DP0:
-  as_type: L4DP0
-  as_variable: l4dp0
+  as_type: Layer4DestinationPortNumber
+  as_variable: layer4_destination_port_number
   context:
   - Ethernet_MAC.MACL4A0R
 L4DP1:
-  as_type: L4DP1
-  as_variable: l4dp1
+  as_type: Layer4DestinationPortNumber
+  as_variable: layer4_destination_port_number
   context:
   - Ethernet_MAC.MACL4A1R
 L4DPIM0:
-  as_type: L4DPIM0
-  as_variable: l4dpim0
+  as_type: Layer4DestinationPortNumberInverseMatchEnable
+  as_variable: layer4_destination_port_inverse_match_enable
   context:
   - Ethernet_MAC.MACL3L4C0R
 L4DPIM1:
-  as_type: L4DPIM1
-  as_variable: l4dpim1
+  as_type: Layer4DestinationPortNumberInverseMatchEnable
+  as_variable: layer4_destination_port_inverse_match_enable
   context:
   - Ethernet_MAC.MACL3L4C1R
 L4DPM0:
-  as_type: L4DPM0
-  as_variable: l4dpm0
+  as_type: Layer4DestinationPortNumberMatchEnable
+  as_variable: layer4_destination_port_match_enable
   context:
   - Ethernet_MAC.MACL3L4C0R
 L4DPM1:
-  as_type: L4DPM1
-  as_variable: l4dpm1
+  as_type: Layer4DestinationPortNumberMatchEnable
+  as_variable: layer4_destination_port_match_enable
   context:
   - Ethernet_MAC.MACL3L4C1R
 L4PEN0:
-  as_type: L4PEN0
-  as_variable: l4pen0
+  as_type: Layer4ProtocolEnable
+  as_variable: layer4_protocol_enable
   context:
   - Ethernet_MAC.MACL3L4C0R
 L4PEN1:
-  as_type: L4PEN1
-  as_variable: l4pen1
+  as_type: Layer4ProtocolEnable
+  as_variable: layer4_protocol_enable
   context:
   - Ethernet_MAC.MACL3L4C1R
 L4SP0:
-  as_type: L4SP0
-  as_variable: l4sp0
+  as_type: Layer4SourcePortNumber
+  as_variable: layer4_source_port_number
   context:
   - Ethernet_MAC.MACL4A0R
 L4SP1:
-  as_type: L4SP1
-  as_variable: l4sp1
+  as_type: Layer4SourcePortNumber
+  as_variable: layer4_source_port_number
   context:
   - Ethernet_MAC.MACL4A1R
 L4SPIM0:
-  as_type: L4SPIM0
-  as_variable: l4spim0
+  as_type: Layer4SourcePortInverseMatchEnable
+  as_variable: layer4_source_port_inverse_match_enable
   context:
   - Ethernet_MAC.MACL3L4C0R
 L4SPIM1:
-  as_type: L4SPIM1
-  as_variable: l4spim1
+  as_type: Layer4SourcePortInverseMatchEnable
+  as_variable: layer4_source_port_inverse_match_enable
   context:
   - Ethernet_MAC.MACL3L4C1R
 L4SPM0:
-  as_type: L4SPM0
-  as_variable: l4spm0
+  as_type: Layer4SourcePortMatchEnable
+  as_variable: layer4_source_port_match_enable
   context:
   - Ethernet_MAC.MACL3L4C0R
 L4SPM1:
-  as_type: L4SPM1
-  as_variable: l4spm1
+  as_type: Layer4SourcePortMatchEnable
+  as_variable: layer4_source_port_match_enable
   context:
   - Ethernet_MAC.MACL3L4C1R
 LAR:
@@ -27889,8 +27889,8 @@ LBPEIE:
   context:
   - CEC.IER
 LCARR:
-  as_type: LCARR
-  as_variable: lcarr
+  as_type: LossOfCarrier
+  as_variable: loss_of_carrier
   context:
   - Ethernet_MAC.MACRxTxSR
 LCK0:
@@ -28187,8 +28187,8 @@ LCKR:
   - GPIOK
   - GPIOK.LCKR
 LCOL:
-  as_type: LCOL
-  as_variable: lcol
+  as_type: LateCollisions
+  as_variable: late_collisions
   context:
   - Ethernet_MAC.MACRxTxSR
 LDOEN:
@@ -28378,13 +28378,13 @@ LKEY:
   context:
   - HASH.CR
 LM:
-  as_type: LM
-  as_variable: lm
+  as_type: LoopbackMode
+  as_variable: loopback_mode
   context:
   - Ethernet_MAC.MACCR
 LMPDRI:
-  as_type: LMPDRI
-  as_variable: lmpdri
+  as_type: LogMinPdelayReqInterval
+  as_variable: log_min_p_delay_request_interval
   context:
   - Ethernet_MAC.MACLMIR
 LNG:
@@ -28504,33 +28504,33 @@ LPDS:
   context:
   - PWR.CR1
 LPIEN:
-  as_type: LPIEN
-  as_variable: lpien
+  as_type: LowPowerIdleEnable
+  as_variable: low_power_idle_enable
   context:
   - Ethernet_MAC.MACLCSR
 LPIET:
-  as_type: LPIET
-  as_variable: lpiet
+  as_type: LowPowerIdleEntryTimer
+  as_variable: low_power_idle_entry_timer
   context:
   - Ethernet_MAC.MACLETR
 LPIIE:
-  as_type: LPIIE
-  as_variable: lpiie
+  as_type: LowPowerIdleInterruptEnable
+  as_variable: low_power_idle_interrupt_enable
   context:
   - Ethernet_MAC.MACIER
 LPIIS:
-  as_type: LPIIS
-  as_variable: lpiis
+  as_type: LowPowerIdleInterruptStatus
+  as_variable: low_power_idle_interrupt_status
   context:
   - Ethernet_MAC.MACISR
 LPITE:
-  as_type: LPITE
-  as_variable: lpite
+  as_type: LowPowerIdleTimerEnable
+  as_variable: low_power_idle_timer_enable
   context:
   - Ethernet_MAC.MACLCSR
 LPITXA:
-  as_type: LPITXA
-  as_variable: lpitxa
+  as_type: LowPowerIdleTransmitAutomate
+  as_variable: low_power_idle_transmit_automate
   context:
   - Ethernet_MAC.MACLCSR
 LPMACK:
@@ -28901,8 +28901,8 @@ LSHIFT:
   - ADC2.CFGR2
   - ADC3.CFGR2
 LSI:
-  as_type: LSI
-  as_variable: lsi
+  as_type: LogSyncInterval
+  as_variable: log_sync_interval
   context:
   - Ethernet_MAC.MACLMIR
 LSION:
@@ -28942,8 +28942,8 @@ LSS:
   - FDCAN1.FDCAN_SIDFC
   - FDCAN2.FDCAN_SIDFC
 LST:
-  as_type: LST
-  as_variable: lst
+  as_type: LowPowerIdleLSITimer
+  as_variable: low_power_idle_lsi_timer
   context:
   - Ethernet_MAC.MACLTCR
 LSTN:
@@ -29382,457 +29382,457 @@ MA:
   - DMA2D.FGMAR
   - DMA2D.OMAR
 MAC1USTCR:
-  as_type: MAC1USTCR
-  as_variable: mac1ustcr
+  as_type: OneMicrosecondTickCounter
+  as_variable: one_microsecond_tick_counter
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MAC1USTCR
 MACA0HR:
-  as_type: MACA0HR
-  as_variable: maca0hr
+  as_type: Address0High
+  as_variable: address_0_high
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACA0HR
 MACA0LR:
-  as_type: MACA0LR
-  as_variable: maca0lr
+  as_type: Address0Low
+  as_variable: address_0_low
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACA0LR
 MACA1HR:
-  as_type: MACA1HR
-  as_variable: maca1hr
+  as_type: Address1High
+  as_variable: address_1_high
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACA1HR
 MACA1LR:
-  as_type: MACA1LR
-  as_variable: maca1lr
+  as_type: Address1Low
+  as_variable: address_1_low
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACA1LR
 MACA2HR:
-  as_type: MACA2HR
-  as_variable: maca2hr
+  as_type: Address2High
+  as_variable: address_2_high
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACA2HR
 MACA2LR:
-  as_type: MACA2LR
-  as_variable: maca2lr
+  as_type: Address2Low
+  as_variable: address_2_low
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACA2LR
 MACA3HR:
-  as_type: MACA3HR
-  as_variable: maca3hr
+  as_type: Address3High
+  as_variable: address_3_high
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACA3HR
 MACA3LR:
-  as_type: MACA3LR
-  as_variable: maca3lr
+  as_type: Address3Low
+  as_variable: address_3_low
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACA3LR
 MACACR:
-  as_type: MACACR
-  as_variable: macacr
+  as_type: AuxiliaryControl
+  as_variable: auxiliary_control
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACACR
 MACARPAR:
-  as_type: MACARPAR
-  as_variable: macarpar
+  as_type: ArpAddress
+  as_variable: arp_address
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACARPAR
 MACATSNR:
-  as_type: MACATSNR
-  as_variable: macatsnr
+  as_type: AuxiliaryTimestampNanoseconds
+  as_variable: auxiliary_timestamp_nanoseconds
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACATSNR
 MACATSSR:
-  as_type: MACATSSR
-  as_variable: macatssr
+  as_type: AuxiliaryTimestampSeconds
+  as_variable: auxiliary_timestamp_seconds
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACATSSR
 MACCR:
-  as_type: MACCR
-  as_variable: maccr
+  as_type: OperatingModeConfiguration
+  as_variable: operating_mode_configuration
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACCR
 MACDR:
-  as_type: MACDR
-  as_variable: macdr
+  as_type: Debug
+  as_variable: debug
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACDR
 MACECR:
-  as_type: MACECR
-  as_variable: macecr
+  as_type: ExtendedOperatingModeConfiguration
+  as_variable: extended_operating_mode_configuration
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACECR
 MACHT0R:
-  as_type: MACHT0R
-  as_variable: macht0r
+  as_type: HashTable0
+  as_variable: hash_table_0
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACHT0R
 MACHT1R:
-  as_type: MACHT1R
-  as_variable: macht1r
+  as_type: HashTable1
+  as_variable: hash_table_1
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACHT1R
 MACHWF1R:
-  as_type: MACHWF1R
-  as_variable: machwf1r
+  as_type: HardwareFeature1
+  as_variable: hardware_feature_1
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACHWF1R
 MACHWF2R:
-  as_type: MACHWF2R
-  as_variable: machwf2r
+  as_type: HardwareFeature2
+  as_variable: hardware_feature_2
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACHWF2R
 MACIER:
-  as_type: MACIER
-  as_variable: macier
+  as_type: InterruptEnable
+  as_variable: interrupt_enable
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACIER
 MACIS:
-  as_type: MACIS
-  as_variable: macis
+  as_type: MediaAccessControllerInterruptStatus
+  as_variable: media_access_controller_interrupt_status
   context:
   - Ethernet_DMA.DMAISR
 MACISR:
-  as_type: MACISR
-  as_variable: macisr
+  as_type: InterruptStatus
+  as_variable: interrupt_status
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACISR
 MACIVIR:
-  as_type: MACIVIR
-  as_variable: macivir
+  as_type: InnerVlanInclusion
+  as_variable: inner_vlan_inclusion
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACIVIR
 MACL3A00R:
-  as_type: MACL3A00R
-  as_variable: macl3a00r
+  as_type: Layer3Address0Filter0
+  as_variable: layer3_address_0_filter_0
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACL3A00R
 MACL3A01R:
-  as_type: MACL3A01R
-  as_variable: macl3a01r
+  as_type: Layer3Address0Filter1
+  as_variable: layer3_address_0_filter_1
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACL3A01R
 MACL3A10R:
-  as_type: MACL3A10R
-  as_variable: macl3a10r
+  as_type: Layer3Address1Filter0
+  as_variable: layer3_address_1_filter_0
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACL3A10R
 MACL3A11R:
-  as_type: MACL3A11R
-  as_variable: macl3a11r
+  as_type: Layer3Address1Filter1
+  as_variable: layer3_address_1_filter_1
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACL3A11R
 MACL3A20:
-  as_type: MACL3A20
-  as_variable: macl3a20
+  as_type: Layer3Address2Filter0
+  as_variable: layer3_address_2_filter_0
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACL3A20
 MACL3A21R:
-  as_type: MACL3A21R
-  as_variable: macl3a21r
+  as_type: Layer3Address2Filter1
+  as_variable: layer3_address_2_filter_1
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACL3A21R
 MACL3A30:
-  as_type: MACL3A30
-  as_variable: macl3a30
+  as_type: Layer3Address3Filter0
+  as_variable: layer3_address_3_filter_0
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACL3A30
 MACL3A31R:
-  as_type: MACL3A31R
-  as_variable: macl3a31r
+  as_type: Layer3Address3Filter1
+  as_variable: layer_3_address_3_filter_1
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACL3A31R
 MACL3L4C0R:
-  as_type: MACL3L4C0R
-  as_variable: macl3l4c0r
+  as_type: Layer3AndLayer4Control0
+  as_variable: layer3_and_layer4_control_0
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACL3L4C0R
 MACL3L4C1R:
-  as_type: MACL3L4C1R
-  as_variable: macl3l4c1r
+  as_type: Layer3AndLayer4Control1
+  as_variable: layer3_and_layer4_control_1
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACL3L4C1R
 MACL4A0R:
-  as_type: MACL4A0R
-  as_variable: macl4a0r
+  as_type: Layer4AddressFilter0
+  as_variable: layer4_address_filter_0
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACL4A0R
 MACL4A1R:
-  as_type: MACL4A1R
-  as_variable: macl4a1r
+  as_type: Layer4AddressFilter1
+  as_variable: layer4_address_filter_1
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACL4A1R
 MACLCSR:
-  as_type: MACLCSR
-  as_variable: maclcsr
+  as_type: LowPowerIdleControlStatus
+  as_variable: low_power_idle_control_status
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACLCSR
 MACLETR:
-  as_type: MACLETR
-  as_variable: macletr
+  as_type: LowPowerIdleEntryTimer
+  as_variable: low_power_idle_entry_timer
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACLETR
 MACLMIR:
-  as_type: MACLMIR
-  as_variable: maclmir
+  as_type: LogMessageInterval
+  as_variable: log_message_interval
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACLMIR
 MACLTCR:
-  as_type: MACLTCR
-  as_variable: macltcr
+  as_type: LowPowerIdleTimersControl
+  as_variable: low_power_idle_timers_control
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACLTCR
 MACMDIOAR:
-  as_type: MACMDIOAR
-  as_variable: macmdioar
+  as_type: MdioAddress
+  as_variable: mdio_address
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACMDIOAR
 MACMDIODR:
-  as_type: MACMDIODR
-  as_variable: macmdiodr
+  as_type: MdioData
+  as_variable: mdio_data
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACMDIODR
 MACPCSR:
-  as_type: MACPCSR
-  as_variable: macpcsr
+  as_type: PowerManagementControlStatus
+  as_variable: power_management_control_status
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACPCSR
 MACPFR:
-  as_type: MACPFR
-  as_variable: macpfr
+  as_type: PacketFilterControl
+  as_variable: packet_filter_control
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACPFR
 MACPOCR:
-  as_type: MACPOCR
-  as_variable: macpocr
+  as_type: PrecisionTimeProtocolOffloadControl
+  as_variable: precision_time_protocol_offload_control
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACPOCR
 MACPPSCR:
-  as_type: MACPPSCR
-  as_variable: macppscr
+  as_type: PulsePerSecondControl
+  as_variable: pulse_per_second_control
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACPPSCR
 MACPPSIR:
-  as_type: MACPPSIR
-  as_variable: macppsir
+  as_type: PulsePerSecondInterval
+  as_variable: pulse_per_second_interval
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACPPSIR
 MACPPSTTNR:
-  as_type: MACPPSTTNR
-  as_variable: macppsttnr
+  as_type: PulsePerSecondTargetTimeNanoseconds
+  as_variable: pulse_per_second_target_time_nanoseconds
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACPPSTTNR
 MACPPSTTSR:
-  as_type: MACPPSTTSR
-  as_variable: macppsttsr
+  as_type: PulsePerSecondTargetTimeSeconds
+  as_variable: pulse_per_second_target_time_seconds
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACPPSTTSR
 MACPPSWR:
-  as_type: MACPPSWR
-  as_variable: macppswr
+  as_type: PulsePerSecondWidth
+  as_variable: pulse_per_second_width
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACPPSWR
 MACQTxFCR:
-  as_type: MACQTxFCR
-  as_variable: macqtxfcr
+  as_type: QueueTransmitFlowControl
+  as_variable: queue_transmit_flow_control
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACQTxFCR
 MACRWKPFR:
-  as_type: MACRWKPFR
-  as_variable: macrwkpfr
+  as_type: RemoteWakeupPacketFilter
+  as_variable: remote_wakeup_packet_filter
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACRWKPFR
 MACRxFCR:
-  as_type: MACRxFCR
-  as_variable: macrxfcr
+  as_type: ReceiveFlowControl
+  as_variable: receive_flow_control
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACRxFCR
 MACRxTxSR:
-  as_type: MACRxTxSR
-  as_variable: macrxtxsr
+  as_type: ReceiveTransmitStatus
+  as_variable: receive_transmit_status
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACRxTxSR
 MACSPI0R:
-  as_type: MACSPI0R
-  as_variable: macspi0r
+  as_type: PrecisionTimeProtocolSourcePortIdentity0
+  as_variable: precision_time_protocol_source_port_identity_0
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACSPI0R
 MACSPI1R:
-  as_type: MACSPI1R
-  as_variable: macspi1r
+  as_type: PrecisionTimeProtocolSourcePortIdentity1
+  as_variable: precision_time_protocol_source_port_identity_1
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACSPI1R
 MACSPI2R:
-  as_type: MACSPI2R
-  as_variable: macspi2r
+  as_type: PrecisionTimeProtocolSourcePortIdentity2
+  as_variable: precision_time_protocol_source_port_identity_2
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACSPI2R
 MACSSIR:
-  as_type: MACSSIR
-  as_variable: macssir
+  as_type: SubsecondIncrement
+  as_variable: subsecond_increment
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACSSIR
 MACSTNR:
-  as_type: MACSTNR
-  as_variable: macstnr
+  as_type: SystemTimeNanoseconds
+  as_variable: system_time_nanoseconds
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACSTNR
 MACSTNUR:
-  as_type: MACSTNUR
-  as_variable: macstnur
+  as_type: SystemTimeNanosecondsUpdate
+  as_variable: system_time_nanoseconds_update
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACSTNUR
 MACSTSR:
-  as_type: MACSTSR
-  as_variable: macstsr
+  as_type: SystemTimeSeconds
+  as_variable: system_time_seconds
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACSTSR
 MACSTSUR:
-  as_type: MACSTSUR
-  as_variable: macstsur
+  as_type: SystemTimeSecondsUpdate
+  as_variable: system_time_seconds_update
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACSTSUR
 MACTSAR:
-  as_type: MACTSAR
-  as_variable: mactsar
+  as_type: TimestampAddend
+  as_variable: timestamp_addend
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACTSAR
 MACTSCR:
-  as_type: MACTSCR
-  as_variable: mactscr
+  as_type: TimestampControl
+  as_variable: timestamp_control
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACTSCR
 MACTSEACR:
-  as_type: MACTSEACR
-  as_variable: mactseacr
+  as_type: TimestampEgressAsymmetricCorrection
+  as_variable: timestamp_egress_asymmetric_correction
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACTSEACR
 MACTSECNR:
-  as_type: MACTSECNR
-  as_variable: mactsecnr
+  as_type: TimestampEgressCorrectionNanoseconds
+  as_variable: timestamp_egress_correction_nanoseconds
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACTSECNR
 MACTSIACR:
-  as_type: MACTSIACR
-  as_variable: mactsiacr
+  as_type: TimestampIngressAsymmetricCorrection
+  as_variable: timestamp_ingress_asymmetric_correction
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACTSIACR
 MACTSICNR:
-  as_type: MACTSICNR
-  as_variable: mactsicnr
+  as_type: TimestampIngressCorrectionNanoseconds
+  as_variable: timestamp_ingress_correction_nanoseconds
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACTSICNR
 MACTSSR:
-  as_type: MACTSSR
-  as_variable: mactssr
+  as_type: TimestampStatus
+  as_variable: timestamp_status
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACTSSR
 MACTxTSSNR:
-  as_type: MACTxTSSNR
-  as_variable: mactxtssnr
+  as_type: TransmitTimestampStatusNanoseconds
+  as_variable: transmit_timestamp_status_nanoseconds
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACTxTSSNR
 MACTxTSSSR:
-  as_type: MACTxTSSSR
-  as_variable: mactxtsssr
+  as_type: TransmitTimestampStatusSeconds
+  as_variable: transmit_timestamp_status_seconds
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACTxTSSSR
 MACVHTR:
-  as_type: MACVHTR
-  as_variable: macvhtr
+  as_type: VlanHashTable
+  as_variable: vlan_hash_table
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACVHTR
 MACVIR:
-  as_type: MACVIR
-  as_variable: macvir
+  as_type: VlanInclusion
+  as_variable: vlan_inclusion
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACVIR
 MACVR:
-  as_type: MACVR
-  as_variable: macvr
+  as_type: Version
+  as_variable: version
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACVR
 MACVTR:
-  as_type: MACVTR
-  as_variable: macvtr
+  as_type: VlanTag
+  as_variable: vlan_tag
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACVTR
 MACWTR:
-  as_type: MACWTR
-  as_variable: macwtr
+  as_type: WatchdogTimeout
+  as_variable: watchdog_timeout
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MACWTR
@@ -29987,14 +29987,18 @@ MATCH:
   context:
   - QUADSPI.PSMAR
 MB:
-  as_type: MB
-  as_variable: mb
+  as_type: MixedBurst
+  as_variable: mixed_burst
   context:
   - Ethernet_DMA.DMASBMR
   - Ethernet_MAC.MACMDIOAR
+  overrides:
+    Ethernet_MAC.MACMDIOAR:
+      as_type: ManagementBusy
+      as_variable: management_busy
 MBC:
-  as_type: MBC
-  as_variable: mbc
+  as_type: MaskByteControl
+  as_variable: mask_byte_control
   context:
   - Ethernet_MAC.MACA1HR
   - Ethernet_MAC.MACA2HR
@@ -30268,8 +30272,8 @@ MCR:
   - HRTIM_Master
   - HRTIM_Master.MCR
 MD:
-  as_type: MD
-  as_variable: md
+  as_type: MdioData
+  as_variable: mdio_data
   context:
   - Ethernet_MAC.MACMDIODR
 MDIER:
@@ -31673,23 +31677,23 @@ MESAD_2:
   context:
   - SYSCFG.UR8
 MFC:
-  as_type: MFC
-  as_variable: mfc
+  as_type: DroppedPacketCounters
+  as_variable: dropped_packet_counters
   context:
   - Ethernet_DMA.DMACMFCR
 MFCO:
-  as_type: MFCO
-  as_variable: mfco
+  as_type: OverflowStatusMfcCounter
+  as_variable: overflow_status_mfc_counter
   context:
   - Ethernet_DMA.DMACMFCR
 MGKPKTEN:
-  as_type: MGKPKTEN
-  as_variable: mgkpkten
+  as_type: MagicPacketEnable
+  as_variable: magic_packet_enable
   context:
   - Ethernet_MAC.MACPCSR
 MGKPRCVD:
-  as_type: MGKPRCVD
-  as_variable: mgkprcvd
+  as_type: MagicPacketReceived
+  as_variable: magic_packet_received
   context:
   - Ethernet_MAC.MACPCSR
 MICNBR:
@@ -31767,13 +31771,13 @@ MIS:
   - DCMI
   - DCMI.MIS
 MISCNTOVF:
-  as_type: MISCNTOVF
-  as_variable: miscntovf
+  as_type: MissedPacketCounterOverflow
+  as_variable: missed_packet_counter_overflow
   context:
   - Ethernet_MTL.MTLRxQMPOCR
 MISPKTCNT:
-  as_type: MISPKTCNT
-  as_variable: mispktcnt
+  as_type: MissedPacketCount
+  as_variable: missed_packet_count
   context:
   - Ethernet_MTL.MTLRxQMPOCR
 MISR:
@@ -31785,47 +31789,47 @@ MISR:
   - HRTIM_Master
   - HRTIM_Master.MISR
 MMCIS:
-  as_type: MMCIS
-  as_variable: mmcis
+  as_type: MediaManagementCountersInterruptStatus
+  as_variable: media_management_counters_interrupt_status
   context:
   - Ethernet_MAC.MACISR
 MMCRXIS:
-  as_type: MMCRXIS
-  as_variable: mmcrxis
+  as_type: MediaManagementCountersReceiveInterruptStatus
+  as_variable: media_management_counters_receive_interrupt_status
   context:
   - Ethernet_MAC.MACISR
 MMCTXIS:
-  as_type: MMCTXIS
-  as_variable: mmctxis
+  as_type: MediaManagementCountersTransmitInterruptStatus
+  as_variable: media_management_counters_transmit_interrupt_status
   context:
   - Ethernet_MAC.MACISR
 MMC_CONTROL:
-  as_type: MMC_CONTROL
+  as_type: MMCControl
   as_variable: mmc_control
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MMC_CONTROL
 MMC_RX_INTERRUPT:
-  as_type: MMC_RX_INTERRUPT
-  as_variable: mmc_rx_interrupt
+  as_type: MMCReceiveInterrupt
+  as_variable: mmc_receive_interrupt
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MMC_RX_INTERRUPT
 MMC_RX_INTERRUPT_MASK:
-  as_type: MMC_RX_INTERRUPT_MASK
-  as_variable: mmc_rx_interrupt_mask
+  as_type: MMCReceiveInterruptMask
+  as_variable: mmc_receive_interrupt_mask
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MMC_RX_INTERRUPT_MASK
 MMC_TX_INTERRUPT:
-  as_type: MMC_TX_INTERRUPT
-  as_variable: mmc_tx_interrupt
+  as_type: MMCTransmitInterrupt
+  as_variable: mmc_transmit_interrupt
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MMC_TX_INTERRUPT
 MMC_TX_INTERRUPT_MASK:
-  as_type: MMC_TX_INTERRUPT_MASK
-  as_variable: mmc_tx_interrupt_mask
+  as_type: MMCTransmitInterruptMask
+  as_variable: mmc_transmit_interrupt_mask
   context:
   - Ethernet_MAC
   - Ethernet_MAC.MMC_TX_INTERRUPT_MASK
@@ -33040,8 +33044,8 @@ MSM:
   - TIM5.SMCR
   - TIM8.SMCR
 MSS:
-  as_type: MSS
-  as_variable: mss
+  as_type: MaximumSegmentSize
+  as_variable: maximum_segment_size
   context:
   - Ethernet_DMA.DMACCR
 MSSI:
@@ -33239,61 +33243,61 @@ MTBM:
   context:
   - HRTIM_Common.BMCR
 MTLIS:
-  as_type: MTLIS
-  as_variable: mtlis
+  as_type: MediaTransactionLayerInterruptStatus
+  as_variable: media_transaction_layer_interrupt_status
   context:
   - Ethernet_DMA.DMAISR
 MTLISR:
-  as_type: MTLISR
-  as_variable: mtlisr
+  as_type: InterruptStatus
+  as_variable: interrupt_status
   context:
   - Ethernet_MTL
   - Ethernet_MTL.MTLISR
 MTLOMR:
-  as_type: MTLOMR
-  as_variable: mtlomr
+  as_type: OperatingMode
+  as_variable: operating_mode
   context:
   - Ethernet_MTL
   - Ethernet_MTL.MTLOMR
 MTLQICSR:
-  as_type: MTLQICSR
-  as_variable: mtlqicsr
+  as_type: QueueInterruptControlStatus
+  as_variable: queue_interrupt_control_status
   context:
   - Ethernet_MTL
   - Ethernet_MTL.MTLQICSR
 MTLRxQDR:
-  as_type: MTLRxQDR
-  as_variable: mtlrxqdr
+  as_type: ReceiveQueueDebug
+  as_variable: receive_queue_debug
   context:
   - Ethernet_MTL
   - Ethernet_MTL.MTLRxQDR
 MTLRxQMPOCR:
-  as_type: MTLRxQMPOCR
-  as_variable: mtlrxqmpocr
+  as_type: ReceiveQueueMissedPacketAndOverflowCounter
+  as_variable: receive_queue_missed_packet_and_overflow_counter
   context:
   - Ethernet_MTL
   - Ethernet_MTL.MTLRxQMPOCR
 MTLRxQOMR:
-  as_type: MTLRxQOMR
-  as_variable: mtlrxqomr
+  as_type: ReceiveQueueOperatingMode
+  as_variable: receive_queue_operating_mode
   context:
   - Ethernet_MTL
   - Ethernet_MTL.MTLRxQOMR
 MTLTxQDR:
-  as_type: MTLTxQDR
-  as_variable: mtltxqdr
+  as_type: TransmitQueueDebug
+  as_variable: transmit_queue_debug
   context:
   - Ethernet_MTL
   - Ethernet_MTL.MTLTxQDR
 MTLTxQOMR:
-  as_type: MTLTxQOMR
-  as_variable: mtltxqomr
+  as_type: TransmitQueueOperatingMode
+  as_variable: transmit_queue_operating_mode
   context:
   - Ethernet_MTL
   - Ethernet_MTL.MTLTxQOMR
 MTLTxQUR:
-  as_type: MTLTxQUR
-  as_variable: mtltxqur
+  as_type: TransmitQueueUnderflow
+  as_variable: transmit_queue_underflow
   context:
   - Ethernet_MTL
   - Ethernet_MTL.MTLTxQUR
@@ -33670,8 +33674,8 @@ NC:
   - FMC.SDCR1
   - FMC.SDCR2
 NCARR:
-  as_type: NCARR
-  as_variable: ncarr
+  as_type: NoCarrier
+  as_variable: no_carrier
   context:
   - Ethernet_MAC.MACRxTxSR
 NCC:
@@ -34148,8 +34152,8 @@ NF:
   - USART3.ISR
   - USART6.ISR
 NIE:
-  as_type: NIE
-  as_variable: nie
+  as_type: NormalInterruptSummaryEnable
+  as_variable: normal_interrupt_summary_enable
   context:
   - Ethernet_DMA.DMACIER
 NIG:
@@ -34159,8 +34163,8 @@ NIG:
   - FDCAN1.FDCAN_TTOCN
   - FDCAN2.FDCAN_TTOCN
 NIS:
-  as_type: NIS
-  as_variable: nis
+  as_type: NormalInterruptSummary
+  as_variable: normal_interrupt_summary
   context:
   - Ethernet_DMA.DMACSR
 NISO:
@@ -34290,8 +34294,8 @@ NSJW:
   - FDCAN1.FDCAN_NBTP
   - FDCAN2.FDCAN_NBTP
 NTC:
-  as_type: NTC
-  as_variable: ntc
+  as_type: NumberOfTrailingClocks
+  as_variable: number_of_trailing_clocks
   context:
   - Ethernet_MAC.MACMDIOAR
 NTSEG1:
@@ -35759,8 +35763,8 @@ OSEL:
   context:
   - RTC.RTC_CR
 OSF:
-  as_type: OSF
-  as_variable: osf
+  as_type: OperateSecondPacket
+  as_variable: operate_second_packet
   context:
   - Ethernet_DMA.DMACTxCR
 OSPEED0:
@@ -36063,18 +36067,18 @@ OSSR:
   - TIM17.BDTR
   - TIM8.BDTR
 OSTEAC:
-  as_type: OSTEAC
-  as_variable: osteac
+  as_type: OneStepTimestampEgressAsymmetricCorrection
+  as_variable: one_step_timestamp_egress_asymmetric_correction
   context:
   - Ethernet_MAC.MACTSEACR
 OSTEN:
-  as_type: OSTEN
-  as_variable: osten
+  as_type: OneStepTimestampEnable
+  as_variable: one_step_timestamp_enable
   context:
   - Ethernet_MAC.MACHWF1R
 OSTIAC:
-  as_type: OSTIAC
-  as_variable: ostiac
+  as_type: OneStepTimestampIngressAsymmetricCorrection
+  as_variable: one_step_timestamp_ingress_asymmetric_correction
   context:
   - Ethernet_MAC.MACTSIACR
 OT0:
@@ -38143,13 +38147,13 @@ OVER8:
   - USART3.CR1
   - USART6.CR1
 OVFCNTOVF:
-  as_type: OVFCNTOVF
-  as_variable: ovfcntovf
+  as_type: OverflowPacketCounterOverflow
+  as_variable: overflow_packet_counter_overflow
   context:
   - Ethernet_MTL.MTLRxQMPOCR
 OVFPKTCNT:
-  as_type: OVFPKTCNT
-  as_variable: ovfpktcnt
+  as_type: OverflowPacketCount
+  as_variable: overflow_packet_count
   context:
   - Ethernet_MTL.MTLRxQMPOCR
 OVR:
@@ -38287,7 +38291,7 @@ OVSS:
   - ADC2.CFGR2
   - ADC3.CFGR2
 PA:
-  as_type: PA
+  as_type: Pa
   as_variable: pa
   context:
   - BDMA.BDMA_CPAR0
@@ -38315,6 +38319,10 @@ PA:
   - DMA2.S6PAR
   - DMA2.S7PAR
   - Ethernet_MAC.MACMDIOAR
+  overrides:
+    Ethernet_MAC.MACMDIOAR:
+      as_type: PhysicalAddress
+      as_variable: physical_address
 PA0SO:
   as_type: PA0SO
   as_variable: pa0so
@@ -38403,8 +38411,8 @@ PBKEN:
   context:
   - FMC.PCR
 PBLX8:
-  as_type: PBLX8
-  as_variable: pblx8
+  as_type: TransmitProgrammableBurstLengthScaleBy8
+  as_variable: programmable_burst_length_scale_by_8
   context:
   - Ethernet_DMA.DMACCR
 PBURST:
@@ -38468,8 +38476,8 @@ PCE:
   - USART3.CR1
   - USART6.CR1
 PCF:
-  as_type: PCF
-  as_variable: pcf
+  as_type: PassControlFrames
+  as_variable: pass_control_frames
   context:
   - Ethernet_MAC.MACPFR
 PCKPOL:
@@ -39017,13 +39025,13 @@ PGSERRIE2:
   context:
   - FLASH.CR2
 PHYIE:
-  as_type: PHYIE
-  as_variable: phyie
+  as_type: PhysicalLayerInterruptEnable
+  as_variable: physical_layer_interrupt_enable
   context:
   - Ethernet_MAC.MACIER
 PHYIS:
-  as_type: PHYIS
-  as_variable: phyis
+  as_type: PhysicalLayerInterruptStatus
+  as_variable: physical_layer_interrupt_status
   context:
   - Ethernet_MAC.MACISR
 PHYLPCS:
@@ -39481,8 +39489,8 @@ PLS:
   - Ethernet_MAC.MACLCSR
   - PWR.CR1
 PLSEN:
-  as_type: PLSEN
-  as_variable: plsen
+  as_type: PhysicalLayerStatusEnable
+  as_variable: physical_layer_status_enable
   context:
   - Ethernet_MAC.MACLCSR
 PLSSKP:
@@ -39504,13 +39512,13 @@ PLSTS:
   - OTG1_HS_HOST.OTG_HS_HPRT
   - OTG2_HS_HOST.OTG_HS_HPRT
 PLT:
-  as_type: PLT
-  as_variable: plt
+  as_type: PauseLowThreshold
+  as_variable: pause_low_threshold
   context:
   - Ethernet_MAC.MACQTxFCR
 PM:
-  as_type: PM
-  as_variable: pm
+  as_type: PromiscuousMode
+  as_variable: promiscuous_mode
   context:
   - Ethernet_MAC.MACPFR
   - RTC.RTC_ALRMAR
@@ -39544,13 +39552,13 @@ PMSK:
   context:
   - SPDIFRX.CR
 PMTIE:
-  as_type: PMTIE
-  as_variable: pmtie
+  as_type: PowerManagementInterruptEnable
+  as_variable: power_management_interrupt_enable
   context:
   - Ethernet_MAC.MACIER
 PMTIS:
-  as_type: PMTIS
-  as_variable: pmtis
+  as_type: PowerManagementInterruptStatus
+  as_variable: power_management_interrupt_status
   context:
   - Ethernet_MAC.MACISR
 POCA:
@@ -39631,28 +39639,28 @@ POWER:
   - SDMMC2
   - SDMMC2.POWER
 PPSCTRL:
-  as_type: PPSCTRL
-  as_variable: ppsctrl
+  as_type: PulsePerSecondControl
+  as_variable: pulse_per_second_control
   context:
   - Ethernet_MAC.MACPPSCR
 PPSEN0:
-  as_type: PPSEN0
-  as_variable: ppsen0
+  as_type: PulsePerSecondOutput0Enable
+  as_variable: pulse_per_second_output_0_enable
   context:
   - Ethernet_MAC.MACPPSCR
 PPSINT0:
-  as_type: PPSINT0
-  as_variable: ppsint0
+  as_type: PulsePerSecondInterval0
+  as_variable: pulse_per_second_interval_0
   context:
   - Ethernet_MAC.MACPPSIR
 PPSOUTNUM:
-  as_type: PPSOUTNUM
-  as_variable: ppsoutnum
+  as_type: PulsePerSecondOutputNumber
+  as_variable: pulse_per_second_output_number
   context:
   - Ethernet_MAC.MACHWF2R
 PPSWIDTH0:
-  as_type: PPSWIDTH0
-  as_variable: ppswidth0
+  as_type: PulsePerSecondWidth0
+  as_variable: pulse_per_second_width_0
   context:
   - Ethernet_MAC.MACPPSWR
 PPWR:
@@ -39862,8 +39870,8 @@ PREEN:
   - HRTIM_TIMD.TIMDCR
   - HRTIM_TIME.TIMECR
 PRELEN:
-  as_type: PRELEN
-  as_variable: prelen
+  as_type: PreambleLength
+  as_variable: preamble_length
   context:
   - Ethernet_MAC.MACCR
 PRELOAD:
@@ -40087,8 +40095,8 @@ PRTIM:
   - OTG1_HS_GLOBAL.OTG_HS_GINTMSK
   - OTG2_HS_GLOBAL.OTG_HS_GINTMSK
 PRXQ:
-  as_type: PRXQ
-  as_variable: prxq
+  as_type: PacketsInReceiveQueue
+  as_variable: packets_in_receive_queue
   context:
   - Ethernet_MTL.MTLRxQDR
 PS:
@@ -40152,8 +40160,8 @@ PSC:
   - USART3.GTPR
   - USART6.GTPR
 PSE:
-  as_type: PSE
-  as_variable: pse
+  as_type: PreambleSuppressionEnable
+  as_variable: preamble_suppression_enable
   context:
   - Ethernet_MAC.MACMDIOAR
 PSHPLL:
@@ -40242,6 +40250,10 @@ PT:
   - Ethernet_MAC.MACQTxFCR
   - SPDIFRX.DR_00
   - SPDIFRX.DR_01
+  overrides:
+    Ethernet_MAC.MACQTxFCR:
+      as_type: PauseTime
+      as_variable: pause_time
 PTCI:
   as_type: PTCI
   as_variable: ptci
@@ -40260,8 +40272,8 @@ PTMSK:
   context:
   - SPDIFRX.CR
 PTOEN:
-  as_type: PTOEN
-  as_variable: ptoen
+  as_type: PrecisionTimeProtocolOffloadEnable
+  as_variable: precision_time_protocol_offload_enable
   context:
   - Ethernet_MAC.MACHWF1R
   - Ethernet_MAC.MACPOCR
@@ -40296,8 +40308,8 @@ PTXFSAVL:
   - OTG1_HS_HOST.OTG_HS_HPTXSTS
   - OTG2_HS_HOST.OTG_HS_HPTXSTS
 PTXQ:
-  as_type: PTXQ
-  as_variable: ptxq
+  as_type: PacketsInTransmitQueue
+  as_variable: packets_in_transmit_queue
   context:
   - Ethernet_MTL.MTLTxQDR
 PTXQSAV:
@@ -40605,8 +40617,8 @@ PWAITEN:
   context:
   - FMC.PCR
 PWE:
-  as_type: PWE
-  as_variable: pwe
+  as_type: ProgrammableWatchdogEnable
+  as_variable: programmable_watchdog_enable
   context:
   - Ethernet_MAC.MACWTR
 PWID:
@@ -40620,20 +40632,20 @@ PWR:
   context:
   - null
 PWRCR:
-  as_type: PWRCR
-  as_variable: pwrcr
+  as_type: PowerControl
+  as_variable: power_control
   context:
   - SYSCFG
   - SYSCFG.PWRCR
 PWRCTRL:
-  as_type: PWRCTRL
-  as_variable: pwrctrl
+  as_type: StateControl
+  as_variable: state_control
   context:
   - SDMMC1.POWER
   - SDMMC2.POWER
 PWRDWN:
-  as_type: PWRDWN
-  as_variable: pwrdwn
+  as_type: PowerDown
+  as_variable: power_down
   context:
   - Ethernet_MAC.MACPCSR
   - OTG1_HS_GLOBAL.OTG_HS_GCCFG
@@ -40675,8 +40687,8 @@ PXHD:
   - FDCAN1.FDCAN_CCCR
   - FDCAN2.FDCAN_CCCR
 Q0IS:
-  as_type: Q0IS
-  as_variable: q0is
+  as_type: Queue0InterruptStatus
+  as_variable: queue_0_interrupt_status
   context:
   - Ethernet_MTL.MTLISR
 QCS:
@@ -40736,6 +40748,13 @@ RA:
   context:
   - Ethernet_MAC.MACMDIODR
   - Ethernet_MAC.MACPFR
+  overrides:
+    Ethernet_MAC.MACMDIODR:
+      as_type: RegisterAddress
+      as_variable: register_address
+    Ethernet_MAC.MACPFR:
+      as_type: ReceiveAll
+      as_variable: receive_all
 RAMECC1:
   as_type: RandomAccessMemoryErrorCorrectionCode1
   as_variable: random_access_memory_error_correction_code1
@@ -40752,8 +40771,8 @@ RAMECC3:
   context:
   - null
 RB:
-  as_type: RB
-  as_variable: rb
+  as_type: RebuildIncrxBurst
+  as_variable: rebuild_incrx_burst
   context:
   - Ethernet_DMA.DMASBMR
 RBDS:
@@ -40782,18 +40801,18 @@ RBSA:
   - FDCAN1.FDCAN_RXBC
   - FDCAN2.FDCAN_RXBC
 RBSZ:
-  as_type: RBSZ
-  as_variable: rbsz
+  as_type: ReceiveBufferSize
+  as_variable: receive_buffer_size
   context:
   - Ethernet_DMA.DMACRxCR
 RBU:
-  as_type: RBU
-  as_variable: rbu
+  as_type: ReceiveBufferUnavailable
+  as_variable: receive_buffer_unavailable
   context:
   - Ethernet_DMA.DMACSR
 RBUE:
-  as_type: RBUE
-  as_variable: rbue
+  as_type: ReceiveBufferUnavailableEnable
+  as_variable: receive_buffer_unavailable_enable
   context:
   - Ethernet_DMA.DMACIER
 RBURST:
@@ -40891,8 +40910,8 @@ RD:
   context:
   - SWPMI.RDR
 RDA:
-  as_type: RDA
-  as_variable: rda
+  as_type: RegisterDeviceAddress
+  as_variable: register_device_address
   context:
   - Ethernet_MAC.MACMDIOAR
 RDATA:
@@ -40933,8 +40952,8 @@ RDATA_SLV:
   - ADC12_Common.CDR
   - ADC3_Common.CDR
 RDESLA:
-  as_type: RDESLA
-  as_variable: rdesla
+  as_type: StartReceiveList
+  as_variable: start_receive_list
   context:
   - Ethernet_DMA.DMACRxDLAR
 RDF:
@@ -41015,8 +41034,8 @@ RDR:
   - USART6
   - USART6.RDR
 RDRL:
-  as_type: RDRL
-  as_variable: rdrl
+  as_type: ReceiveDescriptorRingLength
+  as_variable: receive_descriptor_ring_length
   context:
   - Ethernet_DMA.DMACRxRLR
 RDSERR1:
@@ -41040,8 +41059,8 @@ RDSERRIE2:
   context:
   - FLASH.CR2
 RDT:
-  as_type: RDT
-  as_variable: rdt
+  as_type: ReceiveDescriptorTailPointer
+  as_variable: receive_descriptor_tail_pointer
   context:
   - Ethernet_DMA.DMACRxDTPR
 RDYF:
@@ -41122,8 +41141,8 @@ READ_ISS_OVERRIDE:
   - AXI.AXI_TARG7_FN_MOD
   - AXI.AXI_TARG7_FN_MOD_ISS_BM
 REB:
-  as_type: REB
-  as_variable: reb
+  as_type: ReceiveDMAErrorBits
+  as_variable: receive_dma_error_bits
   context:
   - Ethernet_DMA.DMACSR
 RECALPF:
@@ -41551,23 +41570,23 @@ RF1WL:
   - FDCAN1.FDCAN_ILS
   - FDCAN2.FDCAN_ILS
 RFA:
-  as_type: RFA
-  as_variable: rfa
+  as_type: ReceiveFlowControlActivate
+  as_variable: receive_flow_control_activate
   context:
   - Ethernet_MTL.MTLRxQOMR
 RFCFCSTS:
-  as_type: RFCFCSTS
-  as_variable: rfcfcsts
+  as_type: ReceiveFlowControlStatus
+  as_variable: receive_flow_control_status
   context:
   - Ethernet_MAC.MACDR
 RFD:
-  as_type: RFD
-  as_variable: rfd
+  as_type: ReceiveFlowControlDeactivate
+  as_variable: receive_flow_control_deactivate
   context:
   - Ethernet_MTL.MTLRxQOMR
 RFE:
-  as_type: RFE
-  as_variable: rfe
+  as_type: ReceiveFlowControlEnable
+  as_variable: receive_flow_control_enable
   context:
   - Ethernet_MAC.MACRxFCR
 RFL:
@@ -41637,8 +41656,8 @@ RGSR:
   - DMAMUX2
   - DMAMUX2.RGSR
 RI:
-  as_type: RI
-  as_variable: ri
+  as_type: ReceiveInterrupt
+  as_variable: receive_interrupt
   context:
   - Ethernet_DMA.DMACSR
 RID:
@@ -41648,8 +41667,8 @@ RID:
   - FDCAN1.FDCAN_TTRMC
   - FDCAN2.FDCAN_TTRMC
 RIE:
-  as_type: RIE
-  as_variable: rie
+  as_type: ReceiveInterruptEnable
+  as_variable: receive_interrupt_enable
   context:
   - Ethernet_DMA.DMACIER
   - SWPMI.IER
@@ -41671,18 +41690,18 @@ RL:
   context:
   - IWDG.RLR
 RLPIEN:
-  as_type: RLPIEN
-  as_variable: rlpien
+  as_type: ReceiveLowPowerIdleEnable
+  as_variable: receive_low_power_idle_enable
   context:
   - Ethernet_MAC.MACLCSR
 RLPIEX:
-  as_type: RLPIEX
-  as_variable: rlpiex
+  as_type: ReceiveLowPowerIdleExit
+  as_variable: receive_low_power_idle_exit
   context:
   - Ethernet_MAC.MACLCSR
 RLPIST:
-  as_type: RLPIST
-  as_variable: rlpist
+  as_type: ReceiveLowPowerIdleStatus
+  as_variable: receive_low_power_idle_status
   context:
   - Ethernet_MAC.MACLCSR
 RLR:
@@ -41781,13 +41800,13 @@ RPEND:
   - DFSDM.DFSDM_FLT2RDATAR
   - DFSDM.DFSDM_FLT3RDATAR
 RPESTS:
-  as_type: RPESTS
-  as_variable: rpests
+  as_type: ReceiveProtocolEngineStatus
+  as_variable: receive_protocol_engine_status
   context:
   - Ethernet_MAC.MACDR
 RPF:
-  as_type: RPF
-  as_variable: rpf
+  as_type: DMAReceiveChannelPacketFlush
+  as_variable: dma_receive_channel_packet_flush
   context:
   - Ethernet_DMA.DMACRxCR
 RPIPE:
@@ -41797,13 +41816,13 @@ RPIPE:
   - FMC.SDCR1
   - FMC.SDCR2
 RPS:
-  as_type: RPS
-  as_variable: rps
+  as_type: ReceiveProcessStopped
+  as_variable: receive_process_stopped
   context:
   - Ethernet_DMA.DMACSR
 RPS0:
-  as_type: RPS0
-  as_variable: rps0
+  as_type: DMAChannelReceiveProcessState
+  as_variable: dma_channel_receive_process_state
   context:
   - Ethernet_DMA.DMADSR
 RQR:
@@ -41829,13 +41848,13 @@ RQR:
   - USART6
   - USART6.RQR
 RQS:
-  as_type: RQS
-  as_variable: rqs
+  as_type: ReceiveQueueSize
+  as_variable: receive_queue_size
   context:
   - Ethernet_MTL.MTLRxQOMR
 RRCSTS:
-  as_type: RRCSTS
-  as_variable: rrcsts
+  as_type: ReceiveReadControllerStatus
+  as_variable: receive_read_controller_status
   context:
   - Ethernet_MTL.MTLRxQDR
 RRFE:
@@ -41861,8 +41880,8 @@ RRIF:
   context:
   - LTDC.ISR
 RSE:
-  as_type: RSE
-  as_variable: rse
+  as_type: ReceiveStoppedEnable
+  as_variable: receive_stopped_enable
   context:
   - Ethernet_DMA.DMACIER
 RSF:
@@ -41872,6 +41891,9 @@ RSF:
   - Ethernet_MTL.MTLRxQOMR
   - RTC.RTC_ISR
   overrides:
+    Ethernet_MTL.MTLRxQOMR:
+      as_type: ReceiveStoreAndForward
+      as_variable: receive_store_and_forward
     RTC.*:
       as_type: RegistersSynchronizedFlag
       as_variable: registers_synchronized_flag
@@ -42047,8 +42069,8 @@ RSTIE:
   - HRTIM_TIMD.TIMDDIER5
   - HRTIM_TIME.TIMEDIER5
 RSTONRD:
-  as_type: RSTONRD
-  as_variable: rstonrd
+  as_type: ResetOnRead
+  as_variable: reset_on_read
   context:
   - Ethernet_MAC.MMC_CONTROL
 RSTx1:
@@ -42644,33 +42666,33 @@ RVU:
   context:
   - IWDG.SR
 RWCSTS:
-  as_type: RWCSTS
-  as_variable: rwcsts
+  as_type: ReceiveWriteControllerStatus
+  as_variable: receive_write_controller_status
   context:
   - Ethernet_MTL.MTLRxQDR
 RWKFILTRST:
-  as_type: RWKFILTRST
-  as_variable: rwkfiltrst
+  as_type: RemoteWakeUpPacketFilterReset
+  as_variable: remote_wakeup_packet_filter_reset
   context:
   - Ethernet_MAC.MACPCSR
 RWKPFE:
-  as_type: RWKPFE
-  as_variable: rwkpfe
+  as_type: RemoteWakeUpPacketForwardingEnable
+  as_variable: remote_wakeup_packet_forwarding_enable
   context:
   - Ethernet_MAC.MACPCSR
 RWKPKTEN:
-  as_type: RWKPKTEN
-  as_variable: rwkpkten
+  as_type: RemoteWakeUpPacketEnable
+  as_variable: remote_wakeup_packet_enable
   context:
   - Ethernet_MAC.MACPCSR
 RWKPRCVD:
-  as_type: RWKPRCVD
-  as_variable: rwkprcvd
+  as_type: RemoteWakeUpPacketReceived
+  as_variable: remote_wakeup_packet_received
   context:
   - Ethernet_MAC.MACPCSR
 RWKPTR:
-  as_type: RWKPTR
-  as_variable: rwkptr
+  as_type: RemoteWakeUpFifoPointer
+  as_variable: remote_wakeup_fifo_pointer
   context:
   - Ethernet_MAC.MACPCSR
 RWMOD:
@@ -42692,15 +42714,22 @@ RWSTOP:
   - SDMMC1.DCTRL
   - SDMMC2.DCTRL
 RWT:
-  as_type: RWT
-  as_variable: rwt
+  as_type: ReceiveInterruptWatchdogTimerCount
+  as_variable: receive_interrupt_watchdog_timer_count
   context:
   - Ethernet_DMA.DMACRxIWTR
   - Ethernet_DMA.DMACSR
   - Ethernet_MAC.MACRxTxSR
+  overrides:
+    Ethernet_DMA.DMACSR:
+      as_type: ReceiveWatchdogTimeout
+      as_variable: receive_watchdog_timeout
+    Ethernet_MAC.MACRxTxSR:
+      as_type: ReceiveWatchdogTimeoutStatus
+      as_variable: receive_watchdog_timeout_status
 RWTE:
-  as_type: RWTE
-  as_variable: rwte
+  as_type: ReceiveWatchdogTimeoutEnable
+  as_variable: receive_watchdog_timeout_enable
   context:
   - Ethernet_DMA.DMACIER
 RWU:
@@ -42739,18 +42768,18 @@ RXACKIE:
   context:
   - CEC.IER
 RXALGNERPIM:
-  as_type: RXALGNERPIM
-  as_variable: rxalgnerpim
+  as_type: ReceiveAlignErrorPacketsInterruptMask
+  as_variable: receive_align_error_packets_interrupt_mask
   context:
   - Ethernet_MAC.MMC_RX_INTERRUPT_MASK
 RXALGNERPIS:
-  as_type: RXALGNERPIS
-  as_variable: rxalgnerpis
+  as_type: ReceiveAlignErrorPacketsInterruptStatus
+  as_variable: receive_align_error_packets_interrupt_status
   context:
   - Ethernet_MAC.MMC_RX_INTERRUPT
 RXALGNERR:
-  as_type: RXALGNERR
-  as_variable: rxalgnerr
+  as_type: ReceiveAlignErrorPackets
+  as_variable: receive_align_error_packets
   context:
   - Ethernet_MAC.RX_ALIGNMENT_ERROR_PACKETS
 RXBERF:
@@ -42784,8 +42813,8 @@ RXBRIE:
   context:
   - CEC.IER
 RXCHCNT:
-  as_type: RXCHCNT
-  as_variable: rxchcnt
+  as_type: ReceiveChannelCount
+  as_variable: receive_channel_count
   context:
   - Ethernet_MAC.MACHWF2R
 RXCRC:
@@ -42805,18 +42834,18 @@ RXCRC:
   - SPI6
   - SPI6.RXCRC
 RXCRCERPIM:
-  as_type: RXCRCERPIM
-  as_variable: rxcrcerpim
+  as_type: ReceiveCRCErrorPacketsInterruptMask
+  as_variable: receive_crc_error_packets_interrupt_mask
   context:
   - Ethernet_MAC.MMC_RX_INTERRUPT_MASK
 RXCRCERPIS:
-  as_type: RXCRCERPIS
-  as_variable: rxcrcerpis
+  as_type: ReceiveCRCErrorPacketsInterruptStatus
+  as_variable: receive_crc_error_packets_interrupt_status
   context:
   - Ethernet_MAC.MMC_RX_INTERRUPT
 RXCRCERR:
-  as_type: RXCRCERR
-  as_variable: rxcrcerr
+  as_type: ReceiveCRCErrorPackets
+  as_variable: receive_crc_error_packets
   context:
   - Ethernet_MAC.RX_CRC_ERROR_PACKETS
 RXD:
@@ -42975,8 +43004,8 @@ RXFIFOHFIE:
   - SDMMC1.MASKR
   - SDMMC2.MASKR
 RXFIFOSIZE:
-  as_type: RXFIFOSIZE
-  as_variable: rxfifosize
+  as_type: ReceiveFifoSize
+  as_variable: receive_fifo_size
   context:
   - Ethernet_MAC.MACHWF1R
 RXFLVL:
@@ -43065,33 +43094,33 @@ RXINV:
   - USART3.CR2
   - USART6.CR2
 RXLPITRC:
-  as_type: RXLPITRC
-  as_variable: rxlpitrc
+  as_type: ReceiveLowPowerIdleTransitionCounter
+  as_variable: receive_low_power_idle_transition_counter
   context:
   - Ethernet_MAC.RX_LPI_TRAN_CNTR
 RXLPITRCIM:
-  as_type: RXLPITRCIM
-  as_variable: rxlpitrcim
+  as_type: ReceiveLowPowerIdleTransitionCounterInterruptMask
+  as_variable: receive_low_power_idle_transition_counter_interrupt_mask
   context:
   - Ethernet_MAC.MMC_RX_INTERRUPT_MASK
 RXLPITRCIS:
-  as_type: RXLPITRCIS
-  as_variable: rxlpitrcis
+  as_type: ReceiveLowPowerIdleTransitionCounterInterruptStatus
+  as_variable: receive_low_power_idle_transition_counter_interrupt_status
   context:
   - Ethernet_MAC.MMC_RX_INTERRUPT
 RXLPIUSC:
-  as_type: RXLPIUSC
-  as_variable: rxlpiusc
+  as_type: ReceiveLowPowerIdleMicrosecondCounter
+  as_variable: receive_low_power_idle_microsecond_counter
   context:
   - Ethernet_MAC.RX_LPI_USEC_CNTR
 RXLPIUSCIM:
-  as_type: RXLPIUSCIM
-  as_variable: rxlpiuscim
+  as_type: ReceiveLowPowerIdleMicrosecondCounterInterruptMask
+  as_variable: receive_low_power_idle_microsecond_counter_interrupt_mask
   context:
   - Ethernet_MAC.MMC_RX_INTERRUPT_MASK
 RXLPIUSCIS:
-  as_type: RXLPIUSCIS
-  as_variable: rxlpiuscis
+  as_type: ReceiveLowPowerIdleMicrosecondCounterInterruptStatus
+  as_variable: receive_low_power_idle_microsecond_counter_interrupt_status
   context:
   - Ethernet_MAC.MMC_RX_INTERRUPT
 RXMODE:
@@ -43133,8 +43162,8 @@ RXNEIE:
   - USART3.CR1
   - USART6.CR1
 RXOIE:
-  as_type: RXOIE
-  as_variable: rxoie
+  as_type: ReceiveOverflowInterruptEnable
+  as_variable: receive_overflow_interrupt_enable
   context:
   - Ethernet_MTL.MTLQICSR
 RXOVERR:
@@ -43156,8 +43185,8 @@ RXOVERRIE:
   - SDMMC1.MASKR
   - SDMMC2.MASKR
 RXOVFIS:
-  as_type: RXOVFIS
-  as_variable: rxovfis
+  as_type: ReceiveOverflowInterruptStatus
+  as_variable: receive_overflow_interrupt_status
   context:
   - Ethernet_MTL.MTLQICSR
 RXOVR:
@@ -43187,8 +43216,8 @@ RXP:
   - SPI5.SR
   - SPI6.SR
 RXPBL:
-  as_type: RXPBL
-  as_variable: rxpbl
+  as_type: ReceiveProgrammableBurstLength
+  as_variable: receive_programmable_burst_length
   context:
   - Ethernet_DMA.DMACRxCR
 RXPIE:
@@ -43212,13 +43241,13 @@ RXPLVL:
   - SPI5.SR
   - SPI6.SR
 RXQCNT:
-  as_type: RXQCNT
-  as_variable: rxqcnt
+  as_type: ReceiveQueueCount
+  as_variable: receive_queue_count
   context:
   - Ethernet_MAC.MACHWF2R
 RXQSTS:
-  as_type: RXQSTS
-  as_variable: rxqsts
+  as_type: ReceiveQueueStatus
+  as_variable: receive_queue_status
   context:
   - Ethernet_MTL.MTLRxQDR
 RXSTEO:
@@ -43227,13 +43256,13 @@ RXSTEO:
   context:
   - SPDIFRX.CR
 RXSTSIE:
-  as_type: RXSTSIE
-  as_variable: rxstsie
+  as_type: ReceiveStatusInterruptEnable
+  as_variable: receive_status_interrupt_enable
   context:
   - Ethernet_MAC.MACIER
 RXSTSIS:
-  as_type: RXSTSIS
-  as_variable: rxstsis
+  as_type: ReceiveStatusInterruptStatus
+  as_variable: receive_status_interrupt_status
   context:
   - Ethernet_MAC.MACISR
 RXTHREN:
@@ -43254,18 +43283,18 @@ RXTOL:
   context:
   - CEC.CFGR
 RXUCASTG:
-  as_type: RXUCASTG
-  as_variable: rxucastg
+  as_type: ReceiveUnicastPacketsGood
+  as_variable: receive_unicast_packets_good
   context:
   - Ethernet_MAC.RX_UNICAST_PACKETS_GOOD
 RXUCGPIM:
-  as_type: RXUCGPIM
-  as_variable: rxucgpim
+  as_type: ReceiveUnicastPacketsGoodInterruptMask
+  as_variable: receive_unicast_packets_good_interrupt_mask
   context:
   - Ethernet_MAC.MMC_RX_INTERRUPT_MASK
 RXUCGPIS:
-  as_type: RXUCGPIS
-  as_variable: rxucgpis
+  as_type: ReceiveUnicastPacketsGoodCounterInterruptStatus
+  as_variable: receive_unicast_packets_good_counter_interrupts_status
   context:
   - Ethernet_MAC.MMC_RX_INTERRUPT
 RXWNE:
@@ -43279,32 +43308,32 @@ RXWNE:
   - SPI5.SR
   - SPI6.SR
 RX_ALIGNMENT_ERROR_PACKETS:
-  as_type: RX_ALIGNMENT_ERROR_PACKETS
-  as_variable: rx_alignment_error_packets
+  as_type: ReceiveAlignmentErrorPackets
+  as_variable: receive_alignment_error_packets
   context:
   - Ethernet_MAC
   - Ethernet_MAC.RX_ALIGNMENT_ERROR_PACKETS
 RX_CRC_ERROR_PACKETS:
-  as_type: RX_CRC_ERROR_PACKETS
-  as_variable: rx_crc_error_packets
+  as_type: ReceiveCRCErrorPackets
+  as_variable: receive_crc_error_packets
   context:
   - Ethernet_MAC
   - Ethernet_MAC.RX_CRC_ERROR_PACKETS
 RX_LPI_TRAN_CNTR:
-  as_type: RX_LPI_TRAN_CNTR
-  as_variable: rx_lpi_tran_cntr
+  as_type: ReceiveLPITranCounter
+  as_variable: receive_lpi_tran_counter
   context:
   - Ethernet_MAC
   - Ethernet_MAC.RX_LPI_TRAN_CNTR
 RX_LPI_USEC_CNTR:
-  as_type: RX_LPI_USEC_CNTR
-  as_variable: rx_lpi_usec_cntr
+  as_type: ReceiveLPIUsecCounter
+  as_variable: receive_lpi_usec_counter
   context:
   - Ethernet_MAC
   - Ethernet_MAC.RX_LPI_USEC_CNTR
 RX_UNICAST_PACKETS_GOOD:
-  as_type: RX_UNICAST_PACKETS_GOOD
-  as_variable: rx_unicast_packets_good
+  as_type: ReceiveUnicastPacketsGood
+  as_variable: receive_unicast_packets_good
   context:
   - Ethernet_MAC
   - Ethernet_MAC.RX_UNICAST_PACKETS_GOOD
@@ -43421,8 +43450,8 @@ S2FCR:
   - DMA2
   - DMA2.S2FCR
 S2KP:
-  as_type: S2KP
-  as_variable: s2kp
+  as_type: Support2KPackets
+  as_variable: support_2k_packets
   context:
   - Ethernet_MAC.MACCR
 S2M0AR:
@@ -43698,8 +43727,8 @@ S7PAR:
   - DMA2
   - DMA2.S7PAR
 SA:
-  as_type: SA
-  as_variable: sa
+  as_type: SourceAddress
+  as_variable: source_address
   context:
   - Ethernet_MAC.MACA1HR
   - Ethernet_MAC.MACA2HR
@@ -43785,8 +43814,8 @@ SADD9:
   - I2C3.CR2
   - I2C4.CR2
 SAF:
-  as_type: SAF
-  as_variable: saf
+  as_type: SourceAddressFilter
+  as_variable: source_address_filter
   context:
   - Ethernet_MAC.MACPFR
 SAI1:
@@ -43903,8 +43932,8 @@ SAI4RST:
   context:
   - RCC.APB4RSTR
 SAIF:
-  as_type: SAIF
-  as_variable: saif
+  as_type: SourceAddressInverseFilter
+  as_variable: source_address_inverse_filter
   context:
   - Ethernet_MAC.MACPFR
 SAIXEN:
@@ -44168,8 +44197,8 @@ SAR:
   - MDMA.MDMA_C8SAR
   - MDMA.MDMA_C9SAR
 SARC:
-  as_type: SARC
-  as_variable: sarc
+  as_type: SourceAddressInsertionControl
+  as_variable: source_address_insertion_control
   context:
   - Ethernet_MAC.MACCR
 SA_BEG_1:
@@ -45126,8 +45155,8 @@ SITP:
   - DFSDM.CH6CFGR1
   - DFSDM.CH7CFGR1
 SKAP:
-  as_type: SKAP
-  as_variable: skap
+  as_type: SkipAddressPacket
+  as_variable: skip_address_packet
   context:
   - Ethernet_MAC.MACMDIOAR
 SLOTEN:
@@ -45458,8 +45487,8 @@ SNAK:
   - OTG2_HS_DEVICE.OTG_HS_DOEPCTL6
   - OTG2_HS_DEVICE.OTG_HS_DOEPCTL7
 SNAPTYPSEL:
-  as_type: SNAPTYPSEL
-  as_variable: snaptypsel
+  as_type: SnapshotTypeSelect
+  as_variable: snapshot_type_select
   context:
   - Ethernet_MAC.MACTSCR
 SNB1:
@@ -45528,13 +45557,13 @@ SNPM:
   - OTG2_HS_DEVICE.OTG_HS_DOEPCTL6
   - OTG2_HS_DEVICE.OTG_HS_DOEPCTL7
 SNPSVER:
-  as_type: SNPSVER
-  as_variable: snpsver
+  as_type: SynopsysVersion
+  as_variable: synopsys_version
   context:
   - Ethernet_MAC.MACVR
 SNSINC:
-  as_type: SNSINC
-  as_variable: snsinc
+  as_type: SubNanosecondIncrement
+  as_variable: sub_nanosecond_increment
   context:
   - Ethernet_MAC.MACSSIR
 SOB:
@@ -45787,18 +45816,18 @@ SPE:
   - SPI5.CR1
   - SPI6.CR1
 SPEN:
-  as_type: SPEN
-  as_variable: spen
+  as_type: SlowProtocolDetectionEnable
+  as_variable: slow_protocol_detection_enable
   context:
   - Ethernet_MAC.MACECR
 SPHEN:
-  as_type: SPHEN
-  as_variable: sphen
+  as_type: SplitHeaderEnable
+  as_variable: split_header_enable
   context:
   - Ethernet_MAC.MACHWF1R
 SPI0:
-  as_type: SPI0
-  as_variable: spi0
+  as_type: SourcePortIdentity0
+  as_variable: source_port_identity0
   context:
   - Ethernet_MAC.MACSPI0R
 SPI1:
@@ -46452,8 +46481,8 @@ SSI:
   - SPI5.CR1
   - SPI6.CR1
 SSINC:
-  as_type: SSINC
-  as_variable: ssinc
+  as_type: SubSecondIncrement
+  as_variable: sub_second_increment
   context:
   - Ethernet_MAC.MACSSIR
 SSIOP:
@@ -46784,8 +46813,8 @@ STUPM:
   - OTG1_HS_DEVICE.OTG_HS_DOEPMSK
   - OTG2_HS_DEVICE.OTG_HS_DOEPMSK
 STXSTSF:
-  as_type: STXSTSF
-  as_variable: stxstsf
+  as_type: StoreAndForwardTransmitStatus
+  as_variable: store_and_forward_transmit_status
   context:
   - Ethernet_MTL.MTLTxQDR
 ST_RAM_SIZE:
@@ -47138,8 +47167,8 @@ SWP_TBYP:
   context:
   - SWPMI.OR
 SWR:
-  as_type: SWR
-  as_variable: swr
+  as_type: SoftwareReset
+  as_variable: software_reset
   context:
   - CAN_CCU.CCFG
   - Ethernet_DMA.DMAMR
@@ -47851,8 +47880,8 @@ TBSWU:
   context:
   - HRTIM_Common.CR2
 TBU:
-  as_type: TBU
-  as_variable: tbu
+  as_type: TransmitBufferUnavailable
+  as_variable: transmit_buffer_unavailable
   context:
   - Ethernet_DMA.DMACSR
   - HRTIM_TIMA.TIMACR
@@ -47866,8 +47895,8 @@ TBUDIS:
   context:
   - HRTIM_Common.CR1
 TBUE:
-  as_type: TBUE
-  as_variable: tbue
+  as_type: TransmitBufferUnavailableEnable
+  as_variable: transmit_buffer_unavailable_enable
   context:
   - Ethernet_DMA.DMACIER
 TC:
@@ -48449,8 +48478,8 @@ TDE:
   - TIM5.DIER
   - TIM8.DIER
 TDESLA:
-  as_type: TDESLA
-  as_variable: tdesla
+  as_type: StartTransmitList
+  as_variable: start_transmit_list
   context:
   - Ethernet_DMA.DMACTxDLAR
 TDR:
@@ -48483,8 +48512,8 @@ TDREP:
   context:
   - HRTIM_Common.BMTRG
 TDRL:
-  as_type: TDRL
-  as_variable: tdrl
+  as_type: TransmitDescriptorRingLength
+  as_variable: transmit_descriptor_ring_length
   context:
   - Ethernet_DMA.DMACTxRLR
 TDRST:
@@ -48499,8 +48528,8 @@ TDSWU:
   context:
   - HRTIM_Common.CR2
 TDT:
-  as_type: TDT
-  as_variable: tdt
+  as_type: TransmitDescriptorTailPointer
+  as_variable: transmit_descriptor_tail_pointer
   context:
   - Ethernet_DMA.DMACTxDTPR
 TDU:
@@ -48619,8 +48648,8 @@ TEACK:
   - USART3.ISR
   - USART6.ISR
 TEB:
-  as_type: TEB
-  as_variable: teb
+  as_type: TransmitDMAErrorBits
+  as_variable: transmit_dma_error_bits
   context:
   - Ethernet_DMA.DMACSR
 TEBM:
@@ -49070,13 +49099,13 @@ TEXTEN:
   - I2C3.TIMEOUTR
   - I2C4.TIMEOUTR
 TFCSTS:
-  as_type: TFCSTS
-  as_variable: tfcsts
+  as_type: TransmitFlowControlStatus
+  as_variable: transmit_flow_control_status
   context:
   - Ethernet_MAC.MACDR
 TFE:
-  as_type: TFE
-  as_variable: tfe
+  as_type: TransmitFlowControlEnable
+  as_variable: transmit_flow_control_enable
   context:
   - Ethernet_MAC.MACQTxFCR
 TFFL:
@@ -49145,8 +49174,8 @@ THOLD2:
   context:
   - DAC.SHHR
 TI:
-  as_type: TI
-  as_variable: ti
+  as_type: TransmitInterrupt
+  as_variable: transmit_interrupt
   context:
   - Ethernet_DMA.DMACSR
 TI1S:
@@ -49226,8 +49255,8 @@ TICC:
   - FDCAN1.FDCAN_TTTMK
   - FDCAN2.FDCAN_TTTMK
 TIC_1US_CNTR:
-  as_type: TIC_1US_CNTR
-  as_variable: tic_1us_cntr
+  as_type: Tic1usCounter
+  as_variable: tic_1us_counter
   context:
   - Ethernet_MAC.MAC1USTCR
 TIDLE:
@@ -50297,8 +50326,8 @@ TISEL:
   - TIM8
   - TIM8.TISEL
 TJT:
-  as_type: TJT
-  as_variable: tjt
+  as_type: TransmitJabberTimeout
+  as_variable: transmit_jabber_timeout
   context:
   - Ethernet_MAC.MACRxTxSR
 TLEN:
@@ -50327,18 +50356,18 @@ TLO:
   context:
   - SPDIFRX.DIR
 TLPIEN:
-  as_type: TLPIEN
-  as_variable: tlpien
+  as_type: TransmitLowPowerIdleEnable
+  as_variable: transmit_low_power_idle_enable
   context:
   - Ethernet_MAC.MACLCSR
 TLPIEX:
-  as_type: TLPIEX
-  as_variable: tlpiex
+  as_type: TransmitLowPowerIdleExit
+  as_variable: transmit_low_power_idle_exit
   context:
   - Ethernet_MAC.MACLCSR
 TLPIST:
-  as_type: TLPIST
-  as_variable: tlpist
+  as_type: TransmitLowPowerIdleStatus
+  as_variable: transmit_low_power_idle_status
   context:
   - Ethernet_MAC.MACLCSR
 TM:
@@ -50476,18 +50505,18 @@ TOTALW:
   context:
   - LTDC.TWCR
 TPESTS:
-  as_type: TPESTS
-  as_variable: tpests
+  as_type: TransmitProtocolEngineStatus
+  as_variable: transmit_protocol_engine_status
   context:
   - Ethernet_MAC.MACDR
 TPS:
-  as_type: TPS
-  as_variable: tps
+  as_type: TransmitProcessStopped
+  as_variable: transmit_process_stopped
   context:
   - Ethernet_DMA.DMACSR
 TPS0:
-  as_type: TPS0
-  as_variable: tps0
+  as_type: DMAChannelTransmitProcessState
+  as_variable: dma_channel_transmit_process_state
   context:
   - Ethernet_DMA.DMADSR
 TQBT:
@@ -50501,8 +50530,8 @@ TQC:
   context:
   - CAN_CCU.CSTAT
 TQS:
-  as_type: TQS
-  as_variable: tqs
+  as_type: TransmitQueueSize
+  as_variable: transmit_queue_size
   context:
   - Ethernet_MTL.MTLTxQOMR
 TR0:
@@ -50697,8 +50726,8 @@ TRCD:
   - FMC.SDTR1
   - FMC.SDTR2
 TRCSTS:
-  as_type: TRCSTS
-  as_variable: trcsts
+  as_type: TransmitReadControllerStatus
+  as_variable: transmit_read_controller_status
   context:
   - Ethernet_MTL.MTLTxQDR
 TRDT:
@@ -50758,13 +50787,13 @@ TRGOEN:
   context:
   - DBGMCU.CR
 TRGTBUSY0:
-  as_type: TRGTBUSY0
-  as_variable: trgtbusy0
+  as_type: TargetTimeBusy0
+  as_variable: target_time_busy_0
   context:
   - Ethernet_MAC.MACPPSTTNR
 TRGTMODSEL0:
-  as_type: TRGTMODSEL0
-  as_variable: trgtmodsel0
+  as_type: TargetModeSelect0
+  as_variable: target_mode_select_0
   context:
   - Ethernet_MAC.MACPPSCR
 TRIGEN:
@@ -50861,8 +50890,8 @@ TS:
   - TIM5.SMCR
   - TIM8.SMCR
 TSADDREG:
-  as_type: TSADDREG
-  as_variable: tsaddreg
+  as_type: TimestampAddendRegisterUpdate
+  as_variable: timestamp_addend_register_update
   context:
   - Ethernet_MAC.MACTSCR
 TSAMPLE1:
@@ -50876,8 +50905,8 @@ TSAMPLE2:
   context:
   - DAC.SHSR2
 TSAR:
-  as_type: TSAR
-  as_variable: tsar
+  as_type: TimestampAddendRegisterValue
+  as_variable: timestamp_addend_register_value
   context:
   - Ethernet_MAC.MACTSAR
 TSC:
@@ -50887,13 +50916,13 @@ TSC:
   - FDCAN1.FDCAN_TSCV
   - FDCAN2.FDCAN_TSCV
 TSCFUPDT:
-  as_type: TSCFUPDT
-  as_variable: tscfupdt
+  as_type: TimestampCoarseOrFineUpdate
+  as_variable: timestamp_coarse_or_fine_update
   context:
   - Ethernet_MAC.MACTSCR
 TSCTRLSSR:
-  as_type: TSCTRLSSR
-  as_variable: tsctrlssr
+  as_type: TimestampRolloverControl
+  as_variable: timestamp_rollover_control
   context:
   - Ethernet_MAC.MACTSCR
 TSDPS:
@@ -50903,8 +50932,8 @@ TSDPS:
   - OTG1_HS_GLOBAL.OTG_HS_GUSBCFG
   - OTG2_HS_GLOBAL.OTG_HS_GUSBCFG
 TSE:
-  as_type: TSE
-  as_variable: tse
+  as_type: TCPSegmentationEnabled
+  as_variable: tcp_segmentation_enabled
   context:
   - Ethernet_DMA.DMACTxCR
   - RTC.RTC_CR
@@ -50913,8 +50942,8 @@ TSE:
       as_type: TimestampEnable
       as_variable: timestamp_enable
 TSEC:
-  as_type: TSEC
-  as_variable: tsec
+  as_type: TimestampEgressCorrection
+  as_variable: timestamp_egress_correction
   context:
   - Ethernet_MAC.MACTSECNR
 TSEDGE:
@@ -50959,18 +50988,18 @@ TSEL2:
   context:
   - DAC.CR
 TSENA:
-  as_type: TSENA
-  as_variable: tsena
+  as_type: TimestampEnable
+  as_variable: timestamp_enable
   context:
   - Ethernet_MAC.MACTSCR
 TSENALL:
-  as_type: TSENALL
-  as_variable: tsenall
+  as_type: TimestampForAllPacketsEnable
+  as_variable: timestamp_for_all_packets_enable
   context:
   - Ethernet_MAC.MACTSCR
 TSENMACADDR:
-  as_type: TSENMACADDR
-  as_variable: tsenmacaddr
+  as_type: TimestampForPtpOverEthernetEnable
+  as_variable: timestamp_for_ptp_over_ethernet_enable
   context:
   - Ethernet_MAC.MACTSCR
 TSER:
@@ -51014,28 +51043,31 @@ TSERFIE:
   - SPI5.IER
   - SPI6.IER
 TSEVNTENA:
-  as_type: TSEVNTENA
-  as_variable: tsevntena
+  as_type: TimestampEventEnable
+  as_variable: timestamp_event_enable
   context:
   - Ethernet_MAC.MACTSCR
 TSF:
-  as_type: TSF
-  as_variable: tsf
+  as_type: TransmitStoreForward
+  as_variable: transmit_store_forward
   context:
   - Ethernet_MTL.MTLTxQOMR
   - RTC.RTC_ISR
   overrides:
+    Ethernet_MTL.MTLTxQOMR:
+      as_type: TransmitStoreAndForward
+      as_variable: transmit_store_and_forward
     RTC.*:
       as_type: TimestampFlag
       as_variable: timestamp_flag
 TSIC:
-  as_type: TSIC
-  as_variable: tsic
+  as_type: TimestampIngressCorrection
+  as_variable: timestamp_ingress_correction
   context:
   - Ethernet_MAC.MACTSICNR
 TSIE:
-  as_type: TSIE
-  as_variable: tsie
+  as_type: TimestampInterruptEnable
+  as_variable: timestamp_interrupt_enable
   context:
   - Ethernet_MAC.MACIER
   - RTC.RTC_CR
@@ -51044,28 +51076,28 @@ TSIE:
       as_type: TimestampInterruptEnable
       as_variable: timestamp_interrupt_enable
 TSINIT:
-  as_type: TSINIT
-  as_variable: tsinit
+  as_type: TimestampInitialize
+  as_variable: timestamp_initialize
   context:
   - Ethernet_MAC.MACTSCR
 TSIPENA:
-  as_type: TSIPENA
-  as_variable: tsipena
+  as_type: TimestampForPtpOverIpEnable
+  as_variable: timestamp_for_ptp_over_ip_enable
   context:
   - Ethernet_MAC.MACTSCR
 TSIPV4ENA:
-  as_type: TSIPV4ENA
-  as_variable: tsipv4ena
+  as_type: TimestampForIpv4Enable
+  as_variable: timestamp_for_ipv4_enable
   context:
   - Ethernet_MAC.MACTSCR
 TSIPV6ENA:
-  as_type: TSIPV6ENA
-  as_variable: tsipv6ena
+  as_type: TimestampForIpv6Enable
+  as_variable: timestamp_for_ipv6_enable
   context:
   - Ethernet_MAC.MACTSCR
 TSIS:
-  as_type: TSIS
-  as_variable: tsis
+  as_type: TimestampInterruptStatus
+  as_variable: timestamp_interrupt_status
   context:
   - Ethernet_MAC.MACISR
 TSIZE:
@@ -51079,13 +51111,13 @@ TSIZE:
   - SPI5.CR2
   - SPI6.CR2
 TSMSTRENA:
-  as_type: TSMSTRENA
-  as_variable: tsmstrena
+  as_type: SnapshotTimestampLeaderEnable
+  as_variable: snapshot_timestamp_leader_enable
   context:
   - Ethernet_MAC.MACTSCR
 TSOEN:
-  as_type: TSOEN
-  as_variable: tsoen
+  as_type: TcpSegmentationOffloadEnable
+  as_variable: tcp_segmentation_offload_enable
   context:
   - Ethernet_MAC.MACHWF1R
 TSOVF:
@@ -51101,20 +51133,27 @@ TSS:
   - Ethernet_MAC.MACSTSUR
   - FDCAN1.FDCAN_TSCC
   - FDCAN2.FDCAN_TSCC
+  overrides:
+    Ethernet_MAC.MACSTSR:
+      as_type: TimestampSecond
+      as_variable: timestamp_second
+    Ethernet_MAC.MACSTSUR:
+      as_type: TimestampSecond
+      as_variable: timestamp_second
 TSSOVF:
-  as_type: TSSOVF
-  as_variable: tssovf
+  as_type: TimestampSecondsOverflow
+  as_variable: timestamp_seconds_overflow
   context:
   - Ethernet_MAC.MACTSSR
 TSSS:
-  as_type: TSSS
-  as_variable: tsss
+  as_type: TimestampSubSecond
+  as_variable: timestamp_sub_second
   context:
   - Ethernet_MAC.MACSTNR
   - Ethernet_MAC.MACSTNUR
 TSTARGT0:
-  as_type: TSTARGT0
-  as_variable: tstargt0
+  as_type: TimestampTarget0Reached
+  as_variable: timestamp_target_0_reached
   context:
   - Ethernet_MAC.MACTSSR
 TSTREF:
@@ -51124,23 +51163,23 @@ TSTREF:
   - OPAMP.OPAMP1_CSR
   - OPAMP.OPAMP2_CSR
 TSTRGTERR0:
-  as_type: TSTRGTERR0
-  as_variable: tstrgterr0
+  as_type: TimestampTarget0Error
+  as_variable: timestamp_target_0_error
   context:
   - Ethernet_MAC.MACTSSR
 TSTRH0:
-  as_type: TSTRH0
-  as_variable: tstrh0
+  as_type: TargetTimeSecondsHigh0
+  as_variable: target_time_seconds_high_0
   context:
   - Ethernet_MAC.MACPPSTTSR
 TSUPDT:
-  as_type: TSUPDT
-  as_variable: tsupdt
+  as_type: TimestampUpdate
+  as_variable: timestamp_update
   context:
   - Ethernet_MAC.MACTSCR
 TSVER2ENA:
-  as_type: TSVER2ENA
-  as_variable: tsver2ena
+  as_type: TimestampVersion2Enable
+  as_variable: timestamp_version_2_enable
   context:
   - Ethernet_MAC.MACTSCR
 TSW:
@@ -51181,8 +51220,8 @@ TS_4_3:
   - TIM5.SMCR
   - TIM8.SMCR
 TTC:
-  as_type: TTC
-  as_variable: ttc
+  as_type: TransmitThresholdControl
+  as_variable: transmit_threshold_control
   context:
   - Ethernet_MTL.MTLTxQOMR
 TTIE:
@@ -51210,8 +51249,8 @@ TTMIL:
   - FDCAN1.FDCAN_TTILS
   - FDCAN2.FDCAN_TTILS
 TTSL0:
-  as_type: TTSL0
-  as_variable: ttsl0
+  as_type: TargetTimeSecondsLow0
+  as_variable: target_time_seconds_low_0
   context:
   - Ethernet_MAC.MACPPSTTNR
 TWCR:
@@ -51221,8 +51260,8 @@ TWCR:
   - LTDC
   - LTDC.TWCR
 TWCSTS:
-  as_type: TWCSTS
-  as_variable: twcsts
+  as_type: TransmitWriteControllerStatus
+  as_variable: transmit_write_controller_status
   context:
   - Ethernet_MTL.MTLTxQDR
 TWIE:
@@ -51242,8 +51281,8 @@ TWR:
   - FMC.SDTR1
   - FMC.SDTR2
 TWT:
-  as_type: TWT
-  as_variable: twt
+  as_type: LowPowerIdleTransmitWaitTimer
+  as_variable: low_power_idle_transmit_wait_timer
   context:
   - Ethernet_MAC.MACLTCR
 TX:
@@ -51305,8 +51344,8 @@ TXC:
   - SPI5.SR
   - SPI6.SR
 TXCHCNT:
-  as_type: TXCHCNT
-  as_variable: txchcnt
+  as_type: TransmitChannelCount
+  as_variable: transmit_channel_count
   context:
   - Ethernet_MAC.MACHWF2R
 TXCRC:
@@ -51610,8 +51649,8 @@ TXFIFOHEIE:
   - SDMMC1.MASKR
   - SDMMC2.MASKR
 TXFIFOSIZE:
-  as_type: TXFIFOSIZE
-  as_variable: txfifosize
+  as_type: TransmitFIFOSize
+  as_variable: transmit_fifo_size
   context:
   - Ethernet_MAC.MACHWF1R
 TXFIFOUDRN:
@@ -51715,13 +51754,13 @@ TXFURM:
   - OTG1_HS_DEVICE.OTG_HS_DIEPMSK
   - OTG2_HS_DEVICE.OTG_HS_DIEPMSK
 TXGPKTIM:
-  as_type: TXGPKTIM
-  as_variable: txgpktim
+  as_type: TransmitGoodPacketCounterInterruptMask
+  as_variable: transmit_good_packet_counter_interrupt_mask
   context:
   - Ethernet_MAC.MMC_TX_INTERRUPT_MASK
 TXGPKTIS:
-  as_type: TXGPKTIS
-  as_variable: txgpktis
+  as_type: TransmitGoodPacketCounterInterruptStatus
+  as_variable: transmit_good_packet_counter_interrupt_status
   context:
   - Ethernet_MAC.MMC_TX_INTERRUPT
 TXIE:
@@ -51754,43 +51793,43 @@ TXIS:
   - I2C3.ISR
   - I2C4.ISR
 TXLPITRC:
-  as_type: TXLPITRC
-  as_variable: txlpitrc
+  as_type: TransmitLowPowerIdleTransitionCounter
+  as_variable: transmit_low_power_idle
   context:
   - Ethernet_MAC.TX_LPI_TRAN_CNTR
 TXLPITRCIM:
-  as_type: TXLPITRCIM
-  as_variable: txlpitrcim
+  as_type: TransmitLowPowerIdleTransitionCounterInterruptMask
+  as_variable: transmit_low_power_idle_interrupt_mask
   context:
   - Ethernet_MAC.MMC_TX_INTERRUPT_MASK
 TXLPITRCIS:
-  as_type: TXLPITRCIS
-  as_variable: txlpitrcis
+  as_type: TransmitLowPowerIdleTransitionCounterInterruptStatus
+  as_variable: transmit_low_power_idle_interrupt_status
   context:
   - Ethernet_MAC.MMC_TX_INTERRUPT
 TXLPIUSC:
-  as_type: TXLPIUSC
-  as_variable: txlpiusc
+  as_type: TransmitLowPowerIdleMicrosecondsCounter
+  as_variable: transmit_low_power_idle_microseconds_counter
   context:
   - Ethernet_MAC.TX_LPI_USEC_CNTR
 TXLPIUSCIM:
-  as_type: TXLPIUSCIM
-  as_variable: txlpiuscim
+  as_type: TransmitLowPowerIdleMicrosecondCounterInterruptMask
+  as_variable: transmit_low_power_idle_counter_interrupt_mask
   context:
   - Ethernet_MAC.MMC_TX_INTERRUPT_MASK
 TXLPIUSCIS:
-  as_type: TXLPIUSCIS
-  as_variable: txlpiuscis
+  as_type: TransmitLowPowerIdleMicrosecondCounterInterruptStatus
+  as_variable: transmit_low_power_idle_counter_interrupt_status
   context:
   - Ethernet_MAC.MMC_TX_INTERRUPT
 TXMCOLGPIM:
-  as_type: TXMCOLGPIM
-  as_variable: txmcolgpim
+  as_type: TransmitMultipleCollisionGoodPacketCounterInterruptMask
+  as_variable: transmit_multiple_collision_good_packet_counter_interrupt_mask
   context:
   - Ethernet_MAC.MMC_TX_INTERRUPT_MASK
 TXMCOLGPIS:
-  as_type: TXMCOLGPIS
-  as_variable: txmcolgpis
+  as_type: TransmitMultipleCollisionGoodPacketCounterInterruptStatus
+  as_variable: transmit_multiple_collision_good_packet_counter_interrupt_status
   context:
   - Ethernet_MAC.MMC_TX_INTERRUPT
 TXMODE:
@@ -51799,8 +51838,8 @@ TXMODE:
   context:
   - SWPMI.CR
 TXMULTCOLG:
-  as_type: TXMULTCOLG
-  as_variable: txmultcolg
+  as_type: TransmitMultipleCollisionGoodPackets
+  as_variable: transmit_multiple_collision_good_packets
   context:
   - Ethernet_MAC.TX_MULTIPLE_COLLISION_GOOD_PACKETS
 TXO:
@@ -51834,8 +51873,8 @@ TXP:
   - SPI5.SR
   - SPI6.SR
 TXPBL:
-  as_type: TXPBL
-  as_variable: txpbl
+  as_type: TransmitProgrammableBurstLength
+  as_variable: transmit_programmable_burst_length
   context:
   - Ethernet_DMA.DMACTxCR
 TXPIE:
@@ -51849,18 +51888,18 @@ TXPIE:
   - SPI5.IER
   - SPI6.IER
 TXPKTG:
-  as_type: TXPKTG
-  as_variable: txpktg
+  as_type: TransmitPacketGoodCount
+  as_variable: transmit_packet_good_count
   context:
   - Ethernet_MAC.TX_PACKET_COUNT_GOOD
 TXPR:
-  as_type: TXPR
-  as_variable: txpr
+  as_type: TransmitPriority
+  as_variable: transmit_priority
   context:
   - Ethernet_DMA.DMAMR
 TXQCNT:
-  as_type: TXQCNT
-  as_variable: txqcnt
+  as_type: TransmitQueueCount
+  as_variable: transmit_queue_count
   context:
   - Ethernet_MAC.MACHWF2R
 TXQEN:
@@ -51869,33 +51908,33 @@ TXQEN:
   context:
   - Ethernet_MTL.MTLTxQOMR
 TXQPAUSED:
-  as_type: TXQPAUSED
-  as_variable: txqpaused
+  as_type: TransmitQueuePaused
+  as_variable: transmit_queue_paused
   context:
   - Ethernet_MTL.MTLTxQDR
 TXQSTS:
-  as_type: TXQSTS
-  as_variable: txqsts
+  as_type: TransmitQueueStatus
+  as_variable: transmit_queue_status
   context:
   - Ethernet_MTL.MTLTxQDR
 TXSCOLGPIM:
-  as_type: TXSCOLGPIM
-  as_variable: txscolgpim
+  as_type: TransmitSingleCollisionGoodPacketCounterInterruptMask
+  as_variable: transmit_single_collision_good_packet_counter_interrupt_mask
   context:
   - Ethernet_MAC.MMC_TX_INTERRUPT_MASK
 TXSCOLGPIS:
-  as_type: TXSCOLGPIS
-  as_variable: txscolgpis
+  as_type: TransmitSingleCollisionGoodPacketCounterInterruptStatus
+  as_variable: transmit_single_collision_good_packet_counter_interrupt_status
   context:
   - Ethernet_MAC.MMC_TX_INTERRUPT
 TXSE:
-  as_type: TXSE
-  as_variable: txse
+  as_type: TransmitStoppedEnable
+  as_variable: transmit_stopped_enable
   context:
   - Ethernet_DMA.DMACIER
 TXSNGLCOLG:
-  as_type: TXSNGLCOLG
-  as_variable: txsnglcolg
+  as_type: TransmitSingleCollisionGoodPackets
+  as_variable: transmit_single_collision_good_packets
   context:
   - Ethernet_MAC.TX_SINGLE_COLLISION_GOOD_PACKETS
 TXSOM:
@@ -51910,18 +51949,18 @@ TXSR:
   - FMC.SDTR1
   - FMC.SDTR2
 TXSTSFSTS:
-  as_type: TXSTSFSTS
-  as_variable: txstsfsts
+  as_type: TransmitStoreAndForwardStatus
+  as_variable: transmit_store_and_forward_status
   context:
   - Ethernet_MTL.MTLTxQDR
 TXSTSIE:
-  as_type: TXSTSIE
-  as_variable: txstsie
+  as_type: TransmitStatusInterruptEnable
+  as_variable: transmit_status_interrupt_enable
   context:
   - Ethernet_MAC.MACIER
 TXSTSIS:
-  as_type: TXSTSIS
-  as_variable: txstsis
+  as_type: TransmitStatusInterruptStatus
+  as_variable: transmit_status_interrupt_status
   context:
   - Ethernet_MAC.MACISR
 TXTF:
@@ -51961,28 +52000,28 @@ TXTHRLEN:
   - OTG1_HS_DEVICE.OTG_HS_DTHRCTL
   - OTG2_HS_DEVICE.OTG_HS_DTHRCTL
 TXTSSHI:
-  as_type: TXTSSHI
-  as_variable: txtsshi
+  as_type: TransmitTimestampStatusHigh
+  as_variable: transmit_timestamp_status_high
   context:
   - Ethernet_MAC.MACTxTSSSR
 TXTSSIS:
-  as_type: TXTSSIS
-  as_variable: txtssis
+  as_type: TransmitTimestampStatusInterruptStatus
+  as_variable: transmit_timestamp_status_interrupt_status
   context:
   - Ethernet_MAC.MACTSSR
 TXTSSLO:
-  as_type: TXTSSLO
-  as_variable: txtsslo
+  as_type: TransmitTimestampStatusLow
+  as_variable: transmit_timestamp_status_low
   context:
   - Ethernet_MAC.MACTxTSSNR
 TXTSSMIS:
-  as_type: TXTSSMIS
-  as_variable: txtssmis
+  as_type: TransmitTimestampStatusMissed
+  as_variable: transmit_timestamp_status_missed
   context:
   - Ethernet_MAC.MACTxTSSNR
 TXTSSTSM:
-  as_type: TXTSSTSM
-  as_variable: txtsstsm
+  as_type: TransmitTimestampStatusMode
+  as_variable: transmit_timestamp_status_mode
   context:
   - Ethernet_MAC.MACTSCR
 TXU:
@@ -52008,8 +52047,8 @@ TXUE:
   - FDCAN1.FDCAN_TTIE
   - FDCAN2.FDCAN_TTIE
 TXUIE:
-  as_type: TXUIE
-  as_variable: txuie
+  as_type: TransmitUnderflowInterruptEnable
+  as_variable: transmit_underflow_interrupt_enable
   context:
   - Ethernet_MTL.MTLQICSR
 TXUL:
@@ -52037,8 +52076,8 @@ TXUNDERRIE:
   - SDMMC1.MASKR
   - SDMMC2.MASKR
 TXUNFIS:
-  as_type: TXUNFIS
-  as_variable: txunfis
+  as_type: TransmitUnderflowInterruptStatus
+  as_variable: transmit_underflow_interrupt_status
   context:
   - Ethernet_MTL.MTLQICSR
 TXUNRF:
@@ -52052,32 +52091,32 @@ TXUNRIE:
   context:
   - SWPMI.IER
 TX_LPI_TRAN_CNTR:
-  as_type: TX_LPI_TRAN_CNTR
-  as_variable: tx_lpi_tran_cntr
+  as_type: TransmitLPITranCounter
+  as_variable: transmit_lpi_tran_counter
   context:
   - Ethernet_MAC
   - Ethernet_MAC.TX_LPI_TRAN_CNTR
 TX_LPI_USEC_CNTR:
-  as_type: TX_LPI_USEC_CNTR
-  as_variable: tx_lpi_usec_cntr
+  as_type: TransmitLPIUsecCounter
+  as_variable: transmit_lpi_usec_counter
   context:
   - Ethernet_MAC
   - Ethernet_MAC.TX_LPI_USEC_CNTR
 TX_MULTIPLE_COLLISION_GOOD_PACKETS:
-  as_type: TX_MULTIPLE_COLLISION_GOOD_PACKETS
-  as_variable: tx_multiple_collision_good_packets
+  as_type: TransmitMultipleCollisionGoodPackets
+  as_variable: transmit_multiple_collision_good_packets
   context:
   - Ethernet_MAC
   - Ethernet_MAC.TX_MULTIPLE_COLLISION_GOOD_PACKETS
 TX_PACKET_COUNT_GOOD:
-  as_type: TX_PACKET_COUNT_GOOD
-  as_variable: tx_packet_count_good
+  as_type: TransmitPacketCountGood
+  as_variable: transmit_packet_count_good
   context:
   - Ethernet_MAC
   - Ethernet_MAC.TX_PACKET_COUNT_GOOD
 TX_SINGLE_COLLISION_GOOD_PACKETS:
-  as_type: TX_SINGLE_COLLISION_GOOD_PACKETS
-  as_variable: tx_single_collision_good_packets
+  as_type: TransmitSingleCollisionGoodPackets
+  as_variable: transmit_single_collision_good_packets
   context:
   - Ethernet_MAC
   - Ethernet_MAC.TX_SINGLE_COLLISION_GOOD_PACKETS
@@ -52160,8 +52199,8 @@ UART8:
   context:
   - null
 UCDBC:
-  as_type: UCDBC
-  as_variable: ucdbc
+  as_type: UpdateCountersForDroppedBroadcasts
+  as_variable: update_counters_for_dropped_broadcasts
   context:
   - Ethernet_MAC.MMC_CONTROL
 UDE:
@@ -52327,13 +52366,13 @@ UESM:
   - USART3.CR1
   - USART6.CR1
 UFCNTOVF:
-  as_type: UFCNTOVF
-  as_variable: ufcntovf
+  as_type: UnderflowCounterOverflow
+  as_variable: underflow_counter_overflow
   context:
   - Ethernet_MTL.MTLTxQUR
 UFFRMCNT:
-  as_type: UFFRMCNT
-  as_variable: uffrmcnt
+  as_type: UnderflowFrameCount
+  as_variable: underflow_frame_count
   context:
   - Ethernet_MTL.MTLTxQUR
 UG:
@@ -52463,7 +52502,7 @@ UNIT:
   - DELAY_Block_SDMMC1.CFGR
   - DELAY_Block_SDMMC2.CFGR
 UP:
-  as_type: UP
+  as_type: Up
   as_variable: up
   context:
   - Ethernet_MAC.MACRxFCR
@@ -52472,6 +52511,10 @@ UP:
   - LPTIM3.ISR
   - LPTIM4.ISR
   - LPTIM5.ISR
+  overrides:
+    Ethernet_MAC.MACRxFCR:
+      as_type: UnicastPausePacketDetect
+      as_variable: unicast_pause_packet_detect
 UPCF:
   as_type: UPCF
   as_variable: upcf
@@ -52977,13 +53020,13 @@ USERTRIM:
   - OPAMP.OPAMP1_CSR
   - OPAMP.OPAMP2_CSR
 USERVER:
-  as_type: USERVER
-  as_variable: userver
+  as_type: UserVersion
+  as_variable: user_version
   context:
   - Ethernet_MAC.MACVR
 USP:
-  as_type: USP
-  as_variable: usp
+  as_type: UnicastSlowProtocolPacketDetect
+  as_variable: unicast_slow_protocol_packet_detect
   context:
   - Ethernet_MAC.MACECR
 USR:
@@ -53072,19 +53115,19 @@ VERR:
   - SPDIFRX
   - SPDIFRX.VERR
 VL:
-  as_type: VL
-  as_variable: vl
+  as_type: VlanTagIdentifier
+  as_variable: vlan_tag_identifier
   context:
   - Ethernet_MAC.MACVTR
 VLC:
-  as_type: VLC
-  as_variable: vlc
+  as_type: VlanTagComparison
+  as_variable: vlan_tag_comparison
   context:
   - Ethernet_MAC.MACIVIR
   - Ethernet_MAC.MACVIR
 VLHT:
-  as_type: VLHT
-  as_variable: vlht
+  as_type: VlanHashTable
+  as_variable: vlan_hash_table
   context:
   - Ethernet_MAC.MACVHTR
 VLINE:
@@ -53093,20 +53136,20 @@ VLINE:
   context:
   - DCMI.CWSIZE
 VLP:
-  as_type: VLP
-  as_variable: vlp
+  as_type: VlanPriority
+  as_variable: vlan_priority
   context:
   - Ethernet_MAC.MACIVIR
   - Ethernet_MAC.MACVIR
 VLT:
-  as_type: VLT
-  as_variable: vlt
+  as_type: VlanTag
+  as_variable: vlan_tag
   context:
   - Ethernet_MAC.MACIVIR
   - Ethernet_MAC.MACVIR
 VLTI:
-  as_type: VLTI
-  as_variable: vlti
+  as_type: VlanTagInput
+  as_variable: vlan_tag_input
   context:
   - Ethernet_MAC.MACIVIR
   - Ethernet_MAC.MACVIR
@@ -53271,18 +53314,18 @@ VSYNC_RIS:
   context:
   - DCMI.RIS
 VTFE:
-  as_type: VTFE
-  as_variable: vtfe
+  as_type: VlanTagFilterEnable
+  as_variable: vlan_tag_filter_enable
   context:
   - Ethernet_MAC.MACPFR
 VTHM:
-  as_type: VTHM
-  as_variable: vthm
+  as_type: VlanTagHashMatch
+  as_variable: vlan_tag_hash_match
   context:
   - Ethernet_MAC.MACVTR
 VTIM:
-  as_type: VTIM
-  as_variable: vtim
+  as_type: VlanTagInverseMatch
+  as_variable: vlan_tag_inverse_match
   context:
   - Ethernet_MAC.MACVTR
 W:
@@ -53408,8 +53451,8 @@ WCKCFGIE:
   - SAI4.SAI_AIM
   - SAI4.SAI_BIM
 WD:
-  as_type: WD
-  as_variable: wd
+  as_type: Watchdog
+  as_variable: watchdog
   context:
   - Ethernet_MAC.MACCR
 WDATA:
@@ -53874,8 +53917,8 @@ WTL:
   - FDCAN1.FDCAN_TTILS
   - FDCAN2.FDCAN_TTILS
 WTO:
-  as_type: WTO
-  as_variable: wto
+  as_type: WatchdogTimeout
+  as_variable: watchdog_timeout
   context:
   - Ethernet_MAC.MACWTR
 WUCF:

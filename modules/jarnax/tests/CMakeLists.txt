@@ -32,6 +32,7 @@ host_unit_test(NAME jarnax-network
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-net-arp-table.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-net-ip-v4-address.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/catch2-net-eui-address.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/../source/Driver.cpp # HACK to get the jarnax::Driver
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
     LIBRARIES

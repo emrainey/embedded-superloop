@@ -180,3 +180,20 @@ add_module(NAME stm32-usart-driver
     CONFIGURATIONS
         ${TARGET_CONFIGURATIONS}
 )
+
+add_module(NAME stm32-ethernet-driver
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32h7xx/ethernet/Driver.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+    LIBRARIES
+        jarnax-interfaces
+    GENERIC_MODULES
+        core
+    ARCH
+        cortex
+    CHIPS
+        stm32h753zi
+    CONFIGURATIONS
+        ${TARGET_CONFIGURATIONS}
+)

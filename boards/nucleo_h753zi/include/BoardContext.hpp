@@ -16,6 +16,7 @@
 #include "stm32/Indicator.hpp"
 #include "stm32/RandomNumberGenerator.hpp"
 #include "stm32/Timer.hpp"
+#include "stm32/h7xx/ethernet/Driver.hpp"
 #include "stm32/i2c/Driver.hpp"
 #include "stm32/spi/Driver.hpp"
 #include "stm32/uart/Driver.hpp"
@@ -161,6 +162,8 @@ protected:
     stm32::gpio::Pin eth_tx_en_;
     /// ETH RMII TXD0 (PG13, AF11)
     stm32::gpio::Pin eth_txd0_;
+    /// The Ethernet Driver
+    stm32::ethernet::Driver ethernet_;
 };
 
 /// Gets the reference to the BoardContext

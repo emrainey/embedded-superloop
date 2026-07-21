@@ -1,11 +1,29 @@
 #include <catch2/catch_test_macros.hpp>
-#include "jarnax/net/ip/v4/Address.hpp"
+#include "core/Status.hpp"
 #include "jarnax/net/Interface.hpp"
+#include "jarnax/net/ethernet/Driver.hpp"
+#include "jarnax/net/ip/v4/Address.hpp"
 
 #include <iostream>
 
 namespace jarnax {
 namespace net {
+
+/// A mock driver for testing the Interface class without needing to implement a full Ethernet driver. This allows us to test the logic of the
+/// Interface class in isolation.
+class MockDriver final : public ethernet::Driver {
+public:
+    MockDriver() = default;
+    ~MockDriver() = default;
+    core::Status Initialize(void) override { return core::Status{}; }
+    bool Execute(void) override { return true; }
+    core::Status Configure(Addresses const&) override { return core::Status{}; }
+    jarnax::net::eui48::Address GetMacAddress(size_t) const override { return jarnax::net::eui48::Address{}; }
+    core::Status Transmit(ethernet::Frame const*) override { return core::Status{}; }
+    core::Status Receive(Listener&) override { return core::Status{}; }
+    // core::Status Schedule(ethernet::mdio::Transaction*) override { return core::Status{}; }
+};
+
 namespace ip {
 namespace v4 {
 
@@ -124,23 +142,25 @@ TEST_CASE("Interface Test") {
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // Test the Interface class and its methods
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    MockDriver driver;
+    eui48::Address mac{{0, 1, 2, 3, 4, 5}};
 
     SECTION("Invalid Interface") {
         // Invalid because the address is the default route and the netmask is invalid
-        Interface iface{{0, 0, 0, 0}, {0, 0, 0, 0}};
+        Interface iface{driver, mac, {0, 0, 0, 0}, {0, 0, 0, 0}};
         REQUIRE_FALSE(iface.IsValid());
 
         // Invalid because the address is the broadcast address for the subnet
-        Interface iface2{{192, 168, 1, 255}, {255, 255, 255, 0}};
+        Interface iface2{driver, mac, {192, 168, 1, 255}, {255, 255, 255, 0}};
         REQUIRE_FALSE(iface2.IsValid());
 
         // Invalid because the address is a multicast address
-        Interface iface3{{224, 0, 0, 1}, {240, 0, 0, 0}};
+        Interface iface3{driver, mac, {224, 0, 0, 1}, {240, 0, 0, 0}};
         REQUIRE_FALSE(iface3.IsValid());
     }
 
     SECTION("Local Host Interface") {
-        Interface iface{local::host, local::mask};
+        Interface iface{driver, mac, local::host, local::mask};
         REQUIRE(iface.IsValid());
 
         REQUIRE(iface.CouldReceive(local::host));               // Should receive packets from itself
@@ -156,7 +176,7 @@ TEST_CASE("Interface Test") {
     }
 
     SECTION("Link Local Interface") {
-        Interface iface{{169, 254, 1, 1}, link::mask};
+        Interface iface{driver, mac, {169, 254, 1, 1}, link::mask};
         REQUIRE(iface.IsValid());
 
         REQUIRE(iface.CouldReceive({169, 254, 1, 2}));          // Should receive packets from the same subnet
@@ -171,7 +191,7 @@ TEST_CASE("Interface Test") {
     }
 
     SECTION("Class A Interface") {
-        Interface iface{{10, 9, 10, 1}, A::mask};
+        Interface iface{driver, mac, {10, 9, 10, 1}, A::mask};
         REQUIRE(iface.IsValid());
 
         REQUIRE(iface.CouldReceive({10, 9, 10, 2}));            // Should receive packets from the same subnet
@@ -186,7 +206,7 @@ TEST_CASE("Interface Test") {
     }
 
     SECTION("Class B Interface") {
-        Interface iface{{172, 16, 0, 1}, B::mask};
+        Interface iface{driver, mac, {172, 16, 0, 1}, B::mask};
         REQUIRE(iface.IsValid());
 
         REQUIRE(iface.CouldReceive({172, 16, 0, 2}));           // Should receive packets from the same subnet
@@ -201,7 +221,7 @@ TEST_CASE("Interface Test") {
     }
 
     SECTION("Class C Interface") {
-        Interface iface{{192, 168, 1, 1}, C::mask};
+        Interface iface{driver, mac, {192, 168, 1, 1}, C::mask};
         REQUIRE(iface.IsValid());
 
         REQUIRE(iface.CouldReceive({192, 168, 1, 2}));          // Should receive packets from the same subnet

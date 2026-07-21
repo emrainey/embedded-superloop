@@ -85,8 +85,10 @@
     _stm32_dmamux1 = ORIGIN(AHB1) + 0x0800;
     _stm32_adc1 = ORIGIN(AHB1) + 0x2000;
     _stm32_adc2 = ORIGIN(AHB1) + 0x2200;
-    _stm32_ethernet = ORIGIN(AHB1) + 0x2800;
-
+    _stm32_ethernet_mac = ORIGIN(AHB1) + 0x2800;
+    _stm32_ethernet_mtl = ORIGIN(AHB1) + 0x3400;
+    _stm32_ethernet_dma = ORIGIN(AHB1) + 0x3800;
+    
     /* USB On-The-Go Full Speed */
     _stm32_usb_otg_fs_device = ORIGIN(USB_OTG_FS) + 0x0000;
 
@@ -113,7 +115,9 @@
     PROVIDE(_ZN5stm324h7xx20direct_memory_accessE = _stm32_dma1);
     PROVIDE(_ZN5stm324h7xx21direct_memory_access1E = _stm32_dma1);
     PROVIDE(_ZN5stm324h7xx21direct_memory_access2E = _stm32_dma2);
-    PROVIDE(_ZN5stm324h7xx8ethernetE = _stm32_ethernet);
+    PROVIDE(_ZN5stm324h7xx12ethernet_macE = _stm32_ethernet_mac);
+    PROVIDE(_ZN5stm324h7xx12ethernet_mtlE = _stm32_ethernet_mtl);
+    PROVIDE(_ZN5stm324h7xx18ethernet_direct_memory_accessE = _stm32_ethernet_dma);
     PROVIDE(_ZN5stm324h7xx143dma2d_controlE = _stm32_dma2d);
 
     /* Arm High Performance Bus 2 */

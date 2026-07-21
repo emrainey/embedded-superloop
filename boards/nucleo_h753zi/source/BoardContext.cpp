@@ -41,6 +41,13 @@ LINKER_SECTION(".dma_buffers") alignas(alignof(std::max_align_t)) static core::A
 /// @brief Manage the DMA buffers with a bitmap allocator
 static core::BitMapHeap<DmaBlockSize, DmaBlockCount> dma_heap_allocator{&dma_memory[0], dma_memory.size()};
 
+/// @brief A second chunk of memory for the Ethernet's DMA Frames, but they go in the same location.
+LINKER_SECTION(".dma_buffers") alignas(alignof(std::max_align_t)) static core::Array<uint8_t, ethernet_dma_buffer_size> ethernet_dma_memory;
+/// @brief Manage the Ethernet DMA buffers with a bitmap allocator
+static core::BitMapHeap<ethernet_dma_block_size, ethernet_dma_block_count, alignof(std::max_align_t), std::uint8_t> ethernet_dma_heap{
+    &ethernet_dma_memory[0], ethernet_dma_memory.size()
+};
+
 /// @brief The Clock configuration for this board.
 /// @note HSI @ 64 MHz: M=8 -> 8 MHz VCO input, N=100 -> 800 MHz VCO, P=2 -> 400 MHz sys_ck, Q=4, R=8
 ClockConfiguration const default_clock_configuration = {
@@ -114,7 +121,7 @@ BoardContext::BoardContext()
     , eth_rxd1_{stm32::gpio::Port::C, 5}       // RMII_RXD1
     , eth_tx_en_{stm32::gpio::Port::G, 11}     // RMII_TX_EN
     , eth_txd0_{stm32::gpio::Port::G, 13}      // RMII_TXD0
-{
+    , ethernet_{stm32::ethernet_dma_heap} {
     // construct the driver objects as part of the constructor above.
 }
 
@@ -241,9 +248,11 @@ core::Status BoardContext::Initialize(void) {
     ahb1_reset = stm32::h7xx::reset_and_clock_control.ahb1_peripheral_reset;    // read
     ahb1_reset.bits.dma1_reset = 1U;
     ahb1_reset.bits.dma2_reset = 1U;
+    ahb1_reset.bits.ethernet1_mac_reset = 1U;
     stm32::h7xx::reset_and_clock_control.ahb1_peripheral_reset = ahb1_reset;    // write
     ahb1_reset.bits.dma1_reset = 0U;
     ahb1_reset.bits.dma2_reset = 0U;
+    ahb1_reset.bits.ethernet1_mac_reset = 0U;
     stm32::h7xx::reset_and_clock_control.ahb1_peripheral_reset = ahb1_reset;    // write
 
     // Reset the AHB2 peripherals
@@ -270,6 +279,8 @@ core::Status BoardContext::Initialize(void) {
     ahb1_enable = stm32::h7xx::reset_and_clock_control.ahb1_peripheral_clock_enable;    // read
     ahb1_enable.bits.dma1_enable = 1;                                                   // modify
     ahb1_enable.bits.dma2_enable = 1;                                                   // modify
+    ahb1_enable.bits.ethernet1_mac_enable = 1;                                          // modify
+    ahb1_enable.bits.ethernet1_receive_clock_enable = 1;                                // modify
     stm32::h7xx::reset_and_clock_control.ahb1_peripheral_clock_enable = ahb1_enable;    // write
 
     // enable the ABP2 peripherals in the Reset and Clock Control register
@@ -333,6 +344,30 @@ core::Status BoardContext::Initialize(void) {
             break;
         }
 
+        // Ethernet (does not take any parameters)
+        status = ethernet_.Initialize();
+        if (not status.IsSuccess()) {
+            jarnax::print("Ethernet failed to initialize\r\n");
+            break;
+        }
+        jarnax::net::ethernet::Driver::Addresses addresses{{
+            stm32::default_mac_address,    // MAC address
+            jarnax::net::eui48::invalid    // Empty
+        }};
+        status = ethernet_.Configure(addresses);
+        if (not status.IsSuccess()) {
+            jarnax::print("Ethernet failed to configure\r\n");
+            break;
+        }
+        jarnax::print(
+            "Ethernet MAC address is %02X:%02X:%02X:%02X:%02X:%02X\r\n",
+            ethernet_.GetMacAddress()[0],
+            ethernet_.GetMacAddress()[1],
+            ethernet_.GetMacAddress()[2],
+            ethernet_.GetMacAddress()[3],
+            ethernet_.GetMacAddress()[4],
+            ethernet_.GetMacAddress()[5]
+        );
 
         // force out
         break;

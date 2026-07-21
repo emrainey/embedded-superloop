@@ -35,6 +35,9 @@ InterIntegratedCircuit volatile i2c1;
 InterIntegratedCircuit volatile i2c2;
 InterIntegratedCircuit volatile i2c3;
 PowerController volatile power_controller;
+EthernetDirectMemoryAccess volatile ethernet_dma;
+EthernetMediaAccessController volatile ethernet_mac;
+EthernetMediaTransactionLayer volatile ethernet_mtl;
 }    // namespace h7xx
 namespace peripherals {
 using namespace stm32::h7xx;

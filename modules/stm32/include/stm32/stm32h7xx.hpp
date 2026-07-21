@@ -8,6 +8,9 @@
 ///=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 #include "stm32/h7xx/Debug.hpp"
 #include "stm32/h7xx/DirectMemoryAccess.hpp"
+#include "stm32/h7xx/EthernetDirectMemoryAccess.hpp"
+#include "stm32/h7xx/EthernetMediaAccessController.hpp"
+#include "stm32/h7xx/EthernetMediaTransactionLayer.hpp"
 #include "stm32/h7xx/FlashControl.hpp"
 #include "stm32/h7xx/GeneralPurposeInputOutput.hpp"
 #include "stm32/h7xx/InterIntegratedCircuit.hpp"
@@ -128,6 +131,18 @@ extern UniversalSynchronousAsynchronousReceiverTransmitter volatile usart3;
 /// The external volatile universal_synchronous_asynchronous_receiver_transmitter6 which is a memory mapped register or peripheral.
 /// @note The address of the peripheral is set either by the linkerscript or by a unit test.
 extern UniversalSynchronousAsynchronousReceiverTransmitter volatile usart6;
+
+/// The external volatile ethernet DMA which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern EthernetDirectMemoryAccess volatile ethernet_dma;
+
+/// The external volatile ethernet MAC which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern EthernetMediaAccessController volatile ethernet_mac;
+
+/// The external volatile ethernet MTL which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern EthernetMediaTransactionLayer volatile ethernet_mtl;
 
 }    // namespace stm32::h7xx
 

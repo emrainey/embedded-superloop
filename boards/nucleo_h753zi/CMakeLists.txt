@@ -22,6 +22,7 @@ add_board(NAME nucleo_h753zi
         stm32-i2c-driver
         # stm32-uart-driver # no UARTs on the H753ZI, only USART
         stm32-usart-driver
+        stm32-ethernet-driver
         jarnax
         stm32
     CONFIGURATIONS
