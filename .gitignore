@@ -39,16 +39,14 @@
 # Ignore Build Output
 build/
 
-# Ingnore Testing Output like Jlink/Ozone or GDB configuration
-testing/*.gdb
-
-# Ignore Ozone outputs
-testing/*.jdebug
-testing/*.jdebug.user
+# Ingnore Testing Output like Jlink/Ozone or GDB configuration or anything
+# else in there. 
+testing/
 
 # Ignore Python virtual environments
 venv/
 .venv/
+__pycache__
 
 # Ignore Mac OSX Files
 .DS_Store
@@ -58,6 +56,7 @@ venv/
 CMakeUserPresets.json
 
 # Agent Configuration as many have tokens in them
+.opencode/
 .continue/
 .agents/
 .mcp.json
