@@ -118,6 +118,9 @@ void clocks(ClockConfiguration const& clkcfg) {
         return;
     }
 
+    // TODO Enable Power Supply Correctly? 
+    // PWR supply config + ACTVOSRDY?
+
     // Set flash wait states for high-speed operation before increasing clocks.
     FlashControl::AccessControl access_control;
     access_control = flash_control.access_control;    // read
@@ -245,6 +248,10 @@ void clocks(ClockConfiguration const& clkcfg) {
         config = reset_and_clock_control.configuration;    // read
         system_clock_switch_counter++;
     } while (config.bits.system_clock_switch_status != h7xx::ResetAndClockControl::Configuration::SystemClockSwitch::PhaseLockLoopClock);
+
+    //+=== BARRIER ===+
+    thumb::data_synchronization_barrier();
+    thumb::instruction_barrier();
 
     // Compute the Clock Tree values from what we just set
     clock_tree.low_speed_internal = low_speed_internal_oscillator_frequency;

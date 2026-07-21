@@ -103,3 +103,14 @@ __cortex_system_limit = ORIGIN(PPB) + LENGTH(PPB);
 __cortex_system_size = LENGTH(PPB);
 __cortex_system_pow2  = LOG2CEIL(__cortex_system_size);
 
+__sram1_start = ORIGIN(SRAM1);
+__sram1_limit = ORIGIN(SRAM1) + LENGTH(SRAM1);
+
+__sram2_start = ORIGIN(SRAM2);
+__sram2_limit = ORIGIN(SRAM2) + LENGTH(SRAM2);
+
+__sram3_start = ORIGIN(SRAM3);
+__sram3_limit = ORIGIN(SRAM3) + LENGTH(SRAM3);
+
+__sram4_start = ORIGIN(SRAM4);
+__sram4_limit = ORIGIN(SRAM4) + LENGTH(SRAM4);

@@ -23,11 +23,12 @@
         ],
     },
     "settings": {
-        "clang-format.executable": "/opt/homebrew/bin/clang-format",
+        "jlinkMcp.jlink.device": "STM32H753ZI",
         "clang-format.fallbackStyle": "Google",
         "clang-format.style": "file",
         "clangd.arguments": [
             "--background-index",
+            "--query-driver=/**/arm-none-eabi-*",
             "--clang-tidy",
             "--compile-commands-dir=${command:cmake.buildDirectory}/",
             "--enable-config",
@@ -35,7 +36,6 @@
             "--log=verbose",
             "--pretty"
         ],
-        "clangd.path": "/opt/homebrew/bin/clangd",
         "cmake.allowCommentsInPresetsFile": true,
         "cmake.allowUnsupportedPresetsVersions": true,
         "cmake.buildEnvironment": {
@@ -200,19 +200,22 @@
                 "path": "tools/pylink-square-mcp",
                 "envManager": "ms-python.python:venv",
                 "packageManager": "ms-python.python:pip",
-                "interpreterPath": "${workspaceFolder}/venv/bin/python"
+                "interpreterPath": "${workspaceFolder}/.venv/bin/python"
             },
             {
                 "path": "external/staterator",
                 "envManager": "ms-python.python:venv",
                 "packageManager": "ms-python.python:pip",
-                "interpreterPath": "${workspaceFolder}/venv/bin/python"
+                "interpreterPath": "${workspaceFolder}/.venv/bin/python"
             }
         ],
         "testMate.cpp.test.executables": "${workspaceFolder}/build/native-*/modules/**/tests/test-*",
         "testMate.cpp.test.parallelExecutionLimit": 2,
-        "cSpell.words": [
-            "distcc"
+        "testMate.cpp.test.advancedExecutables": [
+            {
+                "pattern": "${workspaceFolder}/build/native-*/modules/**/tests/test-*",
+                "parallelizationLimit": 2
+            }
         ],
         "cmake.configureOnOpen": false,
         "chat.tools.terminal.autoApprove": {

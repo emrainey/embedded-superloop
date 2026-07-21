@@ -8,10 +8,15 @@ project(embedded-superloop
 set(EMBEDDED_SUPERLOOP_PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 
 # include(CMakePrintHelpers)
+# C++23 with no extensions
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_C_STANARD 17)
-set(CMAKE_CXX_EXTENSIONS ON)
+
+# C23 with no extensions
+set(CMAKE_C_EXTENSIONS OFF)
+set(CMAKE_C_STANDARD 23)
+set(CMAKE_C_STANDARD_REQUIRED TRUE)
 
 # set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,readability-*)
 if(BUILD_UNIT_TESTS)

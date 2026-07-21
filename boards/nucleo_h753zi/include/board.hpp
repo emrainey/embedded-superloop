@@ -51,11 +51,11 @@ constexpr static std::uint32_t usart_dma_buffer_size = 128U;
 constexpr static std::uint32_t i2c_dma_buffer_size = 256U;
 /// The SPI1 DMA Buffer Size
 constexpr static std::uint32_t spi1_dma_buffer_size = 256U;
-/// The Ethernet DMA BLock Size (a frame and should be multiple of the align size on the platform)
-constexpr static std::uint32_t ethernet_dma_block_size = 1536U;
-/// The Ethernet DMA Block Count (should be enough for 8 frames of 1536 bytes each)
-constexpr static std::uint32_t ethernet_dma_block_count = 8U;
-/// The Ethernet DMA Buffer Size (should be enough for 8 frames of 1536 bytes each)
+/// The Ethernet DMA Block Size (a frame and should be multiple of the align size on the platform)
+constexpr static std::uint32_t ethernet_dma_block_size = 2048U;
+/// The Ethernet DMA Block Count (more frames mean smore responsiveness)
+constexpr static std::uint32_t ethernet_dma_block_count = 16U;
+/// The Ethernet DMA Buffer Size (should be enough for N frames of 2048 bytes each)
 constexpr static std::uint32_t ethernet_dma_buffer_size = ethernet_dma_block_size * ethernet_dma_block_count;
 /// The Default Mac Address for the Ethernet Driver
 constexpr static jarnax::net::eui48::Address default_mac_address{0x02, 0x00, 0x00, 0x00, 0x00, 0x01};

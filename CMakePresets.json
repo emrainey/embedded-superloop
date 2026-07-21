@@ -28,7 +28,7 @@
                 "BUILD_PRINT_PROPERTIES": "OFF",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
                 "CMAKE_PREFIX_PATH": "${sourceDir}/build-support/",
-                "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             },
             "environment": {
                 "HOMEBREW_ROOT": "/opt/homebrew",

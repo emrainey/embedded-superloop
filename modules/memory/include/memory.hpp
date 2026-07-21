@@ -32,6 +32,7 @@ namespace memory {
 /// @param value The value to assign to each element.
 /// @param count The count of the number of elements.
 template <typename UNIT_TYPE>
+__attribute__((optimize("O2", "no-tree-loop-distribute-patterns")))
 void fill(UNIT_TYPE array[], UNIT_TYPE value, std::size_t count) {
     for (std::size_t i = 0; i < count; ++i) {
         array[i] = value;
@@ -44,6 +45,7 @@ void fill(UNIT_TYPE array[], UNIT_TYPE value, std::size_t count) {
 /// @param src The source array of the elements.
 /// @param count The count of the number of elements.
 template <typename UNIT_TYPE>
+__attribute__((optimize("O2", "no-tree-loop-distribute-patterns")))
 void copy(UNIT_TYPE dst[], UNIT_TYPE const src[], std::size_t count) {
     for (std::size_t i = 0; i < count; ++i) {
         dst[i] = src[i];
@@ -74,6 +76,7 @@ int compare(UNIT_TYPE const lhs[], UNIT_TYPE const rhs[], std::size_t count) {
 /// @param array The array of the elements.
 /// @param value The value to assign to each element.
 template <typename UNIT_TYPE, std::size_t COUNT>
+__attribute__((optimize("O2", "no-tree-loop-distribute-patterns")))
 void fill(UNIT_TYPE (&array)[COUNT], UNIT_TYPE value) {
     for (std::size_t i = 0; i < COUNT; ++i) {
         array[i] = value;
@@ -86,6 +89,7 @@ void fill(UNIT_TYPE (&array)[COUNT], UNIT_TYPE value) {
 /// @param dst The destination array of the elements.
 /// @param src The source array of the elements.
 template <typename UNIT_TYPE, std::size_t COUNT>
+__attribute__((optimize("O2", "no-tree-loop-distribute-patterns")))
 void copy(UNIT_TYPE (&dst)[COUNT], UNIT_TYPE const (&src)[COUNT]) {
     for (std::size_t i = 0; i < COUNT; ++i) {
         dst[i] = src[i];

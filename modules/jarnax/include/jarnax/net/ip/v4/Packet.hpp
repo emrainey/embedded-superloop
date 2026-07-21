@@ -90,7 +90,7 @@ class Packet final {
     Header header;                 ///< The header of the IPv4 packet, containing all the fields defined in the Header structure.
     union {
         udp::Datagram datagram;    ///< The payload of the IPv4 packet, interpreted as an IPv4 datagram.
-        uint8_t payload[ethernet::MediaTransmissionUnit - sizeof(Header)];    ///< The payload of the IPv4 packet, which can contain up to the MTU
+        uint8_t payload[MaxPacketSize];    ///< The payload of the IPv4 packet, which can contain up to the MTU
                                                                               ///< size of data.
     };
     // +=== MEMORY ======================================+

@@ -5,6 +5,7 @@ cmsis
 cxa
 cxx
 cxxflags
+distcc
 eabi
 fclk
 hclk

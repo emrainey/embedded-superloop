@@ -29,9 +29,9 @@ void svc(cortex::exceptions::ExtendedFrame *frame, cortex::exceptions::Exception
     marshal.call = static_cast<Marshal::Calls>(reinterpret_cast<uint8_t *>(frame->basic.program_counter)[-2]);
     // copy the parameters
     marshal.type.generic.parameters[0].as_u32[0] = frame->basic.r0.as_u32[0];
-    marshal.type.generic.parameters[1].as_u32[0] = frame->basic.r1.as_u32[1];
-    marshal.type.generic.parameters[2].as_u32[0] = frame->basic.r2.as_u32[2];
-    marshal.type.generic.parameters[3].as_u32[0] = frame->basic.r3.as_u32[3];
+    marshal.type.generic.parameters[1].as_u32[0] = frame->basic.r1.as_u32[0];
+    marshal.type.generic.parameters[2].as_u32[0] = frame->basic.r2.as_u32[0];
+    marshal.type.generic.parameters[3].as_u32[0] = frame->basic.r3.as_u32[0];
 
     if (marshal.call == Marshal::Calls::BuiltInSelfTest) {
         if (cortex::built_in_self_test.trigger_supervisor_call.is_testing) {

@@ -1,6 +1,6 @@
 #include <array>
 #include <compiler.hpp>
-
+#include <cortex/linker.hpp>
 #include "BoardContext.hpp"
 #include <cortex/linker.hpp>
 #include "configure.hpp"
@@ -45,7 +45,7 @@ LINKER_SECTION(".dma_buffers") alignas(alignof(std::max_align_t)) static core::A
 static core::BitMapHeap<DmaBlockSize, DmaBlockCount> dma_heap_allocator{&dma_memory[0], dma_memory.size()};
 
 /// @brief A second chunk of memory for the Ethernet's DMA Frames, but they go in the same location.
-LINKER_SECTION(".dma_buffers") alignas(alignof(std::max_align_t)) static core::Array<uint8_t, ethernet_dma_buffer_size> ethernet_dma_memory;
+LINKER_SECTION(".ethernet_dma_buffers") alignas(alignof(std::max_align_t)) static core::Array<uint8_t, ethernet_dma_buffer_size> ethernet_dma_memory;
 /// @brief Manage the Ethernet DMA buffers with a bitmap allocator
 static core::BitMapHeap<ethernet_dma_block_size, ethernet_dma_block_count, alignof(std::max_align_t), std::uint8_t> ethernet_dma_heap{
     &ethernet_dma_memory[0], ethernet_dma_memory.size()
@@ -59,13 +59,13 @@ static core::BitMapHeap<ethernet_dma_block_size, ethernet_dma_block_count, align
 };
 
 /// @brief Dedicated descriptor-ring memory for Ethernet TX descriptors.
-LINKER_SECTION(".dma_buffers")
+LINKER_SECTION(".ethernet_dma_descriptors")
 alignas(
     alignof(stm32::ethernet::dma::Descriptor)
 ) static core::Array<stm32::ethernet::dma::Descriptor, stm32::ethernet::Driver::TransmitDescriptorCount> ethernet_tx_descriptors{};
 
 /// @brief Dedicated descriptor-ring memory for Ethernet RX descriptors.
-LINKER_SECTION(".dma_buffers")
+LINKER_SECTION(".ethernet_dma_descriptors")
 alignas(
     alignof(stm32::ethernet::dma::Descriptor)
 ) static core::Array<stm32::ethernet::dma::Descriptor, stm32::ethernet::Driver::ReceiveDescriptorCount> ethernet_rx_descriptors{};
@@ -96,6 +96,17 @@ ClockConfiguration const default_clock_configuration = {
     /* .pll_q = */ 4U - 1U,                    // 800 MHz / 4 = 200 MHz
     /* .pll_r = */ 8U - 1U,                    // 800 MHz / 8 = 100 MHz
     /* .pll_fracn = */ 0
+};
+
+// Secondary Zero Init for SRAMx
+struct SRAM {
+    std::uint32_t *start;
+    std::uint32_t *limit;
+} srams[] = {
+    { __sram1_start, __sram1_limit },
+    { __sram2_start, __sram2_limit },
+    { __sram3_start, __sram3_limit },
+    { __sram4_start, __sram4_limit },
 };
 
 }    // namespace stm32
@@ -265,6 +276,7 @@ core::Status BoardContext::Initialize(void) {
     stm32::h7xx::ResetAndClockControl::AHB2PeripheralReset ahb2_reset;
     stm32::h7xx::ResetAndClockControl::APB1LowClockEnable apb1_enable;
     stm32::h7xx::ResetAndClockControl::APB2PeripheralClockEnable apb2_enable;
+    stm32::h7xx::ResetAndClockControl::Processor1AHB4ClockEnable ahb4_enable;
 
     // Reset the AHB1 peripherals
     ahb1_reset = stm32::h7xx::reset_and_clock_control.ahb1_peripheral_reset;    // read
@@ -287,7 +299,21 @@ core::Status BoardContext::Initialize(void) {
     // Enable the RNG in the AHB2 Periperhals
     ahb2_enable = stm32::h7xx::reset_and_clock_control.ahb2_peripheral_clock_enable;    // read
     ahb2_enable.bits.random_number_generator_enable = 1U;
+    ahb2_enable.bits.sram1_enable = 1U;
+    ahb2_enable.bits.sram2_enable = 1U;
+    ahb2_enable.bits.sram3_enable = 1U;
     stm32::h7xx::reset_and_clock_control.ahb2_peripheral_clock_enable = ahb2_enable;    // write
+
+    // Now wait for the D2 Clock Ready (D2CKRDY)
+    stm32::h7xx::ResetAndClockControl::Control control;
+    do {
+        control = stm32::h7xx::reset_and_clock_control.control;    // read
+    } while (control.bits.domain2_clock_ready == 0);
+
+    // Enable the SRAM4 in the AHB4 Periperhals
+    ahb4_enable = stm32::h7xx::reset_and_clock_control.processor1_ahb4_clock_enable;    // read
+    ahb4_enable.bits.sram4_enable = 1U;
+    stm32::h7xx::reset_and_clock_control.processor1_ahb4_clock_enable = ahb4_enable;    // write
 
     // enable the APB1 peripherals in the Reset and Clock Control register
     apb1_enable = stm32::h7xx::reset_and_clock_control.apb1_low_clock_enable;    // read
@@ -323,6 +349,14 @@ core::Status BoardContext::Initialize(void) {
         peripheral_mode_control = stm32::h7xx::system_configuration.peripheral_mode_control;    // read
         peripheral_mode_control.bits.ethernet_physical_interface_selection = 0b100U;            // RMII
         stm32::h7xx::system_configuration.peripheral_mode_control = peripheral_mode_control;    // write
+    }
+
+    // Since we just enabled SRAM1,2,3,4 we need to memset the whole parts for ECC
+    // TODO: This is a hacky way to do this. We should be able to do this at compile time, but these 
+    // CAN'T be done in the zero table as the parts aren't enable at boot
+    for (size_t r = 0; r < dimof(stm32::srams); r++) {
+        std::size_t size = static_cast<size_t>(stm32::srams[r].limit - stm32::srams[r].start) / sizeof(*stm32::srams[r].start);
+        memory::fill<uint32_t>(stm32::srams[r].start, 0U, size);
     }
 
     jarnax::print("Feature Clock is %" PRIu32 "\r\n", stm32::GetClockTree().fclk.value());

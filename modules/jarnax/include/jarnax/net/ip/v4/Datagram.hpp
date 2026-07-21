@@ -48,7 +48,7 @@ class Datagram final {
     // +=== MEMORY ======================================+
     Header header;                                                            ///< The header of the IPv4 datagram, containing all the fields
     union {
-        uint8_t payload[ethernet::MediaTransmissionUnit - sizeof(Header)];    ///< The payload of the IPv4 datagram, which can contain up to the MTU
+        uint8_t payload[MaxDatagramSize];    ///< The payload of the IPv4 datagram, which can contain up to the MTU
                                                                               ///< size of data.
     };
     // +=== MEMORY ======================================+

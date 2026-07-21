@@ -1,3 +1,6 @@
+CompileFlags:
+  CompilationDatabase: build/cortex-m7-gcc-arm-none-eabi
+
 Diagnostics:
   ClangTidy:
     Checks: "modernize-*,readability-*"
@@ -15,3 +18,24 @@ Diagnostics:
       readability-identifier-naming.TypeAliasCase: CamelCase
       readability-identifier-naming.NamespaceCase: lower_case
       readability-identifier-naming.EnumConstantCase: CamelCase
+
+---
+If:
+  PathMatch: .*/(stm32_f4ve_v2|netduinoplus2|stm32f4xx|f4xx|stm32f405rg|stm32f407ve)/.*
+
+CompileFlags:
+  CompilationDatabase: build/cortex-m4-gcc-arm-none-eabi
+
+---
+If:
+  PathMatch: .*/(nucleo_h753zi|stm32h7xx|h7xx|stm32h753zi)/.*
+
+CompileFlags:
+  CompilationDatabase: build/cortex-m7-gcc-arm-none-eabi
+
+---
+If:
+  PathMatch: .*/(tests|unittests)/.*
+
+CompileFlags:
+  CompilationDatabase: build/native-llvm

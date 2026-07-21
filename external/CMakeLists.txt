@@ -1,7 +1,7 @@
 # Found on https://discourse.cmake.org/t/possible-to-create-a-python-virtual-env-from-cmake-and-then-find-it-with-findpython3/1132/2
 # Find just the interpreter first
 find_package(Python3 REQUIRED Interpreter)
-set(PYTHON_VENV "${CMAKE_SOURCE_DIR}/venv")
+set(PYTHON_VENV "${CMAKE_SOURCE_DIR}/.venv")
 # Print the version and create the virtual environment
 execute_process (
     COMMAND_ECHO STDOUT
@@ -21,7 +21,8 @@ execute_process (
     COMMAND_ECHO STDOUT
     OUTPUT_STRIP_TRAILING_WHITESPACE
     COMMAND ${Python3_EXECUTABLE} --version
-    COMMAND ${Python3_EXECUTABLE} -m pip install jinja2 pyyaml
+    COMMAND ${Python3_EXECUTABLE} -m pip install --upgrade pip
+    COMMAND ${Python3_EXECUTABLE} -m pip install jinja2 pyyaml jlink-mcp pylink-square pytest pytest-cov pyserial
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 

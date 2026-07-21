@@ -139,6 +139,8 @@ constexpr bool is_digit(char c) {
     return (c >= '0' && c <= '9');
 }
 
+// Don't allow "clever" optimizations which would force the char buffer to be accessed oddly and cause UsageFault
+__attribute__((optimize("O1"), noinline))
 unsigned long vsnprint(char buffer[], size_t buffer_size, const char *format, va_list args) {
     unsigned long index = 0U;    // always start back at zero
 

@@ -71,3 +71,4 @@ Make sure that the cross builds are not broken either by building them:
 - ✅ **Always do** check the local PDFs in `documentation/pdfs` for relevant vendor specific documentation before searching the internet.
 - ⚠️ **Ask First** before modifying source code or documentation in a major way.
 - 🚫 **NEVER** modify the git repository or the .git folder.
+- 🚫 **NEVER** use the `kCamelCase` naming convention (e.g. `kNaming`) for global, static, or namespace-scope constants. Use the project's established style (typically `snake_case` or `PascalCase` where already exists).

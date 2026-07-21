@@ -3514,8 +3514,10 @@ struct ResetAndClockControl final {
             uint32_t                                : 2;    // bits 26:27
             /// Backup RAM Clock Enable (BKPRAMEN)
             uint32_t backup_ram_enable              : 1;    // bit 28
+            /// SRAM4
+            uint32_t sram4_enable                   : 1;    // bits 29
             /// (reserved)
-            uint32_t                                : 3;    // bits 29:31
+            uint32_t                                : 2;    // bits 30:31
         };
         //+=MEMORY======================================+
         union {

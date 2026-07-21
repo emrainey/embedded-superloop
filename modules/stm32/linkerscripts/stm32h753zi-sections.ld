@@ -1,4 +1,18 @@
 
+    /* Ethernet DMA Buffers, separate from the other DMA Buffers since they are usually far larger */
+    .ethernet_dma_buffers (NOLOAD) : {
+        _stm32_ethernet_dma_buffers_start = . ;
+        /* Buffers go first to keep the 1k alignment */
+        KEEP(*(.ethernet_dma_buffers))
+        /* Descriptors go next as they just need a smaller alignment */
+        . = ALIGN(16);
+        KEEP(*(.ethernet_dma_descriptors))
+        _stm32_ethernet_dma_buffers_end = . ;
+    } > SRAM1
+    _stm32_ethernet_dma_buffers_size = SIZEOF(.ethernet_dma_buffers);
+    ASSERT(_stm32_ethernet_dma_buffers_size <= LENGTH(SRAM1), ".ethernet_dma_buffers has overrun!")
+    _stm32_ethernet_dma_buffers_pow2  = LOG2CEIL(_stm32_ethernet_dma_buffers_size);
+
     /* Arm Private Bus 1 */
     _stm32_tim2 = ORIGIN(APB1) + 0x0000;
     _stm32_tim3 = ORIGIN(APB1) + 0x0400;
