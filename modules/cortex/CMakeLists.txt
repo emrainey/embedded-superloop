@@ -5,6 +5,7 @@ add_architecture(NAME cortex
         ${CMAKE_CURRENT_SOURCE_DIR}/source/cache.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/trigger.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/initialize.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/vendor_mpu_regions.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/swo.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/nvic.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/mpu.cpp

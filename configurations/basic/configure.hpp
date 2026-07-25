@@ -46,7 +46,7 @@ constexpr static bool verify_sram_at_boot{true};
 constexpr static bool enable_access_to_fpu{true};
 
 /// Configures the use of the default mpu configuration only (no additions from system)
-constexpr static bool use_only_default_mpu_configuration{true};
+constexpr static bool use_only_default_mpu_configuration{false};
 
 /// Indicates if the system should run the preinitialization array
 constexpr static bool has_preinitialization{true};

@@ -159,6 +159,30 @@ LINKER_SYMBOL(__cortex_sram_size);
 /// Link Symbol of the Power of 2 Size of SRAM
 LINKER_SYMBOL(__cortex_sram_pow2);
 
+/// Link Symbol of the Start of SRAM1
+LINKER_SYMBOL(__sram1_start);
+
+/// Link Symbol of the End of SRAM1
+LINKER_SYMBOL(__sram1_limit);
+
+/// Link Symbol of the Start of SRAM2
+LINKER_SYMBOL(__sram2_start);
+
+/// Link Symbol of the End of SRAM2
+LINKER_SYMBOL(__sram2_limit);
+
+/// Link Symbol of the Start of SRAM3
+LINKER_SYMBOL(__sram3_start);
+
+/// Link Symbol of the End of SRAM3
+LINKER_SYMBOL(__sram3_limit);
+
+/// Link Symbol of the Start of SRAM4
+LINKER_SYMBOL(__sram4_start);
+
+/// Link Symbol of the End of SRAM4
+LINKER_SYMBOL(__sram4_limit);
+
 /// Link Symbol of the Start of System Private Peripherals Bus
 LINKER_SYMBOL(__cortex_system_start);
 

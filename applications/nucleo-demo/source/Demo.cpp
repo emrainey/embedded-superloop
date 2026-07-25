@@ -7,16 +7,56 @@
 
 using namespace core::units;
 
+namespace {
+
+void SendArpProbe(stm32::ethernet::Driver& ethernet_driver, jarnax::net::Interface& network_interface) {
+    auto* frame = ethernet_driver.Acquire();
+    if (frame == nullptr) {
+        jarnax::print("Demo::ARP probe skipped: no frame available\r\n");
+        return;
+    }
+
+    auto const mac_address = ethernet_driver.GetMacAddress();
+
+    frame->header.destination = jarnax::net::eui48::broadcast;
+    frame->header.source = mac_address;
+    frame->header.type = jarnax::net::ethernet::EtherType::ARP;
+
+    frame->payload.arp.hardware_type = jarnax::net::arp::HardwareType::Ethernet;
+    frame->payload.arp.protocol_type = jarnax::net::ethernet::EtherType::IPv4;
+    frame->payload.arp.opcode = jarnax::net::arp::Opcode::Request;
+    frame->payload.arp.sender_mac = mac_address;
+    frame->payload.arp.sender_ip = network_interface.address;
+    frame->payload.arp.target_mac = jarnax::net::eui48::invalid;
+    frame->payload.arp.target_ip = network_interface.address;
+
+    frame->header.Flip();
+    frame->payload.arp.Flip();
+
+    core::Status const status = ethernet_driver.Transmit(frame);
+    if (not status.IsSuccess()) {
+        jarnax::print("Demo::ARP probe transmit failed\r\n");
+    } else {
+        jarnax::print("Demo::ARP probe sent\r\n");
+    }
+
+    ethernet_driver.Release(frame);
+}
+
+}    // namespace
+
 Demo::Demo(jarnax::Ticker& ticker, jarnax::BoardContext& board_context, jarnax::net::Interface& network_interface)
     : ticker_{ticker}
     , timer_{board_context.GetTimer()}
     , usart_driver_{board_context.GetUsartB()}
     , rng_{board_context.GetRandomNumberGenerator()}
+    , board_context_{board_context}
     , ethernet_driver_{board_context.GetEthernet()}
     , error_indicator_{board_context.GetErrorIndicator()}
     , user_button_{board_context.GetUserButton()}
     , network_interface_{network_interface}
     , countdown_{timer_, core::units::Iota{250'000U}}
+    , arp_probe_countdown_{timer_, core::units::ConvertToIota(1'000'000_usec)}
     , state_chart_{*this}
     , inputs_{Inputs::None}
     , button_was_pressed_{false} {}
@@ -62,6 +102,7 @@ void Demo::OnEntry(DemoState state) {
         outputs_ = Outputs::ErrorIndicatorInactive;
         // when entering the Idle state, set the timer to go off 2 seconds later
         countdown_.Restart(core::units::ConvertToIota(2'000'000_usec));
+        arp_probe_countdown_.Restart(core::units::ConvertToIota(1'000'000_usec));
     } else if (state == DemoState::Error) {
         outputs_ = Outputs::ErrorIndicatorActive;
     }
@@ -71,6 +112,12 @@ void Demo::OnCycle(DemoState state) {
     if (state == DemoState::StartUp) {
         // do nothing
     } else if (state == DemoState::Idle) {
+        if (board_context_.GetLan8742aDriver().IsLinkUp() and arp_probe_countdown_.IsExpired()) {
+            auto& ethernet_driver = static_cast<stm32::ethernet::Driver&>(board_context_.GetEthernet());
+            SendArpProbe(ethernet_driver, network_interface_);
+            arp_probe_countdown_.Reset();
+        }
+
         if (countdown_.IsExpired()) {
             jarnax::Ticks ticks = ticker_.GetTicksSinceBoot();
             jarnax::Time time = ticker_.GetTimeSinceBoot();

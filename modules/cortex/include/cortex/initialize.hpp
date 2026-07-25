@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <cstdint>
 
+#include "cortex/peripherals/MemoryProtectionUnit.hpp"
 #include "cortex/types.hpp"
 
 namespace cortex {
@@ -14,11 +15,27 @@ namespace cortex {
 /// @warning These should ONLY be called by the boot sequence!
 namespace initialize {
 
+/// A vendor-provided MPU region description consumed by cortex::initialize::class_globals.
+struct MpuRegionConfiguration final {
+    std::uint8_t region_number;                                    ///< MPU region number to program
+    std::uintptr_t base_address;                                   ///< Base address of the region
+    std::uint32_t size_bytes;                                      ///< Region size in bytes (must be power-of-two)
+    peripherals::MemoryProtectionUnit::Attribute attribute;        ///< MPU memory attribute
+    peripherals::MemoryProtectionUnit::Permissions permissions;    ///< Privileged/User access permissions
+    bool execute_never;                                            ///< Execute-never attribute
+};
+
 /// Initializes Simple Cortex Global variables needed to use across other calls.
 void simple_globals(void);
 
 /// Initializes Class Cortex Global variables needed to use across other calls.
 void class_globals(void);
+
+/// Vendor extension point for additional MPU regions.
+/// @param out_regions Output buffer for region descriptions.
+/// @param max_regions Capacity of @p out_regions.
+/// @return Number of regions written/requested.
+std::size_t vendor_mpu_regions(MpuRegionConfiguration* out_regions, std::size_t max_regions);
 
 /// Grants access to the FPU
 void fpu(void);

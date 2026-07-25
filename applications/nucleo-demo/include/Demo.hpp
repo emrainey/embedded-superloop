@@ -71,11 +71,13 @@ protected:
     jarnax::Timer const& timer_;
     jarnax::usart::Driver& usart_driver_;
     jarnax::RandomNumberGenerator& rng_;
+    jarnax::BoardContext& board_context_;
     jarnax::net::ethernet::Driver& ethernet_driver_;
     jarnax::Indicator& error_indicator_;
     jarnax::Button& user_button_;
     jarnax::net::Interface& network_interface_;
     jarnax::CountDown countdown_;
+    jarnax::CountDown arp_probe_countdown_;
     core::StateChart<DemoState> state_chart_;
     Inputs inputs_;
     bool button_was_pressed_;

@@ -3,6 +3,7 @@
 #include "cortex/mcu.hpp"
 // ============================================================
 #include "cortex/globals.hpp"
+#include "cortex/initialize.hpp"
 
 namespace cortex {
 
@@ -139,6 +140,30 @@ void class_globals() {
         mpui[idx].access.bits.set_power2_size(size);
         mpui[idx].access.bits.permissions = peripherals::MemoryProtectionUnit::Permissions::RW_Priv_RW_User;
         mpui[idx].access.bits.execute_never = 1U;
+        idx++;
+    }
+
+    //===============================================================================
+    // Append any vendor-specific MPU regions.
+    MpuRegionConfiguration vendor_regions[variant::DefaultRegionLimit]{};
+    std::size_t const vendor_region_count = vendor_mpu_regions(vendor_regions, variant::DefaultRegionLimit);
+    if (vendor_region_count > variant::DefaultRegionLimit) {
+        cortex::spinhalt();
+    }
+    for (std::size_t region_idx = 0U; region_idx < vendor_region_count; region_idx++) {
+        if (idx >= variant::DefaultRegionLimit) {
+            cortex::spinhalt();
+        }
+        auto const &region = vendor_regions[region_idx];
+        if (region.size_bytes == 0U or not polyfill::is_power_of_two(region.size_bytes)) {
+            cortex::spinhalt();
+        }
+        mpui[idx].region.parts.number = region.region_number;
+        mpui[idx].address.Set(region.base_address);
+        mpui[idx].access = make_access(region.attribute);
+        mpui[idx].access.bits.set_power2_size(region.size_bytes);
+        mpui[idx].access.bits.permissions = region.permissions;
+        mpui[idx].access.bits.execute_never = region.execute_never ? 1U : 0U;
         idx++;
     }
 
