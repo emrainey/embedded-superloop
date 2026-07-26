@@ -17,6 +17,9 @@ from dump_memory import main as dump_memory_main
 from test_breakpoint import main as test_breakpoint_main
 from run_to_main import main as run_to_main_main
 from dump_ethernet import main as dump_ethernet_main
+from flash_target import main as flash_target_main
+from step_target import main as step_target_main
+from run_for import main as run_for_main
 
 def log(msg):
     sys.stderr.write(f"[MCP-Server] {msg}\n")
@@ -138,6 +141,42 @@ def handle_test_breakpoint(arguments):
     ]
     return run_tool_main(test_breakpoint_main, args)
 
+def handle_flash_target(arguments):
+    file_path = arguments.get("file")
+    if not file_path:
+        return 1, "Error: 'file' argument is required."
+    device = arguments.get("device", "STM32H753ZI")
+    speed = arguments.get("speed", 4000)
+    address = arguments.get("address", 0)
+    objcopy = arguments.get("objcopy", None)
+    args = ["--file", str(file_path), "--device", str(device), "--speed", str(speed),
+            "--address", str(address)]
+    if objcopy:
+        args += ["--objcopy", str(objcopy)]
+    return run_tool_main(flash_target_main, args)
+
+
+def handle_step_target(arguments):
+    count = arguments.get("count", 1)
+    device = arguments.get("device", "STM32H753ZI")
+    speed = arguments.get("speed", 4000)
+    args = ["--count", str(count), "--device", str(device), "--speed", str(speed)]
+    return run_tool_main(step_target_main, args)
+
+
+def handle_run_for(arguments):
+    seconds = arguments.get("seconds")
+    if seconds is None:
+        return 1, "Error: 'seconds' argument is required."
+    device = arguments.get("device", "STM32H753ZI")
+    speed = arguments.get("speed", 4000)
+    reset = arguments.get("reset", False)
+    args = ["--seconds", str(seconds), "--device", str(device), "--speed", str(speed)]
+    if reset:
+        args.append("--reset")
+    return run_tool_main(run_for_main, args)
+
+
 TOOLS = [
     {
         "name": "debug_target",
@@ -235,6 +274,50 @@ TOOLS = [
             "required": ["pc", "address"]
         },
         "handler": handle_test_breakpoint
+    },
+    {
+        "name": "flash_target",
+        "description": "Flash firmware (.elf, .hex, .bin) to target via J-Link.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "file": {"type": "string", "description": "Path to firmware file (.elf, .hex, or .bin)"},
+                "device": {"type": "string", "description": "Target device name", "default": "STM32H753ZI"},
+                "speed": {"type": "integer", "description": "J-Link speed in kHz", "default": 4000},
+                "address": {"type": "integer", "description": "Flash address for .bin files (default: 0). Ignored for .elf/.hex."},
+                "objcopy": {"type": "string", "description": "Path to arm-none-eabi-objcopy (auto-detected if omitted)"}
+            },
+            "required": ["file"]
+        },
+        "handler": handle_flash_target
+    },
+    {
+        "name": "step_target",
+        "description": "Single-step the target through N instructions and report register state.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "count": {"type": "integer", "description": "Number of instructions to step", "default": 1},
+                "device": {"type": "string", "description": "Target device name", "default": "STM32H753ZI"},
+                "speed": {"type": "integer", "description": "J-Link speed in kHz", "default": 4000}
+            }
+        },
+        "handler": handle_step_target
+    },
+    {
+        "name": "run_for",
+        "description": "Run target for a set duration then halt and report state.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "seconds": {"type": "number", "description": "Seconds to let target run before halting"},
+                "device": {"type": "string", "description": "Target device name", "default": "STM32H753ZI"},
+                "speed": {"type": "integer", "description": "J-Link speed in kHz", "default": 4000},
+                "reset": {"type": "boolean", "description": "Reset target before running", "default": false}
+            },
+            "required": ["seconds"]
+        },
+        "handler": handle_run_for
     }
 ]
 
