@@ -20,6 +20,8 @@ from dump_ethernet import main as dump_ethernet_main
 from flash_target import main as flash_target_main
 from step_target import main as step_target_main
 from run_for import main as run_for_main
+import svd_query
+import xml.etree.ElementTree as ET
 
 def log(msg):
     sys.stderr.write(f"[MCP-Server] {msg}\n")
@@ -177,6 +179,82 @@ def handle_run_for(arguments):
     return run_tool_main(run_for_main, args)
 
 
+def handle_svd_query(arguments):
+    action = arguments.get("action")
+    if not action:
+        return 1, "Error: 'action' argument is required. Choose: list_svds, list_peripherals, list_registers, get_register"
+
+    try:
+        if action == "list_svds":
+            svds = svd_query.list_svds()
+            lines = []
+            for s in svds:
+                lines.append(f"  {s['path']}")
+            result = f"Found {len(svds)} SVD file(s):\n" + "\n".join(lines) if lines else "No SVD files found."
+            return 0, result
+
+        svd_path = arguments.get("svd")
+        if not svd_path:
+            return 1, "Error: 'svd' argument is required for this action."
+
+        if action == "list_peripherals":
+            perifs = svd_query.list_peripherals(svd_path)
+            lines = []
+            for p in perifs:
+                lines.append(f"  {p['name']:40s} base={p['baseAddress']}  ({p['registerCount']} registers)")
+            result = f"Peripherals in {svd_path} ({len(perifs)}):\n" + "\n".join(lines) if lines else f"No peripherals found in {svd_path}."
+            return 0, result
+
+        peripheral = arguments.get("peripheral")
+        if not peripheral:
+            return 1, "Error: 'peripheral' argument is required for this action."
+
+        if action == "list_registers":
+            regs = svd_query.list_registers(svd_path, peripheral)
+            if not regs:
+                return 1, f"Peripheral '{peripheral}' not found in {svd_path}"
+            lines = []
+            for r in regs:
+                lines.append(f"  {r['name']:30s} offset={r['offset']}  address={r['address']}  size={r['size']}b  {r['description']}")
+            result = f"Registers in {peripheral} ({len(regs)}):\n" + "\n".join(lines)
+            return 0, result
+
+        register = arguments.get("register")
+        if not register:
+            return 1, "Error: 'register' argument is required for get_register action."
+
+        if action == "get_register":
+            info = svd_query.get_register(svd_path, peripheral, register)
+            if not info:
+                return 1, f"Register '{peripheral}.{register}' not found in {svd_path}"
+            lines = [
+                f"Peripheral: {info['peripheral']}",
+                f"Register:   {info['register']}",
+                f"Address:    {info['address']}",
+                f"Offset:     {info['offset']}",
+                f"Size:       {info['size']}b",
+                f"Reset:      {info['resetValue']}",
+                f"Description: {info['description']}",
+            ]
+            if info["fields"]:
+                lines.append("")
+                lines.append("Fields (MSB first):")
+                lines.append(f"  {'Name':25s} {'Bits':8s} {'Mask':12s} {'Description'}")
+                lines.append(f"  {'-'*25} {'-'*8} {'-'*12} {'-'*40}")
+                for f in info["fields"]:
+                    bits = f"[{f['lsb'] + f['width'] - 1}:{f['lsb']}]" if f['width'] > 1 else f"[{f['lsb']}]"
+                    lines.append(f"  {f['name']:25s} {bits:8s} {f['mask']:12s} {f['description']}")
+            return 0, "\n".join(lines)
+
+        return 1, f"Unknown action: {action}. Valid actions: list_svds, list_peripherals, list_registers, get_register"
+    except FileNotFoundError as e:
+        return 1, str(e)
+    except ET.ParseError as e:
+        return 1, f"Failed to parse SVD: {e}"
+    except Exception as e:
+        return 1, f"Error querying SVD: {e}"
+
+
 TOOLS = [
     {
         "name": "debug_target",
@@ -318,6 +396,34 @@ TOOLS = [
             "required": ["seconds"]
         },
         "handler": handle_run_for
+    },
+    {
+        "name": "svd_query",
+        "description": "Query SVD files to look up peripheral and register information by name. Supports listing SVD files, peripherals, registers, and getting detailed register info including field bit positions.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string",
+                    "enum": ["list_svds", "list_peripherals", "list_registers", "get_register"],
+                    "description": "What to query: list_svds (no svd needed), list_peripherals, list_registers (needs peripheral), get_register (needs peripheral + register)"
+                },
+                "svd": {
+                    "type": "string",
+                    "description": "Path to SVD file (relative to project root), e.g. 'modules/stm32/scripts/STM32H753.svd'"
+                },
+                "peripheral": {
+                    "type": "string",
+                    "description": "Peripheral name, e.g. 'GPIOA', 'USART1', 'Ethernet_MAC'"
+                },
+                "register": {
+                    "type": "string",
+                    "description": "Register name, e.g. 'ODR', 'IDR', 'BSRR'"
+                }
+            },
+            "required": ["action"]
+        },
+        "handler": handle_svd_query
     }
 ]
 
