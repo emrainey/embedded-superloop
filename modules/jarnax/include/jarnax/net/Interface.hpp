@@ -52,6 +52,10 @@ public:
     /// subnet as this interface or is the broadcast address for the subnet)
     bool CouldReceiveTo(ip::v4::Address destination) const;
 
+    /// Checks if this interface could send a packet to the given destination address (i.e. if the destination address is in the same
+    /// subnet as this interface or is the broadcast address for the subnet)
+    bool CouldSendTo(ip::v4::Address destination) const;
+
     /// Sends an IPv4 packet to the specified destination address using this interface but within a Frame object.
     /// \param frame The Ethernet frame containing the IPv4 packet to be sent. Allocated by and owned by Sender.
     /// \param destination The IPv4 address of the destination.

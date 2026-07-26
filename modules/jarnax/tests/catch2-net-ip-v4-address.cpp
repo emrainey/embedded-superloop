@@ -430,6 +430,132 @@ TEST_CASE("Interface Test") {
     }
 }
 
+TEST_CASE("Interface CouldSendTo", "[Interface][CouldSendTo]") {
+    MockDriver driver;
+    eui48::Address mac{{0, 1, 2, 3, 4, 5}};
+
+    SECTION("Class A (10.0.0.0/8)") {
+        Interface iface{driver, mac, {10, 0, 0, 1}, A::mask};
+
+        REQUIRE(iface.IsValid());
+        REQUIRE(iface.CouldSendTo({10, 0, 0, 2}));
+        REQUIRE(iface.CouldSendTo({10, 255, 255, 254}));
+        REQUIRE(iface.CouldSendTo({10, 1, 2, 3}));
+        REQUIRE(iface.CouldSendTo({10, 0, 0, 0}));
+        REQUIRE(iface.CouldSendTo(A::broadcast));
+        REQUIRE(iface.CouldSendTo(limited_broadcast));
+        REQUIRE(iface.CouldSendTo(multicast::dns));
+        REQUIRE(iface.CouldSendTo(multicast::all));
+        REQUIRE_FALSE(iface.CouldSendTo({11, 0, 0, 1}));
+        REQUIRE_FALSE(iface.CouldSendTo({192, 168, 1, 1}));
+        REQUIRE_FALSE(iface.CouldSendTo({172, 16, 0, 1}));
+        REQUIRE_FALSE(iface.CouldSendTo({169, 254, 1, 1}));
+    }
+
+    SECTION("Class B (172.16.0.0/16)") {
+        Interface iface{driver, mac, {172, 16, 0, 1}, B::mask};
+
+        REQUIRE(iface.IsValid());
+        REQUIRE(iface.CouldSendTo({172, 16, 0, 2}));
+        REQUIRE(iface.CouldSendTo({172, 16, 255, 254}));
+        REQUIRE(iface.CouldSendTo({172, 16, 128, 1}));
+        REQUIRE(iface.CouldSendTo({172, 16, 0, 0}));
+        REQUIRE(iface.CouldSendTo(B::broadcast));
+        REQUIRE(iface.CouldSendTo(limited_broadcast));
+        REQUIRE(iface.CouldSendTo(multicast::dns));
+        REQUIRE(iface.CouldSendTo(multicast::all));
+        REQUIRE_FALSE(iface.CouldSendTo({172, 15, 255, 255}));
+        REQUIRE_FALSE(iface.CouldSendTo({172, 32, 0, 1}));
+        REQUIRE_FALSE(iface.CouldSendTo({10, 0, 0, 1}));
+    }
+
+    SECTION("Class C (192.168.1.0/24)") {
+        ip::v4::Address const subnet_mask{255, 255, 255, 0};
+        Interface iface{driver, mac, {192, 168, 1, 1}, subnet_mask};
+
+        REQUIRE(iface.IsValid());
+        REQUIRE(iface.CouldSendTo({192, 168, 1, 2}));
+        REQUIRE(iface.CouldSendTo({192, 168, 1, 100}));
+        REQUIRE(iface.CouldSendTo({192, 168, 1, 254}));
+        REQUIRE(iface.CouldSendTo({192, 168, 1, 0}));
+        REQUIRE(iface.CouldSendTo({192, 168, 1, 1}));
+        REQUIRE(iface.CouldSendTo(ip::v4::Address{192, 168, 1, 255}));
+        REQUIRE(iface.CouldSendTo(limited_broadcast));
+        REQUIRE(iface.CouldSendTo(multicast::dns));
+        REQUIRE(iface.CouldSendTo(multicast::all));
+        REQUIRE_FALSE(iface.CouldSendTo({192, 168, 2, 1}));
+        REQUIRE_FALSE(iface.CouldSendTo({192, 167, 1, 1}));
+        REQUIRE_FALSE(iface.CouldSendTo({10, 0, 0, 1}));
+    }
+
+    SECTION("Loopback (127.0.0.0/8)") {
+        Interface iface{driver, mac, local::host, local::mask};
+
+        REQUIRE(iface.IsValid());
+        REQUIRE(iface.CouldSendTo({127, 0, 0, 1}));
+        REQUIRE(iface.CouldSendTo({127, 0, 0, 2}));
+        REQUIRE(iface.CouldSendTo({127, 255, 255, 254}));
+        REQUIRE(iface.CouldSendTo({127, 0, 0, 0}));
+        REQUIRE(iface.CouldSendTo(local::broadcast));
+        REQUIRE(iface.CouldSendTo(limited_broadcast));
+        REQUIRE(iface.CouldSendTo(multicast::dns));
+        REQUIRE(iface.CouldSendTo(multicast::all));
+        REQUIRE_FALSE(iface.CouldSendTo({192, 168, 1, 1}));
+        REQUIRE_FALSE(iface.CouldSendTo({10, 0, 0, 1}));
+    }
+
+    SECTION("Link-Local (169.254.0.0/16)") {
+        Interface iface{driver, mac, {169, 254, 1, 1}, link::mask};
+
+        REQUIRE(iface.IsValid());
+        REQUIRE(iface.CouldSendTo({169, 254, 1, 2}));
+        REQUIRE(iface.CouldSendTo({169, 254, 255, 254}));
+        REQUIRE(iface.CouldSendTo({169, 254, 0, 0}));
+        REQUIRE(iface.CouldSendTo(link::broadcast));
+        REQUIRE(iface.CouldSendTo(limited_broadcast));
+        REQUIRE(iface.CouldSendTo(multicast::dns));
+        REQUIRE(iface.CouldSendTo(multicast::all));
+        REQUIRE_FALSE(iface.CouldSendTo({169, 255, 1, 1}));
+        REQUIRE_FALSE(iface.CouldSendTo({168, 254, 1, 1}));
+        REQUIRE_FALSE(iface.CouldSendTo({192, 168, 1, 1}));
+    }
+
+    SECTION("Default route (0.0.0.0/0) is not sendable") {
+        Interface iface{driver, mac, {10, 0, 0, 1}, A::mask};
+        REQUIRE_FALSE(iface.CouldSendTo(ip::v4::default_route));
+    }
+
+    SECTION("Gateway outside subnet is not sendable") {
+        Interface iface{driver, mac, {192, 168, 1, 1}, C::mask, {10, 0, 0, 1}};
+        REQUIRE(iface.IsValid());
+        REQUIRE_FALSE(iface.CouldSendTo(iface.gateway));
+    }
+
+    SECTION("Gateway inside subnet is sendable") {
+        Interface iface{driver, mac, {192, 168, 1, 1}, C::mask, {192, 168, 1, 254}};
+        REQUIRE(iface.IsValid());
+        REQUIRE(iface.CouldSendTo(iface.gateway));
+    }
+
+    SECTION("Sending to self is sendable") {
+        Interface iface{driver, mac, {192, 168, 1, 1}, C::mask};
+        REQUIRE(iface.CouldSendTo(iface.address));
+    }
+
+    SECTION("Multicast boundary") {
+        Interface iface{driver, mac, {10, 0, 0, 1}, A::mask};
+        REQUIRE(iface.CouldSendTo({224, 0, 0, 0}));
+        REQUIRE(iface.CouldSendTo({239, 255, 255, 255}));
+        REQUIRE_FALSE(iface.CouldSendTo({240, 0, 0, 0}));
+    }
+
+    SECTION("CouldSendTo does not check validity") {
+        Interface iface{driver, mac, {0, 0, 0, 0}, {0, 0, 0, 0}};
+        REQUIRE_FALSE(iface.IsValid());
+        REQUIRE(iface.CouldSendTo({192, 168, 1, 1}));
+    }
+}
+
 }    // namespace v4
 }    // namespace ip
 }    // namespace net

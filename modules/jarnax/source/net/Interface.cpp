@@ -65,6 +65,19 @@ bool Interface::CouldReceiveFrom(ip::v4::Address source) const {
     return same_subnet or is_broadcast or is_multicast;
 }
 
+bool Interface::CouldSendTo(ip::v4::Address destination) const {
+    // An interface could send a packet to a given destination address if the destination address is
+    // * in the same subnet as this interface
+    // * is the broadcast address for the subnet
+    // * is the limited broadcast address
+    // * is a multicast address
+    bool same_subnet = (destination & netmask) == network;
+    bool is_subnet_broadcast = (destination == broadcast);
+    bool is_limited_broadcast = (destination == ip::v4::limited_broadcast);
+    bool is_multicast = destination.IsMulticast();
+    return same_subnet or is_subnet_broadcast or is_limited_broadcast or is_multicast;
+}
+
 void Interface::PrintConfiguration(core::Printer& printer) const {
     net::eui48::Print(printer, "MAC Address", mac_address);
     ip::v4::Print(printer, "Host", address);
