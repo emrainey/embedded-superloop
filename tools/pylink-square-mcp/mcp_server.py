@@ -21,6 +21,7 @@ from flash_target import main as flash_target_main
 from step_target import main as step_target_main
 from run_for import main as run_for_main
 import svd_query
+from live_dump import main as live_dump_main
 import xml.etree.ElementTree as ET
 
 def log(msg):
@@ -177,6 +178,35 @@ def handle_run_for(arguments):
     if reset:
         args.append("--reset")
     return run_tool_main(run_for_main, args)
+
+
+def handle_live_dump(arguments):
+    peripheral = arguments.get("peripheral")
+    if not peripheral:
+        return 1, "Error: 'peripheral' argument is required."
+    svd = arguments.get("svd", None)
+    device = arguments.get("device", "STM32H753ZI")
+    speed = arguments.get("speed", 4000)
+    timeout = arguments.get("timeout", 10.0)
+    run_to_main = arguments.get("run_to_main", False)
+    all_fields = arguments.get("all_fields", False)
+    elf = arguments.get("elf", None)
+    nm = arguments.get("nm", None)
+    breakpoint_symbol = arguments.get("breakpoint_symbol", None)
+    args = ["--peripheral", str(peripheral), "--device", str(device), "--speed", str(speed), "--timeout", str(timeout)]
+    if svd:
+        args += ["--svd", str(svd)]
+    if run_to_main:
+        args.append("--run-to-main")
+    if all_fields:
+        args.append("--all-fields")
+    if elf:
+        args += ["--elf", str(elf)]
+    if nm:
+        args += ["--nm", str(nm)]
+    if breakpoint_symbol:
+        args += ["--breakpoint-symbol", str(breakpoint_symbol)]
+    return run_tool_main(live_dump_main, args)
 
 
 def handle_svd_query(arguments):
@@ -424,6 +454,45 @@ TOOLS = [
             "required": ["action"]
         },
         "handler": handle_svd_query
+    },
+    {
+        "name": "live_dump",
+        "description": "Read and decode all registers of any peripheral via J-Link using the SVD. Specify a peripheral name (e.g. GPIOA, USART1, Ethernet_MAC) to dump every register with field-level decoding.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "peripheral": {
+                    "type": "string",
+                    "description": "Peripheral name, e.g. GPIOA, USART1, Ethernet_MAC, TIM2"
+                },
+                "svd": {
+                    "type": "string",
+                    "description": "Path to SVD file (default: modules/stm32/scripts/STM32H753.svd)"
+                },
+                "device": {
+                    "type": "string",
+                    "description": "Target device name (default: STM32H753ZI)"
+                },
+                "speed": {
+                    "type": "integer",
+                    "description": "J-Link speed in kHz (default: 4000)"
+                },
+                "run_to_main": {
+                    "type": "boolean",
+                    "description": "Reset and run to main before reading (default: false)"
+                },
+                "elf": {
+                    "type": "string",
+                    "description": "ELF file path (required for --run-to-main)"
+                },
+                "all_fields": {
+                    "type": "boolean",
+                    "description": "Show zero-valued fields too (default: false)"
+                }
+            },
+            "required": ["peripheral"]
+        },
+        "handler": handle_live_dump
     }
 ]
 
