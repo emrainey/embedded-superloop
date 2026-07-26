@@ -22,6 +22,7 @@ from step_target import main as step_target_main
 from run_for import main as run_for_main
 import svd_query
 from live_dump import main as live_dump_main
+from clock_tree import main as clock_tree_main
 import xml.etree.ElementTree as ET
 
 def log(msg):
@@ -178,6 +179,16 @@ def handle_run_for(arguments):
     if reset:
         args.append("--reset")
     return run_tool_main(run_for_main, args)
+
+
+def handle_clock_tree(arguments):
+    device = arguments.get("device", "STM32H753ZI")
+    speed = arguments.get("speed", 4000)
+    svd = arguments.get("svd", None)
+    args = ["--device", str(device), "--speed", str(speed)]
+    if svd:
+        args += ["--svd", str(svd)]
+    return run_tool_main(clock_tree_main, args)
 
 
 def handle_live_dump(arguments):
@@ -493,6 +504,28 @@ TOOLS = [
             "required": ["peripheral"]
         },
         "handler": handle_live_dump
+    },
+    {
+        "name": "clock_tree",
+        "description": "Read and decode the STM32 clock tree via J-Link. Shows SYSCLK, bus frequencies, PLL config, and which peripherals have clocks enabled. Supports STM32H7 and STM32F4 families.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "device": {
+                    "type": "string",
+                    "description": "Target device name (default: STM32H753ZI). Family auto-detected from name."
+                },
+                "speed": {
+                    "type": "integer",
+                    "description": "J-Link speed in kHz (default: 4000)"
+                },
+                "svd": {
+                    "type": "string",
+                    "description": "Path to SVD file (auto-selected from device if omitted)"
+                }
+            }
+        },
+        "handler": handle_clock_tree
     }
 ]
 
