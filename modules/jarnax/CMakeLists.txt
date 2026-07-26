@@ -128,6 +128,7 @@ add_module(NAME jarnax-lsm9ds1-driver
 add_module(NAME jarnax-net
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/source/net/ethernet/Filter.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/net/ethernet/Types.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/net/Interface.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/net/ip/v4/Route.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/net/eui/Address.cpp

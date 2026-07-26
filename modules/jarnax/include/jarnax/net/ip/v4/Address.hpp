@@ -53,6 +53,9 @@ public:
         return (octets.a == 0b11111111) && (octets.b == 0b11111111) && (octets.c == 0b11111111) && (octets.d == 0b11111111);
     }
 
+    /// @brief Checks if this address is a unicast address (i.e. not multicast or broadcast)
+    constexpr bool IsUnicast() const { return not IsMulticast() and not IsBroadcast(); }
+
     /// @brief Checks if this address is a private address (i.e. in the 10.x.x.x, 172.16.x.x to 172.31.x.x, or 192.168.x.x ranges)
     constexpr bool IsPrivate() const {
         return (octets.a == 0b00001010) ||                                                              // 10 in decimal

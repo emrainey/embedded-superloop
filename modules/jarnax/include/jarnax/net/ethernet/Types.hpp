@@ -23,6 +23,9 @@ enum class EtherType : uint16_t {
     // EtherCAT = 0x88A4,    //!< EtherCAT Protocol (unsupported for now)
 };
 
+/// Returns a string representation of the given EtherType.
+char const* ToString(EtherType type);
+
 }    // namespace ethernet
 }    // namespace net
 }    // namespace jarnax

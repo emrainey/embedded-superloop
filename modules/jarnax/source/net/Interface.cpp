@@ -40,7 +40,20 @@ bool Interface::IsValid() const {
     return valid_address and valid_netmask and address_in_network and not_broadcast and not_limited_broadcast and not_multicast;
 }
 
-bool Interface::CouldReceive(ip::v4::Address source) const {
+bool Interface::CouldReceiveTo(ip::v4::Address destination) const {
+    // An interface would receive a packet destined for a given address if the destination address is
+    // * in the same subnet as this interface
+    // * is the broadcast address for the subnet
+    // * is the limited broadcast address
+    // * is a multicast address
+    bool is_for_us = (destination == address);    // should match normal IP and Localhost
+    bool is_subnet_broadcast = (destination == broadcast);
+    bool is_broadcast = destination.IsBroadcast();
+    bool is_multicast = destination.IsMulticast();
+    return is_for_us or is_subnet_broadcast or is_broadcast or is_multicast;
+}
+
+bool Interface::CouldReceiveFrom(ip::v4::Address source) const {
     // An interface would receive a packet from a source address if the source address is
     // * in the same subnet as this interface
     // * is the broadcast address for the subnet
@@ -95,12 +108,34 @@ void Interface::HandleArpPacket(jarnax::net::ethernet::Frame* frame) {
     frame->payload.arp.Flip();
     // Check the ARP operation type
     if (frame->payload.arp.opcode == jarnax::net::arp::Opcode::Request) {
-        // Handle ARP request
+        // Handle ARP request that is targeted at this interface
         if (frame->payload.arp.target_ip == address) {
             // we got a request
             statistics_.arp.requests++;
-            // Send an ARP reply
-            // TODO reply to the ARP request in the same frame!
+            // Send an ARP reply, but save the sender info
+            auto sender_mac = frame->payload.arp.sender_mac;
+            auto sender_ip = frame->payload.arp.sender_ip;
+
+            // reply to the ARP request in the same frame!
+            frame->header.destination = sender_mac;
+            frame->header.source = mac_address;
+            frame->header.type = jarnax::net::ethernet::EtherType::ARP;
+
+            frame->payload.arp.hardware_type = jarnax::net::arp::HardwareType::Ethernet;
+            frame->payload.arp.protocol_type = jarnax::net::ethernet::EtherType::IPv4;
+            frame->payload.arp.opcode = jarnax::net::arp::Opcode::Reply;
+            frame->payload.arp.sender_mac = mac_address;
+            frame->payload.arp.sender_ip = address;
+            frame->payload.arp.target_mac = sender_mac;
+            frame->payload.arp.target_ip = sender_ip;
+            // flip the ARP packet to network byte order
+            frame->payload.arp.Flip();
+            frame->header.destination = sender_mac;
+            frame->header.source = mac_address;
+            // flip the ethernet header back around
+            frame->header.Flip();
+            // send the ARP reply
+            driver_.Transmit(frame);
         }
     } else if (frame->payload.arp.opcode == jarnax::net::arp::Opcode::Reply) {
         // Handle ARP reply
@@ -115,6 +150,43 @@ void Interface::HandleArpPacket(jarnax::net::ethernet::Frame* frame) {
     }
 }
 
+void Interface::HandleIpv4Packet(net::ethernet::Frame* frame) {
+    if (frame == nullptr) {
+        return;
+    }
+    statistics_.ipv4.received++;
+    // Handle the IPv4 packet contained within the Ethernet frame.
+    // flip the IPv4 header
+    frame->payload.ipv4.HeaderFlip();
+
+    if (not frame->payload.ipv4.header.IsValid()) {
+        statistics_.ipv4.unsupported++;
+    }
+    // if (not frame)
+
+    // The types of addresses we'll have to support:
+    // Localhost
+    // "Normal" IP addresses within the subnet
+    // Subnet broadcast
+    // broadcast
+    // Multicast
+
+    // we'll refuse packets not destined for us or a local broadcast or a multicast
+    ip::v4::Address const& destination = frame->payload.ipv4.header.destination_address;
+    if (not CouldReceiveTo(destination)) {
+        statistics_.ipv4.dropped++;
+        return;
+    }
+    // we'll also drop packets which don't originate from a valid source (e.g., not from our subnet, not a unicast, etc.)
+    ip::v4::Address const& source = frame->payload.ipv4.header.source_address;
+    if (not CouldReceiveFrom(source)) {
+        statistics_.ipv4.dropped++;
+        return;
+    }
+
+    // Pass to the Stack for further processing (IGMP/ICMP/UDP)
+}
+
 void Interface::OnFrameReceived(net::ethernet::Frame* frame) {
     // Handle the received Ethernet frame
     core::Printer& printer = core::GetPrinter();
@@ -124,27 +196,19 @@ void Interface::OnFrameReceived(net::ethernet::Frame* frame) {
 
     statistics_.frames.received++;
 
+    printer(
+        "Interface: RX %s src=%02X:%02X:%02X:%02X:%02X:%02X\r\n",
+        jarnax::net::ethernet::ToString(frame->header.type),
+        frame->header.source[0],
+        frame->header.source[1],
+        frame->header.source[2],
+        frame->header.source[3],
+        frame->header.source[4],
+        frame->header.source[5]
+    );
     if (frame->header.type == jarnax::net::ethernet::EtherType::ARP) {
-        printer(
-            "Interface: RX ARP  src=%02X:%02X:%02X:%02X:%02X:%02X\r\n",
-            frame->header.source[0],
-            frame->header.source[1],
-            frame->header.source[2],
-            frame->header.source[3],
-            frame->header.source[4],
-            frame->header.source[5]
-        );
         HandleArpPacket(frame);
     } else if (frame->header.type == jarnax::net::ethernet::EtherType::IPv4) {
-        printer(
-            "Interface: RX IPv4 src=%02X:%02X:%02X:%02X:%02X:%02X\r\n",
-            frame->header.source[0],
-            frame->header.source[1],
-            frame->header.source[2],
-            frame->header.source[3],
-            frame->header.source[4],
-            frame->header.source[5]
-        );
         // since it's IPv4 we could scrape the MAC / IP out
         if constexpr (jarnax::net::arp::LearnAddresses) {
             // associate the MAC & IP of the sender automatically so we don't have to emit a separate ARP request later
@@ -153,20 +217,8 @@ void Interface::OnFrameReceived(net::ethernet::Frame* frame) {
             entry.ipv4 = frame->payload.ipv4.header.source_address;
             arp_table_.Insert(entry);
         }
-        statistics_.ipv4.received++;
-        // TODO if a valid IPv4, pass it along
-
+        HandleIpv4Packet(frame);
     } else {
-        printer(
-            "Interface: RX type=0x%04X src=%02X:%02X:%02X:%02X:%02X:%02X\r\n",
-            static_cast<unsigned>(frame->header.type),
-            frame->header.source[0],
-            frame->header.source[1],
-            frame->header.source[2],
-            frame->header.source[3],
-            frame->header.source[4],
-            frame->header.source[5]
-        );
         // unsupported type!
         statistics_.frames.unsupported++;
     }

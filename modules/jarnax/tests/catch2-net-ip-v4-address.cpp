@@ -22,17 +22,12 @@ public:
     core::Status Transmit(ethernet::Frame*) override { return core::Status{}; }
     core::Status Receive(Listener&) override { return core::Status{}; }
     bool IsReady() const override { return true; }
-    // core::Status Schedule(ethernet::mdio::Transaction*) override { return core::Status{}; }
 };
 
 namespace ip {
 namespace v4 {
 
 TEST_CASE("IPv4 Address Classification", "[Address]") {
-    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    // Test the classification of different types of IPv4 addresses
-    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
     // This Network
     constexpr Address this_host{0, 1, 2, 3};
     REQUIRE(this_host.IsThisNetwork());
@@ -69,17 +64,127 @@ TEST_CASE("IPv4 Address Classification", "[Address]") {
     REQUIRE_FALSE(limited_broadcast.IsLocal());
     REQUIRE_FALSE(limited_broadcast.IsMulticast());
     REQUIRE(limited_broadcast.IsBroadcast());
-    REQUIRE_FALSE(limited_broadcast.IsPrivate());    // Broadcast is technically private since it's not routable, but it's not defined as private
+    REQUIRE_FALSE(limited_broadcast.IsPrivate());
     REQUIRE_FALSE(limited_broadcast.IsLinkLocal());
     REQUIRE_FALSE(limited_broadcast.IsShared());
-    REQUIRE(limited_broadcast.IsReserved());    // Broadcast is also technically reserved since it's not usable for hosts
+    REQUIRE(limited_broadcast.IsReserved());
+}
+
+TEST_CASE("IPv4 Address Private Range Classification", "[Address][Private]") {
+    // Class A private: 10.x.x.x
+    REQUIRE(Address{10, 0, 0, 0}.IsPrivate());
+    REQUIRE(Address{10, 0, 0, 1}.IsPrivate());
+    REQUIRE(Address{10, 255, 255, 255}.IsPrivate());
+
+    // Class B private: 172.16.x.x - 172.31.x.x
+    REQUIRE(Address{172, 16, 0, 0}.IsPrivate());
+    REQUIRE(Address{172, 16, 0, 1}.IsPrivate());
+    REQUIRE(Address{172, 31, 255, 255}.IsPrivate());
+
+    // Class B boundaries: just outside the range
+    REQUIRE_FALSE(Address{172, 15, 255, 255}.IsPrivate());
+    REQUIRE_FALSE(Address{172, 32, 0, 0}.IsPrivate());
+
+    // Class C private: 192.168.x.x
+    REQUIRE(Address{192, 168, 0, 0}.IsPrivate());
+    REQUIRE(Address{192, 168, 0, 1}.IsPrivate());
+    REQUIRE(Address{192, 168, 255, 255}.IsPrivate());
+
+    // Class C boundaries: just outside
+    REQUIRE_FALSE(Address{192, 167, 255, 255}.IsPrivate());
+    REQUIRE_FALSE(Address{192, 169, 0, 0}.IsPrivate());
+
+    // Non-private addresses
+    REQUIRE_FALSE(Address{8, 8, 8, 8}.IsPrivate());
+    REQUIRE_FALSE(Address{1, 1, 1, 1}.IsPrivate());
+}
+
+TEST_CASE("IPv4 Address LinkLocal Classification", "[Address][LinkLocal]") {
+    REQUIRE(Address{169, 254, 0, 0}.IsLinkLocal());
+    REQUIRE(Address{169, 254, 0, 1}.IsLinkLocal());
+    REQUIRE(Address{169, 254, 255, 255}.IsLinkLocal());
+
+    // Boundaries
+    REQUIRE_FALSE(Address{169, 253, 255, 255}.IsLinkLocal());
+    REQUIRE_FALSE(Address{169, 255, 0, 0}.IsLinkLocal());
+    REQUIRE_FALSE(Address{168, 254, 0, 0}.IsLinkLocal());
+    REQUIRE_FALSE(Address{170, 254, 0, 0}.IsLinkLocal());
+}
+
+TEST_CASE("IPv4 Address Shared Classification", "[Address][Shared]") {
+    REQUIRE(Address{100, 64, 0, 0}.IsShared());
+    REQUIRE(Address{100, 64, 0, 1}.IsShared());
+    REQUIRE(Address{100, 127, 255, 255}.IsShared());
+
+    // Boundaries
+    REQUIRE_FALSE(Address{100, 63, 255, 255}.IsShared());
+    REQUIRE_FALSE(Address{100, 128, 0, 0}.IsShared());
+    REQUIRE_FALSE(Address{99, 64, 0, 0}.IsShared());
+    REQUIRE_FALSE(Address{101, 64, 0, 0}.IsShared());
+}
+
+TEST_CASE("IPv4 Address Reserved and Multicast Boundaries", "[Address][Reserved][Multicast]") {
+    // Reserved range: 240.x.x.x - 255.x.x.x
+    REQUIRE(Address{240, 0, 0, 0}.IsReserved());
+    REQUIRE(Address{240, 0, 0, 1}.IsReserved());
+    REQUIRE(Address{255, 255, 255, 254}.IsReserved());
+    REQUIRE(Address{255, 255, 255, 255}.IsReserved());
+
+    // Not reserved: 239.x.x.x and below
+    REQUIRE_FALSE(Address{239, 255, 255, 255}.IsReserved());
+
+    // Multicast range: 224.x.x.x - 239.x.x.x
+    REQUIRE(Address{224, 0, 0, 0}.IsMulticast());
+    REQUIRE(Address{224, 0, 0, 1}.IsMulticast());
+    REQUIRE(Address{239, 255, 255, 255}.IsMulticast());
+
+    // Multicast boundaries
+    REQUIRE_FALSE(Address{223, 255, 255, 255}.IsMulticast());
+    REQUIRE_FALSE(Address{240, 0, 0, 0}.IsMulticast());
+
+    // Reserved addresses are not multicast (240+ is reserved, not multicast)
+    REQUIRE_FALSE(Address{240, 0, 0, 0}.IsMulticast());
+}
+
+TEST_CASE("IPv4 Address Unicast Classification", "[Address][Unicast]") {
+    // Normal unicast
+    REQUIRE(Address{8, 8, 8, 8}.IsUnicast());
+    REQUIRE(Address{192, 168, 1, 1}.IsUnicast());
+    REQUIRE(Address{10, 0, 0, 1}.IsUnicast());
+    REQUIRE(Address{172, 16, 0, 1}.IsUnicast());
+
+    // Not unicast: multicast
+    REQUIRE_FALSE(Address{224, 0, 0, 1}.IsUnicast());
+    REQUIRE_FALSE(Address{239, 255, 255, 255}.IsUnicast());
+
+    // Not unicast: broadcast
+    REQUIRE_FALSE(Address{255, 255, 255, 255}.IsUnicast());
+}
+
+TEST_CASE("IPv4 Address This Network Classification", "[Address][ThisNetwork]") {
+    // "This network" is address starting with 0.x.x.x
+    REQUIRE(Address{0, 0, 0, 0}.IsThisNetwork());
+    REQUIRE(Address{0, 0, 0, 1}.IsThisNetwork());
+    REQUIRE(Address{0, 255, 255, 255}.IsThisNetwork());
+
+    // Not "this network"
+    REQUIRE_FALSE(Address{1, 0, 0, 0}.IsThisNetwork());
+    REQUIRE_FALSE(Address{127, 0, 0, 1}.IsThisNetwork());
+}
+
+TEST_CASE("IPv4 Address Local Classification", "[Address][Local]") {
+    // Local loopback: 127.x.x.x
+    REQUIRE(Address{127, 0, 0, 0}.IsLocal());
+    REQUIRE(Address{127, 0, 0, 1}.IsLocal());
+    REQUIRE(Address{127, 255, 255, 255}.IsLocal());
+    REQUIRE(Address{127, 128, 0, 1}.IsLocal());
+
+    // Not local
+    REQUIRE_FALSE(Address{126, 255, 255, 255}.IsLocal());
+    REQUIRE_FALSE(Address{128, 0, 0, 0}.IsLocal());
 }
 
 TEST_CASE("Masks for Networks [Masks]") {
-    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    // Test the masks for different types of networks
-    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
     SECTION("This Network") {
         Address network_test = this_::network / this_::prefix;
         REQUIRE(this_::network == network_test);
@@ -101,7 +206,7 @@ TEST_CASE("Masks for Networks [Masks]") {
     SECTION("Bitwise NOT Operator") {
         Address address{192, 168, 1, 1};
         Address not_address = ~address;
-        REQUIRE(not_address == Address{63, 87, 254, 254});    // Assuming 8-bit NOT for each octet
+        REQUIRE(not_address == Address{63, 87, 254, 254});
     }
 
     SECTION("Exhaustive Prefix Division") {
@@ -116,8 +221,8 @@ TEST_CASE("Masks for Networks [Masks]") {
     }
 
     SECTION("Multicast") {
-        Address network_test_a = multicast::network / multicast::prefix;    // Mask for /4 should be 11110000.0.0.0
-        Address network_test_b = multicast::dns / multicast::prefix;        // Mask for /4 should be 11110000.0.0.0
+        Address network_test_a = multicast::network / multicast::prefix;
+        Address network_test_b = multicast::dns / multicast::prefix;
         std::cout << "Multicast Network: " << multicast::network << " Multicast DNS: " << multicast::dns << " Multicast Network: " << network_test_a
                   << " Multicast Network: " << network_test_b << std::endl;
         REQUIRE(multicast::network == network_test_a);
@@ -125,143 +230,203 @@ TEST_CASE("Masks for Networks [Masks]") {
     }
 
     SECTION("Local (Loopback)") {
-        Address network_test = local::host / local::prefix;    // Mask for /8 should be
+        Address network_test = local::host / local::prefix;
         REQUIRE(local::network == network_test);
-        Address test = local::network | ~local::mask;          // Network address should be the same as the host address since it's a /8
+        Address test = local::network | ~local::mask;
         REQUIRE(local::broadcast == test);
     }
 
     SECTION("Class A") {
-        Address network_test = A::network / A::prefix;    // Mask for /8 should be  11111111.0.0.0
+        Address network_test = A::network / A::prefix;
         REQUIRE(A::network == network_test);
-        Address test = A::network | ~A::mask;             // Network address should be the same as
+        Address test = A::network | ~A::mask;
         REQUIRE(A::broadcast == test);
     }
 
     SECTION("Class B") {
-        Address network_test = B::network / B::prefix;    // Mask for /12 should be 11111111.11110000.0.0
+        Address network_test = B::network / B::prefix;
         REQUIRE(B::network == network_test);
-        Address test = B::network | ~B::mask;             // Network address should be the same as
+        Address test = B::network | ~B::mask;
         REQUIRE(B::broadcast == test);
     }
 
     SECTION("Class C") {
-        Address network_test = C::network / C::prefix;    // Mask for /16 should be 11111111.11111111.0.0
+        Address network_test = C::network / C::prefix;
         REQUIRE(C::network == network_test);
-        Address test = C::network | ~C::mask;             // Network address should be the same as
+        Address test = C::network | ~C::mask;
         REQUIRE(C::broadcast == test);
     }
 
     SECTION("Link-Local") {
-        Address network_test = link::network / link::prefix;    // Mask for /16 should be 11111111.11111111.0.0
+        Address network_test = link::network / link::prefix;
         REQUIRE(link::network == network_test);
-        Address test = link::network | ~link::mask;             // Network address should be the same as
+        Address test = link::network | ~link::mask;
         REQUIRE(link::broadcast == test);
     }
 
     SECTION("Shared") {
-        Address network_test = shared::network / shared::prefix;    // Mask for /10 should be 11111111.11000000.0.0
+        Address network_test = shared::network / shared::prefix;
         REQUIRE(shared::network == network_test);
-        Address test = shared::network | ~shared::mask;             // Network address should be the same as
+        Address test = shared::network | ~shared::mask;
         REQUIRE(shared::broadcast == test);
     }
 }
 
+TEST_CASE("Address Operators and Conversions", "[Address][Operators]") {
+    SECTION("operator!=") {
+        REQUIRE(Address{192, 168, 1, 1} != Address{192, 168, 1, 2});
+        REQUIRE_FALSE(Address{192, 168, 1, 1} != Address{192, 168, 1, 1});
+    }
+
+    SECTION("operator uint32_t") {
+        Address address{192, 168, 1, 1};
+        uint32_t raw = static_cast<uint32_t>(address);
+        REQUIRE(raw == static_cast<uint32_t>((192 << 24) | (168 << 16) | (1 << 8) | 1));
+    }
+
+    SECTION("operator uint32_t default route") {
+        Address address{0, 0, 0, 0};
+        uint32_t raw = static_cast<uint32_t>(address);
+        REQUIRE(raw == 0);
+    }
+
+    SECTION("operator uint32_t broadcast") {
+        Address address{255, 255, 255, 255};
+        uint32_t raw = static_cast<uint32_t>(address);
+        REQUIRE(raw == 0xFFFFFFFF);
+    }
+
+    SECTION("operator&") {
+        Address address{192, 168, 1, 1};
+        Address mask{255, 255, 255, 0};
+        Address result = address & mask;
+        REQUIRE(result == Address{192, 168, 1, 0});
+    }
+
+    SECTION("operator|") {
+        Address network{192, 168, 1, 0};
+        Address inverse_mask{0, 0, 0, 255};
+        Address broadcast = network | inverse_mask;
+        REQUIRE(broadcast == Address{192, 168, 1, 255});
+    }
+
+    SECTION("Prefix 0 produces zero mask") {
+        Address result = limited_broadcast / 0;
+        REQUIRE(result == Address{0, 0, 0, 0});
+    }
+
+    SECTION("Prefix 32 produces identity") {
+        Address result = Address{192, 168, 1, 1} / 32;
+        REQUIRE(result == Address{192, 168, 1, 1});
+    }
+
+    SECTION("Prefix > 32 is clamped to 32") {
+        Address result = Address{192, 168, 1, 1} / 33;
+        REQUIRE(result == Address{192, 168, 1, 1});
+        result = Address{192, 168, 1, 1} / 255;
+        REQUIRE(result == Address{192, 168, 1, 1});
+    }
+}
+
 TEST_CASE("Interface Test") {
-    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    // Test the Interface class and its methods
-    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     MockDriver driver;
     eui48::Address mac{{0, 1, 2, 3, 4, 5}};
 
     SECTION("Invalid Interface") {
-        // Invalid because the address is the default route and the netmask is invalid
         Interface iface{driver, mac, {0, 0, 0, 0}, {0, 0, 0, 0}};
         REQUIRE_FALSE(iface.IsValid());
 
-        // Invalid because the address is the broadcast address for the subnet
         Interface iface2{driver, mac, {192, 168, 1, 255}, {255, 255, 255, 0}};
         REQUIRE_FALSE(iface2.IsValid());
 
-        // Invalid because the address is a multicast address
         Interface iface3{driver, mac, {224, 0, 0, 1}, {240, 0, 0, 0}};
         REQUIRE_FALSE(iface3.IsValid());
+    }
+
+    SECTION("Invalid Interface: address is subnet network address") {
+        Interface iface{driver, mac, {192, 168, 1, 0}, {255, 255, 255, 0}};
+        REQUIRE_FALSE(iface.IsValid());
+    }
+
+    SECTION("Invalid Interface: address is limited broadcast") {
+        Interface iface{driver, mac, {255, 255, 255, 255}, {255, 255, 255, 0}};
+        REQUIRE_FALSE(iface.IsValid());
     }
 
     SECTION("Local Host Interface") {
         Interface iface{driver, mac, local::host, local::mask};
         REQUIRE(iface.IsValid());
 
-        REQUIRE(iface.CouldReceive(local::host));               // Should receive packets from itself
-        REQUIRE(iface.CouldReceive(local::network));            // Should receive packets from the network address since it's in the same subnet
-        REQUIRE(iface.CouldReceive(local::broadcast));          // Should receive packets from the broadcast address since it's in the same subnet
-        REQUIRE_FALSE(iface.CouldReceive({192, 168, 1, 1}));    // Should not receive packets from an address outside of the subnet
-        // Should receive packets from the limited broadcast address since it's a special case that should be received by all interfaces
-        REQUIRE(iface.CouldReceive(limited_broadcast));
-        // Should receive packets from multicast addresses since it's a special case that should be received by all interfaces
-        REQUIRE(iface.CouldReceive(multicast::dns));
-        // Should receive packets from multicast addresses since it's a special case that should be received by all interfaces
-        REQUIRE(iface.CouldReceive(multicast::all));
+        REQUIRE(iface.CouldReceiveFrom(local::host));
+        REQUIRE(iface.CouldReceiveFrom(local::network));
+        REQUIRE(iface.CouldReceiveFrom(local::broadcast));
+        REQUIRE_FALSE(iface.CouldReceiveFrom({192, 168, 1, 1}));
+        REQUIRE(iface.CouldReceiveFrom(limited_broadcast));
+        REQUIRE(iface.CouldReceiveFrom(multicast::dns));
+        REQUIRE(iface.CouldReceiveFrom(multicast::all));
     }
 
     SECTION("Link Local Interface") {
         Interface iface{driver, mac, {169, 254, 1, 1}, link::mask};
         REQUIRE(iface.IsValid());
 
-        REQUIRE(iface.CouldReceive({169, 254, 1, 2}));          // Should receive packets from the same subnet
-        REQUIRE(iface.CouldReceive(link::broadcast));           // Should receive packets from the broadcast address since it's in the same subnet
-        REQUIRE_FALSE(iface.CouldReceive({192, 168, 1, 1}));    // Should not receive packets from an address outside of the subnet
-        // Should receive packets from the limited broadcast address since it's a special case that should be received by all interfaces
-        REQUIRE(iface.CouldReceive(limited_broadcast));
-        // Should receive packets from multicast addresses since it's a special case that should be received by all interfaces
-        REQUIRE(iface.CouldReceive(multicast::dns));
-        // Should receive packets from multicast addresses since it's a special case that should be received by all interfaces
-        REQUIRE(iface.CouldReceive(multicast::all));
+        REQUIRE(iface.CouldReceiveFrom({169, 254, 1, 2}));
+        REQUIRE(iface.CouldReceiveFrom(link::broadcast));
+        REQUIRE_FALSE(iface.CouldReceiveFrom({192, 168, 1, 1}));
+        REQUIRE(iface.CouldReceiveFrom(limited_broadcast));
+        REQUIRE(iface.CouldReceiveFrom(multicast::dns));
+        REQUIRE(iface.CouldReceiveFrom(multicast::all));
     }
 
     SECTION("Class A Interface") {
         Interface iface{driver, mac, {10, 9, 10, 1}, A::mask};
         REQUIRE(iface.IsValid());
 
-        REQUIRE(iface.CouldReceive({10, 9, 10, 2}));            // Should receive packets from the same subnet
-        REQUIRE(iface.CouldReceive(A::broadcast));              // Should receive packets from the broadcast address since it's in the same subnet
-        REQUIRE_FALSE(iface.CouldReceive({192, 168, 1, 1}));    // Should not receive packets from an address outside of the subnet
-        // Should receive packets from the limited broadcast address since it's a special case that should be received by all interfaces
-        REQUIRE(iface.CouldReceive(limited_broadcast));
-        // Should receive packets from multicast addresses since it's a special case that should be received by all interfaces
-        REQUIRE(iface.CouldReceive(multicast::dns));
-        // Should receive packets from multicast addresses since it's a special case that should be received by all interfaces
-        REQUIRE(iface.CouldReceive(multicast::all));
+        REQUIRE(iface.CouldReceiveFrom({10, 9, 10, 2}));
+        REQUIRE(iface.CouldReceiveFrom(A::broadcast));
+        REQUIRE_FALSE(iface.CouldReceiveFrom({192, 168, 1, 1}));
+        REQUIRE(iface.CouldReceiveFrom(limited_broadcast));
+        REQUIRE(iface.CouldReceiveFrom(multicast::dns));
+        REQUIRE(iface.CouldReceiveFrom(multicast::all));
     }
 
     SECTION("Class B Interface") {
         Interface iface{driver, mac, {172, 16, 0, 1}, B::mask};
         REQUIRE(iface.IsValid());
 
-        REQUIRE(iface.CouldReceive({172, 16, 0, 2}));           // Should receive packets from the same subnet
-        REQUIRE(iface.CouldReceive(B::broadcast));              // Should receive packets from the broadcast address since it's in the same subnet
-        REQUIRE_FALSE(iface.CouldReceive({192, 168, 1, 1}));    // Should not receive packets from an address outside of the subnet
-        // Should receive packets from the limited broadcast address since it's a special case that should be received by all interfaces
-        REQUIRE(iface.CouldReceive(limited_broadcast));
-        // Should receive packets from multicast addresses since it's a special case that should be received by all interfaces
-        REQUIRE(iface.CouldReceive(multicast::dns));
-        // Should receive packets from multicast addresses since it's a special case that should be received by all interfaces
-        REQUIRE(iface.CouldReceive(multicast::all));
+        REQUIRE(iface.CouldReceiveFrom({172, 16, 0, 2}));
+        REQUIRE(iface.CouldReceiveTo({172, 16, 0, 1}));
+        REQUIRE(iface.CouldReceiveFrom(B::broadcast));
+        REQUIRE_FALSE(iface.CouldReceiveFrom({192, 168, 1, 1}));
+        REQUIRE(iface.CouldReceiveTo(limited_broadcast));
+        REQUIRE(iface.CouldReceiveTo(multicast::dns));
+        REQUIRE(iface.CouldReceiveTo(multicast::all));
     }
 
     SECTION("Class C Interface") {
         Interface iface{driver, mac, {192, 168, 1, 1}, C::mask};
         REQUIRE(iface.IsValid());
 
-        REQUIRE(iface.CouldReceive({192, 168, 1, 2}));          // Should receive packets from the same subnet
-        REQUIRE(iface.CouldReceive(C::broadcast));              // Should receive packets from the broadcast address since it's in the same subnet
-        REQUIRE_FALSE(iface.CouldReceive({192, 167, 1, 1}));    // Should not receive packets from an address outside of the subnet
-        // Should receive packets from the limited broadcast address since it's a special case that should be received by all interfaces
-        REQUIRE(iface.CouldReceive(limited_broadcast));
-        // Should receive packets from multicast addresses since it's a special case that should be received by all interfaces
-        REQUIRE(iface.CouldReceive(multicast::dns));
-        // Should receive packets from multicast addresses since it's a special case that should be received by all interfaces
-        REQUIRE(iface.CouldReceive(multicast::all));
+        REQUIRE(iface.CouldReceiveFrom({192, 168, 1, 2}));
+        REQUIRE(iface.CouldReceiveTo({192, 168, 1, 1}));
+        REQUIRE(iface.CouldReceiveFrom(C::broadcast));
+        REQUIRE_FALSE(iface.CouldReceiveFrom({192, 167, 1, 1}));
+        REQUIRE(iface.CouldReceiveFrom(limited_broadcast));
+        REQUIRE(iface.CouldReceiveFrom(multicast::dns));
+        REQUIRE(iface.CouldReceiveFrom(multicast::all));
+        REQUIRE(iface.CouldReceiveTo(limited_broadcast));
+        REQUIRE(iface.CouldReceiveTo(multicast::dns));
+        REQUIRE(iface.CouldReceiveTo(multicast::all));
+    }
+
+    SECTION("Class C Interface CouldReceiveFrom: subnet broadcast") {
+        Interface iface{driver, mac, {192, 168, 1, 1}, C::mask};
+        REQUIRE(iface.CouldReceiveFrom(C::broadcast));
+    }
+
+    SECTION("Class C Interface CouldReceiveFrom: outside subnet") {
+        Interface iface{driver, mac, {192, 168, 1, 1}, C::mask};
+        REQUIRE_FALSE(iface.CouldReceiveFrom({192, 167, 1, 1}));
     }
 }
 

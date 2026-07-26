@@ -1,6 +1,7 @@
 #ifndef JARNAX_NET_INTERFACE_HPP
 #define JARNAX_NET_INTERFACE_HPP
 
+#include <cstddef>
 #include "core/Printer.hpp"
 #include "core/Statistician.hpp"
 
@@ -28,6 +29,8 @@ struct Statistics {
     struct IPv4 {
         std::size_t received{0};       ///< The number of IPv4 packets received by this interface
         std::size_t transmitted{0};    ///< The number of IPv4 packets transmitted by this interface
+        std::size_t unsupported{0};    ///< A feature or setting in the header is not supported by this interface
+        std::size_t dropped{0};        ///< The number of IPv4 packets dropped by this interface (not for us)
     } ipv4{};
 };
 
@@ -43,7 +46,11 @@ public:
 
     /// Checks if this interface could receive a packet sent from the given source address (i.e. if the source address is in the same subnet as this
     /// interface or is the broadcast address for the subnet)
-    bool CouldReceive(ip::v4::Address source) const;
+    bool CouldReceiveFrom(ip::v4::Address source) const;
+
+    /// Checks if this interface could receive a packet destined for the given destination address (i.e. if the destination address is in the same
+    /// subnet as this interface or is the broadcast address for the subnet)
+    bool CouldReceiveTo(ip::v4::Address destination) const;
 
     /// Sends an IPv4 packet to the specified destination address using this interface but within a Frame object.
     /// \param frame The Ethernet frame containing the IPv4 packet to be sent. Allocated by and owned by Sender.
@@ -68,6 +75,9 @@ protected:
 
     /// Handles an incoming ARP packet contained within the given Ethernet frame.
     void HandleArpPacket(ethernet::Frame* frame);
+
+    /// Handles an incoming IPv4 packet contained within the given Ethernet frame.
+    void HandleIpv4Packet(ethernet::Frame* frame);
 
 public:
     eui48::Address mac_address;    ///< The MAC address of this interface

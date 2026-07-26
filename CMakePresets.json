@@ -319,6 +319,7 @@
             ]
         },
         {
+            "$comment": "WARNING: This workflow is known to not work on Mac OS with Homebrew due to incompatible toolchain paths",
             "name": "on-host-native-gcc",
             "steps": [
                 {
@@ -353,6 +354,7 @@
             ]
         },
         {
+            "$comment": "Prefer this toolchain for native builds on the host machine",
             "name": "on-host-native-llvm",
             "steps": [
                 {
