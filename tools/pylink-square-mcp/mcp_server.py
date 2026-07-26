@@ -313,7 +313,7 @@ TOOLS = [
                 "seconds": {"type": "number", "description": "Seconds to let target run before halting"},
                 "device": {"type": "string", "description": "Target device name", "default": "STM32H753ZI"},
                 "speed": {"type": "integer", "description": "J-Link speed in kHz", "default": 4000},
-                "reset": {"type": "boolean", "description": "Reset target before running", "default": false}
+                "reset": {"type": "boolean", "description": "Reset target before running", "default": False}
             },
             "required": ["seconds"]
         },

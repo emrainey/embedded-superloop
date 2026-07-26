@@ -1,7 +1,8 @@
 {
     "$schema": "https://opencode.ai/config.json",
     "permission": {
-        "lsp": "allow"
+        "lsp": "allow",
+        "mcp": "allow"
     },
     "lsp": {
         "clangd": {
@@ -9,6 +10,16 @@
                 "clangd",
                 "--background-index"
             ]
+        }
+    },
+    "mcp": {
+        "pylink-square-mcp": {
+            "type": "local",
+            "command": [".venv/bin/python", "tools/pylink-square-mcp/mcp_server.py"],
+            "cwd": ".",
+            "environment": {
+                "PYTHONPATH": "tools/pylink-square-mcp"
+            }
         }
     }
 }
