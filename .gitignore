@@ -47,6 +47,7 @@ testing/
 venv/
 .venv/
 __pycache__
+*.pyc
 
 # Ignore Mac OSX Files
 .DS_Store

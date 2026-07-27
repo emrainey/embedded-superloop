@@ -15,11 +15,21 @@
     "mcp": {
         "pylink-square-mcp": {
             "type": "local",
-            "command": [".venv/bin/python", "tools/pylink-square-mcp/mcp_server.py"],
+            "command": [
+                ".venv/bin/python",
+                "tools/pylink-square-mcp/mcp_server.py"
+            ],
             "cwd": ".",
             "environment": {
                 "PYTHONPATH": "tools/pylink-square-mcp"
             }
+        },
+        "pdf-oxide-mcp": {
+            "type": "local",
+            "command": [
+                "pdf-oxide-mcp"
+            ],
+            "cwd": "documentation/pdfs",
         }
     }
 }
