@@ -21,7 +21,9 @@ def _prescaler_ahb(val: int) -> int:
 
 
 def _prescaler_apb(val: int) -> int:
-    table = {0: 1, 1: 2, 2: 4, 3: 8, 4: 16}
+    if val < 4:
+        return 1
+    table = {4: 2, 5: 4, 6: 8, 7: 16}
     return table.get(val, 1)
 
 
@@ -88,14 +90,15 @@ class ClockTreeH7:
                      p_field_lsb: int, q_field_lsb: int, r_field_lsb: int,
                      p_en_bit: int, q_en_bit: int, r_en_bit: int) -> dict:
         pllsrc_name, pllsrc_freq = self._osc_source()
-        m = _get_field(self.PLLCKSELR, m_lsb, m_width) + 1
+        m_val = _get_field(self.PLLCKSELR, m_lsb, m_width)
+        m = m_val if m_val != 0 else 1  # DIVMx is raw value (1-63), not +1 encoded
         n = _get_field(divr_val, 0, 9) + 1
         vco = pllsrc_freq // m * n
 
         p_en = (self.PLLCFGR >> p_en_bit) & 1
         q_en = (self.PLLCFGR >> q_en_bit) & 1
         r_en = (self.PLLCFGR >> r_en_bit) & 1
-        p_div = (_get_field(divr_val, 9, 7) + 1) * 2
+        p_div = _get_field(divr_val, 9, 7) + 1  # P = reg + 1 (not 2x)
         q_div = _get_field(divr_val, 16, 7) + 1
         r_div = _get_field(divr_val, 24, 7) + 1
 
@@ -133,29 +136,44 @@ class ClockTreeH7:
         hsidiv_val = _hsidiv(_get_field(self.CR, 3, 2))
         hsi = HSI_FREQ // hsidiv_val
         hse_rdy = (self.CR >> 17) & 1
+        pll1_on = bool((self.CR >> 24) & 1)
+        pll1_rdy = bool((self.CR >> 25) & 1)
+        pll2_on = bool((self.CR >> 26) & 1)
+        pll2_rdy = bool((self.CR >> 27) & 1)
+        pll3_on = bool((self.CR >> 28) & 1)
+
+        sysclk = hsi
+        sysclk_src = f"HSI ({hsi/1e6:.0f} MHz)"
+        sysclk_note = ""
 
         if sws == 0:
-            sysclk = hsi
-            sysclk_src = f"HSI ({hsi/1e6:.0f} MHz)"
+            pass  # HSI, already set
         elif sws == 1:
-            sysclk = 25_000_000 if hse_rdy else 0
-            sysclk_src = "HSE" + (" (ready)" if hse_rdy else " (not ready)")
-        elif sws == 2:
-            pll1 = self._compute_pll1()
-            sysclk = pll1["P"]
-            sysclk_src = f"PLL1P ({pll1['P']/1e6:.0f} MHz)"
-        elif sws == 3:
-            pll2 = self._compute_pll2()
-            sysclk = pll2["P"]
-            sysclk_src = f"PLL2P ({pll2['P']/1e6:.0f} MHz)"
-        elif sws == 4:
-            sysclk = 0
-            sysclk_src = "PLL3P (not computed)"
-        elif sws == 5:
             sysclk = CSI_FREQ
             sysclk_src = f"CSI ({CSI_FREQ/1e6:.0f} MHz)"
-        else:
+        elif sws == 2:
+            sysclk = 25_000_000 if hse_rdy else 0
+            sysclk_src = "HSE" + (" (ready)" if hse_rdy else " (not ready)")
+        elif sws == 3:
+            pll1 = self._compute_pll1()
+            if pll1_on and pll1_rdy:
+                sysclk = pll1["P"]
+                sysclk_src = f"PLL1P ({pll1['P']/1e6:.0f} MHz)"
+            else:
+                sysclk = hsi
+                sysclk_src = f"PLL1P (selected but not ready! actual: HSI {hsi/1e6:.0f} MHz)"
+        elif sws == 4:
+            pll2 = self._compute_pll2()
+            if pll2_on and pll2_rdy:
+                sysclk = pll2["P"]
+                sysclk_src = f"PLL2P ({pll2['P']/1e6:.0f} MHz)"
+            else:
+                sysclk = hsi
+                sysclk_src = f"PLL2P (selected but not ready! actual: HSI {hsi/1e6:.0f} MHz)"
+        elif sws == 5:
             sysclk = 0
+            sysclk_src = "PLL3P (selected but not computed)"
+        else:
             sysclk_src = f"unknown ({sws})"
 
         hp = _get_field(self.D1CFGR, 0, 4)
@@ -178,6 +196,7 @@ class ClockTreeH7:
         result = {
             "sysclk": sysclk,
             "sysclk_src": sysclk_src,
+            "sysclk_note": sysclk_note,
             "cpu": cpu_clk,
             "ahb": ahb,
             "apb1": apb1,
@@ -244,6 +263,8 @@ def dump_clock_tree(jlink, svd_peripherals: dict) -> str:
     lines.append("Clock Tree (STM32H7)")
     lines.append("=" * 40)
     lines.append(f"  SYSCLK:  {info['sysclk']/1e6:.0f} MHz  ({info['sysclk_src']})")
+    if info.get("sysclk_note"):
+        lines.append(f"  {info['sysclk_note']}")
     lines.append(f"  CPU:     {info['cpu']/1e6:.0f} MHz")
     lines.append(f"")
     lines.append(f"  Bus Tree:")
