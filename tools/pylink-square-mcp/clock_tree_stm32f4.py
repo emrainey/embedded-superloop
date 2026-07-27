@@ -86,7 +86,7 @@ class ClockTreeF4:
         }
 
     def compute(self) -> dict:
-        sw = _get_field(self.CFGR, 0, 2)
+        sw = _get_field(self.CFGR, 2, 2)    # SWS (status), bits 2:3, not SW (requested) bits 0:1
         hse_rdy = bool((self.CR >> 17) & 1)
 
         if sw == 0:
