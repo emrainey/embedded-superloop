@@ -59,6 +59,11 @@ constexpr static std::uint32_t ethernet_dma_block_count = 16U;
 constexpr static std::uint32_t ethernet_dma_buffer_size = ethernet_dma_block_size * ethernet_dma_block_count;
 /// The Default Mac Address for the Ethernet Driver
 constexpr static jarnax::net::eui48::Address default_mac_address{0x02, 0x00, 0x00, 0x00, 0x00, 0x01};
+/// @brief Default MAC link speed before PHY auto-negotiation completes (true = 100 Mbps)
+/// @note The LAN8742A will call ConfigureMacLink again with the negotiated values once the link is up.
+constexpr static bool ethernet_default_speed_100m = true;
+/// @brief Default MAC duplex mode before PHY auto-negotiation completes (true = full duplex)
+constexpr static bool ethernet_default_full_duplex = true;
 }    // namespace stm32
 
 #endif    // BOARD_HPP_

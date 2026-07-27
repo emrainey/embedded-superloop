@@ -126,7 +126,7 @@ BoardContext::BoardContext()
     , status_indicator_{status_pin_, stm32::Level::High}
     , performance_indicator_{performance_pin_, stm32::Level::High}
     , timing_indicator_{timing_pin_, stm32::Level::High}
-    , user_button_{user_button_pin_, false}
+    , user_button_{user_button_pin_, true}
     , dma_manager_{stm32::h7xx::direct_memory_access}
     , i2c1_scl_{stm32::gpio::Port::B, 8}
     , i2c1_sda_{stm32::gpio::Port::B, 9}
@@ -154,7 +154,8 @@ BoardContext::BoardContext()
     , eth_tx_en_{stm32::gpio::Port::G, 11}     // RMII_TX_EN
     , eth_txd0_{stm32::gpio::Port::G, 13}      // RMII_TXD0
     , ethernet_{stm32::ethernet_stack_heap, stm32::ethernet_dma_heap, stm32::ethernet_tx_descriptors, stm32::ethernet_rx_descriptors}
-    , lan8742a_driver_{timer_, core::units::ConvertToIota(jarnax::net::ethernet::lan8742a::DefaultPollingInterval), ethernet_, 0U} {
+    , lan8742a_driver_{timer_, core::units::ConvertToIota(jarnax::net::ethernet::lan8742a::DefaultPollingInterval), ethernet_, 0U}
+    , defined_mac_address_{stm32::default_mac_address} {
     // construct the driver objects as part of the constructor above.
 }
 
@@ -422,7 +423,7 @@ core::Status BoardContext::Initialize(void) {
             break;
         }
         jarnax::net::ethernet::Driver::Addresses addresses{{
-            stm32::default_mac_address,    // MAC address
+            defined_mac_address_,          // MAC address
             jarnax::net::eui48::invalid    // Empty
         }};
         status = ethernet_.Configure(addresses);
@@ -431,21 +432,19 @@ core::Status BoardContext::Initialize(void) {
             break;
         }
 
+        // Apply default MAC link settings before PHY auto-negotiation completes.
+        // The LAN8742A will call ConfigureMacLink again with the negotiated values once the link is up.
+        status = ethernet_.ConfigureMacLink(stm32::ethernet_default_speed_100m, stm32::ethernet_default_full_duplex);
+        if (not status.IsSuccess()) {
+            jarnax::print("Ethernet failed to configure MAC link defaults\r\n");
+            break;
+        }
+
         status = lan8742a_driver_.Initialize();
         if (not status.IsSuccess()) {
             jarnax::print("LAN8742A PHY failed to initialize\r\n");
             break;
         }
-
-        jarnax::print(
-            "Ethernet MAC address is %02X:%02X:%02X:%02X:%02X:%02X\r\n",
-            ethernet_.GetMacAddress()[0],
-            ethernet_.GetMacAddress()[1],
-            ethernet_.GetMacAddress()[2],
-            ethernet_.GetMacAddress()[3],
-            ethernet_.GetMacAddress()[4],
-            ethernet_.GetMacAddress()[5]
-        );
 
         // force out
         break;
@@ -535,6 +534,10 @@ jarnax::net::ethernet::Driver& BoardContext::GetEthernet() {
 
 jarnax::net::ethernet::lan8742a::Driver& BoardContext::GetLan8742aDriver() {
     return lan8742a_driver_;
+}
+
+jarnax::net::eui48::Address BoardContext::GetDefinedMacAddress() {
+    return defined_mac_address_;
 }
 
 core::Container<BoardContext> board_context_container;

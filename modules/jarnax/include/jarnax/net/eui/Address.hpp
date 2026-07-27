@@ -7,6 +7,8 @@
 #include <cstdint>
 #include <type_traits>
 
+#include "core/Printer.hpp"
+
 namespace jarnax {
 namespace net {
 namespace eui {
@@ -136,6 +138,11 @@ using Address = eui::Address_<3, 3>;
 static_assert(sizeof(Address) == 6);
 static_assert(alignof(Address) == 1);
 
+/// The function prints the EUI-48 address with a given prefix using the provided printer.
+inline void Print(core::Printer& printer, char const prefix[], const Address& address) {
+    printer("eui48::Address %s: %02X:%02X:%02X:%02X:%02X:%02X\r\n", prefix, address[0], address[1], address[2], address[3], address[4], address[5]);
+}
+
 /// The invalid address is a special address that is used to indicate an invalid or uninitialized address. In EUI-48, the invalid address is
 /// represented by all bits set to 0 (i.e., 00:00:00:00:00:00).
 constexpr static Address invalid{0x00, 0x00, 0x00, 0x00, 0x00, 0x00};    // An invalid address is all bits set to 0
@@ -158,6 +165,21 @@ using Address = eui::Address_<3, 5>;
 static_assert(sizeof(Address) == 8);
 static_assert(alignof(Address) == 1);
 
+/// The function prints the EUI-64 address with a given prefix using the provided printer.
+inline void Print(core::Printer& printer, char const prefix[], const Address& address) {
+    printer(
+        "eui64::Address %s: %02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\r\n",
+        prefix,
+        address[0],
+        address[1],
+        address[2],
+        address[3],
+        address[4],
+        address[5],
+        address[6],
+        address[7]
+    );
+}
 /// The invalid address is a special address that is used to indicate an invalid or uninitialized address. In EUI-48, the invalid address is
 /// represented by all bits set to 0 (i.e., 00:00:00:00:00:00:00:00).
 constexpr static Address invalid{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};    // An invalid address is all bits set to 0

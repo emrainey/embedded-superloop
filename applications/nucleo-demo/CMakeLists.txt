@@ -4,6 +4,8 @@ add_firmware(NAME nucleo-demo
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Demo.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+    GENERIC_MODULES
+        jarnax-net
     CONFIGURATIONS
         basic
     BOARDS

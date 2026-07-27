@@ -1,7 +1,9 @@
 #ifndef JARNAX_NET_INTERFACE_HPP
 #define JARNAX_NET_INTERFACE_HPP
 
+#include "core/Printer.hpp"
 #include "core/Statistician.hpp"
+
 #include "jarnax/Loopable.hpp"
 #include "jarnax/net/arp/Table.hpp"
 #include "jarnax/net/ethernet/Driver.hpp"
@@ -51,6 +53,10 @@ public:
 
     //+=== Loopable Interface (requires Executable) ===+//
     bool Execute() override;
+
+    /// Prints the Current Configuration of the Interface to the provided printer
+    /// \param printer The printer to which the configuration will be printed.
+    void PrintConfiguration(core::Printer& printer) const;
 
 protected:
     ethernet::Driver& driver_;    ///< The Ethernet driver associated with this interface, which is used to send and receive packets on the network.

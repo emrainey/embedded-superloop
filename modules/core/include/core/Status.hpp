@@ -155,6 +155,12 @@ public:
     /// @return true if the Cause is not equal
     bool operator!=(Cause rhs) const;
 
+    /// @brief Checks if the Status matches the given Result and Cause
+    /// @param result The Result to check
+    /// @param cause The Cause to check
+    /// @return true if both the Result and Cause match
+    bool Is(Result result, Cause cause) const;
+
     /// @brief Returns the location of the Status
     Location GetLocation(void) const;
 

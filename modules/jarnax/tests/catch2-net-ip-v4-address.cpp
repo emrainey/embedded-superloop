@@ -21,6 +21,7 @@ public:
     jarnax::net::eui48::Address GetMacAddress(size_t) const override { return jarnax::net::eui48::Address{}; }
     core::Status Transmit(ethernet::Frame*) override { return core::Status{}; }
     core::Status Receive(Listener&) override { return core::Status{}; }
+    bool IsReady() const override { return true; }
     // core::Status Schedule(ethernet::mdio::Transaction*) override { return core::Status{}; }
 };
 

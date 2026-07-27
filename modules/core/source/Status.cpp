@@ -25,6 +25,10 @@ Status::Status(Result result, Cause cause)
     }
 }
 
+bool Status::Is(Result result, Cause cause) const {
+    return (result_ == result) and (cause_ == cause);
+}
+
 bool Status::IsSuccess(void) const {
     return (result_ == Result::Success);
 }

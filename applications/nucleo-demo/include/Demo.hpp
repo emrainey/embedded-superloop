@@ -13,6 +13,7 @@
 #include "jarnax/Ticker.hpp"
 #include "jarnax/Timer.hpp"
 #include "jarnax/i2c/Driver.hpp"
+#include "jarnax/net/Interface.hpp"
 #include "jarnax/net/ethernet/Driver.hpp"
 #include "jarnax/usart/Driver.hpp"
 
@@ -20,18 +21,21 @@ using jarnax::Loopable;
 using jarnax::LoopInfo;
 using jarnax::Ticks;
 
+/// Inputs to the State Chart
 enum class Inputs : std::uint8_t {
     None = 0U,
     UserButtonPressed,
     UserButtonReleased,
 };
 
+/// Outputs from the State Chart
 enum class Outputs : std::uint8_t {
     None = 0U,
     ErrorIndicatorActive,
     ErrorIndicatorInactive,
 };
 
+/// States of the Demonstration
 enum class DemoState : std::uint8_t {
     Undefined = 0U,
     StartUp,
@@ -43,13 +47,16 @@ enum class DemoState : std::uint8_t {
 
 class Demo final : public jarnax::Loopable, protected core::StateChart<DemoState>::Callback {
 public:
+    /// The ordinal type used by the state chart.
     using Ordinal = core::StateChart<DemoState>::Ordinal;
-    Demo();
+
+    /// The constructor for the Demonstration
+    Demo(jarnax::Ticker& ticker, jarnax::BoardContext& board_context, jarnax::net::Interface& network_interface);
+
+    //+=== Loopable Override ===+//
     bool Execute() override;
 
 protected:
-    void InitializeTransaction();
-
     //+=== StateChart Callback Overrides ===+//
     void OnEnter() override;
     void OnEntry(DemoState state) override;
@@ -67,6 +74,7 @@ protected:
     jarnax::net::ethernet::Driver& ethernet_driver_;
     jarnax::Indicator& error_indicator_;
     jarnax::Button& user_button_;
+    jarnax::net::Interface& network_interface_;
     jarnax::CountDown countdown_;
     core::StateChart<DemoState> state_chart_;
     Inputs inputs_;

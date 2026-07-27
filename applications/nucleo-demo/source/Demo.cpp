@@ -1,4 +1,5 @@
 #include "Demo.hpp"
+#include "BoardContext.hpp"
 #include "board.hpp"
 #include "core/Conversions.hpp"
 #include "jarnax/Assertion.hpp"
@@ -6,14 +7,15 @@
 
 using namespace core::units;
 
-Demo::Demo()
-    : ticker_{jarnax::GetTicker()}
-    , timer_{jarnax::GetBoardContext().GetTimer()}
-    , usart_driver_{jarnax::GetBoardContext().GetUsartB()}
-    , rng_{jarnax::GetBoardContext().GetRandomNumberGenerator()}
-    , ethernet_driver_{jarnax::GetBoardContext().GetEthernet()}
-    , error_indicator_{jarnax::GetBoardContext().GetErrorIndicator()}
-    , user_button_{jarnax::GetBoardContext().GetUserButton()}
+Demo::Demo(jarnax::Ticker& ticker, jarnax::BoardContext& board_context, jarnax::net::Interface& network_interface)
+    : ticker_{ticker}
+    , timer_{board_context.GetTimer()}
+    , usart_driver_{board_context.GetUsartB()}
+    , rng_{board_context.GetRandomNumberGenerator()}
+    , ethernet_driver_{board_context.GetEthernet()}
+    , error_indicator_{board_context.GetErrorIndicator()}
+    , user_button_{board_context.GetUserButton()}
+    , network_interface_{network_interface}
     , countdown_{timer_, core::units::Iota{250'000U}}
     , state_chart_{*this}
     , inputs_{Inputs::None}
@@ -48,6 +50,7 @@ bool Demo::Execute() {
 
 void Demo::OnEnter() {
     jarnax::print("Demo::OnEnter\r\n");
+    network_interface_.PrintConfiguration(core::GetPrinter());
 }
 
 void Demo::OnEntry(DemoState state) {
@@ -110,7 +113,6 @@ void Demo::OnExit(DemoState state) {
     } else if (state == DemoState::Idle) {
     } else if (state == DemoState::Next) {
     } else if (state == DemoState::Error) {
-        error_indicator_.Inactive();
     } else if (state == DemoState::Final) {
     }
 }

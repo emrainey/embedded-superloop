@@ -6,6 +6,7 @@
 #if defined(UNITTEST)
 #include <ostream>
 #endif
+#include "core/Printer.hpp"
 
 namespace jarnax {
 namespace net {
@@ -14,7 +15,7 @@ namespace v4 {
 
 /// @brief An IPv4 Address
 /// @note Always kept in network order (big endian) for ease of use with hardware and network protocols
-union Address {
+class Address {
 public:
     constexpr Address()
         : Address{0, 0, 0, 0} {}
@@ -106,6 +107,10 @@ public:
     }
 #endif
 
+    /// The function prints the IPv4 address with a given prefix using the provided printer.
+    /// @note This is declared here and defined later outside the class
+    friend void Print(core::Printer& printer, char const prefix[], const Address& address);
+
 protected:
     //+=== MEMORY LAYOUT ===+
     /// The octets of the address in network order (big endian)
@@ -118,6 +123,11 @@ protected:
     //+=== MEMORY LAYOUT ===+
 };
 static_assert(sizeof(Address) == sizeof(std::uint32_t), "Address must be 4 bytes in size");
+
+/// The function prints the IPv4 address with a given prefix using the provided printer.
+inline void Print(core::Printer& printer, char const prefix[], const Address& address) {
+    printer("ip::v4::Address %s: %u.%u.%u.%u\r\n", prefix, address.octets.a, address.octets.b, address.octets.c, address.octets.d);
+}
 
 /// The default route for IPv4
 constexpr static Address default_route{0, 0, 0, 0};

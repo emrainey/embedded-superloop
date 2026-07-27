@@ -11,9 +11,9 @@
 #include "jarnax/console/UsartConsole.hpp"
 #include "jarnax/drivers/lps35hw/Driver.hpp"
 #include "jarnax/drivers/lsm9ds1/Driver.hpp"
-#include "jarnax/net/ethernet/LAN8742A.hpp"
-#include "jarnax/net/ethernet/Driver.hpp"
 #include "jarnax/gpio/Output.hpp"
+#include "jarnax/net/ethernet/Driver.hpp"
+#include "jarnax/net/ethernet/LAN8742A.hpp"
 #include "stm32/Button.hpp"
 #include "stm32/Indicator.hpp"
 #include "stm32/RandomNumberGenerator.hpp"
@@ -94,6 +94,9 @@ public:
     /// Returns the LAN8742A PHY Driver
     jarnax::net::ethernet::lan8742a::Driver& GetLan8742aDriver();
 
+    /// Returns the Defined MAC Address that the Driver _will_ be given
+    jarnax::net::eui48::Address GetDefinedMacAddress();
+
 protected:
     stm32::Timer timer_;
     /// The Random Number Generator
@@ -171,6 +174,8 @@ protected:
     stm32::ethernet::Driver ethernet_;
     /// The Ethernet PHY Driver
     jarnax::net::ethernet::lan8742a::Driver lan8742a_driver_;
+    /// The Defined MAC Address
+    jarnax::net::eui48::Address defined_mac_address_;
 };
 
 /// Gets the reference to the BoardContext

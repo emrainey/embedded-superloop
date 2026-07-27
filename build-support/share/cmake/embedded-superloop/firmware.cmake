@@ -11,7 +11,7 @@ message(">>> Defining firmware functions")
 function(add_firmware)
     set(options DISABLE)
     set(singles NAME)
-    set(multiples SOURCES INCLUDES DEFINES LIBRARIES MODULES CONFIGURATIONS BOARDS)
+    set(multiples SOURCES INCLUDES DEFINES LIBRARIES MODULES GENERIC_MODULES CHIP_MODULES SYSTEM_MODULES CONFIGURATIONS BOARDS)
     cmake_parse_arguments(
         ARG
         "${options}"

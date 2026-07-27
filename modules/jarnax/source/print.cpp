@@ -121,9 +121,14 @@ private:
 
 namespace core {
 
+/// Storage for the Simple Printer
+core::Container<jarnax::SimplePrinter> simple_printer;
+
 Printer &GetPrinter() {
-    static jarnax::SimplePrinter simple;
-    return simple;
+    if (not simple_printer) {
+        simple_printer.emplace();
+    }
+    return *simple_printer;
 }
 
 }    // namespace core
