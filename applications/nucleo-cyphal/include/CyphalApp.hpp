@@ -11,6 +11,7 @@
 
 extern "C" {
 #include "hypha_ip/hypha_ip.h"
+#include "udpard.h"
 }
 
 namespace nucleo {
@@ -20,6 +21,10 @@ class CyphalApp final : public jarnax::Loopable,
                         public jarnax::net::ethernet::Driver::Listener {
 public:
     static constexpr std::size_t FramePoolSize = 4U;
+
+    static constexpr uint16_t UdpPort = 9382U;
+    static constexpr uint32_t SubjectId = 7509U;  
+    static constexpr std::size_t MaxUdpPayload = 1400U;
 
     CyphalApp(jarnax::Ticker& ticker, jarnax::BoardContext& board_context);
 
@@ -41,6 +46,14 @@ protected:
     static HyphaIpStatus_e OnReceiveUdp(HyphaIpExternalContext_t context, HyphaIpMetaData_t* metadata,
                                         HyphaIpSpan_t datagram);
 
+    // LibUDPard Callbacks
+    static bool OnTxEject(udpard_tx_t* tx, udpard_tx_ejection_t* ejection);
+    static void OnRxMessage(udpard_rx_t* rx, udpard_rx_port_t* port, udpard_rx_transfer_t transfer);
+
+    void InitUdpard();
+
+    static udpard_us_t NowUs(jarnax::Ticker const& ticker);
+
     jarnax::BoardContext& board_context_;
     jarnax::Ticker& ticker_;
     jarnax::net::ethernet::Driver& ethernet_;
@@ -55,6 +68,20 @@ protected:
 
     HyphaIpEthernetFrame_t* pending_rx_frame_;
     bool rx_frame_available_;
+
+    // LibUDPard state
+    udpard_tx_t tx_;
+    udpard_rx_t rx_;
+    udpard_rx_port_t subscription_port_;
+    udpard_rx_port_t unicast_port_;
+    udpard_tx_vtable_t tx_vtable_;
+    udpard_rx_port_vtable_t subscription_vtable_;
+    udpard_rx_port_vtable_t unicast_vtable_;
+    udpard_mem_t allocator_;
+    udpard_tx_mem_resources_t tx_memory_;
+    udpard_rx_mem_resources_t rx_memory_;
+
+    bool udpard_initialized_;
 
     bool initialized_;
 };

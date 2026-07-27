@@ -16,3 +16,6 @@
 [submodule "third-party/libudpard"]
 	path = third-party/libudpard
 	url = https://github.com/OpenCyphal/libudpard.git
+[submodule "third-party/o1heap"]
+	path = third-party/o1heap
+	url = https://github.com/pavel-kirienko/o1heap.git

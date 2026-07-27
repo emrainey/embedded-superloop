@@ -123,3 +123,11 @@ target_link_libraries(hypha-ip PRIVATE hypha-ip-rules)
 # LibUDPard - Cyphal/UDP transport layer
 # The library is a single .c/.h file with no build system; we provide one here.
 add_subdirectory(${THIRD_PARTY_DIR}/libudpard)
+
+# O1Heap - deterministic O(1) memory allocator for real-time embedded systems
+add_library(o1heap STATIC
+    ${THIRD_PARTY_DIR}/o1heap/o1heap/o1heap.c
+)
+target_include_directories(o1heap PUBLIC
+    $<BUILD_INTERFACE:${THIRD_PARTY_DIR}/o1heap/o1heap>
+)
