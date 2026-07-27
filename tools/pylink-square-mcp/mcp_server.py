@@ -15,6 +15,8 @@ except ImportError:
 from backtrace import main as backtrace_main
 from dump_memory import main as dump_memory_main
 from test_breakpoint import main as test_breakpoint_main
+from run_to_main import main as run_to_main_main
+from dump_ethernet import main as dump_ethernet_main
 
 def log(msg):
     sys.stderr.write(f"[MCP-Server] {msg}\n")
@@ -64,11 +66,57 @@ def handle_dump_memory(arguments):
     words = arguments.get("words", 256)
     device = arguments.get("device", "STM32H753ZI")
     speed = arguments.get("speed", 4000)
-    
+
     args = ["--address", str(address), "--words", str(words), "--device", str(device), "--speed", str(speed)]
     if arguments.get("show_zeros", False):
         args.append("--show-zeros")
     return run_tool_main(dump_memory_main, args)
+
+def handle_dump_ethernet(arguments):
+    device = arguments.get("device", "STM32H753ZI")
+    speed = arguments.get("speed", 4000)
+    timeout = arguments.get("timeout", 10.0)
+    run_to_main = arguments.get("run_to_main", False)
+    run_seconds = arguments.get("run_seconds", 0.0)
+    all_fields = arguments.get("all_fields", False)
+    elf = arguments.get("elf", None)
+    nm = arguments.get("nm", None)
+    svd = arguments.get("svd", None)
+    breakpoint_symbol = arguments.get("breakpoint_symbol", None)
+    args = ["--device", str(device), "--speed", str(speed), "--timeout", str(timeout)]
+    if run_to_main:
+        args.append("--run-to-main")
+    if run_seconds > 0.0:
+        args += ["--run-seconds", str(run_seconds)]
+    if all_fields:
+        args.append("--all-fields")
+    if elf:
+        args += ["--elf", str(elf)]
+    if nm:
+        args += ["--nm", str(nm)]
+    if svd:
+        args += ["--svd", str(svd)]
+    if breakpoint_symbol:
+        args += ["--breakpoint-symbol", str(breakpoint_symbol)]
+    return run_tool_main(dump_ethernet_main, args)
+
+
+def handle_run_to_main(arguments):
+    elf = arguments.get("elf")
+    if not elf:
+        return 1, "Error: 'elf' argument is required."
+    device = arguments.get("device", "STM32H753ZI")
+    speed = arguments.get("speed", 4000)
+    timeout = arguments.get("timeout", 10.0)
+    nm = arguments.get("nm", None)
+    symbol = arguments.get("symbol", None)
+    args = ["--elf", str(elf), "--device", str(device), "--speed", str(speed), "--timeout", str(timeout)]
+    if nm:
+        args += ["--nm", str(nm)]
+    if symbol:
+        args += ["--symbol", str(symbol)]
+    return run_tool_main(run_to_main_main, args)
+
 
 def handle_test_breakpoint(arguments):
     pc = arguments.get("pc")
@@ -79,7 +127,7 @@ def handle_test_breakpoint(arguments):
     device = arguments.get("device", "STM32H753ZI")
     speed = arguments.get("speed", 4000)
     timeout = arguments.get("timeout", 5.0)
-    
+
     args = [
         "--pc", str(pc),
         "--address", str(address),
@@ -133,6 +181,43 @@ TOOLS = [
             "required": ["address"]
         },
         "handler": handle_dump_memory
+    },
+    {
+        "name": "dump_ethernet",
+        "description": "Read and decode all STM32H7 Ethernet MAC/MTL/DMA registers using the on-board SVD. Optionally runs to cortex::system::main first.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "device": {"type": "string", "description": "Target device name", "default": "STM32H753ZI"},
+                "speed": {"type": "integer", "description": "J-Link speed in kHz", "default": 4000},
+                "timeout": {"type": "number", "description": "Seconds to wait for breakpoint (with run_to_main)", "default": 10.0},
+                "run_to_main": {"type": "boolean", "description": "Reset and run to the breakpoint symbol before reading registers", "default": False},
+                "run_seconds": {"type": "number", "description": "After the breakpoint, release and run for this many seconds before halting (allows PHY to negotiate and frames to arrive)", "default": 0.0},
+                "breakpoint_symbol": {"type": "string", "description": "Mangled symbol to break at (default: cortex::system::main). E.g. '_ZN4Demo7ExecuteEv' for Demo::Execute"},
+                "all_fields": {"type": "boolean", "description": "Print all fields including zero-valued ones", "default": False},
+                "elf": {"type": "string", "description": "Path to ELF (required when run_to_main is true)"},
+                "nm": {"type": "string", "description": "Optional path to arm-none-eabi-nm"},
+                "svd": {"type": "string", "description": "Path to STM32H753.svd (auto-detected if omitted)"}
+            }
+        },
+        "handler": handle_dump_ethernet
+    },
+    {
+        "name": "run_to_main",
+        "description": "Reset target and run to a symbol (default: cortex::system::main) using a symbol-resolved hardware breakpoint.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "elf": {"type": "string", "description": "Path to the ELF file with debug symbols"},
+                "symbol": {"type": "string", "description": "Mangled symbol to break at (default: _ZN6cortex6system4mainEv = cortex::system::main). E.g. '_ZN4Demo7ExecuteEv' for Demo::Execute"},
+                "device": {"type": "string", "description": "Target device name", "default": "STM32H753ZI"},
+                "speed": {"type": "integer", "description": "J-Link speed in kHz", "default": 4000},
+                "timeout": {"type": "number", "description": "Seconds to wait for breakpoint hit", "default": 10.0},
+                "nm": {"type": "string", "description": "Optional path to arm-none-eabi-nm (auto-detected if omitted)"}
+            },
+            "required": ["elf"]
+        },
+        "handler": handle_run_to_main
     },
     {
         "name": "test_breakpoint",
