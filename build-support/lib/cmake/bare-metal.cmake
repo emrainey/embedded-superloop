@@ -1,16 +1,16 @@
 message(STATUS "Configuring bare-metal build")
 
 message(NOTICE "No Exceptions and No RTTI")
-add_compile_options(-fno-exceptions -fno-rtti)
+add_compile_options(-fno-exceptions)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
 
 message(STATUS "Additional Flags for Stack, Statics, Linkage")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-threadsafe-statics -fno-use-cxa-atexit")
 add_compile_options(
     # -ffreestanding
     -ffunction-sections
     -fdata-sections
     # -flto
-    -fno-threadsafe-statics
-    -fno-use-cxa-atexit
     -fomit-frame-pointer
     -fstack-usage
     -Wstack-usage=32768

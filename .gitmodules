@@ -10,3 +10,9 @@
 [submodule "third-party/FakeIt"]
 	path = third-party/FakeIt
 	url = https://github.com/eranpeer/FakeIt.git
+[submodule "third-party/libhypha"]
+	path = third-party/libhypha
+	url = https://github.com/OpenCyphal-Garage/libhypha.git
+[submodule "third-party/libudpard"]
+	path = third-party/libudpard
+	url = https://github.com/OpenCyphal/libudpard.git

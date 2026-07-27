@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 
 project(embedded-superloop-jarnax
         VERSION 0.3.0
-        LANGUAGES CXX ASM)
+        LANGUAGES C CXX ASM)
 
 option(BUILD_UNIT_TESTS "Build unit tests" ON)
 option(BUILD_DOCUMENTATION "Build documentation" OFF)
@@ -131,7 +131,7 @@ export_properties(
 # TODO scan and include automatically!
 list(APPEND LOCAL_MODULES memory core segger cortex stm32 jarnax native) # These depend on config and board, but also has test dependencies on boards which don't exist yet.
 list(APPEND LOCAL_BOARDS stm32_f4ve_v2 netduinoplus2 nucleo_h753zi)
-list(APPEND LOCAL_APPLICATIONS simple test-timers test-i2c test-ssd1306 test-usart test-spi test-lps35hw test-debug unittests nucleo-demo)
+list(APPEND LOCAL_APPLICATIONS simple test-timers test-i2c test-ssd1306 test-usart test-spi test-lps35hw test-debug unittests nucleo-demo nucleo-cyphal)
 list(APPEND LOCAL_UNITTESTS core cortex stm32 jarnax) # these have unit tests
 # Pulls in each module!
 foreach(module IN LISTS LOCAL_MODULES)

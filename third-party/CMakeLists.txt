@@ -69,3 +69,57 @@ if(NOT BUILD_CROSS_TARGET) # Only fetch these dependencies if we are not cross-c
     target_compile_definitions(Catch2FakeIt INTERFACE FAKEIT_USE_CATCH2)
     target_include_directories(Catch2FakeIt INTERFACE ${FakeIt_SOURCE_DIR}/single_header/catch) # FakeIt is a single header library but we'll use it with Catch2 (above)
 endif()
+
+# Hypha IP stack - light-weight IP stack for Cyphal/UDP
+# This is used by target firmware as the Ethernet/IP layer instead of jarnax-net
+# NOTE: libhypha's own CMakeLists.txt uses CMAKE_SOURCE_DIR which breaks when brought in
+# via add_subdirectory, so we build it directly here.
+set(HYPHA_LIB_THIRD_PARTY ${THIRD_PARTY_DIR}/libhypha)
+
+# Define the hypha-ip-defs interface (compile definitions shared with consumers)
+add_library(hypha-ip-defs INTERFACE)
+target_compile_definitions(hypha-ip-defs INTERFACE
+    HYPHA_IP_TTL=128
+    HYPHA_IP_MTU=1500
+    HYPHA_IP_USE_VLAN=0
+)
+
+# Define the hypha-ip-rules interface (compiler flags for hypha itself)
+add_library(hypha-ip-rules INTERFACE)
+target_compile_options(hypha-ip-rules INTERFACE
+    -Wall -Wextra -Wconversion -Wformat=2 -Wshadow
+    -Wunused-parameter -Wunused-variable -Wstrict-prototypes -Wredundant-decls
+    -pedantic
+    -fdiagnostics-color=always
+)
+
+# Build the hypha-ip static library
+add_library(hypha-ip STATIC
+    ${HYPHA_LIB_THIRD_PARTY}/source/hypha_api.c
+    ${HYPHA_LIB_THIRD_PARTY}/source/hypha_arp.c
+    ${HYPHA_LIB_THIRD_PARTY}/source/hypha_checksum.c
+    ${HYPHA_LIB_THIRD_PARTY}/source/hypha_eth.c
+    ${HYPHA_LIB_THIRD_PARTY}/source/hypha_flip.c
+    ${HYPHA_LIB_THIRD_PARTY}/source/hypha_icmp.c
+    ${HYPHA_LIB_THIRD_PARTY}/source/hypha_igmp.c
+    ${HYPHA_LIB_THIRD_PARTY}/source/hypha_ip.c
+    ${HYPHA_LIB_THIRD_PARTY}/source/hypha_print.c
+    ${HYPHA_LIB_THIRD_PARTY}/source/hypha_span.c
+    ${HYPHA_LIB_THIRD_PARTY}/source/hypha_status.c
+    ${HYPHA_LIB_THIRD_PARTY}/source/hypha_udp.c
+)
+
+target_include_directories(hypha-ip PUBLIC
+    $<BUILD_INTERFACE:${HYPHA_LIB_THIRD_PARTY}/include>
+)
+
+target_include_directories(hypha-ip PRIVATE
+    ${HYPHA_LIB_THIRD_PARTY}/source/include
+)
+
+target_link_libraries(hypha-ip PUBLIC hypha-ip-defs)
+target_link_libraries(hypha-ip PRIVATE hypha-ip-rules)
+
+# LibUDPard - Cyphal/UDP transport layer
+# The library is a single .c/.h file with no build system; we provide one here.
+add_subdirectory(${THIRD_PARTY_DIR}/libudpard)
