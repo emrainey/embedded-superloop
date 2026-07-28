@@ -84,6 +84,8 @@ protected:
     bool udpard_initialized_;
 
     bool initialized_;
+
+    size_t stats_print_counter_;
 };
 
 }    // namespace cyphal

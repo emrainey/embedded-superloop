@@ -5,6 +5,7 @@
 #include "core/Conversions.hpp"
 #include "core/vsnprint.hpp"
 #include "jarnax/Assertion.hpp"
+#include "segger/rtt.hpp"
 #include "stm32/h7xx/ethernet/Driver.hpp"
 
 #include <cstring>
@@ -119,7 +120,8 @@ CyphalApp::CyphalApp(jarnax::Ticker& ticker, jarnax::BoardContext& board_context
     , tx_memory_{}
     , rx_memory_{}
     , udpard_initialized_{false}
-    , initialized_{false} {
+    , initialized_{false}
+    , stats_print_counter_{0U} {
     for (auto& in_use : frame_in_use_) {
         in_use = false;
     }
@@ -163,6 +165,8 @@ bool CyphalApp::Execute() {
     if (!udpard_initialized_) {
         InitUdpard();
         udpard_initialized_ = true;
+        // Clear RTT buffer after boot so runtime stats are visible
+        rtt::control_block.GetUp(0).Clear();
     }
 
     ethernet_.Execute();
@@ -173,6 +177,22 @@ bool CyphalApp::Execute() {
 
     udpard_tx_poll(&tx_, now, 1U);
     udpard_rx_poll(&rx_, now);
+
+    ++stats_print_counter_;
+    if (stats_print_counter_ >= 200U) {
+        stats_print_counter_ = 0U;
+        HyphaIpStatistics_t const* stats = HyphaIpGetStatistics(hypha_context_);
+        if (stats != nullptr) {
+            jarnax::print("Stats MAC: rx=%zu/%zu IP: rx=%zu/%zu UDP: rx=%zu/%zu "
+                          "FRM: aq=%zu rl=%zu fl=%zu "
+                          "ARP: lk=%zu an=%zu ad=%zu rm=%zu\r\n",
+                          stats->counter.mac.rx.count, stats->mac.accepted,
+                          stats->counter.ipv4.rx.count, stats->ip.accepted,
+                          stats->counter.udp.rx.count, stats->udp.accepted,
+                          stats->frames.acquires, stats->frames.releases, stats->frames.failures,
+                          stats->arp.lookups, stats->arp.announces, stats->arp.additions, stats->arp.removals);
+        }
+    }
 
     return true;
 }
@@ -317,13 +337,8 @@ HyphaIpStatus_e CyphalApp::OnRelease(HyphaIpExternalContext_t context, HyphaIpEt
 
 int CyphalApp::OnPrint(HyphaIpExternalContext_t context, char const* const format, ...) {
     (void)context;
-    va_list args;
-    va_start(args, format);
-    char buffer[256U];
-    unsigned long const result = core::vsnprint(buffer, sizeof(buffer), format, args);
-    va_end(args);
-    jarnax::print("%s", buffer);
-    return static_cast<int>(result);
+    (void)format;
+    return 0;
 }
 
 HyphaIpTimestamp_t CyphalApp::OnGetMonotonicTimestamp(HyphaIpExternalContext_t context) {
@@ -338,7 +353,12 @@ HyphaIpTimestamp_t CyphalApp::OnGetMonotonicTimestamp(HyphaIpExternalContext_t c
 void CyphalApp::OnReport(HyphaIpExternalContext_t context, HyphaIpStatus_e status, char const* const func,
                          char const* const file, unsigned int line) {
     (void)context;
-    jarnax::print("HyphaIP: %d at %s:%u in %s\r\n", static_cast<int>(status), file, line, func);
+    (void)func;
+    (void)file;
+    (void)line;
+    if (static_cast<int>(status) < 0) {
+        jarnax::print("HyphaIP: %d at %s:%u in %s\r\n", static_cast<int>(status), file, line, func);
+    }
 }
 
 HyphaIpStatus_e CyphalApp::OnReceiveUdp(HyphaIpExternalContext_t context, HyphaIpMetaData_t* metadata,

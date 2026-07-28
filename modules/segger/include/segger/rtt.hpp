@@ -58,6 +58,9 @@ public:
     /// @brief Returns the number of free bytes available to write in the buffer
     size_t GetCountAvailableSpace(void) const volatile;
 
+    /// @brief Clears the buffer by resetting the read and write offsets to zero.
+    void Clear(void) volatile { write_offset_ = 0U; read_offset_ = 0U; }
+
 protected:
 #if defined(__arm__)
     /// The size type used for buffer offsets on 32 bit ARM
