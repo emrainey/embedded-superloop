@@ -34,7 +34,7 @@ MEMORY {
     /* gap */
     SRAM1         (rw) : ORIGIN = 0x30000000, LENGTH = 128K
     SRAM2         (rw) : ORIGIN = 0x30020000, LENGTH = 128K
-    SRAM3         (rw) : ORIGIN = 0x30040000, LENGTH = 128K
+    SRAM3         (rw) : ORIGIN = 0x30040000, LENGTH = 32K
     /* gap */
     SRAM4         (rw) : ORIGIN = 0x38000000, LENGTH = 64K
     /* gap */
