@@ -39,8 +39,8 @@
 # Ignore Build Output
 build/
 
-# Ingnore Testing Output like Jlink/Ozone or GDB configuration or anything
-# else in there. 
+# Ignore Testing Output like Jlink/Ozone or GDB configuration or anything
+# else in there.
 testing/
 
 # Ignore Python virtual environments
@@ -68,3 +68,6 @@ CMakeUserPresets.json
 # Ignore PyCache
 __pycache__/
 *.py[cod]
+
+# Ignore the Specific RTT State File
+tools/pylink-square-mcp/.rtt_state/rtt_read_state.json
