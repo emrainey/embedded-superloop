@@ -7,14 +7,13 @@
 #include "jarnax/Assertion.hpp"
 #include "segger/rtt.hpp"
 #include "stm32/h7xx/ethernet/Driver.hpp"
+#include "strings.hpp"
 
 #include <cstring>
 
 namespace {
 
 using namespace jarnax::net::eui48;
-
-constexpr std::size_t kFrameHeaderSize = 14U;
 
 void CopyAddress(HyphaIpEthernetAddress_t& dest, Address const& src) {
     dest.oui[0] = src[0];
@@ -350,14 +349,11 @@ HyphaIpTimestamp_t CyphalApp::OnGetMonotonicTimestamp(HyphaIpExternalContext_t c
     return static_cast<HyphaIpTimestamp_t>(ticks.value());
 }
 
-void CyphalApp::OnReport(HyphaIpExternalContext_t context, HyphaIpStatus_e status, char const* const func,
-                         char const* const file, unsigned int line) {
-    (void)context;
-    (void)func;
-    (void)file;
-    (void)line;
-    if (static_cast<int>(status) < 0) {
-        jarnax::print("HyphaIP: %d at %s:%u in %s\r\n", static_cast<int>(status), file, line, func);
+void CyphalApp::OnReport(HyphaIpExternalContext_t, HyphaIpStatus_e status, char const* const func, char const* const file, unsigned int line) {
+    if (status != HyphaIpStatusOk) {
+        char const* const short_path = strings::last_character(file, '/');
+        char const* const tmp = short_path == nullptr ? file : short_path + 1;
+        jarnax::print("CyphalApp: OnReport status=%d func=%s file=%s line=%u\r\n", static_cast<int>(status), func, tmp, line);
     }
 }
 
