@@ -202,7 +202,7 @@ function(add_firmware)
                 add_custom_command(
                     OUTPUT ${ARG_BIN}
                     DEPENDS ${ARG_ELF}
-                    COMMAND ${CMAKE_OBJCOPY} -O binary ${ARG_ELF} ${REMOVE_SECTIONS} ${ARG_BIN}
+                    COMMAND ${CMAKE_OBJCOPY} -O binary --gap-fill=0xff ${ARG_ELF} ${REMOVE_SECTIONS} ${ARG_BIN}
                     COMMENT "Creating Binary of ${LOCAL_TARGET}.elf"
                 )
                 add_custom_target(binary-${LOCAL_TARGET} ALL DEPENDS ${ARG_BIN})

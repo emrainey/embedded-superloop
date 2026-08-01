@@ -79,11 +79,13 @@ Make sure that the cross builds are not broken either by building them:
 
 - Use the existing `tools/pylink-square-mcp` to flash and debug the device through a SEGGER device.
 - Recommend new scripts if they are genuinely reusable.
+- When RTT from the pylink-square-mcp is NOT detected, restart the MCP server. If still not present, check the build options.
 
 ## Other MCP
 
 - Always prefer to use clangd connected MCP servers (mcpls) if available over grepping source files.
-- Always prefer ripgrep over grep over find. Only use find when the -exec feature is actually worth asking for permission.
+- Always prefer the "grep" MCP tool over "ripgrep". Only use "find ... -exec" when the -exec feature is actually worth asking for permission.
+- When on Darwin host, ripgrep behaves inconsistently with respect to several switch options. If you MUST use it, call the help first to verify that the options you are using are actually supported. If not, use grep instead.
 
 ## Workflow
 

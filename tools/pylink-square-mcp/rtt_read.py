@@ -6,6 +6,8 @@ import json
 import time
 import struct
 
+from models import models
+
 STATE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".rtt_state")
 STATE_FILE = os.path.join(STATE_DIR, "rtt_read_state.json")
 
@@ -38,6 +40,8 @@ def main():
                         help="If > 0, poll continuously for N seconds, returning new data each poll cycle.")
     args = parser.parse_args()
 
+    assert(args.device in models), f"Device {args.device} not supported. Supported devices: {list(models.keys())}"
+
     if args.since == "reset":
         reset_state()
         print("RTT state reset.")
@@ -58,12 +62,13 @@ def main():
 
         # Read known RTT control block location (from rtt.cpp: control_block in BSS)
         # The control_block is at a known link-time address; we search for "SEGGER RTT"
-        # in likely RAM regions: 0x24000000 - 0x24080000 (AXI SRAM)
+        # in all RAM ranges for the device if not found at known locations.
 
         cb_addr = None
         # Try known locations first (from BSS symbol)
         known_cb_candidates = [
             0x24000808,  # known from previous runs
+            0x24000c08,  # from _ZN3rtt13control_blockE in current firmware
         ]
         for cand in known_cb_candidates:
             try:
@@ -76,17 +81,19 @@ def main():
                 pass
 
         if cb_addr is None:
-            # Scan RAM for the signature (AXI SRAM: 0x24000000 - 0x24040000)
+            # Scan RAM for the signature
             step = 0x1000
-            for base in range(0x24000000, 0x24040000, step):
-                try:
-                    data = jlink.memory_read8(base, 16)
-                    sig = bytes(data).decode("ascii", errors="ignore")
-                    if sig.startswith("SEGGER RTT"):
-                        cb_addr = base
-                        break
-                except Exception:
-                    pass
+            sram_ranges = models[args.device]["ram"]
+            for base, end in sram_ranges:
+                for addr in range(base, end, step):
+                    try:
+                        data = jlink.memory_read8(addr, 16)
+                        sig = bytes(data).decode("ascii", errors="ignore")
+                        if sig.startswith("SEGGER RTT"):
+                            cb_addr = addr
+                            break
+                    except Exception:
+                        pass
 
         if cb_addr is None:
             print("ERROR: Could not find SEGGER RTT Control Block in target memory.")
@@ -168,6 +175,12 @@ def main():
                 continue
             elif end_time is not None and now >= end_time:
                 break
+            elif end_time is not None and first_pass:
+                # Resume the target so new data can be produced between polls
+                jlink.restart()
+                time.sleep(0.5)
+                first_pass = False
+                continue
 
             break  # non-continuous: exit after first read
 
