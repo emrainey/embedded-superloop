@@ -23,6 +23,7 @@ from run_for import main as run_for_main
 import svd_query
 from live_dump import main as live_dump_main
 from clock_tree import main as clock_tree_main
+from rtt_read import main as rtt_read_main
 import xml.etree.ElementTree as ET
 
 def log(msg):
@@ -191,6 +192,22 @@ def handle_clock_tree(arguments):
     return run_tool_main(clock_tree_main, args)
 
 
+def handle_rtt_read(arguments):
+    device = arguments.get("device", "STM32H753ZI")
+    speed = arguments.get("speed", 4000)
+    elf = arguments.get("elf", None)
+    since = arguments.get("since", None)
+    continuous = arguments.get("continuous", 0.0)
+    args = ["--device", str(device), "--speed", str(speed)]
+    if elf:
+        args += ["--elf", str(elf)]
+    if since:
+        args += ["--since", str(since)]
+    if continuous > 0.0:
+        args += ["--continuous", str(continuous)]
+    return run_tool_main(rtt_read_main, args)
+
+
 def handle_live_dump(arguments):
     peripheral = arguments.get("peripheral")
     if not peripheral:
@@ -297,6 +314,21 @@ def handle_svd_query(arguments):
 
 
 TOOLS = [
+    {
+        "name": "rtt_read",
+        "description": "Continuously read SEGGER RTT output from target. Tracks read offset between calls using a state file. Use --since=reset to clear tracked state. Use --continuous=N to poll for N seconds.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "device": {"type": "string", "description": "Target device name", "default": "STM32H753ZI"},
+                "speed": {"type": "integer", "description": "J-Link speed in kHz", "default": 4000},
+                "elf": {"type": "string", "description": "Path to ELF file (optional, for symbol lookup)"},
+                "since": {"type": "string", "description": "Reset tracked offset: pass 'reset' to clear state. Otherwise auto-tracks."},
+                "continuous": {"type": "number", "description": "If > 0, poll continuously for N seconds, returning data each poll cycle.", "default": 0.0}
+            }
+        },
+        "handler": handle_rtt_read
+    },
     {
         "name": "debug_target",
         "description": "Query target registers and exception/fault status (CFSR/HFSR) via J-Link.",

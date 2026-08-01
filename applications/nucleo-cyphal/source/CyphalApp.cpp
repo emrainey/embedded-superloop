@@ -1,19 +1,24 @@
 #include "CyphalApp.hpp"
 
-#include "board.hpp"
 #include "O1HeapPool.hpp"
+#include "board.hpp"
 #include "core/Conversions.hpp"
 #include "core/vsnprint.hpp"
+#include "hypha_ip/hypha_ip.h"
 #include "jarnax/Assertion.hpp"
 #include "segger/rtt.hpp"
 #include "stm32/h7xx/ethernet/Driver.hpp"
 #include "strings.hpp"
 
+#include <cstdarg>
 #include <cstring>
 
 namespace {
 
 using namespace jarnax::net::eui48;
+
+constexpr size_t PrintBufferSize{1024U};
+char print_buffer_[PrintBufferSize];    ///< Reusable buffer for the OnPrint callback
 
 void CopyAddress(HyphaIpEthernetAddress_t& dest, Address const& src) {
     dest.oui[0] = src[0];
@@ -48,9 +53,7 @@ void CopyHyphaFrameToJarnax(jarnax::net::ethernet::Frame& destination, HyphaIpEt
 }
 
 uint32_t HyphaIpToU32(HyphaIpIPv4Address_t addr) {
-    return (static_cast<uint32_t>(addr.a) << 24) |
-           (static_cast<uint32_t>(addr.b) << 16) |
-           (static_cast<uint32_t>(addr.c) << 8) |
+    return (static_cast<uint32_t>(addr.a) << 24) | (static_cast<uint32_t>(addr.b) << 16) | (static_cast<uint32_t>(addr.c) << 8) |
            (static_cast<uint32_t>(addr.d));
 }
 
@@ -119,6 +122,7 @@ CyphalApp::CyphalApp(jarnax::Ticker& ticker, jarnax::BoardContext& board_context
     , tx_memory_{}
     , rx_memory_{}
     , udpard_initialized_{false}
+    , arp_announced_{false}
     , initialized_{false}
     , stats_print_counter_{0U} {
     for (auto& in_use : frame_in_use_) {
@@ -151,13 +155,27 @@ bool CyphalApp::Execute() {
     if (!initialized_) {
         core::Status const status = ethernet_.Configure(mac_addresses_);
         if (status.IsSuccess()) {
-            HyphaIpStatus_e const hy_status = HyphaIpInitialize(
-                &hypha_context_, &network_interface_, reinterpret_cast<HyphaIpExternalContext_t>(this), &external_interface_);
+            HyphaIpStatus_e const hy_status =
+                HyphaIpInitialize(&hypha_context_, &network_interface_, reinterpret_cast<HyphaIpExternalContext_t>(this), &external_interface_);
             if (HyphaIpIsSuccess(hy_status)) {
                 initialized_ = true;
             }
         }
         return true;
+    }
+
+    // Drive MDIO/PHY and DMA always so the link can come up
+    ethernet_.Execute();
+
+    // Do not process network buffers until the Ethernet link is up
+    if (!board_context_.GetLan8742aDriver().IsLinkUp()) {
+        return true;
+    }
+
+    // Send ARP announcement once so the switch learns our MAC
+    if (!arp_announced_) {
+        HyphaIpArpAnnouncement(hypha_context_);
+        arp_announced_ = true;
     }
 
     // Lazy-init udpard after hypha is running
@@ -167,8 +185,6 @@ bool CyphalApp::Execute() {
         // Clear RTT buffer after boot so runtime stats are visible
         rtt::control_block.GetUp(0).Clear();
     }
-
-    ethernet_.Execute();
 
     HyphaIpRunOnce(hypha_context_);
 
@@ -182,14 +198,28 @@ bool CyphalApp::Execute() {
         stats_print_counter_ = 0U;
         HyphaIpStatistics_t const* stats = HyphaIpGetStatistics(hypha_context_);
         if (stats != nullptr) {
-            jarnax::print("Stats MAC: rx=%zu/%zu IP: rx=%zu/%zu UDP: rx=%zu/%zu "
-                          "FRM: aq=%zu rl=%zu fl=%zu "
-                          "ARP: lk=%zu an=%zu ad=%zu rm=%zu\r\n",
-                          stats->counter.mac.rx.count, stats->mac.accepted,
-                          stats->counter.ipv4.rx.count, stats->ip.accepted,
-                          stats->counter.udp.rx.count, stats->udp.accepted,
-                          stats->frames.acquires, stats->frames.releases, stats->frames.failures,
-                          stats->arp.lookups, stats->arp.announces, stats->arp.additions, stats->arp.removals);
+            jarnax::print(
+                "Stats MAC: rx=%zu/%zu IP: rx=%zu/%zu UDP: rx=%zu/%zu "
+                "IGMP: tx=%zu rx=%zu/%zu "
+                "FRM: aq=%zu rl=%zu fl=%zu "
+                "ARP: lk=%zu an=%zu ad=%zu rm=%zu\r\n",
+                stats->counter.mac.rx.count,
+                stats->mac.accepted,
+                stats->counter.ipv4.rx.count,
+                stats->ip.accepted,
+                stats->counter.udp.rx.count,
+                stats->udp.accepted,
+                stats->counter.igmp.tx.count,
+                stats->counter.igmp.rx.count,
+                stats->igmp.accepted,
+                stats->frames.acquires,
+                stats->frames.releases,
+                stats->frames.failures,
+                stats->arp.lookups,
+                stats->arp.announces,
+                stats->arp.additions,
+                stats->arp.removals
+            );
         }
     }
 
@@ -214,12 +244,9 @@ void CyphalApp::InitUdpard() {
 
     // Build local UID from MAC address padded to 64 bits
     uint64_t const local_uid =
-        (static_cast<uint64_t>(network_interface_.mac.oui[0]) << 40) |
-        (static_cast<uint64_t>(network_interface_.mac.oui[1]) << 32) |
-        (static_cast<uint64_t>(network_interface_.mac.oui[2]) << 24) |
-        (static_cast<uint64_t>(network_interface_.mac.uid[0]) << 16) |
-        (static_cast<uint64_t>(network_interface_.mac.uid[1]) << 8) |
-        (static_cast<uint64_t>(network_interface_.mac.uid[2]));
+        (static_cast<uint64_t>(network_interface_.mac.oui[0]) << 40) | (static_cast<uint64_t>(network_interface_.mac.oui[1]) << 32) |
+        (static_cast<uint64_t>(network_interface_.mac.oui[2]) << 24) | (static_cast<uint64_t>(network_interface_.mac.uid[0]) << 16) |
+        (static_cast<uint64_t>(network_interface_.mac.uid[1]) << 8) | (static_cast<uint64_t>(network_interface_.mac.uid[2]));
 
     tx_vtable_.eject = &CyphalApp::OnTxEject;
 
@@ -334,10 +361,23 @@ HyphaIpStatus_e CyphalApp::OnRelease(HyphaIpExternalContext_t context, HyphaIpEt
     return HyphaIpStatusInvalidArgument;
 }
 
-int CyphalApp::OnPrint(HyphaIpExternalContext_t context, char const* const format, ...) {
-    (void)context;
-    (void)format;
-    return 0;
+int CyphalApp::OnPrint(HyphaIpExternalContext_t, char const* const format, ...) {
+    va_list list;
+    va_start(list, format);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+#endif
+    unsigned long num = core::vsnprint(print_buffer_, sizeof(print_buffer_), format, list);
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
+#pragma GCC diagnostic pop
+    va_end(list);
+    jarnax::print("%s", print_buffer_);
+    return static_cast<int>(num);
 }
 
 HyphaIpTimestamp_t CyphalApp::OnGetMonotonicTimestamp(HyphaIpExternalContext_t context) {
@@ -357,8 +397,7 @@ void CyphalApp::OnReport(HyphaIpExternalContext_t, HyphaIpStatus_e status, char 
     }
 }
 
-HyphaIpStatus_e CyphalApp::OnReceiveUdp(HyphaIpExternalContext_t context, HyphaIpMetaData_t* metadata,
-                                        HyphaIpSpan_t datagram) {
+HyphaIpStatus_e CyphalApp::OnReceiveUdp(HyphaIpExternalContext_t context, HyphaIpMetaData_t* metadata, HyphaIpSpan_t datagram) {
     auto* self = reinterpret_cast<CyphalApp*>(context);
     if (self == nullptr || metadata == nullptr) {
         return HyphaIpStatusInvalidArgument;
@@ -434,20 +473,24 @@ bool CyphalApp::OnTxEject(udpard_tx_t* tx, udpard_tx_ejection_t* ejection) {
 void CyphalApp::OnRxMessage(udpard_rx_t* rx, udpard_rx_port_t* port, udpard_rx_transfer_t transfer) {
     (void)rx;
     (void)port;
-    jarnax::print("CyphalApp: msg prio=%d tid=%llu %zu/%zuB from ",
-                  static_cast<int>(transfer.priority),
-                  static_cast<unsigned long long>(transfer.transfer_id),
-                  transfer.payload_size_stored,
-                  transfer.payload_size_wire);
+    jarnax::print(
+        "CyphalApp: msg prio=%d tid=%llu %zu/%zuB from ",
+        static_cast<int>(transfer.priority),
+        static_cast<unsigned long long>(transfer.transfer_id),
+        transfer.payload_size_stored,
+        transfer.payload_size_wire
+    );
     for (uint_fast8_t iface = 0; iface < UDPARD_IFACE_COUNT_MAX; ++iface) {
         if (udpard_is_valid_endpoint(transfer.remote.endpoints[iface])) {
             uint32_t const ip = transfer.remote.endpoints[iface].ip;
-            jarnax::print("%d.%d.%d.%d:%u ",
-                          static_cast<int>((ip >> 24) & 0xFF),
-                          static_cast<int>((ip >> 16) & 0xFF),
-                          static_cast<int>((ip >> 8) & 0xFF),
-                          static_cast<int>(ip & 0xFF),
-                          transfer.remote.endpoints[iface].port);
+            jarnax::print(
+                "%d.%d.%d.%d:%u ",
+                static_cast<int>((ip >> 24) & 0xFF),
+                static_cast<int>((ip >> 16) & 0xFF),
+                static_cast<int>((ip >> 8) & 0xFF),
+                static_cast<int>(ip & 0xFF),
+                transfer.remote.endpoints[iface].port
+            );
         }
     }
     jarnax::print("uid=%llu", static_cast<unsigned long long>(transfer.remote.uid));

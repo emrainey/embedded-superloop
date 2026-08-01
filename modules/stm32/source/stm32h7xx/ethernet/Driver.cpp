@@ -255,6 +255,12 @@ core::Status Driver::Initialize(void) {
     mac_mode.bits.receiver_enable = 1U;
     stm32::peripherals::ethernet_mac.operating_mode_configuration = mac_mode;
 
+    stm32::peripherals::EthernetMediaAccessController::PacketFilterControl packet_filter;
+    packet_filter = stm32::peripherals::ethernet_mac.packet_filter_control;
+    packet_filter.bits.promiscuous_mode = 1U;
+    packet_filter.bits.receive_all = 1U;
+    stm32::peripherals::ethernet_mac.packet_filter_control = packet_filter;
+
     stm32::peripherals::EthernetDirectMemoryAccess::ChannelTransmitControl dma_tx_control;
     dma_tx_control = stm32::peripherals::ethernet_dma.channel_transmit_control;
     dma_tx_control.bits.start = 1U;

@@ -40,8 +40,8 @@ public:
             , do_not_fragment{1U}
             , more_fragments{0U}
             , fragment_offset{0U}
-            , time_to_live{64U}
             , protocol{Protocol::TCP}
+            , time_to_live{64U}
             , header_checksum{0U}
             , source_address{}
             , destination_address{} {}
@@ -71,12 +71,12 @@ public:
         uint16_t more_fragments  : 1;
         uint16_t fragment_offset : 13;
         // === 0x0008 - 0x000B ===
-        /// The Time to Live (TTL) field of the IPv4 packet, which indicates the maximum number of hops the packet can
-        /// take before being discarded.
-        uint16_t time_to_live    : 8;
         /// The Protocol field of the IPv4 packet, which indicates the protocol encapsulated in the payload of the packet
         /// (e.g., TCP, UDP).
         Protocol protocol        : 8;
+        /// The Time to Live (TTL) field of the IPv4 packet, which indicates the maximum number of hops the packet can
+        /// take before being discarded.
+        uint16_t time_to_live    : 8;
         uint16_t header_checksum;    ///< The Header Checksum field of the IPv4 packet, which is used for error-checking the header of the packet.
         /// The Source Address field of the IPv4 packet, which contains the IPv4 address of the sender of the packet.
         ip::v4::Address source_address;
@@ -92,12 +92,12 @@ public:
 
     inline void HeaderFlip() {
         // only the middle 4 words are part of the bitfields. The next 4 words contain the source and destination addresses.
-        // words[0] = static_cast<uint16_t>(__builtin_bswap16(words[0])); // Do not flip
-        words[1] = static_cast<uint16_t>(__builtin_bswap16(words[1]));
-        // words[2] = static_cast<uint16_t>(__builtin_bswap16(words[2]));
-        words[3] = static_cast<uint16_t>(__builtin_bswap16(words[3]));
-        // words[4] = static_cast<uint16_t>(__builtin_bswap16(words[4]));
-        words[5] = static_cast<uint16_t>(__builtin_bswap16(words[5]));
+        // words[0] = static_cast<uint16_t>(__builtin_bswap16(words[0])); // Do not flip (IHL/Version/ECN/DSCP)
+        words[1] = static_cast<uint16_t>(__builtin_bswap16(words[1]));    // Length
+        words[2] = static_cast<uint16_t>(__builtin_bswap16(words[2]));    // id
+        words[3] = static_cast<uint16_t>(__builtin_bswap16(words[3]));    // Fragmentation flags and offset
+        words[4] = static_cast<uint16_t>(__builtin_bswap16(words[4]));    // protocol/ttl
+        words[5] = static_cast<uint16_t>(__builtin_bswap16(words[5]));    // checksum
         // Source and destination addresses are not flipped because they are represented as byte arrays.
     }
 

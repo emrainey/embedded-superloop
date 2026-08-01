@@ -5,6 +5,8 @@ add_firmware(NAME nucleo-cyphal
         ${CMAKE_CURRENT_SOURCE_DIR}/source/O1HeapPool.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+    DEFINES
+        HYPHA_IP_ALLOW_ANY_BROADCAST=1
     LIBRARIES
         hypha-ip
         udpard

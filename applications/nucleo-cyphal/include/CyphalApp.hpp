@@ -82,6 +82,7 @@ protected:
     udpard_rx_mem_resources_t rx_memory_;
 
     bool udpard_initialized_;
+    bool arp_announced_;
 
     bool initialized_;
 
