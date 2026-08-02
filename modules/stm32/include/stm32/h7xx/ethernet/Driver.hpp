@@ -20,78 +20,13 @@
 namespace stm32 {
 namespace ethernet {
 
-namespace dma {
-union Descriptor;
-}
+/// @brief Allocates a new Ethernet frame from the provided allocator. The frame is constructed in place and returned to the caller. If the allocation
+/// fails, nullptr is returned. The caller is responsible for deallocating the frame using DeallocateFrame when it is no longer needed.
+jarnax::net::ethernet::Frame* AllocateFrame(core::Allocator& allocator);
 
-/// @brief STM32H7xx Ethernet peripheral driver implementation
-/// @details Provides Ethernet communication for STM32H7xx microcontrollers.
-/// Implements the jarnax::net::ethernet::Driver interface with STM32H7xx-specific hardware control and the Phy interface for controlling the Ethernet
-/// PHY.
-class Driver final : public jarnax::net::ethernet::Driver, public jarnax::net::ethernet::Phy, public jarnax::net::ethernet::Allocator {
-public:
-    /// @brief Total descriptors to allocate across RX/TX rings.
-    constexpr static std::size_t RingDescriptorCount = 8U;
-    /// @brief RX ring split ratio numerator (RX descriptors = total * numerator / denominator).
-    constexpr static std::size_t ReceiveRingSplitNumerator = 1U;
-    /// @brief RX ring split ratio denominator.
-    constexpr static std::size_t ReceiveRingSplitDenominator = 2U;
-
-    static_assert(ReceiveRingSplitDenominator > 0U, "Receive ring split denominator must be > 0");
-    constexpr static std::size_t ReceiveDescriptorCount = (RingDescriptorCount * ReceiveRingSplitNumerator) / ReceiveRingSplitDenominator;
-    constexpr static std::size_t TransmitDescriptorCount = RingDescriptorCount - ReceiveDescriptorCount;
-    static_assert(ReceiveDescriptorCount > 0U, "Receive descriptor count must be > 0");
-    static_assert(TransmitDescriptorCount > 0U, "Transmit descriptor count must be > 0");
-
-    /// @brief Constructor
-    /// @param stack_frame_allocator The allocator used for stack-owned Ethernet frame memory management
-    /// @param dma_frame_allocator The allocator used for DMA-owned Ethernet ring frame storage
-    /// @param transmit_descriptors Preallocated TX descriptor ring memory
-    /// @param receive_descriptors Preallocated RX descriptor ring memory
-    Driver(
-        core::Allocator& stack_frame_allocator, core::Allocator& dma_frame_allocator,
-        core::Array<dma::Descriptor, TransmitDescriptorCount>& transmit_descriptors,
-        core::Array<dma::Descriptor, ReceiveDescriptorCount>& receive_descriptors
-    );
-
-    //+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    // Jarnax::Driver Interface
-    core::Status Initialize(void) override;
-    bool Execute(void) override;
-    //+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    // jarnax::net::ethernet::Driver Interface
-    core::Status Configure(Addresses const& addresses) override;
-    jarnax::net::eui48::Address GetMacAddress(size_t index = 0) const override;
-    core::Status Transmit(jarnax::net::ethernet::Frame* frame) override;
-    core::Status Receive(Listener& listener) override;
-    bool IsReady() const override;
-    //+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    // jarnax::net::ethernet::Phy Interface
-    core::Status Schedule(jarnax::net::ethernet::mdio::Transaction* txn) override;
-    core::Status ConfigureMacLink(bool speed_100m, bool full_duplex) override;
-    //+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    // jarnax::net::ethernet::Allocator Interface
-    jarnax::net::ethernet::Frame* Acquire(void) override;
-    void Release(jarnax::net::ethernet::Frame* frame) override;
-
-    ~Driver();
-
-protected:
-    /// Released the Ring Allocated Descriptors and Frames, and resets the producer and consumer indices. This should be called on initialization
-    /// failure to clean up any partial
-    void ReleaseRings();
-
-    core::Allocator& stack_frame_allocator_;    ///< Allocator used for stack-owned Ethernet frame memory management
-    core::Allocator& dma_frame_allocator_;      ///< Allocator used for DMA-owned Ethernet ring frame storage
-    core::Array<dma::Descriptor, TransmitDescriptorCount>& transmit_descriptors_;
-    core::Array<dma::Descriptor, ReceiveDescriptorCount>& receive_descriptors_;
-    core::Array<jarnax::net::ethernet::Frame*, TransmitDescriptorCount> transmit_ring_frames_{};
-    core::Array<jarnax::net::ethernet::Frame*, ReceiveDescriptorCount> receive_ring_frames_{};
-    std::size_t transmit_producer_index_{0U};
-    std::size_t receive_consumer_index_{0U};
-    jarnax::net::ethernet::mdio::Transaction* mdio_transaction_{nullptr};
-    bool is_ready_;
-};
+/// @brief Deallocates an Ethernet frame that was previously allocated with AllocateFrame. The frame is destructed in place and the memory is returned
+/// to the provided allocator. If the frame pointer is nullptr, the function does nothing.
+void DeallocateFrame(core::Allocator& allocator, jarnax::net::ethernet::Frame* frame);
 
 namespace dma {
 
@@ -338,14 +273,182 @@ union Descriptor {
 #endif
     uint32_t des[4];    ///< The raw 128 bits of the descriptor, which can be used for bulk operations or for initializing the descriptor to zero
 
+    /// Default constructor initializes the descriptor to zero
     Descriptor()
-        : des{0, 0, 0, 0} {}    ///< Default constructor initializes the descriptor to zero
+        : des{0, 0, 0, 0} {}
+
+    /// Clears the descriptor by setting all fields to zero
+    void Clear() volatile {
+        des[0] = 0;
+        des[1] = 0;
+        des[2] = 0;
+        des[3] = 0;
+    }
 };
 #if defined(__arm__) || defined(__thumb__)
 static_assert(sizeof(Descriptor) == 16UL, "Descriptor must be exactly this size");
 #endif
 
+/// @brief A ring of DMA descriptors for the Ethernet controller. This is used to manage the DMA descriptors in a circular buffer, allowing for
+/// efficient transmission and reception of Ethernet frames. The ring *may* get out of sync, so we don't use the core::Ring class, but instead manage
+/// the indices ourselves.
+template <std::size_t DescriptorCount>
+class DescriptorRing {
+public:
+    /// @brief Constructor
+    /// @param descriptors The array of descriptors to use for the ring
+    DescriptorRing(core::Array<Descriptor volatile, DescriptorCount>& descriptors)
+        : descriptors_(descriptors)
+        , frames_{} {}    ///< Default constructor initializes the frames array to nullptr
+
+    /// @brief Constructs the descriptor ring by initializing the descriptors and allocating frames for each descriptor. This should be called after
+    /// the ring is constructed and before it is used. The frames are allocated using the provided allocator, and the
+    /// descriptors are initialized to zero. The frames are stored in the frames_ array, which is used to keep track of the buffer addresses for each
+    /// descriptor in the ring.
+    bool Construct(core::Allocator& allocator) {
+        for (std::size_t i = 0; i < descriptors_.count(); ++i) {
+            descriptors_.data()[i].Clear();    // new descriptor is zeroed out
+            frames_.data()[i] = nullptr;       // initialize frame pointer to nullptr
+        }
+        for (std::size_t i = 0; i < descriptors_.count(); ++i) {
+            frames_.data()[i] = AllocateFrame(allocator);
+            if (frames_.data()[i] == nullptr) {
+                Destruct(allocator);    // clean up any previously allocated frames
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /// @brief Destructs the descriptor ring by deallocating the frames and resetting the descriptors. This should be called when the ring is no
+    /// longer needed. The frames are deallocated using the provided allocator, and the descriptors are reset to zero.
+    void Destruct(core::Allocator& allocator) {
+        for (std::size_t i = 0; i < descriptors_.count(); ++i) {
+            DeallocateFrame(allocator, frames_.data()[i]);
+            // The frame is already deallocated by DeallocateFrame, so just set the pointer to nullptr
+            frames_.data()[i] = nullptr;
+            descriptors_.data()[i].Clear();
+        }
+    }
+
+    /// Get the base address of the descriptor ring, used for calculating the index of a descriptor and assigning the base address to the DMA
+    /// controller
+    Descriptor volatile* GetStart() const { return &descriptors_.data()[0]; }
+
+    /// Get the exclusive end address of the descriptor ring, used for calculating the index of a descriptor and assigning the end address to the
+    /// DMA controller
+    Descriptor volatile* GetLimit() const { return &descriptors_.data()[descriptors_.count()]; }
+
+    /// Passes the pointer to the current pointer in the ring and returns the index of that pointer in the ring. This is used to calculate the
+    /// index of a descriptor in the ring.
+    /// @param pointer A pointer to a descriptor in the ring
+    /// @return The index of the descriptor in the ring, or -1 if the descriptor is not in the ring
+    std::ptrdiff_t GetIndex(Descriptor volatile* pointer) const {
+        std::ptrdiff_t index = pointer - GetStart();
+        if (index < 0 || static_cast<std::size_t>(index) >= descriptors_.count()) {
+            return -1;
+        }
+        return index;
+    }
+
+    /// Gets the descriptor at the given index in the ring. This is used to access a descriptor in the ring by its index.
+    /// @param index The index of the descriptor in the ring
+    /// @return A pointer to the descriptor at the given index, or nullptr if the index is out of bounds
+    Descriptor volatile* GetDescriptor(std::size_t index) const {
+        if (index >= descriptors_.count()) {
+            return nullptr;
+        }
+        return &descriptors_.data()[index];
+    }
+
+    /// Gets the frame at the given index in the ring. This is used to access a frame in the ring by its index.
+    /// @param index The index of the frame in the ring
+    jarnax::net::ethernet::Frame* GetFrame(std::size_t index) const {
+        if (index >= descriptors_.count()) {
+            return nullptr;
+        }
+        return frames_.data()[index];
+    }
+
+    constexpr std::size_t Count() const { return descriptors_.count(); }    ///< Gets the number of descriptors in the ring
+
+protected:
+    /// The array of descriptors in the ring (note: this is must live in DMA memory!)
+    core::Array<Descriptor volatile, DescriptorCount>& descriptors_;
+
+    /// The array of buffer addresses for each descriptor in the ring (the descriptors will be cleared at some point, so we
+    /// need to keep track of the buffer addresses separately)
+    core::Array<jarnax::net::ethernet::Frame*, DescriptorCount> frames_;
+};
+
 }    // namespace dma
+
+/// @brief STM32H7xx Ethernet peripheral driver implementation
+/// @details Provides Ethernet communication for STM32H7xx microcontrollers.
+/// Implements the jarnax::net::ethernet::Driver interface with STM32H7xx-specific hardware control and the Phy interface for controlling the Ethernet
+/// PHY.
+class Driver final : public jarnax::net::ethernet::Driver, public jarnax::net::ethernet::Phy, public jarnax::net::ethernet::Allocator {
+public:
+    /// @brief Total descriptors to allocate across RX/TX rings.
+    constexpr static std::size_t RingDescriptorCount = 8U;
+    /// @brief RX ring split ratio numerator (RX descriptors = total * numerator / denominator).
+    constexpr static std::size_t ReceiveRingSplitNumerator = 1U;
+    /// @brief RX ring split ratio denominator.
+    constexpr static std::size_t ReceiveRingSplitDenominator = 2U;
+
+    static_assert(ReceiveRingSplitDenominator > 0U, "Receive ring split denominator must be > 0");
+    constexpr static std::size_t ReceiveDescriptorCount = (RingDescriptorCount * ReceiveRingSplitNumerator) / ReceiveRingSplitDenominator;
+    constexpr static std::size_t TransmitDescriptorCount = RingDescriptorCount - ReceiveDescriptorCount;
+    static_assert(ReceiveDescriptorCount > 0U, "Receive descriptor count must be > 0");
+    static_assert(TransmitDescriptorCount > 0U, "Transmit descriptor count must be > 0");
+
+    /// @brief Constructor
+    /// @param stack_frame_allocator The allocator used for stack-owned Ethernet frame memory management
+    /// @param dma_frame_allocator The allocator used for DMA-owned Ethernet ring frame storage
+    /// @param transmit_descriptors Preallocated TX descriptor ring memory
+    /// @param receive_descriptors Preallocated RX descriptor ring memory
+    Driver(
+        core::Allocator& stack_frame_allocator, core::Allocator& dma_frame_allocator,
+        core::Array<dma::Descriptor volatile, TransmitDescriptorCount>& transmit_descriptors,
+        core::Array<dma::Descriptor volatile, ReceiveDescriptorCount>& receive_descriptors
+    );
+
+    //+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    // Jarnax::Driver Interface
+    core::Status Initialize(void) override;
+    bool Execute(void) override;
+    //+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    // jarnax::net::ethernet::Driver Interface
+    core::Status Configure(Addresses const& addresses) override;
+    jarnax::net::eui48::Address GetMacAddress(size_t index = 0) const override;
+    core::Status Transmit(jarnax::net::ethernet::Frame* frame) override;
+    core::Status Receive(Listener& listener) override;
+    bool IsReady() const override;
+    //+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    // jarnax::net::ethernet::Phy Interface
+    core::Status Schedule(jarnax::net::ethernet::mdio::Transaction* txn) override;
+    core::Status ConfigureMacLink(bool speed_100m, bool full_duplex) override;
+    //+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    // jarnax::net::ethernet::Allocator Interface
+    jarnax::net::ethernet::Frame* Acquire(void) override;
+    void Release(jarnax::net::ethernet::Frame* frame) override;
+
+    ~Driver();
+
+protected:
+    /// Released the Ring Allocated Descriptors and Frames, and resets the producer and consumer indices. This should be called on initialization
+    /// failure to clean up any partial
+    void ReleaseRings();
+
+    core::Allocator& stack_frame_allocator_;    ///< Allocator used for stack-owned Ethernet frame memory management
+    core::Allocator& dma_frame_allocator_;      ///< Allocator used for DMA-owned Ethernet ring frame storage
+    dma::DescriptorRing<TransmitDescriptorCount> transmit_;
+    dma::DescriptorRing<ReceiveDescriptorCount> receive_;
+    std::size_t transmit_producer_index_{0U};
+    std::size_t receive_consumer_index_{0U};
+    jarnax::net::ethernet::mdio::Transaction* mdio_transaction_{nullptr};
+    bool is_ready_;
+};
 
 }    // namespace ethernet
 }    // namespace stm32

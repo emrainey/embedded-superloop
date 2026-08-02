@@ -31,3 +31,21 @@ host_unit_test(NAME stm32-spi
     BOARDS
         stm32_f4ve_v2
 )
+
+host_unit_test(NAME stm32-ethernet
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/gtest-stm32-ethernet.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/mocks
+    LIBRARIES
+        strict
+    GENERIC_MODULES
+        core
+    MODULES
+        jarnax stm32 stm32-ethernet-driver
+    GOOGLETEST
+    CONFIGURATIONS
+        basic
+    BOARDS
+        nucleo_h753zi
+)

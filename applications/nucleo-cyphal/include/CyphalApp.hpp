@@ -17,13 +17,12 @@ extern "C" {
 namespace nucleo {
 namespace cyphal {
 
-class CyphalApp final : public jarnax::Loopable,
-                        public jarnax::net::ethernet::Driver::Listener {
+class CyphalApp final : public jarnax::Loopable, public jarnax::net::ethernet::Driver::Listener {
 public:
     static constexpr std::size_t FramePoolSize = 4U;
 
     static constexpr uint16_t UdpPort = 9382U;
-    static constexpr uint32_t SubjectId = 7509U;  
+    static constexpr uint32_t SubjectId = 7509U;
     static constexpr std::size_t MaxUdpPayload = 1400U;
 
     CyphalApp(jarnax::Ticker& ticker, jarnax::BoardContext& board_context);
@@ -36,15 +35,13 @@ protected:
 
     // Hypha IP External Interface Callbacks
     static HyphaIpEthernetFrame_t* OnAcquire(HyphaIpExternalContext_t context);
-    static HyphaIpStatus_e OnReceive(HyphaIpExternalContext_t context, HyphaIpEthernetFrame_t* frame);
+    static HyphaIpStatus_e TryReceive(HyphaIpExternalContext_t context, HyphaIpEthernetFrame_t* frame);
     static HyphaIpStatus_e OnTransmit(HyphaIpExternalContext_t context, HyphaIpEthernetFrame_t* frame);
     static HyphaIpStatus_e OnRelease(HyphaIpExternalContext_t context, HyphaIpEthernetFrame_t* frame);
     static int OnPrint(HyphaIpExternalContext_t context, char const* const format, ...);
     static HyphaIpTimestamp_t OnGetMonotonicTimestamp(HyphaIpExternalContext_t context);
-    static void OnReport(HyphaIpExternalContext_t context, HyphaIpStatus_e status, char const* const func,
-                         char const* const file, unsigned int line);
-    static HyphaIpStatus_e OnReceiveUdp(HyphaIpExternalContext_t context, HyphaIpMetaData_t* metadata,
-                                        HyphaIpSpan_t datagram);
+    static void OnReport(HyphaIpExternalContext_t context, HyphaIpStatus_e status, char const* const func, char const* const file, unsigned int line);
+    static HyphaIpStatus_e OnReceiveUdp(HyphaIpExternalContext_t context, HyphaIpMetaData_t* metadata, HyphaIpSpan_t datagram);
 
     // LibUDPard Callbacks
     static bool OnTxEject(udpard_tx_t* tx, udpard_tx_ejection_t* ejection);
@@ -57,7 +54,6 @@ protected:
     jarnax::BoardContext& board_context_;
     jarnax::Ticker& ticker_;
     jarnax::net::ethernet::Driver& ethernet_;
-    jarnax::net::ethernet::Driver::Addresses mac_addresses_;
 
     HyphaIpContext_t hypha_context_;
     HyphaIpNetworkInterface_t network_interface_;
@@ -68,6 +64,7 @@ protected:
 
     HyphaIpEthernetFrame_t* pending_rx_frame_;
     bool rx_frame_available_;
+    HyphaIpEthernetFrame_t rx_frame_;
 
     // LibUDPard state
     udpard_tx_t tx_;

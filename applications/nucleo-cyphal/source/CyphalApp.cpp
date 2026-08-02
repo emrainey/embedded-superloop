@@ -6,6 +6,7 @@
 #include "core/vsnprint.hpp"
 #include "hypha_ip/hypha_ip.h"
 #include "jarnax/Assertion.hpp"
+#include "memory.hpp"
 #include "segger/rtt.hpp"
 #include "stm32/h7xx/ethernet/Driver.hpp"
 #include "strings.hpp"
@@ -103,7 +104,6 @@ CyphalApp::CyphalApp(jarnax::Ticker& ticker, jarnax::BoardContext& board_context
     : board_context_{board_context}
     , ticker_{ticker}
     , ethernet_{board_context.GetEthernet()}
-    , mac_addresses_{}
     , hypha_context_{nullptr}
     , network_interface_{}
     , external_interface_{}
@@ -131,7 +131,7 @@ CyphalApp::CyphalApp(jarnax::Ticker& ticker, jarnax::BoardContext& board_context
 
     std::memset(&external_interface_, 0, sizeof(external_interface_));
     external_interface_.acquire = &CyphalApp::OnAcquire;
-    external_interface_.receive = &CyphalApp::OnReceive;
+    external_interface_.receive = &CyphalApp::TryReceive;
     external_interface_.transmit = &CyphalApp::OnTransmit;
     external_interface_.release = &CyphalApp::OnRelease;
     external_interface_.print = &CyphalApp::OnPrint;
@@ -145,28 +145,20 @@ CyphalApp::CyphalApp(jarnax::Ticker& ticker, jarnax::BoardContext& board_context
     network_interface_.address = HyphaIpIPv4Address_t{192, 168, 3, 3};
     network_interface_.netmask = HyphaIpIPv4Address_t{255, 255, 255, 0};
     network_interface_.gateway = HyphaIpIPv4Address_t{192, 168, 3, 1};
-
-    mac_addresses_[0] = defined_mac;
-    mac_addresses_[1] = jarnax::net::eui48::Address{};
-    mac_addresses_[1][5] = 0x01U;
 }
 
 bool CyphalApp::Execute() {
     if (!initialized_) {
-        core::Status const status = ethernet_.Configure(mac_addresses_);
-        if (status.IsSuccess()) {
-            HyphaIpStatus_e const hy_status =
-                HyphaIpInitialize(&hypha_context_, &network_interface_, reinterpret_cast<HyphaIpExternalContext_t>(this), &external_interface_);
-            if (HyphaIpIsSuccess(hy_status)) {
-                initialized_ = true;
-            }
+        // Ethernet was Configured in the Board, don't call it again here.
+        // Just initialize Hypha IP and let it use the existing Ethernet driver.
+        HyphaIpStatus_e const hy_status =
+            HyphaIpInitialize(&hypha_context_, &network_interface_, reinterpret_cast<HyphaIpExternalContext_t>(this), &external_interface_);
+        if (HyphaIpIsSuccess(hy_status)) {
+            initialized_ = true;
         }
         return true;
     }
-
-    // Drive MDIO/PHY and DMA always so the link can come up
-    ethernet_.Execute();
-
+    // Ethernet driver is part of the SuperLoop, no need to call ethernet_.Execute() here
     // Do not process network buffers until the Ethernet link is up
     if (!board_context_.GetLan8742aDriver().IsLinkUp()) {
         return true;
@@ -285,8 +277,8 @@ void CyphalApp::InitUdpard() {
 }
 
 void CyphalApp::OnFrameReceived(jarnax::net::ethernet::Frame* frame) {
-    if (frame != nullptr && pending_rx_frame_ != nullptr) {
-        CopyJarnaxFrameToHypha(*pending_rx_frame_, *frame);
+    if (frame != nullptr) {
+        CopyJarnaxFrameToHypha(rx_frame_, *frame);
         rx_frame_available_ = true;
     }
 }
@@ -305,10 +297,10 @@ HyphaIpEthernetFrame_t* CyphalApp::OnAcquire(HyphaIpExternalContext_t context) {
     return nullptr;
 }
 
-HyphaIpStatus_e CyphalApp::OnReceive(HyphaIpExternalContext_t context, HyphaIpEthernetFrame_t* frame) {
+HyphaIpStatus_e CyphalApp::TryReceive(HyphaIpExternalContext_t context, HyphaIpEthernetFrame_t* frame) {
     auto* self = reinterpret_cast<CyphalApp*>(context);
     if (self == nullptr || frame == nullptr) {
-        return HyphaIpStatusInvalidArgument;
+        return HyphaIpStatusInvalidContext;
     }
 
     self->pending_rx_frame_ = frame;
@@ -317,19 +309,18 @@ HyphaIpStatus_e CyphalApp::OnReceive(HyphaIpExternalContext_t context, HyphaIpEt
     auto const result = self->ethernet_.Receive(*self);
     (void)result;
 
+    // if we received data, forget the pending frame pointer
     if (self->rx_frame_available_) {
         self->pending_rx_frame_ = nullptr;
-        return HyphaIpStatusOk;
+        return HyphaIpStatusOk;  // Frame successfully received
     }
-
-    self->pending_rx_frame_ = nullptr;
-    return HyphaIpStatusFailure;
+    return HyphaIpStatusNotAvailable;    // no frame received, but not an error
 }
 
 HyphaIpStatus_e CyphalApp::OnTransmit(HyphaIpExternalContext_t context, HyphaIpEthernetFrame_t* frame) {
     auto* self = reinterpret_cast<CyphalApp*>(context);
     if (self == nullptr || frame == nullptr) {
-        return HyphaIpStatusInvalidArgument;
+        return HyphaIpStatusInvalidContext;
     }
 
     auto& eth_driver = static_cast<stm32::ethernet::Driver&>(self->ethernet_);
@@ -350,7 +341,7 @@ HyphaIpStatus_e CyphalApp::OnTransmit(HyphaIpExternalContext_t context, HyphaIpE
 HyphaIpStatus_e CyphalApp::OnRelease(HyphaIpExternalContext_t context, HyphaIpEthernetFrame_t* frame) {
     auto* self = reinterpret_cast<CyphalApp*>(context);
     if (self == nullptr || frame == nullptr) {
-        return HyphaIpStatusInvalidArgument;
+        return HyphaIpStatusInvalidContext;
     }
     for (std::size_t i = 0; i < FramePoolSize; ++i) {
         if (&self->frame_pool_[i] == frame) {
@@ -390,7 +381,7 @@ HyphaIpTimestamp_t CyphalApp::OnGetMonotonicTimestamp(HyphaIpExternalContext_t c
 }
 
 void CyphalApp::OnReport(HyphaIpExternalContext_t, HyphaIpStatus_e status, char const* const func, char const* const file, unsigned int line) {
-    if (status != HyphaIpStatusOk) {
+    if (status != HyphaIpStatusOk and status != HyphaIpStatusNotAvailable) {
         char const* const short_path = strings::last_character(file, '/');
         char const* const tmp = short_path == nullptr ? file : short_path + 1;
         jarnax::print("CyphalApp: OnReport status=%d func=%s file=%s line=%u\r\n", static_cast<int>(status), func, tmp, line);

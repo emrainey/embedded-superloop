@@ -61,13 +61,13 @@ static core::BitMapHeap<ethernet_dma_block_size, ethernet_dma_block_count, align
 LINKER_SECTION(".ethernet_dma_descriptors")
 alignas(
     alignof(stm32::ethernet::dma::Descriptor)
-) static core::Array<stm32::ethernet::dma::Descriptor, stm32::ethernet::Driver::TransmitDescriptorCount> ethernet_tx_descriptors{};
+) static core::Array<stm32::ethernet::dma::Descriptor volatile, stm32::ethernet::Driver::TransmitDescriptorCount> ethernet_tx_descriptors{};
 
 /// @brief Dedicated descriptor-ring memory for Ethernet RX descriptors.
 LINKER_SECTION(".ethernet_dma_descriptors")
 alignas(
     alignof(stm32::ethernet::dma::Descriptor)
-) static core::Array<stm32::ethernet::dma::Descriptor, stm32::ethernet::Driver::ReceiveDescriptorCount> ethernet_rx_descriptors{};
+) static core::Array<stm32::ethernet::dma::Descriptor volatile, stm32::ethernet::Driver::ReceiveDescriptorCount> ethernet_rx_descriptors{};
 
 /// @brief The Clock configuration for this board.
 /// @note HSI @ 64 MHz: M=8 -> 8 MHz VCO input, N=100 -> 800 MHz VCO, P=2 -> 400 MHz sys_ck, Q=4, R=8

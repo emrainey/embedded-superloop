@@ -8,9 +8,6 @@ namespace {    // anonymous namespace for private helper functions and definitio
 using jarnax::net::eui48::Address;
 
 constexpr std::size_t kDmaSoftwareResetTimeout = 1000000U;
-constexpr std::uint32_t kDescriptorOwnMask = (1UL << 31U);
-constexpr std::uint32_t kDescriptorLastMask = (1UL << 28U);
-constexpr std::uint32_t kDescriptorFirstMask = (1UL << 29U);
 constexpr std::uint32_t kMdioAddressCommand = 0b00U;
 constexpr std::uint32_t kMdioWriteCommand = 0b01U;
 constexpr std::uint32_t kMdioReadCommand = 0b11U;
@@ -68,6 +65,11 @@ void CopyFrameBytes(jarnax::net::ethernet::Frame* destination, jarnax::net::ethe
     }
 }
 
+}    // anonymous namespace
+
+namespace stm32 {
+namespace ethernet {
+
 jarnax::net::ethernet::Frame* AllocateFrame(core::Allocator& allocator) {
     void* memory = allocator.allocate(sizeof(jarnax::net::ethernet::Frame), alignof(jarnax::net::ethernet::Frame));
     if (memory == nullptr) {
@@ -85,22 +87,17 @@ void DeallocateFrame(core::Allocator& allocator, jarnax::net::ethernet::Frame* f
     allocator.deallocate(frame, sizeof(jarnax::net::ethernet::Frame), alignof(jarnax::net::ethernet::Frame));
 }
 
-}    // anonymous namespace
-
-namespace stm32 {
-namespace ethernet {
-
 Driver::Driver(
     core::Allocator& stack_frame_allocator, core::Allocator& dma_frame_allocator,
-    core::Array<dma::Descriptor, TransmitDescriptorCount>& transmit_descriptors,
-    core::Array<dma::Descriptor, ReceiveDescriptorCount>& receive_descriptors
+    core::Array<dma::Descriptor volatile, TransmitDescriptorCount>& transmit_descriptors,
+    core::Array<dma::Descriptor volatile, ReceiveDescriptorCount>& receive_descriptors
 )
     : jarnax::net::ethernet::Driver()
     , jarnax::net::ethernet::Phy()
     , stack_frame_allocator_{stack_frame_allocator}
     , dma_frame_allocator_{dma_frame_allocator}
-    , transmit_descriptors_{transmit_descriptors}
-    , receive_descriptors_{receive_descriptors}
+    , transmit_{transmit_descriptors}
+    , receive_{receive_descriptors}
     , is_ready_{false} {}
 
 Driver::~Driver() {
@@ -108,18 +105,8 @@ Driver::~Driver() {
 }
 
 void Driver::ReleaseRings() {
-    for (auto& frame : transmit_ring_frames_) {
-        if (frame != nullptr) {
-            DeallocateFrame(dma_frame_allocator_, frame);
-            frame = nullptr;
-        }
-    }
-    for (auto& frame : receive_ring_frames_) {
-        if (frame != nullptr) {
-            DeallocateFrame(dma_frame_allocator_, frame);
-            frame = nullptr;
-        }
-    }
+    transmit_.Destruct(dma_frame_allocator_);
+    receive_.Destruct(dma_frame_allocator_);
 }
 
 core::Status Driver::Initialize(void) {
@@ -153,49 +140,40 @@ core::Status Driver::Initialize(void) {
         return core::Status{core::Result::Timeout, core::Cause::Peripheral};
     }
 
-    for (std::size_t i = 0; i < transmit_descriptors_.count(); ++i) {
-        transmit_descriptors_[i] = dma::Descriptor{};
+    if (not transmit_.Construct(dma_frame_allocator_)) {
+        return core::Status{core::Result::NotEnough, core::Cause::Resource};
+    }
+    if (not receive_.Construct(dma_frame_allocator_)) {
+        ReleaseRings();
+        return core::Status{core::Result::NotEnough, core::Cause::Resource};
     }
 
-    for (std::size_t i = 0; i < receive_descriptors_.count(); ++i) {
-        receive_descriptors_[i] = dma::Descriptor{};
+    for (std::size_t i = 0; i < transmit_.Count(); ++i) {
+        auto descriptor = transmit_.GetDescriptor(i);
+        descriptor->transmit_read.buffer1_address = reinterpret_cast<std::uintptr_t>(transmit_.GetFrame(i));
+        descriptor->transmit_read.buffer2_address = 0U;
+        descriptor->transmit_read.buffer1_length = 0U;
+        descriptor->transmit_read.buffer2_length = 0U;
+        descriptor->transmit_read.interrupt_on_completion = 1U;
+        descriptor->transmit_read.checksum_insertion_control = dma::ChecksumInsertionControl::IP_Only;
+        descriptor->transmit_read.crc_pad_control = dma::CRCPadControl::PadAndCRC;
+        descriptor->transmit_read.first = 1U;
+        descriptor->transmit_read.last = 1U;
+        descriptor->transmit_read.own = 0U;
     }
+    // SW owns all the tx descriptors at initialization, so the DMA will not process them until the client
+    // fills them with frames to transmit and transfers the OWN bit to the DMA and updates the tail pointer register.
 
-    for (std::size_t i = 0; i < transmit_descriptors_.count(); ++i) {
-        transmit_ring_frames_[i] = AllocateFrame(dma_frame_allocator_);
-        if (transmit_ring_frames_[i] == nullptr) {
-            ReleaseRings();
-            return core::Status{core::Result::NotEnough, core::Cause::Resource};
-        }
-
-        dma::Descriptor& descriptor = transmit_descriptors_[i];
-        descriptor.transmit_read.buffer1_address = reinterpret_cast<std::uintptr_t>(transmit_ring_frames_[i]);
-        descriptor.transmit_read.buffer2_address = 0U;
-        descriptor.transmit_read.buffer1_length = 0U;
-        descriptor.transmit_read.buffer2_length = 0U;
-        descriptor.transmit_read.interrupt_on_completion = 1U;
-        descriptor.transmit_read.checksum_insertion_control = dma::ChecksumInsertionControl::IP_Only;
-        descriptor.transmit_read.crc_pad_control = dma::CRCPadControl::PadAndCRC;
-        descriptor.transmit_read.first = 1U;
-        descriptor.transmit_read.last = 1U;
-        descriptor.transmit_read.own = 0U;
+    for (std::size_t i = 0; i < receive_.Count(); ++i) {
+        auto descriptor = receive_.GetDescriptor(i);
+        descriptor->receive_read.buffer1_address = reinterpret_cast<std::uintptr_t>(receive_.GetFrame(i));
+        descriptor->receive_read.buffer2_address = 0U;
+        descriptor->receive_read.buffer1_valid = 1U;
+        descriptor->receive_read.buffer2_valid = 0U;
+        descriptor->receive_read.interrupt_on_completion = 1U;
+        descriptor->receive_read.own = 1U;
     }
-
-    for (std::size_t i = 0; i < receive_descriptors_.count(); ++i) {
-        receive_ring_frames_[i] = AllocateFrame(dma_frame_allocator_);
-        if (receive_ring_frames_[i] == nullptr) {
-            ReleaseRings();
-            return core::Status{core::Result::NotEnough, core::Cause::Resource};
-        }
-
-        dma::Descriptor& descriptor = receive_descriptors_[i];
-        descriptor.receive_read.buffer1_address = reinterpret_cast<std::uintptr_t>(receive_ring_frames_[i]);
-        descriptor.receive_read.buffer2_address = 0U;
-        descriptor.receive_read.buffer1_valid = 1U;
-        descriptor.receive_read.buffer2_valid = 0U;
-        descriptor.receive_read.interrupt_on_completion = 1U;
-        descriptor.receive_read.own = 1U;
-    }
+    // HW owns all the rx descriptors at initialization, so the DMA will process them as frames are received and transfer the OWN bit to SW when done.
 
     stm32::peripherals::EthernetDirectMemoryAccess::ChannelControl dma_channel_control;
     dma_channel_control = stm32::peripherals::ethernet_dma.channel_control;
@@ -209,29 +187,28 @@ core::Status Driver::Initialize(void) {
     stm32::peripherals::ethernet_dma.channel_receive_control = dma_rx_control;
 
     stm32::peripherals::EthernetDirectMemoryAccess::ChannelTransmitDescriptorListAddress tx_descriptor_list_address;
-    tx_descriptor_list_address.whole = DescriptorAddressRegisterValue(reinterpret_cast<std::uintptr_t>(transmit_descriptors_.data()));
+    tx_descriptor_list_address.whole = DescriptorAddressRegisterValue(reinterpret_cast<std::uintptr_t>(transmit_.GetStart()));
     stm32::peripherals::ethernet_dma.channel_transmit_descriptor_list_address = tx_descriptor_list_address;
 
     stm32::peripherals::EthernetDirectMemoryAccess::ChannelReceiveDescriptorListAddress rx_descriptor_list_address;
-    rx_descriptor_list_address.whole = DescriptorAddressRegisterValue(reinterpret_cast<std::uintptr_t>(receive_descriptors_.data()));
+    rx_descriptor_list_address.whole = DescriptorAddressRegisterValue(reinterpret_cast<std::uintptr_t>(receive_.GetStart()));
     stm32::peripherals::ethernet_dma.channel_receive_descriptor_list_address = rx_descriptor_list_address;
 
     stm32::peripherals::EthernetDirectMemoryAccess::ChannelTransmitDescriptorRingLength tx_ring_length;
-    tx_ring_length = static_cast<std::uint32_t>(transmit_descriptors_.count() - 1U);
+    tx_ring_length = static_cast<std::uint32_t>(transmit_.Count() - 1U);
     stm32::peripherals::ethernet_dma.channel_transmit_descriptor_ring_length = tx_ring_length;
 
     stm32::peripherals::EthernetDirectMemoryAccess::ChannelReceiveDescriptorRingLength rx_ring_length;
-    rx_ring_length = static_cast<std::uint32_t>(receive_descriptors_.count() - 1U);
+    rx_ring_length = static_cast<std::uint32_t>(receive_.Count() - 1U);
     stm32::peripherals::ethernet_dma.channel_receive_descriptor_ring_length = rx_ring_length;
 
+    // Set the tail to the head so that nothing is processed until the client has filled the ring with frames to transmit and receive.
     stm32::peripherals::EthernetDirectMemoryAccess::ChannelTransmitDescriptorTailPointer tx_tail_pointer;
-    tx_tail_pointer.whole =
-        DescriptorAddressRegisterValue(reinterpret_cast<std::uintptr_t>(&transmit_descriptors_[transmit_descriptors_.count() - 1U]));
+    tx_tail_pointer.whole = DescriptorAddressRegisterValue(reinterpret_cast<std::uintptr_t>(transmit_.GetStart()));
     stm32::peripherals::ethernet_dma.channel_transmit_descriptor_tail_pointer = tx_tail_pointer;
 
     stm32::peripherals::EthernetDirectMemoryAccess::ChannelReceiveDescriptorTailPointer rx_tail_pointer;
-    rx_tail_pointer.whole =
-        DescriptorAddressRegisterValue(reinterpret_cast<std::uintptr_t>(&receive_descriptors_[receive_descriptors_.count() - 1U]));
+    rx_tail_pointer.whole = DescriptorAddressRegisterValue(reinterpret_cast<std::uintptr_t>(receive_.GetLimit()));
     stm32::peripherals::ethernet_dma.channel_receive_descriptor_tail_pointer = rx_tail_pointer;
 
     stm32::peripherals::EthernetMediaTransactionLayer::TransmitQueueOperatingMode tx_queue;
@@ -425,87 +402,103 @@ core::Status Driver::Transmit(jarnax::net::ethernet::Frame* frame) {
         return core::Status{core::Result::InvalidValue, core::Cause::Parameter};
     }
 
-    if (transmit_ring_frames_[transmit_producer_index_] == nullptr) {
+    if (transmit_.GetFrame(transmit_producer_index_) == nullptr) {
         return core::Status{core::Result::NotInitialized, core::Cause::State};
     }
 
-    dma::Descriptor& descriptor = transmit_descriptors_[transmit_producer_index_];
-    if ((descriptor.des[3] & kDescriptorOwnMask) != 0U) {
+    auto descriptor = transmit_.GetDescriptor(transmit_producer_index_);
+    if (descriptor->transmit_read.own == 1U) {
+        // the DMA still owns this descriptor, so the ring is full and the client must wait for a slot to free up.
         return core::Status{core::Result::Busy, core::Cause::Resource};
     }
 
     // Copy client-owned frame into the next DMA-owned TX slot so descriptor order is independent of client Release timing.
-    CopyFrameBytes(transmit_ring_frames_[transmit_producer_index_], frame);
+    CopyFrameBytes(transmit_.GetFrame(transmit_producer_index_), frame);
 
-    descriptor.transmit_read.buffer1_address = reinterpret_cast<std::uintptr_t>(transmit_ring_frames_[transmit_producer_index_]);
-    descriptor.transmit_read.buffer2_address = 0U;
-    descriptor.transmit_read.buffer1_length = static_cast<unsigned int>(sizeof(jarnax::net::ethernet::Frame));
-    descriptor.transmit_read.buffer2_length = 0U;
-    descriptor.transmit_read.first = 1U;
-    descriptor.transmit_read.last = 1U;
-    descriptor.transmit_read.context = 0U;
-    descriptor.transmit_read.interrupt_on_completion = 1U;
-    descriptor.transmit_read.own = 1U;
+    descriptor->transmit_read.buffer1_address = reinterpret_cast<std::uintptr_t>(transmit_.GetFrame(transmit_producer_index_));
+    descriptor->transmit_read.buffer2_address = 0U;
+    descriptor->transmit_read.buffer1_length = static_cast<unsigned int>(sizeof(jarnax::net::ethernet::Frame));
+    descriptor->transmit_read.buffer2_length = 0U;
+    descriptor->transmit_read.first = 1U;
+    descriptor->transmit_read.last = 1U;
+    descriptor->transmit_read.context = 0U;
+    descriptor->transmit_read.interrupt_on_completion = 1U;
+    descriptor->transmit_read.own = 1U;    // Transfer ownership to the DMA so it can process the descriptor.
 
+    /// Modify the tail pointer register to point to the next descriptor in the ring, which will trigger the DMA to start processing the new
+    /// descriptor.
     stm32::peripherals::EthernetDirectMemoryAccess::ChannelTransmitDescriptorTailPointer tx_tail_pointer;
-    tx_tail_pointer.whole = DescriptorAddressRegisterValue(reinterpret_cast<std::uintptr_t>(&descriptor));
+    tx_tail_pointer.whole = DescriptorAddressRegisterValue(reinterpret_cast<std::uintptr_t>(descriptor));
     stm32::peripherals::ethernet_dma.channel_transmit_descriptor_tail_pointer = tx_tail_pointer;
 
-    transmit_producer_index_ = (transmit_producer_index_ + 1U) % transmit_descriptors_.count();
+    transmit_producer_index_ = (transmit_producer_index_ + 1U) % transmit_.Count();
 
     return core::Status{};
 }
 
 core::Status Driver::Receive(jarnax::net::ethernet::Driver::Listener& listener) {
-    if (receive_ring_frames_[receive_consumer_index_] == nullptr) {
-        return core::Status{core::Result::NotInitialized, core::Cause::State};
+    // The DMA fills RX descriptors in ring order, so the consumer index is the oldest unclaimed slot.
+    // However, if the consumer index runs ahead of a parked frame (e.g. after a drop path re-armed and
+    // advanced, or the ring wrapped), scan the whole ring for the first OWN=0 descriptor rather than
+    // inspecting only the single slot at the consumer index. This guarantees a parked frame is never orphaned.
+    for (std::size_t attempt = 0U; attempt < receive_.Count(); ++attempt) {
+        std::size_t const index = (receive_consumer_index_ + attempt) % receive_.Count();
+
+        if (receive_.GetFrame(index) == nullptr) {
+            return core::Status{core::Result::NotInitialized, core::Cause::State};
+        }
+
+        auto descriptor = receive_.GetDescriptor(index);
+        if (descriptor->receive_read.own == 1U) {
+            // Still owned by the DMA: no frame ready at this slot, keep scanning for a ready slot.
+            continue;
+        }
+
+        auto rearm_receive_descriptor = [this](dma::Descriptor volatile* d, std::size_t i) {
+            d->receive_read.buffer1_address = reinterpret_cast<std::uintptr_t>(receive_.GetFrame(i));
+            d->receive_read.buffer2_address = 0U;
+            d->receive_read.buffer1_valid = 1U;
+            d->receive_read.buffer2_valid = 0U;
+            d->receive_read.interrupt_on_completion = 1U;
+            d->receive_read.own = 1U;
+
+            stm32::peripherals::EthernetDirectMemoryAccess::ChannelReceiveDescriptorTailPointer rx_tail_pointer;
+            rx_tail_pointer.whole = DescriptorAddressRegisterValue(reinterpret_cast<std::uintptr_t>(d));
+            stm32::peripherals::ethernet_dma.channel_receive_descriptor_tail_pointer = rx_tail_pointer;
+        };
+
+        bool const is_first = (descriptor->receive_write_back.first == 1U);
+        bool const is_last = (descriptor->receive_write_back.last == 1U);
+        // since the driver does not support multi-descriptor frames, any frame that is not both first and last is considered an error.
+        if (((is_first == false) || (is_last == false)) && (descriptor->receive_write_back.error_summary == 1U)) {
+            rearm_receive_descriptor(descriptor, index);
+            receive_consumer_index_ = (index + 1U) % receive_.Count();
+            return core::Status{core::Result::NotSupported, core::Cause::State};
+        }
+
+        // Copy from the DMA-owned RX ring buffer into a stack-owned frame so listener retention does not block the RX ring.
+        jarnax::net::ethernet::Frame* stack_frame = Acquire();
+        if (stack_frame == nullptr) {
+            rearm_receive_descriptor(descriptor, index);
+            receive_consumer_index_ = (index + 1U) % receive_.Count();
+            return core::Status{core::Result::NotEnough, core::Cause::Resource};
+        }
+
+        CopyFrameBytes(stack_frame, receive_.GetFrame(index));
+
+        rearm_receive_descriptor(descriptor, index);
+        receive_consumer_index_ = (index + 1U) % receive_.Count();
+
+        // pass to the interface to process, the driver is not involved in any "business" logic
+        listener.OnFrameReceived(stack_frame);
+
+        // now the driver has finished with the frame and it can be released back to the stack frame allocator
+        Release(stack_frame);
+
+        return core::Status{};
     }
 
-    dma::Descriptor& descriptor = receive_descriptors_[receive_consumer_index_];
-    if ((descriptor.des[3] & kDescriptorOwnMask) != 0U) {
-        return core::Status{core::Result::NotReady, core::Cause::Resource};
-    }
-
-    auto rearm_receive_descriptor = [&descriptor, this]() {
-        descriptor.receive_read.buffer1_address = reinterpret_cast<std::uintptr_t>(receive_ring_frames_[receive_consumer_index_]);
-        descriptor.receive_read.buffer2_address = 0U;
-        descriptor.receive_read.buffer1_valid = 1U;
-        descriptor.receive_read.buffer2_valid = 0U;
-        descriptor.receive_read.interrupt_on_completion = 1U;
-        descriptor.receive_read.own = 1U;
-
-        stm32::peripherals::EthernetDirectMemoryAccess::ChannelReceiveDescriptorTailPointer rx_tail_pointer;
-        rx_tail_pointer.whole = DescriptorAddressRegisterValue(reinterpret_cast<std::uintptr_t>(&descriptor));
-        stm32::peripherals::ethernet_dma.channel_receive_descriptor_tail_pointer = rx_tail_pointer;
-    };
-
-    std::uint32_t const descriptor_status = descriptor.des[3];
-    if (((descriptor_status & kDescriptorFirstMask) == 0U) || ((descriptor_status & kDescriptorLastMask) == 0U)) {
-        rearm_receive_descriptor();
-        receive_consumer_index_ = (receive_consumer_index_ + 1U) % receive_descriptors_.count();
-        return core::Status{core::Result::NotSupported, core::Cause::State};
-    }
-
-    // Copy from the DMA-owned RX ring buffer into a stack-owned frame so listener retention does not block the RX ring.
-    jarnax::net::ethernet::Frame* stack_frame = Acquire();
-    if (stack_frame == nullptr) {
-        rearm_receive_descriptor();
-        receive_consumer_index_ = (receive_consumer_index_ + 1U) % receive_descriptors_.count();
-        return core::Status{core::Result::NotEnough, core::Cause::Resource};
-    }
-
-    CopyFrameBytes(stack_frame, receive_ring_frames_[receive_consumer_index_]);
-
-    rearm_receive_descriptor();
-    receive_consumer_index_ = (receive_consumer_index_ + 1U) % receive_descriptors_.count();
-
-    // pass to the interface to process, the driver is not involved in any "business" logic
-    listener.OnFrameReceived(stack_frame);
-
-    // now the driver has finished with the frame and it can be released back to the stack frame allocator
-    Release(stack_frame);
-
-    return core::Status{};
+    return core::Status{core::Result::NotReady, core::Cause::Resource};
 }
 
 core::Status Driver::Schedule(jarnax::net::ethernet::mdio::Transaction* transaction) {
