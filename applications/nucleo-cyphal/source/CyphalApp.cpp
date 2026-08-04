@@ -124,6 +124,7 @@ CyphalApp::CyphalApp(jarnax::Ticker& ticker, jarnax::BoardContext& board_context
     , udpard_initialized_{false}
     , arp_announced_{false}
     , initialized_{false}
+    , filter_installed_{false}
     , stats_print_counter_{0U} {
     for (auto& in_use : frame_in_use_) {
         in_use = false;
@@ -156,6 +157,22 @@ bool CyphalApp::Execute() {
         if (HyphaIpIsSuccess(hy_status)) {
             initialized_ = true;
         }
+        return true;
+    }
+    if (!filter_installed_) {
+        HyphaIpIPv4Address_t allowed_addresses[] = {
+            {192, 168, 3, 1},
+            {192, 168, 3, 2},
+            {192, 168, 3, 4},
+        };
+        // add the filters for the local network?
+        HyphaIpStatus_e status = HyphaIpPopulateIPv4Filter(hypha_context_, HYPHA_IP_DIMOF(allowed_addresses), allowed_addresses);
+        if (not HyphaIpIsSuccess(status)) {
+            jarnax::print("CyphalApp: HyphaIpPopulateIPv4Filter failed with status %d\r\n", static_cast<int>(status));
+        } else {
+            jarnax::print("CyphalApp: HyphaIpPopulateIPv4Filter succeeded\r\n");
+        }
+        filter_installed_ = true;
         return true;
     }
     // Ethernet driver is part of the SuperLoop, no need to call ethernet_.Execute() here
@@ -309,10 +326,11 @@ HyphaIpStatus_e CyphalApp::TryReceive(HyphaIpExternalContext_t context, HyphaIpE
     auto const result = self->ethernet_.Receive(*self);
     (void)result;
 
-    // if we received data, forget the pending frame pointer
+    // if we received data, copy the frame into the caller's buffer and forget the pending pointer
     if (self->rx_frame_available_) {
+        *frame = self->rx_frame_;
         self->pending_rx_frame_ = nullptr;
-        return HyphaIpStatusOk;  // Frame successfully received
+        return HyphaIpStatusOk;          // Frame successfully received
     }
     return HyphaIpStatusNotAvailable;    // no frame received, but not an error
 }

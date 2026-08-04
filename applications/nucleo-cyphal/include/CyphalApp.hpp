@@ -80,9 +80,8 @@ protected:
 
     bool udpard_initialized_;
     bool arp_announced_;
-
     bool initialized_;
-
+    bool filter_installed_;
     size_t stats_print_counter_;
 };
 
