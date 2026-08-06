@@ -19,3 +19,6 @@
 [submodule "third-party/o1heap"]
 	path = third-party/o1heap
 	url = https://github.com/pavel-kirienko/o1heap.git
+[submodule "third-party/public_regulated_data_types"]
+	path = third-party/public_regulated_data_types
+	url = https://github.com/OpenCyphal/public_regulated_data_types.git

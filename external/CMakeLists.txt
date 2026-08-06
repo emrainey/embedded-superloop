@@ -22,7 +22,7 @@ execute_process (
     OUTPUT_STRIP_TRAILING_WHITESPACE
     COMMAND ${Python3_EXECUTABLE} --version
     COMMAND ${Python3_EXECUTABLE} -m pip install --upgrade pip
-    COMMAND ${Python3_EXECUTABLE} -m pip install jinja2 pyyaml jlink-mcp pylink-square pytest pytest-cov pyserial
+    COMMAND ${Python3_EXECUTABLE} -m pip install jinja2 pyyaml jlink-mcp pylink-square pytest pytest-cov pyserial nunavut pydsdl
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
@@ -107,3 +107,39 @@ function(generate_statechart)
         )
     endforeach()
 endfunction()
+
+# Cyphal DSDL code generation via nunavut (nnvg)
+set(CYPHAL_DSDL_ROOT ${CMAKE_SOURCE_DIR}/third-party/public_regulated_data_types CACHE PATH "Path to the Cyphal DSDL data types")
+set(CYPHAL_DSDL_GENERATED_DIR ${CMAKE_BINARY_DIR}/generated/cyphal-dsdl CACHE PATH "Path to the generated Cyphal DSDL C headers")
+
+function(generate_cyphal_dsdl)
+    if (NOT EXISTS ${CYPHAL_DSDL_ROOT}/uavcan/node/7509.Heartbeat.1.0.dsdl)
+        message(FATAL_ERROR "Cyphal DSDL types not found at ${CYPHAL_DSDL_ROOT}. Ensure the public_regulated_data_types submodule is checked out.")
+    endif()
+    message("Generating Cyphal DSDL C headers from ${CYPHAL_DSDL_ROOT} to ${CYPHAL_DSDL_GENERATED_DIR}")
+    file(GLOB_RECURSE DSDL_FILES ${CYPHAL_DSDL_ROOT}/uavcan/*.dsdl)
+    list(APPEND CMAKE_CONFIGURE_DEPENDS ${DSDL_FILES})
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CYPHAL_DSDL_GENERATED_DIR}
+        COMMAND ${STATERATOR_PYTHON} -m nunavut
+                --target-language c
+                --outdir ${CYPHAL_DSDL_GENERATED_DIR}
+                ${CYPHAL_DSDL_ROOT}/uavcan
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        RESULT_VARIABLE NNVG_RESULT
+        OUTPUT_VARIABLE NNVG_OUTPUT
+        ERROR_VARIABLE NNVG_ERROR
+    )
+    if(NOT NNVG_RESULT EQUAL 0)
+        message(FATAL_ERROR "Cyphal DSDL code generation failed: ${NNVG_OUTPUT} ${NNVG_ERROR}")
+    endif()
+endfunction()
+
+generate_cyphal_dsdl()
+
+# Header-only library exposing the generated Cyphal DSDL C headers so that both
+# the on-target firmware and the host unit tests can consume them.
+if (NOT TARGET cyphal-dsdl)
+    add_library(cyphal-dsdl INTERFACE)
+    target_include_directories(cyphal-dsdl SYSTEM INTERFACE ${CYPHAL_DSDL_GENERATED_DIR})
+endif()

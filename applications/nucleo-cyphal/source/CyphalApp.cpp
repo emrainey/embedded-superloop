@@ -11,6 +11,8 @@
 #include "stm32/h7xx/ethernet/Driver.hpp"
 #include "strings.hpp"
 
+#include "uavcan/node/Heartbeat_1_0.h"
+
 #include <cstdarg>
 #include <cstring>
 
@@ -53,11 +55,6 @@ void CopyHyphaFrameToJarnax(jarnax::net::ethernet::Frame& destination, HyphaIpEt
     std::memcpy(destination.payload.data, source.payload, sizeof(source.payload));
 }
 
-uint32_t HyphaIpToU32(HyphaIpIPv4Address_t addr) {
-    return (static_cast<uint32_t>(addr.a) << 24) | (static_cast<uint32_t>(addr.b) << 16) | (static_cast<uint32_t>(addr.c) << 8) |
-           (static_cast<uint32_t>(addr.d));
-}
-
 HyphaIpIPv4Address_t U32ToHyphaIp(uint32_t addr) {
     HyphaIpIPv4Address_t result{};
     result.a = static_cast<uint8_t>(addr >> 24);
@@ -75,10 +72,6 @@ HyphaIpSpan_t MakeSpan(void const* data, std::size_t size) {
     return span;
 }
 
-bool IsMulticastIPv4(HyphaIpIPv4Address_t addr) {
-    return addr.a >= 224U && addr.a <= 239U;
-}
-
 void* UdpardAlloc(void* context, size_t size) {
     auto* heap = static_cast<O1HeapInstance*>(context);
     return o1heapAllocate(heap, size);
@@ -89,11 +82,6 @@ void UdpardFree(void* context, size_t size, void* pointer) {
     auto* heap = static_cast<O1HeapInstance*>(context);
     o1heapFree(heap, pointer);
 }
-
-static udpard_mem_vtable_t const g_allocator_vtable = {
-    .base = {.free = &UdpardFree},
-    .alloc = &UdpardAlloc,
-};
 
 }    // namespace
 
@@ -111,14 +99,9 @@ CyphalApp::CyphalApp(jarnax::Ticker& ticker, jarnax::BoardContext& board_context
     , frame_in_use_{}
     , pending_rx_frame_{nullptr}
     , rx_frame_available_{false}
+    , node_id_{NodeId}
     , tx_{}
-    , rx_{}
-    , subscription_port_{}
-    , unicast_port_{}
-    , tx_vtable_{}
-    , subscription_vtable_{}
-    , unicast_vtable_{}
-    , allocator_{}
+    , subscription_{}
     , tx_memory_{}
     , rx_memory_{}
     , udpard_initialized_{false}
@@ -143,7 +126,7 @@ CyphalApp::CyphalApp(jarnax::Ticker& ticker, jarnax::BoardContext& board_context
     jarnax::net::eui48::Address const defined_mac = board_context_.GetDefinedMacAddress();
     CopyAddress(network_interface_.mac, defined_mac);
 
-    network_interface_.address = HyphaIpIPv4Address_t{192, 168, 3, 3};
+    network_interface_.address = HyphaIpIPv4Address_t{192, 168, 3, NodeId};
     network_interface_.netmask = HyphaIpIPv4Address_t{255, 255, 255, 0};
     network_interface_.gateway = HyphaIpIPv4Address_t{192, 168, 3, 1};
 }
@@ -172,6 +155,22 @@ bool CyphalApp::Execute() {
         } else {
             jarnax::print("CyphalApp: HyphaIpPopulateIPv4Filter succeeded\r\n");
         }
+
+        // Add explicit MAC filter entries for the Cyphal multicast groups we participate in:
+        //   Heartbeat subject 7509   -> 239.0.29.85  -> 01:00:5E:00:1D:55
+        //   Service multicast node 103 -> 239.1.0.103 -> 01:00:5E:01:00:67
+        HyphaIpEthernetAddress_t cyphal_multicast_macs[] = {
+            {.oui = {0x01, 0x00, 0x5E}, .uid = {0x00, 0x1D, 0x55}},    // subject 7509 (Heartbeat)
+            {.oui = {0x01, 0x00, 0x5E}, .uid = {0x01, 0x00, 0x67}},    // service multicast node 103
+        };
+        HyphaIpStatus_e mac_status =
+            HyphaIpPopulateEthernetFilter(hypha_context_, HYPHA_IP_DIMOF(cyphal_multicast_macs), cyphal_multicast_macs);
+        if (not HyphaIpIsSuccess(mac_status)) {
+            jarnax::print("CyphalApp: HyphaIpPopulateEthernetFilter failed with status %d\r\n", static_cast<int>(mac_status));
+        } else {
+            jarnax::print("CyphalApp: HyphaIpPopulateEthernetFilter succeeded\r\n");
+        }
+
         filter_installed_ = true;
         return true;
     }
@@ -197,10 +196,15 @@ bool CyphalApp::Execute() {
 
     HyphaIpRunOnce(hypha_context_);
 
-    udpard_us_t const now = NowUs(ticker_);
+    ProcessTransmitQueue();
 
-    udpard_tx_poll(&tx_, now, 1U);
-    udpard_rx_poll(&rx_, now);
+    // Publish a Heartbeat at most once per second (uavcan.node.Heartbeat.1.0
+    // MAX_PUBLICATION_PERIOD is 1 second, OFFLINE_TIMEOUT is 3 seconds).
+    jarnax::Ticks const current_ticks = ticker_.GetTicksSinceBoot();
+    if ((current_ticks.value() - last_heartbeat_ticks_.value()) >= ticker_.GetTicksPerSecond().value()) {
+        last_heartbeat_ticks_ = current_ticks;
+        PublishHeartbeat();
+    }
 
     ++stats_print_counter_;
     if (stats_print_counter_ >= 200U) {
@@ -237,60 +241,42 @@ bool CyphalApp::Execute() {
 
 void CyphalApp::InitUdpard() {
     O1HeapInstance& heap = O1HeapPool::Instance();
-    allocator_.vtable = &g_allocator_vtable;
-    allocator_.context = &heap;
 
-    // TX memory: transfer metadata and payload buffers
-    tx_memory_.transfer = allocator_;
-    for (auto& payload : tx_memory_.payload) {
-        payload = allocator_;
+    // v1.x memory resources wrap the same O1Heap-backed allocator.
+    struct UdpardMemoryResource const memory = {
+        .user_reference = &heap,
+        .deallocate = &UdpardFree,
+        .allocate = &UdpardAlloc,
+    };
+    tx_memory_ = memory;
+
+    rx_memory_.session = memory;
+    rx_memory_.fragment = memory;
+    rx_memory_.payload = {
+        .user_reference = &heap,
+        .deallocate = &UdpardFree,
+    };
+
+    // TX pipeline: single (non-redundant) interface, capacity bounded by the O1Heap.
+    int_fast8_t const tx_init = udpardTxInit(&tx_, &node_id_, 32U, tx_memory_);
+    if (tx_init < 0) {
+        jarnax::print("CyphalApp: udpardTxInit failed with %d\r\n", static_cast<int>(tx_init));
+        return;
     }
+    tx_.mtu = UDPARD_MTU_DEFAULT;
 
-    // RX memory: sessions, slots, fragments
-    rx_memory_.session = allocator_;
-    rx_memory_.slot = allocator_;
-    rx_memory_.fragment = allocator_;
-
-    // Build local UID from MAC address padded to 64 bits
-    uint64_t const local_uid =
-        (static_cast<uint64_t>(network_interface_.mac.oui[0]) << 40) | (static_cast<uint64_t>(network_interface_.mac.oui[1]) << 32) |
-        (static_cast<uint64_t>(network_interface_.mac.oui[2]) << 24) | (static_cast<uint64_t>(network_interface_.mac.uid[0]) << 16) |
-        (static_cast<uint64_t>(network_interface_.mac.uid[1]) << 8) | (static_cast<uint64_t>(network_interface_.mac.uid[2]));
-
-    tx_vtable_.eject = &CyphalApp::OnTxEject;
-
-    bool ok = udpard_tx_new(&tx_, local_uid, static_cast<uint64_t>(NowUs(ticker_)), 32U, 1U, tx_memory_, &tx_vtable_);
-    if (!ok) {
-        jarnax::print("CyphalApp: udpard_tx_new failed\r\n");
+    // Subscription for the Heartbeat subject.
+    int_fast8_t const sub_init = udpardRxSubscriptionInit(&subscription_, SubjectId, MaxUdpPayload + 128U, rx_memory_);
+    if (sub_init < 0) {
+        jarnax::print("CyphalApp: udpardRxSubscriptionInit failed with %d\r\n", static_cast<int>(sub_init));
         return;
     }
 
-    udpard_rx_new(&rx_);
-    rx_.user = this;
-
-    udpard_udpip_ep_t const subject_ep = udpard_make_subject_endpoint(SubjectId);
-
-    subscription_vtable_.on_message = &CyphalApp::OnRxMessage;
-    ok = udpard_rx_port_new(&subscription_port_, CyphalApp::MaxUdpPayload + 128U, rx_memory_, &subscription_vtable_);
-    if (!ok) {
-        jarnax::print("CyphalApp: udpard_rx_port_new (subscription) failed\r\n");
-        return;
-    }
-
-    unicast_vtable_.on_message = &CyphalApp::OnRxMessage;
-    ok = udpard_rx_port_new_unicast(&unicast_port_, CyphalApp::MaxUdpPayload + 128U, rx_memory_, &unicast_vtable_);
-    if (!ok) {
-        jarnax::print("CyphalApp: udpard_rx_port_new_unicast failed\r\n");
-        return;
-    }
-
-    // Prepare hypha to receive on the subject multicast address
-    HyphaIpIPv4Address_t const subject_ip = U32ToHyphaIp(subject_ep.ip);
+    // Prepare hypha to receive on the subject multicast address (and to send membership reports).
+    HyphaIpIPv4Address_t const subject_ip = U32ToHyphaIp(subscription_.udp_ip_endpoint.ip_address);
     HyphaIpPrepareUdpReceive(hypha_context_, subject_ip, UdpPort);
-    subscription_port_.user = this;
-    unicast_port_.user = this;
 
-    jarnax::print("CyphalApp: udpard initialized\r\n");
+    jarnax::print("CyphalApp: udpard v1 initialized\r\n");
 }
 
 void CyphalApp::OnFrameReceived(jarnax::net::ethernet::Frame* frame) {
@@ -428,99 +414,89 @@ HyphaIpStatus_e CyphalApp::OnReceiveUdp(HyphaIpExternalContext_t context, HyphaI
     }
     std::memcpy(copy, datagram.pointer, payload_size);
 
-    udpard_udpip_ep_t source_ep{};
-    source_ep.ip = HyphaIpToU32(metadata->source_address);
-    source_ep.port = metadata->source_port;
-
-    udpard_bytes_mut_t payload{};
+    struct UdpardMutablePayload payload{};
     payload.data = copy;
     payload.size = payload_size;
 
-    udpard_deleter_t const deleter = udpard_make_deleter(self->allocator_);
-
-    udpard_us_t const timestamp = NowUs(self->ticker_);
-
-    bool const is_multicast = IsMulticastIPv4(metadata->destination_address);
-
-    bool pushed = false;
-    if (is_multicast) {
-        pushed = udpard_rx_port_push(&self->rx_, &self->subscription_port_, timestamp, source_ep, payload, deleter, 0U);
-    } else {
-        pushed = udpard_rx_port_push(&self->rx_, &self->unicast_port_, timestamp, source_ep, payload, deleter, 0U);
-    }
-
-    if (!pushed) {
-        o1heapFree(&heap, copy);
-    }
+    struct UdpardRxTransfer transfer;
+    udpardRxSubscriptionReceive(&self->subscription_, NowUs(self->ticker_), payload, 0U, &transfer);
 
     return HyphaIpStatusOk;
 }
 
 // ------------------------------------------------------------------------------------------------------------------
-// LibUDPard Callbacks
+// LibUDPard v1.x: TX queue draining
 // ------------------------------------------------------------------------------------------------------------------
 
-bool CyphalApp::OnTxEject(udpard_tx_t* tx, udpard_tx_ejection_t* ejection) {
-    auto* self = static_cast<CyphalApp*>(tx->user);
-    if (self == nullptr || ejection == nullptr) {
-        return false;
+void CyphalApp::ProcessTransmitQueue() {
+    while (struct UdpardTxItem const* item = udpardTxPeek(&tx_)) {
+        HyphaIpMetaData_t metadata{};
+        metadata.source_address = network_interface_.address;
+        metadata.destination_address = U32ToHyphaIp(item->destination.ip_address);
+        metadata.source_port = UdpPort;
+        metadata.destination_port = item->destination.udp_port;
+        metadata.timestamp = static_cast<HyphaIpTimestamp_t>(item->deadline_usec / 1000);
+
+        HyphaIpSpan_t const span = MakeSpan(item->datagram_payload.data, item->datagram_payload.size);
+        HyphaIpStatus_e const hy_status = HyphaIpTransmitUdpDatagram(hypha_context_, &metadata, span);
+        jarnax::print(
+            "CyphalApp: tx %d.%d.%d.%d:%u %zuB -> %d\r\n",
+            static_cast<int>((item->destination.ip_address >> 24) & 0xFF),
+            static_cast<int>((item->destination.ip_address >> 16) & 0xFF),
+            static_cast<int>((item->destination.ip_address >> 8) & 0xFF),
+            static_cast<int>(item->destination.ip_address & 0xFF),
+            item->destination.udp_port,
+            item->datagram_payload.size,
+            static_cast<int>(hy_status)
+        );
+
+        struct UdpardTxItem* const taken = udpardTxPop(&tx_, item);
+        udpardTxFree(tx_memory_, taken);
+        if (!HyphaIpIsSuccess(hy_status)) {
+            break;    // do not spin; retry on the next Execute cycle
+        }
     }
-
-    HyphaIpMetaData_t metadata{};
-    metadata.source_address = self->network_interface_.address;
-    metadata.destination_address = U32ToHyphaIp(ejection->destination.ip);
-    metadata.source_port = UdpPort;
-    metadata.destination_port = ejection->destination.port;
-    metadata.timestamp = static_cast<HyphaIpTimestamp_t>(ejection->now / 1000);
-
-    HyphaIpSpan_t const span = MakeSpan(ejection->datagram.data, ejection->datagram.size);
-
-    HyphaIpStatus_e const hy_status = HyphaIpTransmitUdpDatagram(self->hypha_context_, &metadata, span);
-    return HyphaIpIsSuccess(hy_status);
 }
 
-void CyphalApp::OnRxMessage(udpard_rx_t* rx, udpard_rx_port_t* port, udpard_rx_transfer_t transfer) {
-    (void)rx;
-    (void)port;
-    jarnax::print(
-        "CyphalApp: msg prio=%d tid=%llu %zu/%zuB from ",
-        static_cast<int>(transfer.priority),
-        static_cast<unsigned long long>(transfer.transfer_id),
-        transfer.payload_size_stored,
-        transfer.payload_size_wire
+void CyphalApp::PublishHeartbeat() {
+    uavcan_node_Heartbeat_1_0 heartbeat{};
+    uavcan_node_Heartbeat_1_0_initialize_(&heartbeat);
+
+    // Integer seconds since boot, not a float.
+    heartbeat.uptime = static_cast<uint32_t>(NowUs(ticker_) / 1000000U);
+    heartbeat.health.value = uavcan_node_Health_1_0_NOMINAL;
+    heartbeat.mode.value = uavcan_node_Mode_1_0_OPERATIONAL;
+    heartbeat.vendor_specific_status_code = 0U;
+
+    uint8_t buffer[uavcan_node_Heartbeat_1_0_SERIALIZATION_BUFFER_SIZE_BYTES_]{};
+    size_t serialized_size = sizeof(buffer);
+    int8_t const err = uavcan_node_Heartbeat_1_0_serialize_(&heartbeat, buffer, &serialized_size);
+    if (err < 0) {
+        return;
+    }
+
+    struct UdpardPayload const payload = {
+        .size = serialized_size,
+        .data = buffer,
+    };
+
+    UdpardMicrosecond const now = NowUs(ticker_);
+    static constexpr UdpardMicrosecond HeartbeatPeriodUs = 1000000U;
+
+    int32_t const result = udpardTxPublish(
+        &tx_, now + HeartbeatPeriodUs, UdpardPriorityNominal, SubjectId,
+        heartbeat_transfer_id_++, payload, this
     );
-    for (uint_fast8_t iface = 0; iface < UDPARD_IFACE_COUNT_MAX; ++iface) {
-        if (udpard_is_valid_endpoint(transfer.remote.endpoints[iface])) {
-            uint32_t const ip = transfer.remote.endpoints[iface].ip;
-            jarnax::print(
-                "%d.%d.%d.%d:%u ",
-                static_cast<int>((ip >> 24) & 0xFF),
-                static_cast<int>((ip >> 16) & 0xFF),
-                static_cast<int>((ip >> 8) & 0xFF),
-                static_cast<int>(ip & 0xFF),
-                transfer.remote.endpoints[iface].port
-            );
-        }
-    }
-    jarnax::print("uid=%llu", static_cast<unsigned long long>(transfer.remote.uid));
-
-    jarnax::print(" payload=");
-    udpard_fragment_t const* frag = udpard_fragment_seek(transfer.payload, 0);
-    while (frag != nullptr) {
-        uint8_t const* const data = static_cast<uint8_t const*>(frag->view.data);
-        for (size_t i = 0; i < frag->view.size; ++i) {
-            jarnax::print("%02X", data[i]);
-        }
-        frag = udpard_fragment_next(frag);
-    }
-    jarnax::print("\r\n");
-
-    udpard_fragment_free_all(transfer.payload, udpard_make_deleter(port->memory.fragment));
+    jarnax::print(
+        "CyphalApp: heartbeat published=%d uptime=%lu tid=%llu\r\n",
+        static_cast<int>(result), static_cast<unsigned long>(heartbeat.uptime),
+        static_cast<unsigned long long>(heartbeat_transfer_id_ - 1U)
+    );
 }
 
-udpard_us_t CyphalApp::NowUs(jarnax::Ticker const& ticker) {
+UdpardMicrosecond CyphalApp::NowUs(jarnax::Ticker const& ticker) {
     auto const ticks = ticker.GetTicksSinceBoot();
-    return static_cast<udpard_us_t>(ticks.value()) * 1000LL;
+    return static_cast<UdpardMicrosecond>(ticks.value()) * 1000LL;
 }
 
 }    // namespace cyphal

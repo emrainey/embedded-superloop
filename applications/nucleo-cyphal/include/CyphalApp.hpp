@@ -24,6 +24,8 @@ public:
     static constexpr uint16_t UdpPort = 9382U;
     static constexpr uint32_t SubjectId = 7509U;
     static constexpr std::size_t MaxUdpPayload = 1400U;
+    // Cyphal/UDP binds the node-ID to the last octet of the node's source IP.
+    static constexpr UdpardNodeID NodeId = 103U;
 
     CyphalApp(jarnax::Ticker& ticker, jarnax::BoardContext& board_context);
 
@@ -43,13 +45,11 @@ protected:
     static void OnReport(HyphaIpExternalContext_t context, HyphaIpStatus_e status, char const* const func, char const* const file, unsigned int line);
     static HyphaIpStatus_e OnReceiveUdp(HyphaIpExternalContext_t context, HyphaIpMetaData_t* metadata, HyphaIpSpan_t datagram);
 
-    // LibUDPard Callbacks
-    static bool OnTxEject(udpard_tx_t* tx, udpard_tx_ejection_t* ejection);
-    static void OnRxMessage(udpard_rx_t* rx, udpard_rx_port_t* port, udpard_rx_transfer_t transfer);
-
     void InitUdpard();
+    void PublishHeartbeat();
+    void ProcessTransmitQueue();
 
-    static udpard_us_t NowUs(jarnax::Ticker const& ticker);
+    static UdpardMicrosecond NowUs(jarnax::Ticker const& ticker);
 
     jarnax::BoardContext& board_context_;
     jarnax::Ticker& ticker_;
@@ -66,23 +66,20 @@ protected:
     bool rx_frame_available_;
     HyphaIpEthernetFrame_t rx_frame_;
 
-    // LibUDPard state
-    udpard_tx_t tx_;
-    udpard_rx_t rx_;
-    udpard_rx_port_t subscription_port_;
-    udpard_rx_port_t unicast_port_;
-    udpard_tx_vtable_t tx_vtable_;
-    udpard_rx_port_vtable_t subscription_vtable_;
-    udpard_rx_port_vtable_t unicast_vtable_;
-    udpard_mem_t allocator_;
-    udpard_tx_mem_resources_t tx_memory_;
-    udpard_rx_mem_resources_t rx_memory_;
+    // LibUDPard state (v1.x API)
+    UdpardNodeID node_id_;
+    UdpardTx tx_;
+    UdpardRxSubscription subscription_;
+    struct UdpardMemoryResource tx_memory_;
+    struct UdpardRxMemoryResources rx_memory_;
 
     bool udpard_initialized_;
     bool arp_announced_;
     bool initialized_;
     bool filter_installed_;
     size_t stats_print_counter_;
+    UdpardTransferID heartbeat_transfer_id_;
+    jarnax::Ticks last_heartbeat_ticks_;
 };
 
 }    // namespace cyphal

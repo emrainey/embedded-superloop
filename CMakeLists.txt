@@ -155,6 +155,13 @@ foreach(test IN LISTS LOCAL_UNITTESTS)
     endif()
 endforeach()
 
+# Pulls in the Application Unit Tests
+foreach(app IN LISTS LOCAL_APPLICATIONS)
+    if (EXISTS ${EMBEDDED_SUPERLOOP_PROJECT_ROOT}/applications/${app}/tests/CMakeLists.txt)
+        add_subdirectory(${EMBEDDED_SUPERLOOP_PROJECT_ROOT}/applications/${app}/tests)
+    endif()
+endforeach()
+
 # Write the accumulated debug targets to a JSON file
 get_property(ACCUMULATED_DEBUG_TARGETS GLOBAL PROPERTY CROSS_DEBUG_TARGETS)
 string(REPLACE ";" ",\n" ACCUMULATED_TARGETS_JSON "${ACCUMULATED_DEBUG_TARGETS}")

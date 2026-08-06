@@ -8,6 +8,7 @@ add_firmware(NAME nucleo-cyphal
     DEFINES
         HYPHA_IP_ALLOW_ANY_BROADCAST=1
     LIBRARIES
+        cyphal-dsdl
         hypha-ip
         udpard
         o1heap
