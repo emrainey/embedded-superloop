@@ -67,7 +67,7 @@ cortex::PartNumber CortexProcessor::GetPartNumber() const {
 }
 
 cortex::Revision CortexProcessor::GetRevision() const {
-    cortex::Revision revision;
+    cortex::Revision revision{};
     if constexpr (cortex::run_in_privileged_mode_only) {
         revision = cortex::processor::GetRevision();
     } else {

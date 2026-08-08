@@ -330,7 +330,7 @@ TEST_CASE("Address Operators and Conversions", "[Address][Operators]") {
 
 TEST_CASE("Interface Test") {
     MockDriver driver;
-    eui48::Address mac{{0, 1, 2, 3, 4, 5}};
+    eui48::Address mac{0, 1, 2, 3, 4, 5};
 
     SECTION("Invalid Interface") {
         Interface iface{driver, mac, {0, 0, 0, 0}, {0, 0, 0, 0}};
@@ -432,7 +432,7 @@ TEST_CASE("Interface Test") {
 
 TEST_CASE("Interface CouldSendTo", "[Interface][CouldSendTo]") {
     MockDriver driver;
-    eui48::Address mac{{0, 1, 2, 3, 4, 5}};
+    eui48::Address mac{0, 1, 2, 3, 4, 5};
 
     SECTION("Class A (10.0.0.0/8)") {
         Interface iface{driver, mac, {10, 0, 0, 1}, A::mask};
