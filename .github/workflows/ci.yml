@@ -16,7 +16,7 @@ jobs:
       matrix:
         distro: [ ubuntu ]
     container:
-      image: ghcr.io/emrainey/distcc-bare-metal-builder:main
+      image: ghcr.io/emrainey/bare-metal-dev-ubuntu:latest
     defaults:
       run:
         shell: sh
@@ -44,7 +44,7 @@ jobs:
       matrix:
         distro: [ ubuntu ]
     container:
-      image: ghcr.io/emrainey/distcc-bare-metal-builder:main
+      image: ghcr.io/emrainey/bare-metal-dev-ubuntu:latest
     defaults:
       run:
         shell: sh
@@ -72,7 +72,7 @@ jobs:
       matrix:
         distro: [ ubuntu ]
     container:
-      image: ghcr.io/emrainey/distcc-bare-metal-builder:main
+      image: ghcr.io/emrainey/bare-metal-dev-ubuntu:latest
     defaults:
       run:
         shell: sh
@@ -108,7 +108,7 @@ jobs:
       matrix:
         distro: [ ubuntu ]
     container:
-      image: ghcr.io/emrainey/distcc-bare-metal-builder:main
+      image: ghcr.io/emrainey/bare-metal-dev-ubuntu:latest
     defaults:
       run:
         shell: sh
