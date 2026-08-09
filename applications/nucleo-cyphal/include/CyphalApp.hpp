@@ -23,6 +23,7 @@ public:
 
     static constexpr uint16_t UdpPort = 9382U;
     static constexpr uint32_t SubjectId = 7509U;
+    static constexpr UdpardPortID GetInfoServiceId = 430U;
     static constexpr std::size_t MaxUdpPayload = 1400U;
     // Cyphal/UDP binds the node-ID to the last octet of the node's source IP.
     static constexpr UdpardNodeID NodeId = 103U;
@@ -48,6 +49,8 @@ protected:
     void InitUdpard();
     void PublishHeartbeat();
     void ProcessTransmitQueue();
+    void ServiceDispatcherInit();
+    void ServiceResponseHandler(struct UdpardRxRPCTransfer const& transfer);
 
     static UdpardMicrosecond NowUs(jarnax::Ticker const& ticker);
 
@@ -72,11 +75,15 @@ protected:
     UdpardRxSubscription subscription_;
     struct UdpardMemoryResource tx_memory_;
     struct UdpardRxMemoryResources rx_memory_;
+    struct UdpardRxRPCDispatcher service_dispatcher_;
+    struct UdpardRxRPCPort get_info_service_port_;
+    HyphaIpIPv4Address_t service_group_address_;
 
     bool udpard_initialized_;
     bool arp_announced_;
     bool initialized_;
     bool filter_installed_;
+    bool service_initialized_;
     size_t stats_print_counter_;
     UdpardTransferID heartbeat_transfer_id_;
     jarnax::Ticks last_heartbeat_ticks_;

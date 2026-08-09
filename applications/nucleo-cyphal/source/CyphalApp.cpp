@@ -11,6 +11,7 @@
 #include "stm32/h7xx/ethernet/Driver.hpp"
 #include "strings.hpp"
 
+#include "uavcan/node/GetInfo_1_0.h"
 #include "uavcan/node/Heartbeat_1_0.h"
 
 #include <cstdarg>
@@ -83,6 +84,11 @@ void UdpardFree(void* context, size_t size, void* pointer) {
     o1heapFree(heap, pointer);
 }
 
+bool SameIPv4Address(HyphaIpIPv4Address_t const& a, HyphaIpIPv4Address_t const& b) {
+    static_assert(sizeof(a) == sizeof(uint32_t), "Must be exactly this size");
+    return std::memcmp(&a, &b, sizeof(a)) == 0;
+}
+
 }    // namespace
 
 namespace nucleo {
@@ -104,10 +110,14 @@ CyphalApp::CyphalApp(jarnax::Ticker& ticker, jarnax::BoardContext& board_context
     , subscription_{}
     , tx_memory_{}
     , rx_memory_{}
+    , service_dispatcher_{}
+    , get_info_service_port_{}
+    , service_group_address_{}
     , udpard_initialized_{false}
     , arp_announced_{false}
     , initialized_{false}
     , filter_installed_{false}
+    , service_initialized_{false}
     , stats_print_counter_{0U} {
     for (auto& in_use : frame_in_use_) {
         in_use = false;
@@ -194,6 +204,12 @@ bool CyphalApp::Execute() {
         rtt::control_block.GetUp(0).Clear();
     }
 
+    // Lazy-init the service dispatcher after udpard is running
+    if (!service_initialized_) {
+        ServiceDispatcherInit();
+        service_initialized_ = true;
+    }
+
     HyphaIpRunOnce(hypha_context_);
 
     ProcessTransmitQueue();
@@ -277,6 +293,54 @@ void CyphalApp::InitUdpard() {
     HyphaIpPrepareUdpReceive(hypha_context_, subject_ip, UdpPort);
 
     jarnax::print("CyphalApp: udpard v1 initialized\r\n");
+}
+
+void CyphalApp::ServiceDispatcherInit() {
+    O1HeapInstance& heap = O1HeapPool::Instance();
+
+    // The RPC dispatcher shares the same O1Heap-backed memory resources as the subjects pipeline.
+    struct UdpardMemoryResource const memory = {
+        .user_reference = &heap,
+        .deallocate = &UdpardFree,
+        .allocate = &UdpardAlloc,
+    };
+    struct UdpardRxMemoryResources const dispatcher_memory = {
+        .session = memory,
+        .fragment = memory,
+        .payload = {
+            .user_reference = &heap,
+            .deallocate = &UdpardFree,
+        },
+    };
+
+    int_fast8_t const dispatcher_init = udpardRxRPCDispatcherInit(&service_dispatcher_, dispatcher_memory);
+    if (dispatcher_init < 0) {
+        jarnax::print("CyphalApp: udpardRxRPCDispatcherInit failed with %d\r\n", static_cast<int>(dispatcher_init));
+        return;
+    }
+
+    // The dispatcher derives the service-UDP multicast group from the local node-ID.
+    struct UdpardUDPIPEndpoint service_endpoint{};
+    int_fast8_t const dispatcher_start = udpardRxRPCDispatcherStart(&service_dispatcher_, node_id_, &service_endpoint);
+    if (dispatcher_start < 0) {
+        jarnax::print("CyphalApp: udpardRxRPCDispatcherStart failed with %d\r\n", static_cast<int>(dispatcher_start));
+        return;
+    }
+    service_group_address_ = U32ToHyphaIp(service_endpoint.ip_address);
+
+    // The service request port for uavcan.node.GetInfo (request direction = is_request=true).
+    int_fast8_t const listen =
+        udpardRxRPCDispatcherListen(&service_dispatcher_, &get_info_service_port_, GetInfoServiceId, true,
+                                    uavcan_node_GetInfo_Response_1_0_EXTENT_BYTES_);
+    if (listen < 0) {
+        jarnax::print("CyphalApp: udpardRxRPCDispatcherListen failed with %d\r\n", static_cast<int>(listen));
+        return;
+    }
+
+    // Join the service multicast group so incoming service requests are accepted.
+    HyphaIpPrepareUdpReceive(hypha_context_, service_group_address_, UdpPort);
+
+    jarnax::print("CyphalApp: GetInfo service (430) initialized\r\n");
 }
 
 void CyphalApp::OnFrameReceived(jarnax::net::ethernet::Frame* frame) {
@@ -418,6 +482,22 @@ HyphaIpStatus_e CyphalApp::OnReceiveUdp(HyphaIpExternalContext_t context, HyphaI
     payload.data = copy;
     payload.size = payload_size;
 
+    if (SameIPv4Address(metadata->destination_address, self->service_group_address_)) {
+        // Service multicast datagram (e.g. a GetInfo request addressed to this node).
+        if (self->service_initialized_) {
+            struct UdpardRxRPCTransfer transfer{};
+            int_fast8_t const result = udpardRxRPCDispatcherReceive(
+                &self->service_dispatcher_, NowUs(self->ticker_), payload, 0U, nullptr, &transfer);
+            if (result > 0) {
+                self->ServiceResponseHandler(transfer);
+                udpardRxFragmentFree(transfer.base.payload, self->rx_memory_.fragment, self->rx_memory_.payload);
+            }
+        } else {
+            o1heapFree(&heap, copy);
+        }
+        return HyphaIpStatusOk;
+    }
+
     struct UdpardRxTransfer transfer;
     udpardRxSubscriptionReceive(&self->subscription_, NowUs(self->ticker_), payload, 0U, &transfer);
 
@@ -456,6 +536,52 @@ void CyphalApp::ProcessTransmitQueue() {
             break;    // do not spin; retry on the next Execute cycle
         }
     }
+}
+
+void CyphalApp::ServiceResponseHandler(struct UdpardRxRPCTransfer const& transfer) {
+    // Only respond to GetInfo *requests* (is_request == true) for our service.
+    if (!transfer.is_request || transfer.service_id != GetInfoServiceId) {
+        return;
+    }
+
+    uavcan_node_GetInfo_Response_1_0 info{};
+    std::memset(&info, 0, sizeof(info));    // All GetInfo defaults are zero; avoids the generated deserialize init.
+
+    // Assigned node identification for now (not MAC-derived).
+    info.protocol_version.major = 1U;
+    info.protocol_version.minor = 0U;
+    info.software_version.major = 1U;
+    info.software_version.minor = 0U;
+    info.software_vcs_revision_id = 0U;
+
+    static constexpr char const NodeName[] = "com.emrainey.superloop.nucleo";
+    info.name.count = sizeof(NodeName) - 1U;
+    std::memcpy(info.name.elements, NodeName, info.name.count);
+
+    uint8_t const assigned_unique_id[16U] = {0xDEU, 0xADU, 0xBEU, 0xEFU, 0x10U, 0x20U, 0x30U, 0x40U,
+                                             0x50U, 0x60U, 0x70U, 0x80U, 0x90U, 0xA0U, 0xB0U, 0xC0U};
+    std::memcpy(info.unique_id, assigned_unique_id, sizeof(assigned_unique_id));
+
+    uint8_t buffer[uavcan_node_GetInfo_Response_1_0_SERIALIZATION_BUFFER_SIZE_BYTES_]{};
+    size_t serialized_size = sizeof(buffer);
+    int8_t const err = uavcan_node_GetInfo_Response_1_0_serialize_(&info, buffer, &serialized_size);
+    if (err < 0) {
+        return;
+    }
+
+    struct UdpardPayload const payload = {
+        .size = serialized_size,
+        .data = buffer,
+    };
+
+    int32_t const result = udpardTxRespond(&tx_, NowUs(ticker_) + 1000000U, UdpardPriorityNominal, GetInfoServiceId,
+                                           transfer.base.source_node_id, transfer.base.transfer_id, payload, this);
+    jarnax::print(
+        "CyphalApp: GetInfo response sent=%d to node %u service_id=%u\r\n",
+        static_cast<int>(result),
+        static_cast<unsigned>(static_cast<uint16_t>(transfer.base.source_node_id)),
+        static_cast<unsigned>(transfer.service_id)
+    );
 }
 
 void CyphalApp::PublishHeartbeat() {
