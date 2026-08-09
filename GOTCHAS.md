@@ -38,3 +38,30 @@
   `sudo chmod` after `USER dev` is broken under buildx (setuid stripped, "effective uid is not
   0"). Fixed by creating the catalog 0644 for `dev`, appending without sudo, and restoring
   `chmod 444` as root. Alpine/Debian/Arch Containerfiles still use the old sudo pattern.
+
+## 2026-08-08 — nunavut-generated `initialize_()` trips GCC `-Warray-bounds` when called in firmware
+
+- **Symptom:** `error: array subscript 536870911 is outside array bounds of 'const uint8_t [1]'`
+  in the generated `GetInfo_1_0.h`, `-Werror` (with `-O2`) during the M7 ARM build. Fails in
+  the *caller*, not the header — the `-isystem` path does not suppress it.
+- **Root cause:** `uavcan_node_GetInfo_Response_1_0_initialize_()` inlines a
+  `deserialize_()` fed a 1-byte stack buffer; unguarded `nunavutGetU64(&buffer[0], ...)`
+  reads past it. Heartbeat's generated code happens to be bounds-guarded, so it compiles fine.
+- **Fix:** do not call the generated `initialize_()` for Getinfo responses in firmware; instead
+  `std::memset(&info, 0, sizeof(info))` — all GetInfo defaults are zero, so the result is
+  identical. (Host tests keep `initialize_()`; LLVM/AppleClang do not flag the pattern.)
+
+## 2026-08-08 — `HyphaIpIsSameIPv4Address` is not exported by the public `hypha_ip.h`
+
+- **Symptom:** link/compile error referencing `HyphaIpIsSameIPv4Address` from app code that
+  includes only `hypha_ip/hypha_ip.h`.
+- **Root cause:** the helper is declared in `third-party/libhypha/source/include/hypha_ip/hypha_internal.h`
+  (internal translation units) and not re-exported publicly.
+- **Fix:** on-target code compares `HyphaIpIPv4Address_t` directly with a local
+  `std::memcmp`/`==` helper (the struct is exactly `sizeof(uint32_t)`).
+
+## 2026-08-08 — `on-host-native-gcc` preset cannot build on macOS/Darwin
+
+- `g++-13` (homebrew) does not provide `cstddef`/libc++ headers, so any `module-core` TU fails
+  with `fatal error: cstddef: No such file or directory`. This is pre-existing and unrelated to
+  this change; AGENTS.md documents that the GCC host preset only works on Linux.
