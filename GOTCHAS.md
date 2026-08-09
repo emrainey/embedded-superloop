@@ -60,6 +60,21 @@
 - **Fix:** on-target code compares `HyphaIpIPv4Address_t` directly with a local
   `std::memcmp`/`==` helper (the struct is exactly `sizeof(uint32_t)`).
 
+## 2026-08-09 — Bare-metal firmware link fails: `memmove` undefined (udpard uses it)
+
+- **Symptom:** M7 (nucleo-cyphal) link error `undefined reference to memmove` when adding the
+  GetInfo client, even though `memcpy`/`memset` link fine. Fails at link, not compile.
+- **Root cause:** `udpardGather` (libudpard) calls standard `memmove` for overlap-safe copies,
+  but the bare-metal `modules/memory` only supplied `memset` + `memcpy` (both wrapped under
+  `#if defined(__arm__)` as `extern "C"`).
+- **Fix:** added `memory::move` (overlap-safe: forward loop when `dst < src`, backward when
+  `dst > src`) plus a `void*` overload, and an `extern "C" void *memmove(...)` wrapper in
+  `modules/memory/source/memmove.cpp`. Registered only for cross builds in
+  `modules/memory/CMakeLists.txt` (same `$<IF:$<BOOL:${BUILD_CROSS_TARGET}>...>` gate as
+  memset/memcpy) so host tests don't collide with libc's memmove.
+- **Gotcha:** the `memory::move` template must branch on `dst < src`/`dst > src` to remain
+  overlap-safe; a plain forward `copy` loop corrupts overlapping ranges.
+
 ## 2026-08-08 — `on-host-native-gcc` preset cannot build on macOS/Darwin
 
 - `g++-13` (homebrew) does not provide `cstddef`/libc++ headers, so any `module-core` TU fails
