@@ -1,5 +1,6 @@
 #include "CyphalApp.hpp"
 
+#include "GetInfoScanner.hpp"
 #include "O1HeapPool.hpp"
 #include "board.hpp"
 #include "core/Conversions.hpp"
@@ -112,7 +113,9 @@ CyphalApp::CyphalApp(jarnax::Ticker& ticker, jarnax::BoardContext& board_context
     , rx_memory_{}
     , service_dispatcher_{}
     , get_info_service_port_{}
+    , get_info_response_port_{}
     , service_group_address_{}
+    , get_info_scanner_{ScanFirstNode, ScanLastNode}
     , udpard_initialized_{false}
     , arp_announced_{false}
     , initialized_{false}
@@ -220,6 +223,18 @@ bool CyphalApp::Execute() {
     if ((current_ticks.value() - last_heartbeat_ticks_.value()) >= ticker_.GetTicksPerSecond().value()) {
         last_heartbeat_ticks_ = current_ticks;
         PublishHeartbeat();
+    }
+
+    // GetInfo client scan: query the next server node in the window each 5 seconds.
+    if ((current_ticks.value() - last_getinfo_scan_ticks_.value()) >= 5U * ticker_.GetTicksPerSecond().value()) {
+        last_getinfo_scan_ticks_ = current_ticks;
+        if (!get_info_scanner_.HasPending()) {
+            SendGetInfoRequest(get_info_scanner_.TakeNext());
+        } else {
+            // A previously issued request never got a response; advance anyway.
+            get_info_scanner_.ClearPending();
+            SendGetInfoRequest(get_info_scanner_.TakeNext());
+        }
     }
 
     ++stats_print_counter_;
@@ -331,9 +346,19 @@ void CyphalApp::ServiceDispatcherInit() {
     // The service request port for uavcan.node.GetInfo (request direction = is_request=true).
     int_fast8_t const listen =
         udpardRxRPCDispatcherListen(&service_dispatcher_, &get_info_service_port_, GetInfoServiceId, true,
-                                    uavcan_node_GetInfo_Response_1_0_EXTENT_BYTES_);
+                                    uavcan_node_GetInfo_Request_1_0_EXTENT_BYTES_);
     if (listen < 0) {
-        jarnax::print("CyphalApp: udpardRxRPCDispatcherListen failed with %d\r\n", static_cast<int>(listen));
+        jarnax::print("CyphalApp: udpardRxRPCDispatcherListen (request) failed with %d\r\n", static_cast<int>(listen));
+        return;
+    }
+
+    // The service response port for uavcan.node.GetInfo (client direction = is_request=false).
+    int_fast8_t const listen_response =
+        udpardRxRPCDispatcherListen(&service_dispatcher_, &get_info_response_port_, GetInfoServiceId, false,
+                                    uavcan_node_GetInfo_Response_1_0_EXTENT_BYTES_);
+    if (listen_response < 0) {
+        jarnax::print("CyphalApp: udpardRxRPCDispatcherListen (response) failed with %d\r\n",
+                      static_cast<int>(listen_response));
         return;
     }
 
@@ -483,13 +508,18 @@ HyphaIpStatus_e CyphalApp::OnReceiveUdp(HyphaIpExternalContext_t context, HyphaI
     payload.size = payload_size;
 
     if (SameIPv4Address(metadata->destination_address, self->service_group_address_)) {
-        // Service multicast datagram (e.g. a GetInfo request addressed to this node).
+        // Service multicast datagram (e.g. a GetInfo request addressed to this node, or a
+        // GetInfo response addressed to us from a scanned server).
         if (self->service_initialized_) {
             struct UdpardRxRPCTransfer transfer{};
             int_fast8_t const result = udpardRxRPCDispatcherReceive(
                 &self->service_dispatcher_, NowUs(self->ticker_), payload, 0U, nullptr, &transfer);
             if (result > 0) {
-                self->ServiceResponseHandler(transfer);
+                if (transfer.is_request) {
+                    self->ServiceResponseHandler(transfer);
+                } else {
+                    self->GetInfoResponseHandler(transfer);
+                }
                 udpardRxFragmentFree(transfer.base.payload, self->rx_memory_.fragment, self->rx_memory_.payload);
             }
         } else {
@@ -582,6 +612,72 @@ void CyphalApp::ServiceResponseHandler(struct UdpardRxRPCTransfer const& transfe
         static_cast<unsigned>(static_cast<uint16_t>(transfer.base.source_node_id)),
         static_cast<unsigned>(transfer.service_id)
     );
+}
+
+void CyphalApp::SendGetInfoRequest(UdpardNodeID server_node_id) {
+    // The GetInfo request is sealed; its serialized payload is always empty.
+    struct UdpardPayload const payload = {
+        .size = 0U,
+        .data = nullptr,
+    };
+
+    UdpardTransferID const transfer_id = get_info_scanner_.NextTransferId(server_node_id);
+    int32_t const result = udpardTxRequest(&tx_, NowUs(ticker_) + 1000000U, UdpardPriorityNominal, GetInfoServiceId,
+                                           server_node_id, transfer_id, payload, this);
+    if (result > 0) {
+        get_info_scanner_.SetPending(server_node_id);
+    } else {
+        // The request was not accepted (e.g. temporary TX capacity); try this node again next cycle.
+        get_info_scanner_.ClearPending();
+    }
+    jarnax::print("CyphalApp: GetInfo request sent=%d to node %u tid=%llu\r\n", static_cast<int>(result),
+                  static_cast<unsigned>(static_cast<uint16_t>(server_node_id)),
+                  static_cast<unsigned long long>(transfer_id));
+}
+
+void CyphalApp::GetInfoResponseHandler(struct UdpardRxRPCTransfer const& transfer) {
+    // Only handle GetInfo *responses* for our service from a node we are scanning.
+    if (transfer.is_request || transfer.service_id != GetInfoServiceId) {
+        return;
+    }
+    if (!get_info_scanner_.HasPending() || transfer.base.source_node_id != get_info_scanner_.PendingNode()) {
+        return;
+    }
+    get_info_scanner_.ClearPending();
+
+    // The transfer payload may be fragmented; gather it into a contiguous buffer.
+    uint8_t buffer[uavcan_node_GetInfo_Response_1_0_EXTENT_BYTES_]{};
+    size_t const payload_size = udpardGather(transfer.base.payload, sizeof(buffer), buffer);
+    if (payload_size == 0U) {
+        return;
+    }
+
+    // Memset instead of the generated initialize_(): the response deserializer reads the
+    // full payload, and all GetInfo fields have zero-valued defaults.
+    uavcan_node_GetInfo_Response_1_0 info{};
+    std::memset(&info, 0, sizeof(info));
+
+    size_t deserialized_size = payload_size;
+    int8_t const err = uavcan_node_GetInfo_Response_1_0_deserialize_(&info, buffer, &deserialized_size);
+    if (err < 0) {
+        jarnax::print("CyphalApp: GetInfo response deserialize failed with %d for node %u\r\n", static_cast<int>(err),
+                      static_cast<unsigned>(static_cast<uint16_t>(transfer.base.source_node_id)));
+        return;
+    }
+
+    // Print the node identity as reported by the server. The name is ASCII text but stored in
+    // a uint8_t array, so copy it into a char buffer for printing.
+    char const* const name = reinterpret_cast<char const*>(info.name.elements);
+    jarnax::print("CyphalApp: GetInfo from node %u: proto=%u.%u hw=%u.%u sw=%u.%u vcs=%llu unique_id=",
+                  static_cast<unsigned>(static_cast<uint16_t>(transfer.base.source_node_id)),
+                  static_cast<unsigned>(info.protocol_version.major), static_cast<unsigned>(info.protocol_version.minor),
+                  static_cast<unsigned>(info.hardware_version.major), static_cast<unsigned>(info.hardware_version.minor),
+                  static_cast<unsigned>(info.software_version.major), static_cast<unsigned>(info.software_version.minor),
+                  static_cast<unsigned long long>(info.software_vcs_revision_id));
+    for (size_t i = 0U; i < 16U; ++i) {
+        jarnax::print("%02X", static_cast<unsigned>(info.unique_id[i]));
+    }
+    jarnax::print(" name=%.*s\r\n", static_cast<int>(info.name.count), name);
 }
 
 void CyphalApp::PublishHeartbeat() {

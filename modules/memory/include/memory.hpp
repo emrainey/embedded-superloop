@@ -21,6 +21,13 @@ extern "C" void *memset(void *dst, int value, std::size_t bytes);
 /// @param bytes The number of bytes to copy.
 /// @return Returns dst.
 extern "C" void *memcpy(void *dst, void const *src, std::size_t bytes);
+
+/// @brief Standard C compatibility API for memory move (handles overlapping ranges).
+/// @param dst The pointer to write the data to.
+/// @param src The pointer to read the data from.
+/// @param bytes The number of bytes to move.
+/// @return Returns dst.
+extern "C" void *memmove(void *dst, void const *src, std::size_t bytes);
 #endif
 
 /// The memory namespace
@@ -49,6 +56,25 @@ __attribute__((optimize("O2", "no-tree-loop-distribute-patterns")))
 void copy(UNIT_TYPE dst[], UNIT_TYPE const src[], std::size_t count) {
     for (std::size_t i = 0; i < count; ++i) {
         dst[i] = src[i];
+    }
+}
+
+/// Moves a source array to destination array of elements, handling overlapping ranges.
+/// @tparam UNIT_TYPE The unit type of the element.
+/// @param dst The destination array of the elements.
+/// @param src The source array of the elements.
+/// @param count The count of the number of elements.
+template <typename UNIT_TYPE>
+__attribute__((optimize("O2", "no-tree-loop-distribute-patterns")))
+void move(UNIT_TYPE dst[], UNIT_TYPE const src[], std::size_t count) {
+    if (dst < src) {
+        for (std::size_t i = 0; i < count; ++i) {
+            dst[i] = src[i];
+        }
+    } else if (dst > src) {
+        for (std::size_t i = count; i > 0U; --i) {
+            dst[i - 1U] = src[i - 1U];
+        }
     }
 }
 
@@ -114,11 +140,28 @@ int compare(UNIT_TYPE (&lhs)[COUNT], UNIT_TYPE (&rhs)[COUNT]) {
     return 0;
 }
 
+/// Moves a source array to destination array of elements, handling overlapping ranges.
+/// @tparam UNIT_TYPE The unit type of the element.
+/// @tparam COUNT The number of elements in the array.
+/// @param dst The destination array of the elements.
+/// @param src The source array of the elements.
+template <typename UNIT_TYPE, std::size_t COUNT>
+__attribute__((optimize("O2", "no-tree-loop-distribute-patterns")))
+void move(UNIT_TYPE (&dst)[COUNT], UNIT_TYPE const (&src)[COUNT]) {
+    move(dst, src, COUNT);
+}
+
 /// Copies a source array to destination array of unknown types.
 /// @param dst The destination array of the elements.
 /// @param src The source array of the elements.
 /// @param bytes The number of bytes to copy.
 void copy(void *dst, void const *src, std::size_t bytes);
+
+/// Moves a source array to destination array of unknown types, handling overlapping ranges.
+/// @param dst The destination array of the elements.
+/// @param src The source array of the elements.
+/// @param bytes The number of bytes to move.
+void move(void *dst, void const *src, std::size_t bytes);
 
 /// Fills an array of an unknown type with a specific value.
 /// @param dst The destination array of the elements.

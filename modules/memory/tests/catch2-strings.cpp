@@ -1,3 +1,4 @@
+#include "memory.hpp"
 #include "strings.hpp"
 
 #include <catch2/catch_test_macros.hpp>
@@ -42,4 +43,45 @@ TEST_CASE("last_character at the end of the string", "[strings]") {
     char const* const text = "abc/";
     char const* const found = last_character(text, '/');
     REQUIRE(found == text + 3);
+}
+
+TEST_CASE("memory move copies forward when ranges do not overlap", "[memory][move]") {
+    std::uint8_t buffer[] = {0x01U, 0x02U, 0x03U, 0x04U, 0x05U};
+    std::uint8_t src[] = {0x0AU, 0x0BU, 0x0CU};
+    memory::move(buffer, src, 3U);
+    REQUIRE(buffer[0] == 0x0AU);
+    REQUIRE(buffer[1] == 0x0BU);
+    REQUIRE(buffer[2] == 0x0CU);
+    REQUIRE(buffer[3] == 0x04U);    // untouched tail
+    REQUIRE(buffer[4] == 0x05U);
+}
+
+TEST_CASE("memory move handles overlapping ranges (forward shift)", "[memory][move]") {
+    std::uint8_t buffer[] = {0x01U, 0x02U, 0x03U, 0x04U, 0x05U};
+    // Shift the first three bytes one position to the right (overlap, dest > src).
+    memory::move(buffer + 1, buffer, 3U);
+    REQUIRE(buffer[0] == 0x01U);
+    REQUIRE(buffer[1] == 0x01U);
+    REQUIRE(buffer[2] == 0x02U);
+    REQUIRE(buffer[3] == 0x03U);
+    REQUIRE(buffer[4] == 0x05U);
+}
+
+TEST_CASE("memory move handles overlapping ranges (backward shift)", "[memory][move]") {
+    std::uint8_t buffer[] = {0x01U, 0x02U, 0x03U, 0x04U, 0x05U};
+    // Shift the last three bytes one position to the left (overlap, dest < src).
+    memory::move(buffer + 1, buffer + 2, 3U);
+    REQUIRE(buffer[0] == 0x01U);
+    REQUIRE(buffer[1] == 0x03U);
+    REQUIRE(buffer[2] == 0x04U);
+    REQUIRE(buffer[3] == 0x05U);
+    REQUIRE(buffer[4] == 0x05U);    // untouched tail
+}
+
+TEST_CASE("memory move of zero bytes does nothing", "[memory][move]") {
+    std::uint8_t buffer[] = {0x01U, 0x02U, 0x03U};
+    memory::move(buffer, buffer, 0U);
+    REQUIRE(buffer[0] == 0x01U);
+    REQUIRE(buffer[1] == 0x02U);
+    REQUIRE(buffer[2] == 0x03U);
 }

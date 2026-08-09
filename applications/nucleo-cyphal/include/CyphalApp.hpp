@@ -2,6 +2,7 @@
 #define APP_CYPHAL_APP_HPP
 
 #include "BoardContext.hpp"
+#include "GetInfoScanner.hpp"
 #include "core/Allocator.hpp"
 #include "jarnax/Loopable.hpp"
 #include "jarnax/Ticker.hpp"
@@ -28,6 +29,10 @@ public:
     // Cyphal/UDP binds the node-ID to the last octet of the node's source IP.
     static constexpr UdpardNodeID NodeId = 103U;
 
+    // GetInfo client scan window (server node-IDs, inclusive).
+    static constexpr UdpardNodeID ScanFirstNode = 2U;
+    static constexpr UdpardNodeID ScanLastNode = 10U;
+
     CyphalApp(jarnax::Ticker& ticker, jarnax::BoardContext& board_context);
 
     bool Execute() override;
@@ -51,6 +56,8 @@ protected:
     void ProcessTransmitQueue();
     void ServiceDispatcherInit();
     void ServiceResponseHandler(struct UdpardRxRPCTransfer const& transfer);
+    void GetInfoResponseHandler(struct UdpardRxRPCTransfer const& transfer);
+    void SendGetInfoRequest(UdpardNodeID server_node_id);
 
     static UdpardMicrosecond NowUs(jarnax::Ticker const& ticker);
 
@@ -77,7 +84,9 @@ protected:
     struct UdpardRxMemoryResources rx_memory_;
     struct UdpardRxRPCDispatcher service_dispatcher_;
     struct UdpardRxRPCPort get_info_service_port_;
+    struct UdpardRxRPCPort get_info_response_port_;
     HyphaIpIPv4Address_t service_group_address_;
+    GetInfoScanner get_info_scanner_;
 
     bool udpard_initialized_;
     bool arp_announced_;
@@ -87,6 +96,7 @@ protected:
     size_t stats_print_counter_;
     UdpardTransferID heartbeat_transfer_id_;
     jarnax::Ticks last_heartbeat_ticks_;
+    jarnax::Ticks last_getinfo_scan_ticks_;
 };
 
 }    // namespace cyphal
