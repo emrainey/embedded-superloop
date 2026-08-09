@@ -12,6 +12,7 @@
 #include "stm32/h7xx/ethernet/Driver.hpp"
 #include "strings.hpp"
 
+#include "uavcan/diagnostic/Record_1_0.h"
 #include "uavcan/node/GetInfo_1_0.h"
 #include "uavcan/node/Heartbeat_1_0.h"
 
@@ -90,6 +91,14 @@ bool SameIPv4Address(HyphaIpIPv4Address_t const& a, HyphaIpIPv4Address_t const& 
     return std::memcmp(&a, &b, sizeof(a)) == 0;
 }
 
+unsigned long Snprint(char buffer[], size_t buffer_size, const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+    unsigned long const length = core::vsnprint(buffer, buffer_size, format, args);
+    va_end(args);
+    return length;
+}
+
 }    // namespace
 
 namespace nucleo {
@@ -121,7 +130,9 @@ CyphalApp::CyphalApp(jarnax::Ticker& ticker, jarnax::BoardContext& board_context
     , initialized_{false}
     , filter_installed_{false}
     , service_initialized_{false}
-    , stats_print_counter_{0U} {
+    , stats_print_counter_{0U}
+    , record_transfer_id_{0U}
+    , record_counter_{0U} {
     for (auto& in_use : frame_in_use_) {
         in_use = false;
     }
@@ -223,6 +234,12 @@ bool CyphalApp::Execute() {
     if ((current_ticks.value() - last_heartbeat_ticks_.value()) >= ticker_.GetTicksPerSecond().value()) {
         last_heartbeat_ticks_ = current_ticks;
         PublishHeartbeat();
+    }
+
+    // Publish a diagnostic Record at the same 1 s cadence so yactui shows traffic.
+    if ((current_ticks.value() - last_record_ticks_.value()) >= ticker_.GetTicksPerSecond().value()) {
+        last_record_ticks_ = current_ticks;
+        PublishRecord();
     }
 
     // GetInfo client scan: query the next server node in the window each 5 seconds.
@@ -713,6 +730,59 @@ void CyphalApp::PublishHeartbeat() {
         "CyphalApp: heartbeat published=%d uptime=%lu tid=%llu\r\n",
         static_cast<int>(result), static_cast<unsigned long>(heartbeat.uptime),
         static_cast<unsigned long long>(heartbeat_transfer_id_ - 1U)
+    );
+}
+
+void CyphalApp::PublishRecord() {
+    uavcan_diagnostic_Record_1_0 record{};
+    // memset-style init: the generated initialize_() inlines a deserialize_ fed a
+    // 1-byte buffer, which trips GCC -Warray-bounds under -Werror. All defaults are
+    // zero, so memset gives the identical result.
+    std::memset(&record, 0, sizeof(record));
+
+    record.timestamp.microsecond = 0U;    // UNKNOWN (no time sync yet)
+    record.severity.value = (record_counter_ % 2U == 0U)    //
+                              ? uavcan_diagnostic_Severity_1_0_INFO
+                              : uavcan_diagnostic_Severity_1_0_WARNING;
+
+    char text[uavcan_diagnostic_Record_1_0_text_ARRAY_CAPACITY_];
+    unsigned long const length = Snprint(
+        text, sizeof(text), "nucleo-cyphal diagnostic #%lu uptime=%lus",
+        static_cast<unsigned long>(record_counter_),
+        static_cast<unsigned long>(NowUs(ticker_) / 1000000U)
+    );
+    std::size_t const count = length < sizeof(text) ? length : sizeof(text) - 1U;
+    for (std::size_t i = 0U; i < count; ++i) {
+        record.text.elements[i] = static_cast<uint8_t>(text[i]);
+    }
+    record.text.count = count;
+
+    ++record_counter_;
+
+    uint8_t buffer[uavcan_diagnostic_Record_1_0_SERIALIZATION_BUFFER_SIZE_BYTES_]{};
+    size_t serialized_size = sizeof(buffer);
+    int8_t const err = uavcan_diagnostic_Record_1_0_serialize_(&record, buffer, &serialized_size);
+    if (err < 0) {
+        return;
+    }
+
+    struct UdpardPayload const payload = {
+        .size = serialized_size,
+        .data = buffer,
+    };
+
+    UdpardMicrosecond const now = NowUs(ticker_);
+    static constexpr UdpardMicrosecond RecordPeriodUs = 1000000U;
+
+    int32_t const result = udpardTxPublish(
+        &tx_, now + RecordPeriodUs, UdpardPriorityLow, DiagnosticSubjectId,
+        record_transfer_id_++, payload, this
+    );
+    jarnax::print(
+        "CyphalApp: record published=%d subject=%lu sev=%u text=%.*s tid=%llu\r\n",
+        static_cast<int>(result), static_cast<unsigned long>(DiagnosticSubjectId),
+        static_cast<unsigned>(record.severity.value), static_cast<int>(count),
+        text, static_cast<unsigned long long>(record_transfer_id_ - 1U)
     );
 }
 
