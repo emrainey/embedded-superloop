@@ -1,84 +1,59 @@
-# PLAN: uavcan.node.GetInfo service server in CyphalApp
+# PLAN: Route pylink-square-mcp through a persistent J-Link Remote Server
 
-Issue: #44 (server half) — branch `issue-44` (tracks `develop`).
-Depends/scope: this PR is **server only**; the client scanner is a separate issue (#45).
+Issue: #52 — branch `issue-52` (tracks `github/develop`).
 
 ## Summary
 
-Add the service-side half of `uavcan.node.GetInfo.1.0` (fixed port-ID `430`) to the
-`nucleo::cyphal::CyphalApp` in `applications/nucleo-cyphal`. The app already publishes a
-Heartbeat on subject 7509 (publisher) and has a libudpard v1 subscription. We need to also:
+The `tools/pylink-square-mcp` J-Link MCP server crashes periodically. Every
+tool call created a fresh `pylink.JLink()`, opened the USB link, connected,
+and discarded it — repeated J-Link DLL load/unload + USB connect/disconnect
+churn inside a long-lived process. Fix: connect through a persistent local
+**J-Link Remote Server** (default `127.0.0.1:19020`), and have
+`mcp_server.py` launch that daemon on startup if it isn't already listening.
+The daemon intentionally outlives the MCP process so USB stays stable across
+MCP crashes/restarts.
 
-1. Create a `UdpardRxRPCDispatcher` (one per node) initialized with the same O1Heap-backed
-   memory resources as the existing subject subscription.
-2. Register one service **request** RX port for `430` so requests addressed to our node-ID
-   are accepted/reassembled.
-3. Route incoming UDP datagrams to the *subject subscription* or the *RPC dispatcher* based
-   on `metadata.destination_address` (subject multicast 239.255.x vs service multicast 239.1.0.<node_id>).
-4. Register the service membership for `239.1.0.<node_id>` (via `HyphaIpPrepareUdpReceive`),
-   so multicast requests from scanners (e.g. yakut / bus-monitor) are delivered.
-5. On a completed request: build a `uavcan_node_GetInfo_Response_1_0` with an **assigned**
-   node name / versions / unique-id (hard-coded constants for now), serialize it, and
-   `udpardTxRespond` using the same service-ID, the request's client node-ID and its transfer-ID.
+## Changes
 
-## Design decisions
+1. **`jlink_connection.py` (new)** — shared helper:
+   - `add_connection_args(parser)`: adds `--remote-host` (default
+     `127.0.0.1`), `--remote-port` (default `19020`), `--direct`.
+   - `connect(device, speed, remote_host, remote_port, interface=SWD)`: opens
+     via `jlink.open(ip_addr="host:port")`; falls back to a direct USB
+     connection (with a stderr warning) if the Remote Server is unreachable.
+   - Device/speed stay client-side in `jlink.connect()`; the Remote Server
+     only needs `-Port` (and optionally `-USB <S/N or nickname>`) per
+     https://kb.segger.com/J-Link_Remote_Server.
+2. **All 13 J-Link tool scripts** — import the shared helper, register the
+   connection args, and replace the inline open/connect block with
+   `connect(...)` (backtrace, clock_tree, debug_target, dump_ethernet,
+   dump_memory, flash_target, flash_verify, live_dump, rtt_read, run_for,
+   run_to_main, step_target, test_breakpoint). `svd_query` is SVD-only, no
+   J-Link.
+3. **`mcp_server.py`** — on startup:
+   - parse `--device/--speed/--remote-port/--usb-serial` (env fallbacks
+     `JLINK_MCP_*`);
+   - `ensure_remote_server()`: if nothing is listening on the port, locate
+     `JLinkRemoteServer` and spawn `-Port <port> [-USB <serial>]` with output
+     to `jlink-remote-server.log`; poll for the listener; never kill on exit;
+   - every J-Link tool handler appends `--remote-host/--remote-port` so all
+     calls route through the daemon.
+4. **`.gitignore`** — ignore the Remote Server log artifacts.
+5. **README.md** — document the backend, options/env vars, config example.
 
-- **Assigned identity**: per requirement the unique-ID / name / versions are assigned
-  (not MAC-derived):
-  - name = `com.emrainey.superloop.nucleo` (DSDL allowed charset: `.` `-` `_` and a-z0-9).
-  - protocol_version = {1, 0}, hardware_version kept {0,0} for now.
-  - software_vcs_revision_id = 0 (TBD) — can be filled later.
-  - unique_id = `{0xDE,0xAD,0xBE,0xEF,0x10..0xC0}` 16 bytes (assigned).
-- **Membership**: Reuse `HyphaIpPrepareUdpReceive` with the dispatcher's derived endpoint
-  (`239.1.0.103`). The ETH MPL filter in `Execute()` already whitelists the service multicast
-  group — keep it there.
-- **Transport flow**: `OnReceiveUdp` stays as-is except a new early branch that detects
-  service-multicast datagrams via the cached group address. `ProcessTransmitQueue()` already
-  drains whatever `udpardTxRequest/Respond` enqueues, so responses transmit via the existing
-  UDP TX path.
-- **TID / deadlines**: match existing heartbeat style (`udpardTxRespond(&tx_, now+..., prio,
-  service_id, client_node_id, transfer_id, payload, user_reference)`).
+## Verification
 
-## Steps
+- `python3 -m py_compile` on all touched scripts.
+- Live hardware test through the daemon: `debug_target`, `run_for --seconds 2`,
+  `rtt_read --continuous 4` all connected/ran/read correctly via
+  `127.0.0.1:19020`.
+- MCP startup twice: first run launched the daemon; second run detected the
+  existing listener ("already listening").
+- No C++ source touched; firmware build presets unaffected (CI still validates).
 
-1. Write a Catch2 host test file `catch2-cyphal-getinfo-server.cpp` covering:
-   - GetInfo Request serialization → 0 bytes (sealed), deserialize no-op.
-   - GetInfo Response serialize/deserialize round trip incl. vcs, unique_id, name.
-2. Implement in `CyphalApp`:
-   - Members: `UdpardRxRPCDispatcher service_dispatcher_`, `UdpardRxRPCPort get_info_service_port_`,
-     cached `HyphaIpIPv4Address_t service_group_address_`, `bool service_initialized_`.
-   - New `ServiceDispatcherInit()`: init + start dispatcher (port 430, is_request=true),
-     store the group IP, join membership.
-   - In `Execute()`: lazy-init the dispatcher once udpard is running.
-   - In `OnReceiveUdp`: compare `metadata.destination_address` against the cached group; if
-     equal → `udpardRxRPCDispatcherReceive`, else subject subscription.
-   - New `ServiceResponseHandler(...)` that, on `is_request && service_id==430`, constructs the
-     response and `udpardTxRespond`s.
-3. Update CMake test list (add the new Catch2 file).
-4. Build / test hosts + cross, then build-all-presets + act.
+## Gotchas
 
-## Progress
-
-- [x] Host unit test file written and passing (`test-cyphal-getinfo-server-none-all`,
-      4 tests / 21 assertions) on LLVM and AppleClang.
-- [x] `ServiceDispatcherInit()` implemented; lazy-called from `Execute()`.
-- [x] `OnReceiveUdp` routes service-multicast datagrams to the RPC dispatcher.
-- [x] `ServiceResponseHandler()` builds the assigned response and `udpardTxRespond`s.
-- [x] M7 firmware compiles + links; M4 workflow builds; all LLVM/AppleClang host tests pass.
-- [ ] GOTCHAS entries, build-all-presets, act, commit, PR.
-
-## Gotchas (add to GOTCHAS)
-
-- Generated `GetInfo_1_0.h` `initialize_()` inlines a `deserialize_` from a 1-byte stack buffer;
-  GCC's `-Warray-bounds` (with `-Werror`) rejects it. Workaround: `memset` the response to zero
-  instead of calling `uavcan_node_GetInfo_Response_1_0_initialize_()` (all defaults are zero).
-- `HyphaIpIsSameIPv4Address` is declared only in `hypha_internal.h`, not the public
-  `hypha_ip.h`; use a local `memcmp`-based helper instead.
-- Udpard v1: server reuses the request's transfer-ID in the response (client-side transfer
-  tracking is out of scope; see #45).
-
-## Out of scope (see #45)
-
-- Client scanner: registering a response port, per-server transfer counters, scanning
-  *several* node IDs, and logging the arriving responses.
-EOF
+- `JLinkRemoteServer` on macOS is a symlink to `JLinkRemoteServerCLExe`; its
+  accepted options are `-Port`, `-USB`, `-IP` — there is no `-if/-device/-speed`
+  (those are client-side).
+- Do NOT put the probe's real serial number in commits/examples/code.

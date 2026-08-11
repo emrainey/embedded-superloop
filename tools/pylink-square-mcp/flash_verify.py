@@ -8,7 +8,8 @@ Usage:
 
 import argparse
 import hashlib
-import pylink
+
+from jlink_connection import add_connection_args, connect
 
 
 def main():
@@ -17,6 +18,7 @@ def main():
     parser.add_argument("--device", default="STM32H753ZI")
     parser.add_argument("--speed", type=int, default=4000)
     parser.add_argument("--address", default="0x08000000", help="Flash base address of the image")
+    add_connection_args(parser)
     args = parser.parse_args()
 
     with open(args.bin, "rb") as f:
@@ -26,9 +28,7 @@ def main():
     args.address = base
     expected = hashlib.sha256(image).hexdigest()
 
-    jlink = pylink.JLink()
-    jlink.open(serial_no=None)
-    jlink.connect(args.device, speed=args.speed)
+    jlink = connect(args.device, args.speed, args.remote_host, args.remote_port)
     jlink.reset(halt=True)
 
     print(f"Reading {len(image)} bytes from {args.address:#x} ...")

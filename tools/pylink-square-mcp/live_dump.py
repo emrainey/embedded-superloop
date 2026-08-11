@@ -13,7 +13,7 @@ import subprocess
 import sys
 import time
 
-import pylink
+from jlink_connection import add_connection_args, connect
 
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_SVD = os.path.normpath(
@@ -54,6 +54,7 @@ def main() -> int:
                         help="Timeout in seconds for --run-to-main")
     parser.add_argument("--all-fields", action="store_true",
                         help="Show zero-valued fields too")
+    add_connection_args(parser)
     args = parser.parse_args()
 
     # --- Parse SVD ---
@@ -83,10 +84,7 @@ def main() -> int:
 
     # --- Connect ---
     try:
-        jlink = pylink.JLink()
-        jlink.open()
-        jlink.set_tif(pylink.enums.JLinkInterfaces.SWD)
-        jlink.connect(args.device, speed=args.speed)
+        jlink = connect(args.device, args.speed, args.remote_host, args.remote_port)
         print(f"Connected to {args.device}.\n")
 
         if not jlink.halted():

@@ -1,8 +1,9 @@
 import argparse
-import pylink
 import sys
 import subprocess
 import shutil
+
+from jlink_connection import add_connection_args, connect
 
 def find_addr2line():
     for tool in ["arm-none-eabi-addr2line", "llvm-addr2line", "addr2line"]:
@@ -28,6 +29,7 @@ def main():
     parser.add_argument("--device", default="STM32H753ZI", help="Target device name (default: STM32H753ZI)")
     parser.add_argument("--speed", type=int, default=4000, help="J-Link speed in kHz (default: 4000)")
     parser.add_argument("--words", type=int, default=64, help="Number of stack words to dump (default: 64)")
+    add_connection_args(parser)
     args = parser.parse_args()
 
     addr2line_tool = find_addr2line()
@@ -36,10 +38,7 @@ def main():
         return 1
 
     try:
-        jlink = pylink.JLink()
-        jlink.open()
-        jlink.set_tif(pylink.enums.JLinkInterfaces.SWD)
-        jlink.connect(args.device, speed=args.speed)
+        jlink = connect(args.device, args.speed, args.remote_host, args.remote_port)
         
         if not jlink.halted():
             jlink.halt()

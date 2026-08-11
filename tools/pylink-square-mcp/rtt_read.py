@@ -1,5 +1,4 @@
 import argparse
-import pylink
 import sys
 import os
 import json
@@ -7,6 +6,8 @@ import time
 import struct
 
 from models import models
+
+from jlink_connection import add_connection_args, connect
 
 STATE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".rtt_state")
 STATE_FILE = os.path.join(STATE_DIR, "rtt_read_state.json")
@@ -38,6 +39,7 @@ def main():
                         help="Reset tracked offset to 0. Pass 'reset' to clear. Otherwise auto-tracks.")
     parser.add_argument("--continuous", type=float, default=0,
                         help="If > 0, poll continuously for N seconds, returning new data each poll cycle.")
+    add_connection_args(parser)
     args = parser.parse_args()
 
     assert(args.device in models), f"Device {args.device} not supported. Supported devices: {list(models.keys())}"
@@ -52,10 +54,7 @@ def main():
     total_bytes_read = state.get("total_bytes_read", 0)
 
     try:
-        jlink = pylink.JLink()
-        jlink.open()
-        jlink.set_tif(pylink.enums.JLinkInterfaces.SWD)
-        jlink.connect(args.device, speed=args.speed)
+        jlink = connect(args.device, args.speed, args.remote_host, args.remote_port)
 
         if not jlink.halted():
             jlink.halt()

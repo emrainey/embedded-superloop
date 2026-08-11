@@ -1,9 +1,10 @@
 import argparse
-import pylink
 import shutil
 import subprocess
 import sys
 import time
+
+from jlink_connection import add_connection_args, connect
 
 
 TOOLCHAIN_PATHS = [
@@ -64,6 +65,7 @@ def main():
     parser.add_argument("--speed", type=int, default=4000, help="J-Link speed in kHz (default: 4000)")
     parser.add_argument("--timeout", type=float, default=10.0, help="Timeout in seconds to wait for breakpoint (default: 10.0)")
     parser.add_argument("--nm", default=None, help="Path to arm-none-eabi-nm (auto-detected if not provided)")
+    add_connection_args(parser)
     args = parser.parse_args()
 
     nm_tool = args.nm or find_nm()
@@ -91,10 +93,7 @@ def main():
     bp_addr = addr & ~1
 
     try:
-        jlink = pylink.JLink()
-        jlink.open()
-        jlink.set_tif(pylink.enums.JLinkInterfaces.SWD)
-        jlink.connect(args.device, speed=args.speed)
+        jlink = connect(args.device, args.speed, args.remote_host, args.remote_port)
         print(f"Connected to {args.device}.")
 
         print("Halting target...")

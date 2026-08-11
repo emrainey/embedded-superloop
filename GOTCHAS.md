@@ -1,5 +1,20 @@
 # Gotchas
 
+## 2026-08-11 — J-Link Remote Server has no `-if/-device/-speed` options
+
+- **Symptom:** Launching the backend with `JLinkRemoteServer -if SWD -device STM32H753ZI -speed auto`
+  is not a valid invocation.
+- **Root cause:** On macOS `JLinkRemoteServer` is a symlink to `JLinkRemoteServerCLExe`. Per the SEGGER
+  KB (https://kb.segger.com/J-Link_Remote_Server) and UM08001, its only meaningful options are
+  `-Port <port>`, `-USB <S/N or nickname>` and `-IP <...>` (plus tunnel options). Target device,
+  interface (SWD) and speed are chosen **client-side** in `pylink.JLink.connect(...)`; the Remote
+  Server simply forwards the DLL traffic.
+- **Conclusion:** `mcp_server.py` launches it as `JLinkRemoteServer -Port 19020 [-USB <serial>]` only.
+- **Gotcha:** the Remote Server also does NOT do RTT scraping; RTT is read by the client (pylink)
+  over the tunneled connection (works, verified via `rtt_read --continuous`).
+- **Gotcha:** do not commit/publish a real J-Link serial number. The raw server log
+  (`jlink-remote-server.log`) contains it and is gitignored for that reason.
+
 ## 2026-08-05 — Intermittent HardFault during GlobalContext construction (nucleo-cyphal, STM32H753ZI)
 
 - **Symptom:** Occasionally the target faults with a corrupt `blx r3` (vtable call to address `0x00010000`)

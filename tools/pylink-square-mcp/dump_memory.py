@@ -1,6 +1,7 @@
 import argparse
-import pylink
 import sys
+
+from jlink_connection import add_connection_args, connect
 
 def main():
     parser = argparse.ArgumentParser(description="Dump a range of memory from a target device.")
@@ -9,6 +10,7 @@ def main():
     parser.add_argument("--device", default="STM32H753ZI", help="Target device name (default: STM32H753ZI)")
     parser.add_argument("--speed", type=int, default=4000, help="J-Link speed in kHz (default: 4000)")
     parser.add_argument("--show-zeros", action="store_true", help="Print all zero words instead of suppressing them")
+    add_connection_args(parser)
     args = parser.parse_args()
 
     try:
@@ -18,10 +20,7 @@ def main():
         return 1
 
     try:
-        jlink = pylink.JLink()
-        jlink.open()
-        jlink.set_tif(pylink.enums.JLinkInterfaces.SWD)
-        jlink.connect(args.device, speed=args.speed)
+        jlink = connect(args.device, args.speed, args.remote_host, args.remote_port)
         
         if not jlink.halted():
             jlink.halt()
