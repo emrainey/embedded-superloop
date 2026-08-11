@@ -7,9 +7,9 @@ import argparse
 import os
 import sys
 
-import pylink
-
 import svd_query
+
+from jlink_connection import add_connection_args, connect
 
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_SVD_H7 = os.path.normpath(
@@ -41,6 +41,7 @@ def main() -> int:
                         help="Path to SVD file (auto-detected from device if omitted)")
     parser.add_argument("--speed", type=int, default=4000,
                         help="J-Link speed in kHz (default: 4000)")
+    add_connection_args(parser)
     args = parser.parse_args()
 
     family = _detect_family(args.device)
@@ -62,10 +63,7 @@ def main() -> int:
         return 1
 
     try:
-        jlink = pylink.JLink()
-        jlink.open()
-        jlink.set_tif(pylink.enums.JLinkInterfaces.SWD)
-        jlink.connect(args.device, speed=args.speed)
+        jlink = connect(args.device, args.speed, args.remote_host, args.remote_port)
         print(f"Connected to {args.device}.\n")
 
         if not jlink.halted():

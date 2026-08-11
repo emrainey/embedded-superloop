@@ -1,21 +1,17 @@
 import argparse
-import pylink
 import sys
+
+from jlink_connection import add_connection_args, connect
 
 def main():
     parser = argparse.ArgumentParser(description="Query Cortex-M target register and exception status via J-Link.")
     parser.add_argument("--device", default="STM32H753ZI", help="Target device name (default: STM32H753ZI)")
     parser.add_argument("--speed", type=int, default=4000, help="J-Link speed in kHz (default: 4000)")
+    add_connection_args(parser)
     args = parser.parse_args()
 
     try:
-        jlink = pylink.JLink()
-        # Open connection to the J-Link
-        jlink.open()
-        
-        # Connect to the target
-        jlink.set_tif(pylink.enums.JLinkInterfaces.SWD)
-        jlink.connect(args.device, speed=args.speed)
+        jlink = connect(args.device, args.speed, args.remote_host, args.remote_port)
         
         print(f"Successfully connected to {args.device} target.")
         print(f"Target CPU ID: {hex(jlink.core_id())}")

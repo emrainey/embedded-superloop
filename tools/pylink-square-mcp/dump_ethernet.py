@@ -14,7 +14,7 @@ import sys
 import time
 import xml.etree.ElementTree as ET
 
-import pylink
+from jlink_connection import add_connection_args, connect
 
 # ---------------------------------------------------------------------------
 # Paths
@@ -236,6 +236,7 @@ def main() -> int:
                              "Useful to let PHY auto-negotiate and capture incoming frames.")
     parser.add_argument("--all-fields", action="store_true",
                         help="Print all fields including zero-valued ones")
+    add_connection_args(parser)
     args = parser.parse_args()
 
     # --- Parse SVD --------------------------------------------------------
@@ -252,10 +253,7 @@ def main() -> int:
 
     # --- Connect ----------------------------------------------------------
     try:
-        jlink = pylink.JLink()
-        jlink.open()
-        jlink.set_tif(pylink.enums.JLinkInterfaces.SWD)
-        jlink.connect(args.device, speed=args.speed)
+        jlink = connect(args.device, args.speed, args.remote_host, args.remote_port)
         print(f"Connected to {args.device}.")
 
         # Halt if not already halted

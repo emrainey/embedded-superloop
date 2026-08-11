@@ -71,3 +71,7 @@ __pycache__/
 
 # Ignore the Specific RTT State File
 tools/pylink-square-mcp/.rtt_state/rtt_read_state.json
+
+# Ignore the J-Link Remote Server logs spawned by the MCP server
+tools/pylink-square-mcp/jlink-remote-server.log
+tools/pylink-square-mcp/JLinkRemoteServer.log

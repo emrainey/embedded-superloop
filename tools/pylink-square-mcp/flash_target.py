@@ -1,9 +1,10 @@
 import argparse
-import pylink
 import sys
 import os
 import shutil
 import subprocess
+
+from jlink_connection import add_connection_args, connect
 
 
 OBJCOPY_PATHS = [
@@ -44,6 +45,7 @@ def main():
     parser.add_argument("--address", type=lambda x: int(x, 0), default=0,
                         help="Flash address for .bin files (default: 0). Ignored for .elf/.hex.")
     parser.add_argument("--objcopy", default=None, help="Path to arm-none-eabi-objcopy (auto-detected if omitted)")
+    add_connection_args(parser)
     args = parser.parse_args()
 
     file_path = args.file
@@ -75,10 +77,7 @@ def main():
         flash_addr = 0
 
     try:
-        jlink = pylink.JLink()
-        jlink.open()
-        jlink.set_tif(pylink.enums.JLinkInterfaces.SWD)
-        jlink.connect(args.device, speed=args.speed)
+        jlink = connect(args.device, args.speed, args.remote_host, args.remote_port)
         print(f"Connected to {args.device}.")
 
         print(f"Flashing {file_path} (addr=0x{flash_addr:x}) ...")

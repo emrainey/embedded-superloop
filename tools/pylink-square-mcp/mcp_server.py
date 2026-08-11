@@ -3,6 +3,12 @@ import json
 import traceback
 import io
 import contextlib
+import argparse
+import os
+import shutil
+import socket
+import subprocess
+import time
 
 # Import the main functions of our scripts
 try:
@@ -30,6 +36,114 @@ def log(msg):
     sys.stderr.write(f"[MCP-Server] {msg}\n")
     sys.stderr.flush()
 
+# ---------------------------------------------------------------------------
+# J-Link Remote Server management
+#
+# All J-Link tools connect through a persistent J-Link Remote Server running
+# on this host (default TCP port 19020) instead of opening the USB link on
+# every tool call.  The server is launched here if it isn't already listening
+# and is intentionally NOT killed when the MCP process exits, so it survives
+# MCP crashes/restarts and keeps the USB link stable.
+# See https://kb.segger.com/J-Link_Remote_Server
+# ---------------------------------------------------------------------------
+
+DEFAULT_REMOTE_HOST = "127.0.0.1"
+DEFAULT_REMOTE_PORT = 19020
+DEFAULT_REMOTE_DEVICE = "STM32H753ZI"
+DEFAULT_REMOTE_SPEED = 4000
+
+# Used to route every tool call through the configured Remote Server.
+_REMOTE_HOST = DEFAULT_REMOTE_HOST
+_REMOTE_PORT = DEFAULT_REMOTE_PORT
+
+REMOTE_SERVER_CANDIDATES = [
+    "JLinkRemoteServer",       # on $PATH
+    "/usr/local/bin/JLinkRemoteServer",
+    "/Applications/SEGGER/JLink/JLinkRemoteServer",
+    "/Applications/SEGGER/JLink_V912/JLinkRemoteServer",
+]
+
+
+def _find_remote_server_binary() -> str | None:
+    for name in REMOTE_SERVER_CANDIDATES:
+        if name == "JLinkRemoteServer":
+            resolved = shutil.which(name)
+            if resolved:
+                return resolved
+        elif os.path.isfile(name):
+            return name
+    return None
+
+
+def _port_is_listening(host: str, port: int) -> bool:
+    try:
+        with socket.create_connection((host, port), timeout=1.0):
+            return True
+    except OSError:
+        return False
+
+
+def _wait_for_listener(host: str, port: int, timeout: float = 8.0) -> bool:
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        if _port_is_listening(host, port):
+            return True
+        time.sleep(0.25)
+    return _port_is_listening(host, port)
+
+
+def ensure_remote_server(port: int, usb_serial=None):
+    """Start the J-Link Remote Server on localhost if it isn't already up."""
+    if _port_is_listening(DEFAULT_REMOTE_HOST, port):
+        log(f"J-Link Remote Server already listening on {DEFAULT_REMOTE_HOST}:{port}.")
+        return None
+
+    binary = _find_remote_server_binary()
+    if not binary:
+        log("WARNING: JLinkRemoteServer not found on $PATH; tools will fall back "
+            "to direct USB connections.")
+        return None
+
+    cmd = [binary, "-Port", str(port)]
+    if usb_serial:
+        cmd += ["-USB", str(usb_serial)]
+
+    log_dir = os.path.dirname(os.path.abspath(__file__))
+    log_file = os.path.join(log_dir, "jlink-remote-server.log")
+    log_file_handle = open(log_file, "a")
+
+    try:
+        proc = subprocess.Popen(
+            cmd,
+            stdout=log_file_handle,
+            stderr=subprocess.STDOUT,
+            stdin=subprocess.DEVNULL,
+            start_new_session=True,
+        )
+        log(f"Launched J-Link Remote Server (pid={proc.pid}): {' '.join(cmd)}")
+        log(f"Remote Server output -> {log_file}")
+        if _wait_for_listener(DEFAULT_REMOTE_HOST, port):
+            log(f"J-Link Remote Server is now listening on {DEFAULT_REMOTE_HOST}:{port}.")
+        else:
+            log("WARNING: J-Link Remote Server did not open a listener in time; "
+                "check jlink-remote-server.log. Tools will fall back to USB.")
+    except Exception as e:
+        log(f"WARNING: failed to launch J-Link Remote Server ({e}); "
+            "tools will fall back to direct USB.")
+        log_file_handle.close()
+        return None
+
+    return proc
+
+
+def add_connection_args(args_list, host=None, port=None):
+    """Append the Remote Server routing args to a tool's argv list."""
+    if host is None:
+        host = _REMOTE_HOST
+    if port is None:
+        port = _REMOTE_PORT
+    args_list += ["--remote-host", str(host), "--remote-port", str(port)]
+
 def run_tool_main(main_func, args):
     """
     Runs a tool's main function with mocked sys.argv and captures its stdout/stderr.
@@ -55,6 +169,7 @@ def handle_debug_target(arguments):
     device = arguments.get("device", "STM32H753ZI")
     speed = arguments.get("speed", 4000)
     args = ["--device", str(device), "--speed", str(speed)]
+    add_connection_args(args)
     return run_tool_main(debug_target_main, args)
 
 def handle_backtrace(arguments):
@@ -65,6 +180,7 @@ def handle_backtrace(arguments):
     speed = arguments.get("speed", 4000)
     words = arguments.get("words", 64)
     args = ["--elf", str(elf), "--device", str(device), "--speed", str(speed), "--words", str(words)]
+    add_connection_args(args)
     return run_tool_main(backtrace_main, args)
 
 def handle_dump_memory(arguments):
@@ -78,6 +194,7 @@ def handle_dump_memory(arguments):
     args = ["--address", str(address), "--words", str(words), "--device", str(device), "--speed", str(speed)]
     if arguments.get("show_zeros", False):
         args.append("--show-zeros")
+    add_connection_args(args)
     return run_tool_main(dump_memory_main, args)
 
 def handle_dump_ethernet(arguments):
@@ -106,6 +223,7 @@ def handle_dump_ethernet(arguments):
         args += ["--svd", str(svd)]
     if breakpoint_symbol:
         args += ["--breakpoint-symbol", str(breakpoint_symbol)]
+    add_connection_args(args)
     return run_tool_main(dump_ethernet_main, args)
 
 
@@ -123,6 +241,7 @@ def handle_run_to_main(arguments):
         args += ["--nm", str(nm)]
     if symbol:
         args += ["--symbol", str(symbol)]
+    add_connection_args(args)
     return run_tool_main(run_to_main_main, args)
 
 
@@ -144,6 +263,7 @@ def handle_test_breakpoint(arguments):
         "--speed", str(speed),
         "--timeout", str(timeout)
     ]
+    add_connection_args(args)
     return run_tool_main(test_breakpoint_main, args)
 
 def handle_flash_target(arguments):
@@ -158,6 +278,7 @@ def handle_flash_target(arguments):
             "--address", str(address)]
     if objcopy:
         args += ["--objcopy", str(objcopy)]
+    add_connection_args(args)
     return run_tool_main(flash_target_main, args)
 
 
@@ -166,6 +287,7 @@ def handle_step_target(arguments):
     device = arguments.get("device", "STM32H753ZI")
     speed = arguments.get("speed", 4000)
     args = ["--count", str(count), "--device", str(device), "--speed", str(speed)]
+    add_connection_args(args)
     return run_tool_main(step_target_main, args)
 
 
@@ -179,6 +301,7 @@ def handle_run_for(arguments):
     args = ["--seconds", str(seconds), "--device", str(device), "--speed", str(speed)]
     if reset:
         args.append("--reset")
+    add_connection_args(args)
     return run_tool_main(run_for_main, args)
 
 
@@ -189,6 +312,7 @@ def handle_clock_tree(arguments):
     args = ["--device", str(device), "--speed", str(speed)]
     if svd:
         args += ["--svd", str(svd)]
+    add_connection_args(args)
     return run_tool_main(clock_tree_main, args)
 
 
@@ -205,6 +329,7 @@ def handle_rtt_read(arguments):
         args += ["--since", str(since)]
     if continuous > 0.0:
         args += ["--continuous", str(continuous)]
+    add_connection_args(args)
     return run_tool_main(rtt_read_main, args)
 
 
@@ -234,6 +359,7 @@ def handle_live_dump(arguments):
         args += ["--nm", str(nm)]
     if breakpoint_symbol:
         args += ["--breakpoint-symbol", str(breakpoint_symbol)]
+    add_connection_args(args)
     return run_tool_main(live_dump_main, args)
 
 
@@ -562,7 +688,31 @@ TOOLS = [
 ]
 
 def main():
+    global _REMOTE_HOST, _REMOTE_PORT
+
+    parser = argparse.ArgumentParser(
+        description="pylink-square MCP server (JSON-RPC 2.0 over stdio)."
+    )
+    parser.add_argument("--device", default=os.environ.get("JLINK_MCP_DEVICE", DEFAULT_REMOTE_DEVICE),
+                        help="Default target device passed to the J-Link tools.")
+    parser.add_argument("--speed", type=int, default=int(os.environ.get("JLINK_MCP_SPEED", DEFAULT_REMOTE_SPEED)),
+                        help="Default J-Link speed in kHz.")
+    parser.add_argument("--remote-port", type=int,
+                        default=int(os.environ.get("JLINK_MCP_REMOTE_PORT", DEFAULT_REMOTE_PORT)),
+                        help="Local J-Link Remote Server TCP port.")
+    parser.add_argument("--usb-serial", default=os.environ.get("JLINK_MCP_USB_SERIAL", None),
+                        help="J-Link USB serial number or nickname for the Remote Server (-USB option).")
+    args = parser.parse_args()
+
+    _REMOTE_HOST = DEFAULT_REMOTE_HOST
+    _REMOTE_PORT = args.remote_port
+
     log("pylink-square-mcp server starting...")
+    log(f"Tool defaults: device={args.device}, speed={args.speed} kHz")
+    log(f"J-Link backend: {_REMOTE_HOST}:{_REMOTE_PORT} (J-Link Remote Server)")
+
+    ensure_remote_server(args.remote_port, usb_serial=args.usb_serial)
+
     for line in sys.stdin:
         if not line.strip():
             continue

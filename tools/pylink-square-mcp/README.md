@@ -2,6 +2,25 @@
 
 A collection of utility scripts built on `pylink-square` to automate target debugging, fault diagnosis, backtracing, and memory inspections for Cortex-M devices.
 
+## Connection backend
+
+By default every script connects through a **J-Link Remote Server** running on
+`localhost:19020` instead of opening the J-Link USB link directly. Keeping the
+USB link alive in a persistent daemon avoids the repeated J-Link DLL load /
+USB connect-disconnect churn on every tool call, which made long-lived
+processes (e.g. the MCP server) crash.
+
+- The `mcp_server.py` launches the Remote Server automatically on startup if
+  it is not already listening, and intentionally does **not** stop it on exit.
+- Standalone scripts fall back to a direct USB connection with a warning if
+  the Remote Server is not reachable.
+- Override per-call with `--remote-host <host> --remote-port <port>`, or force
+  a direct USB link with `--direct`.
+- The Remote Server is launched with `-Port 19020` and optionally
+  `-USB <serial-or-nickname>` (see SEGGER
+  [J-Link Remote Server](https://kb.segger.com/J-Link_Remote_Server)); target
+  device/speed are still passed client-side via `pylink`'s `connect()`.
+
 ## Installation
 
 These scripts require Python 3 and the SEGGER J-Link Software and Documentation Pack installed on your host system.
@@ -98,3 +117,36 @@ Add the following to your MCP client config (e.g., `claude_desktop_config.json`)
 ```
 
 Make sure the host environment has `pylink-square` installed (`pip install pylink-square`) and standard J-Link command line utilities are available in the system path.
+
+### Remote Server configuration
+
+`mcp_server.py` accepts the following command line options (all optional, with
+environment variable fallbacks):
+
+| Option | Env var | Default |
+| ------ | ------- | ------- |
+| `--device <name>` | `JLINK_MCP_DEVICE` | `STM32H753ZI` |
+| `--speed <kHz>` | `JLINK_MCP_SPEED` | `4000` |
+| `--remote-port <port>` | `JLINK_MCP_REMOTE_PORT` | `19020` |
+| `--usb-serial <s/n or nickname>` | `JLINK_MCP_USB_SERIAL` | *none* |
+
+Example (pick a specific probe by serial number or nickname):
+
+```json
+{
+  "mcpServers": {
+    "pylink-square-mcp": {
+      "command": "python3",
+      "args": [
+        "/Users/emrainey/Source/embedded-superloop/tools/pylink-square-mcp/mcp_server.py",
+        "--usb-serial", "00123456789"
+      ],
+      "env": {
+        "PYTHONPATH": "/Users/emrainey/Source/embedded-superloop/tools/pylink-square-mcp"
+      }
+    }
+  }
+}
+```
+
+The Remote Server logs to `tools/pylink-square-mcp/jlink-remote-server.log`.

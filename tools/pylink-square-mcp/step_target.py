@@ -1,6 +1,7 @@
 import argparse
-import pylink
 import sys
+
+from jlink_connection import add_connection_args, connect
 
 
 def main():
@@ -8,6 +9,7 @@ def main():
     parser.add_argument("--count", type=int, default=1, help="Number of instructions to step (default: 1)")
     parser.add_argument("--device", default="STM32H753ZI", help="Target device name (default: STM32H753ZI)")
     parser.add_argument("--speed", type=int, default=4000, help="J-Link speed in kHz (default: 4000)")
+    add_connection_args(parser)
     args = parser.parse_args()
 
     if args.count < 1:
@@ -15,10 +17,7 @@ def main():
         return 1
 
     try:
-        jlink = pylink.JLink()
-        jlink.open()
-        jlink.set_tif(pylink.enums.JLinkInterfaces.SWD)
-        jlink.connect(args.device, speed=args.speed)
+        jlink = connect(args.device, args.speed, args.remote_host, args.remote_port)
         print(f"Connected to {args.device}.")
 
         if not jlink.halted():
