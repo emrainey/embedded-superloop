@@ -204,7 +204,11 @@
     _cortex_itcm_control = ORIGIN(PPB) + 0x0EF90;
     _cortex_dtcm_control = ORIGIN(PPB) + 0x0EF94;
     _cortex_trace_port_inferface_unit = ORIGIN(PPB) + 0x40000;
-    _stm32_debug = ORIGIN(PPB) + 0x42000;
+
+    /* DBGMCU is not a CoreSight component; the core accesses it at 0x5C001000 (the
+       debugger uses the APB-D alias at 0xE00E1000). The F4-style address in the PPB
+       is not mapped on STM32H7. */
+    _stm32_debug = 0x5C001000;
 
     /* Provide the C++ mangled names */
     PROVIDE(_ZN6cortex11peripherals27instruction_trace_macrocellE = _cortex_instruction_trace_macrocell);
