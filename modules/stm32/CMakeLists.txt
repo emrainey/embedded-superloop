@@ -3,6 +3,7 @@ add_module(NAME stm32
         ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32f4xx/vectors.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32f4xx/power.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32f4xx/clocks.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32f4xx/debug.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gpio/Pin.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Conversions.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Indicator.cpp
@@ -33,6 +34,7 @@ add_module(NAME stm32
         ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32h7xx/vectors.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32h7xx/power.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32h7xx/clocks.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/stm32h7xx/debug.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gpio/Pin.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Conversions.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Indicator.cpp

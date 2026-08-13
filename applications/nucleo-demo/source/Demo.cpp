@@ -2,6 +2,7 @@
 #include "BoardContext.hpp"
 #include "board.hpp"
 #include "core/Conversions.hpp"
+#include "cortex/swo.hpp"
 #include "jarnax/Assertion.hpp"
 #include "memory.h"
 
@@ -119,6 +120,8 @@ void Demo::OnCycle(DemoState state) {
         }
 
         if (countdown_.IsExpired()) {
+            // TEMP: issue-41 SWO verification - emit a marker every 2 seconds
+            cortex::swo::emit(cortex::swo::Port::System, "SWO-OK\r\n");
             jarnax::Ticks ticks = ticker_.GetTicksSinceBoot();
             jarnax::Time time = ticker_.GetTimeSinceBoot();
             uint32_t random = rng_.GetNextRandom();

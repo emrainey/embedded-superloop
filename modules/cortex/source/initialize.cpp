@@ -263,7 +263,7 @@ void swo(std::uint32_t desired_baud, Hertz clock_frequency) {
     if constexpr (not cortex::swo::enable) {
         return;
     }
-    // @see https://black-magic.org/usage/swo.html
+    // @see https://black-magic.org/docs_v1/usage/swo/
 
     // compute the clock divider as a zero based value
     std::uint32_t clock_divider = (clock_frequency.value() / desired_baud) - 1U;

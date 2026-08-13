@@ -1,5 +1,44 @@
 # Gotchas
 
+## 2026-08-12 — Vendor symbols referenced only from `configure.cpp` do not link (archive ordering)
+
+- **Symptom:** `undefined reference to stm32::initialize::enable_serial_wire_output(core::units::Hertz, unsigned long)`
+  at link time for **all** F4 apps AND all M7 apps that use jarnax `configure.cpp`, even though
+  `nm` shows the symbol IS defined (`T`) in `libmodule-stm32-basic-<chip>.a` and the mangled name
+  matches (`Em` = unsigned long = both `std::uint32_t` and `std::size_t` on ARM32).
+- **Root cause:** module static-library archives are placed **once**, *before* the jarnax archive,
+  on the link line (`libmodule-stm32-...a libarch-cortex-...a libmodule-jarnax-...a libarch-cortex-...a libmodule-jarnax-...a`).
+  When ld scans the stm32 archive nothing has referenced the symbol yet, so the member is never
+  extracted; by the time jarnax's reference appears the archive has passed. `-Wl,--no-undefined`
+  then fails the link. (cortex+jarnax are repeated twice on the link line for exactly this reason.)
+- **Pre-existing example:** the `@FIXME` at `modules/stm32/source/stm32h7xx/clocks.cpp:38` documents
+  the same problem for `early_power()`: it has to be called from inside the vendor's `clocks()`
+  rather than from `configure.cpp`.
+- **Fix / rule:** any vendor symbol referenced only from `configure.cpp` must be *pulled in* by
+  an already-extracted member — call it from the vendor `clocks()` (guarded by
+  `if constexpr (cortex::swo::enable)`), not from `configure.cpp`. Do not rely on the board
+  archive happening to reference it.
+- **Gotcha:** a misleading "M7 passes" check — building only a module or a configure stage and
+  grepping for `FAILED` can miss that the app ELFs never linked. Verify app `.elf` artifacts
+  actually exist / contain the symbol.
+
+## 2026-08-12 — J-Link rewrites DBGMCU_CR on connect, unclocking the D3 debug domain
+
+- **Symptom:** after the firmware programs the ST SWO/SWTF blocks (0x5C003000/0x5C004000), a
+  fresh J-Link session reads `DBGMCU_CR` = `0x00000007` (bits 0-2 = J-Link's own
+  DBG_SLEEP/DBG_STOP/DBG_STANDBY) and the SWO/SWTF registers are unreadable
+  (`Could not start CPU core. (ErrorCode: -1)`), making it look like the firmware never
+  programmed them.
+- **Root cause:** each pylink-square-mcp tool call is a new J-Link connection; on connect/reset
+  the J-Link writes `DBGMCU_CR` with its low-power debug bits (0x07), clobbering
+  TRACECLKEN/D1DBGCKEN/D3DBGCKEN (bits 20/21/22). With those clear, the D3 debug domain is
+  unclocked, so SWO/SWTF reads hang.
+- **Fix / verification pattern:** verify in a **single session** — set a hardware breakpoint at a
+  post-configure symbol (e.g. `cortex::system::main()`) via `pylink-square-mcp test_breakpoint`
+  and dump the registers when it hits, before any reconnect. Verified values for issue-41:
+  `DBGMCU_CR`=0x00700007, `SWO_CODR`=0x2b (43 @100MHz/2.24MBaud), `SWO_SPPR`=2 (AsyncNRZ),
+  `SWTF_CTRL`=0x301 (ENSO).
+
 ## 2026-08-11 — J-Link Remote Server has no `-if/-device/-speed` options
 
 - **Symptom:** Launching the backend with `JLinkRemoteServer -if SWD -device STM32H753ZI -speed auto`

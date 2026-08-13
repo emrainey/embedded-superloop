@@ -414,6 +414,7 @@ struct ClockTree {
     Hertz usbotg;                 ///< The frequency of the USB OTG clock (from PLL48CK)
     Hertz apb1_timer_clk;         ///< The frequency of the TIMx clocks  (TIMxCLK)
     Hertz apb2_timer_clk;         ///< The frequency of the TIMx clocks  (TIMxCLK)
+    Hertz trace;                  ///< The frequency of the trace clock (the core clock on F4)
 };
 
 /// @brief The STM32F40xx clock configuration.

@@ -48,6 +48,10 @@ void ATTRIBUTE((used)) configure(void) {
         "Initializing Tick @ %" PRIu32 "/sec from %" PRIu32 "\r\n", cortex::GetTickRate().value(), cortex::GetSystemClockFrequency().value()
     );
     cortex::initialize::tick(cortex::GetTickRate(), cortex::GetSystemClockFrequency());
+    // The H7 SWO block is driven from TRACECK (PLL1R), not the core clock, so the vendor
+    // programs the ST SWO/SWTF blocks from its own clocks() (like early_power, because the
+    // module archive is only scanned once before jarnax, so vendor symbols referenced only
+    // here would not link).
     cortex::initialize::swo(cortex::swo::baudrate, cortex::GetClockFrequency());
     // configure the system control block configuration register
     cortex::initialize::configuration();
