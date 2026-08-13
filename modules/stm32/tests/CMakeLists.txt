@@ -1,5 +1,21 @@
 ## Unit Tests
 
+host_unit_test(NAME stm32-debug
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/gtest-stm32-debug.cpp
+    LIBRARIES
+        strict
+    GENERIC_MODULES
+        core
+    MODULES
+        jarnax stm32
+    GOOGLETEST
+    CONFIGURATIONS
+        basic
+    BOARDS
+        nucleo_h753zi
+)
+
 host_unit_test(NAME stm32-i2c
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/gtest-stm32-i2c.cpp

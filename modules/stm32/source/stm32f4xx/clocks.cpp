@@ -1,5 +1,6 @@
 #include "core/Status.hpp"
 #include "core/core.hpp"
+#include "configure.hpp"
 #include "cortex/tick.hpp"
 #include "cortex/vectors.hpp"
 #include "stm32/Initialize.hpp"
@@ -225,6 +226,14 @@ void clocks(ClockConfiguration const& clkcfg) {
         clock_tree.apb1_peripheral * (GetAPB1Divider(clkcfg.apb1_low_speed_divider) == 1 ? 1U : 2U);     // APB1 is doubled if the divider is not 1
     clock_tree.apb2_timer_clk =
         clock_tree.apb2_peripheral * (GetAPB2Divider(clkcfg.apb2_high_speed_divider) == 1 ? 1U : 2U);    // APB2 is doubled if the divider is not 1
+    // On F4 the SWO clock is the core clock (the TPIU is driven by TRACECKIN = core clock).
+    clock_tree.trace = clock_tree.sysclk;
+    // The F4 SWO goes through the ARM TPIU (cortex::initialize::swo), so this vendor call is
+    // a no-op, but it is still invoked here (like early_power) so the module archive member is
+    // pulled in for symbols referenced only from configure.cpp.
+    if constexpr (cortex::swo::enable) {
+        enable_serial_wire_output(clock_tree.trace, static_cast<std::uint32_t>(cortex::swo::baudrate));
+    }
     // clock_tree.rng = clock_tree.sysclk;
 }
 

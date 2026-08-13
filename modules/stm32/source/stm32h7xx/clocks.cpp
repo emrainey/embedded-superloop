@@ -3,6 +3,7 @@
 #include "cortex/halt.hpp"
 #include "cortex/thumb.hpp"
 #include "cortex/tick.hpp"
+#include "configure.hpp"
 #include "cortex/vectors.hpp"
 #include "stm32/Initialize.hpp"
 #include "stm32/f4xx/ResetAndClockControl.hpp"
@@ -118,7 +119,7 @@ void clocks(ClockConfiguration const& clkcfg) {
         return;
     }
 
-    // TODO Enable Power Supply Correctly? 
+    // TODO Enable Power Supply Correctly?
     // PWR supply config + ACTVOSRDY?
 
     // Set flash wait states for high-speed operation before increasing clocks.
@@ -289,6 +290,17 @@ void clocks(ClockConfiguration const& clkcfg) {
         clock_tree.apb1_peripheral * (GetAPBDivider(clkcfg.apb1_low_speed_divider) == 1 ? 1U : 2U);     // APB1 is doubled if the divider is not 1
     clock_tree.apb2_timer_clk =
         clock_tree.apb2_peripheral * (GetAPBDivider(clkcfg.apb2_high_speed_divider) == 1 ? 1U : 2U);    // APB2 is doubled if the divider is not 1
+
+    // TRACECK follows RCC_CFGR[SW]: when SYSCLK is PLL1P, TRACECK is PLL1R.
+    clock_tree.trace = clock_tree.pll_vco / (clkcfg.pll_r + 1U);
+
+    // The H7 SWO block is driven from TRACECK (PLL1R), not the core clock, so the ST
+    // SWO/SWTF blocks are programmed here (like early_power, because the module archive is
+    // only scanned once before jarnax, so vendor symbols referenced only from configure.cpp
+    // would not link).
+    if constexpr (cortex::swo::enable) {
+        enable_serial_wire_output(clock_tree.trace, static_cast<std::uint32_t>(cortex::swo::baudrate));
+    }
 }
 
 }    // namespace initialize

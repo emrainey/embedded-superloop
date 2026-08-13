@@ -210,6 +210,11 @@
        is not mapped on STM32H7. */
     _stm32_debug = 0x5C001000;
 
+    /* SWO and SWTF are ST debug blocks on the APB-D bus. They are NOT the ARM
+       CoreSight TPIU, so the core must program these addresses directly. */
+    _stm32_swo = 0x5C003000;
+    _stm32_swo_trace_funnel = 0x5C004000;
+
     /* Provide the C++ mangled names */
     PROVIDE(_ZN6cortex11peripherals27instruction_trace_macrocellE = _cortex_instruction_trace_macrocell);
     PROVIDE(_ZN6cortex11peripherals20data_watch_and_traceE = _cortex_debug_watch_and_trace);
@@ -225,3 +230,5 @@
     PROVIDE(_ZN6cortex11peripherals12dtcm_controlE = _cortex_dtcm_control);
     PROVIDE(_ZN6cortex11peripherals25trace_port_interface_unitE = _cortex_trace_port_inferface_unit);
     PROVIDE(_ZN5stm324h7xx5debugE = _stm32_debug);
+    PROVIDE(_ZN5stm324h7xx18serial_wire_outputE = _stm32_swo);
+    PROVIDE(_ZN5stm324h7xx16swo_trace_funnelE = _stm32_swo_trace_funnel);

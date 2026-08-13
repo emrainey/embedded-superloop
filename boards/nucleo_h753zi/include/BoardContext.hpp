@@ -108,6 +108,7 @@ protected:
     stm32::gpio::Pin status_pin_;         ///< The Status Pin
     stm32::gpio::Pin performance_pin_;    ///< The Performance Pin
     stm32::gpio::Pin timing_pin_;         ///< The Timing Pin (for debugging)
+    stm32::gpio::Pin swo_pin_;            ///< The Serial Wire Output (SWO) Pin (PB3)
     /// The Error Indicator
     stm32::Indicator error_indicator_;
     /// The Status Indicator

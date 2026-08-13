@@ -18,6 +18,8 @@
 #include "stm32/h7xx/RandomNumberGenerator.hpp"
 #include "stm32/h7xx/ResetAndClockControl.hpp"
 #include "stm32/h7xx/SerialPeripheralInterface.hpp"
+#include "stm32/h7xx/Swo.hpp"
+#include "stm32/h7xx/SwoTraceFunnel.hpp"
 #include "stm32/h7xx/SystemConfiguration.hpp"
 #include "stm32/h7xx/Timer2.hpp"
 #include "stm32/h7xx/UniversalAsynchronousReceiverTransmitter.hpp"
@@ -100,6 +102,14 @@ extern SerialPeripheralInterface volatile spi5;
 /// The external volatile spi6 which is a memory mapped register or peripheral.
 /// @note The address of the peripheral is set either by the linkerscript or by a unit test.
 extern SerialPeripheralInterface volatile spi6;
+
+/// The external volatile serial_wire_output which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern Swo volatile serial_wire_output;
+
+/// The external volatile swo_trace_funnel which is a memory mapped register or peripheral.
+/// @note The address of the peripheral is set either by the linkerscript or by a unit test.
+extern SwoTraceFunnel volatile swo_trace_funnel;
 
 /// The external volatile timer2 which is a memory mapped register or peripheral.
 /// @note The address of the peripheral is set either by the linkerscript or by a unit test.
@@ -489,6 +499,7 @@ struct ClockTree {
     Hertz rtc;
     Hertz rng;
     Hertz usbotg;
+    Hertz trace;    ///< The frequency of the Trace clock
 };
 
 /// @brief The STM32H7xxx clock configuration.

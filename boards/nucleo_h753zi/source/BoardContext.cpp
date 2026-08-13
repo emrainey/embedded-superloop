@@ -122,6 +122,7 @@ BoardContext::BoardContext()
     , status_pin_{stm32::gpio::Port::B, 0}         // LD1 Green LED
     , performance_pin_{stm32::gpio::Port::E, 1}    // LED2 Yellow LED
     , timing_pin_{stm32::gpio::Port::A, 3}         // GPIO
+    , swo_pin_{stm32::gpio::Port::B, 3}            // SWO (JTDO/TRACESWO)
     , error_indicator_{error_pin_, stm32::Level::High}
     , status_indicator_{status_pin_, stm32::Level::High}
     , performance_indicator_{performance_pin_, stm32::Level::High}
@@ -184,6 +185,10 @@ core::Status BoardContext::Initialize(void) {
         .SetOutputSpeed(stm32::gpio::Speed::Medium)
         .SetOutputType(stm32::gpio::OutputType::PushPull)
         .SetResistor(stm32::gpio::Resistor::PullDown);
+    swo_pin_.SetMode(stm32::gpio::Mode::AlternateFunction)
+        .SetAlternative(0)    // Alt 0 is TRACESWO (JTDO)
+        .SetOutputSpeed(stm32::gpio::Speed::VeryHigh)
+        .SetOutputType(stm32::gpio::OutputType::PushPull);
     error_indicator_.Inactive();
     status_indicator_.Inactive();
     performance_indicator_.Inactive();

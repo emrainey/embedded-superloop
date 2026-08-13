@@ -17,6 +17,8 @@ RandomNumberGenerator volatile random_number_generator;
 FlashControl volatile flash_control;
 Timer2 volatile timer2;
 Debug volatile debug;
+Swo volatile serial_wire_output;
+SwoTraceFunnel volatile swo_trace_funnel;
 SerialPeripheralInterface volatile spi1;
 SerialPeripheralInterface volatile spi2;
 SerialPeripheralInterface volatile spi3;
