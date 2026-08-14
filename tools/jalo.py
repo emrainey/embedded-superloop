@@ -511,6 +511,103 @@ class JLinkController:
             self.last_error = str(exc)
             return False
 
+    def swo_enabled(self) -> bool:
+        if not self.connected or not self.link:
+            return False
+        try:
+            return bool(self.link.swo_enabled())
+        except Exception:
+            return False
+
+    def swo_enable(self, cpu_speed: int, swo_speed: int, port_mask: int) -> bool:
+        if not self.connected or not self.link:
+            self.last_error = "probe not connected"
+            return False
+        try:
+            self.link.swo_enable(cpu_speed, swo_speed, port_mask)
+            self.last_error = ""
+            return True
+        except Exception as exc:
+            self.last_error = str(exc)
+            return False
+
+    def swo_start(self, swo_speed: int) -> bool:
+        if not self.connected or not self.link:
+            self.last_error = "probe not connected"
+            return False
+        try:
+            self.link.swo_start(swo_speed)
+            self.last_error = ""
+            return True
+        except Exception as exc:
+            self.last_error = str(exc)
+            return False
+
+    def swo_stop(self) -> bool:
+        if not self.connected or not self.link:
+            self.last_error = "probe not connected"
+            return False
+        try:
+            self.link.swo_stop()
+            self.last_error = ""
+            return True
+        except Exception as exc:
+            self.last_error = str(exc)
+            return False
+
+    def swo_flush(self) -> bool:
+        if not self.connected or not self.link:
+            self.last_error = "probe not connected"
+            return False
+        try:
+            self.link.swo_flush()
+            self.last_error = ""
+            return True
+        except Exception as exc:
+            self.last_error = str(exc)
+            return False
+
+    def swo_num_bytes(self) -> Optional[int]:
+        if not self.connected or not self.link:
+            return None
+        try:
+            return int(self.link.swo_num_bytes())
+        except Exception:
+            return None
+
+    def swo_read(self, offset: int, num_bytes: int, remove: bool = False) -> Optional[List[int]]:
+        if not self.connected or not self.link or num_bytes <= 0:
+            return None
+        try:
+            return list(self.link.swo_read(offset, num_bytes, remove=remove))
+        except Exception:
+            return None
+
+    def swo_read_stimulus(self, port: int, num_bytes: int) -> Optional[List[int]]:
+        if not self.connected or not self.link or num_bytes <= 0:
+            return None
+        try:
+            return list(self.link.swo_read_stimulus(port, num_bytes))
+        except Exception:
+            return None
+
+
+def decode_trace_chunk(payload: bytes, pending: str) -> tuple[str, List[str]]:
+    """Decode a chunk of trace text into complete lines, buffering a trailing partial line.
+
+    Args:
+      payload: raw bytes read from the trace channel
+      pending: previously buffered partial line
+
+    Returns:
+      ``(new_pending, complete_lines)`` where ``new_pending`` holds any trailing
+      partial line and ``complete_lines`` are ready for display.
+    """
+    text = payload.decode("utf-8", errors="replace")
+    parts = (pending + text).replace("\r\n", "\n").split("\n")
+    new_pending = parts.pop()
+    return new_pending, parts
+
 
 class SVDDebuggerApp(App):
     """Textual TUI Application dashboard wrapper."""
@@ -575,11 +672,14 @@ class SVDDebuggerApp(App):
     #tab-rtt-view {
         height: 1fr;
     }
+    #tab-swo-view {
+        height: 1fr;
+    }
     #stack-view-root, #memory-view-root {
         height: 1fr;
         padding: 1;
     }
-    #rtt-view-root {
+    #rtt-view-root, #swo-view-root {
         height: 1fr;
         padding: 1;
     }
@@ -588,7 +688,7 @@ class SVDDebuggerApp(App):
         margin-bottom: 1;
         align: left middle;
     }
-    #rtt-controls {
+    #rtt-controls, #swo-controls {
         height: auto;
         margin-bottom: 1;
         align: left middle;
@@ -612,6 +712,21 @@ class SVDDebuggerApp(App):
         width: 8;
     }
     #input-rtt-bytes {
+        width: 8;
+    }
+    #input-swo-cpu {
+        width: 12;
+    }
+    #input-swo-speed {
+        width: 12;
+    }
+    #input-swo-mask {
+        width: 8;
+    }
+    #input-swo-port {
+        width: 5;
+    }
+    #input-swo-bytes {
         width: 8;
     }
     #left-pane {
@@ -680,6 +795,11 @@ class SVDDebuggerApp(App):
         auto_load_svd: bool = False,
         auto_connect: bool = False,
         auto_rtt_capture: bool = False,
+        auto_swo_capture: bool = False,
+        swo_cpu_speed: int = 480000000,
+        swo_speed: int = 2000000,
+        swo_port_mask: int = 0x1,
+        swo_port: int = 0,
         poll_interval_s: float = 0.5,
     ):
         super().__init__()
@@ -695,6 +815,7 @@ class SVDDebuggerApp(App):
         self.stack_rows: List[tuple] = []
         self.memory_rows: List[tuple] = []
         self.rtt_pending_text: dict[int, str] = {}
+        self.swo_pending_text: dict[int, str] = {}
         self.initial_svd_path = svd_path
         self.initial_core_svd_path = core_svd_path
         self.initial_elf_path = elf_path
@@ -703,6 +824,11 @@ class SVDDebuggerApp(App):
         self.auto_load_svd = auto_load_svd
         self.auto_connect = auto_connect
         self.auto_rtt_capture = auto_rtt_capture
+        self.auto_swo_capture = auto_swo_capture
+        self.initial_swo_cpu_speed = swo_cpu_speed
+        self.initial_swo_speed = swo_speed
+        self.initial_swo_port_mask = swo_port_mask
+        self.initial_swo_port = swo_port
         self.poll_interval_s = poll_interval_s
 
         # Grid column mapping identifiers
@@ -720,6 +846,7 @@ class SVDDebuggerApp(App):
         self.col_mem_desc_key = None
         self.poll_timer = None
         self.rtt_poll_timer = None
+        self.swo_poll_timer = None
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -798,6 +925,28 @@ class SVDDebuggerApp(App):
                             yield Button("Clear", id="btn-rtt-clear")
                         yield RichLog(id="rtt-log", max_lines=400, markup=True)
 
+                with TabPane("SWO Console", id="tab-swo-view"):
+                    with Vertical(id="swo-view-root"):
+                        with Horizontal(id="swo-controls"):
+                            yield Label("CPU Hz:", classes="label-mgr")
+                            yield Input(value=str(self.initial_swo_cpu_speed), id="input-swo-cpu")
+                            yield Label("SWO Hz:", classes="label-mgr")
+                            yield Input(value=str(self.initial_swo_speed), id="input-swo-speed")
+                            yield Label("Mask:", classes="label-mgr")
+                            yield Input(value=f"0x{self.initial_swo_port_mask:X}", id="input-swo-mask")
+                            yield Label("Port:", classes="label-mgr")
+                            yield Input(value=str(self.initial_swo_port), id="input-swo-port")
+                            yield Label("Bytes:", classes="label-mgr")
+                            yield Input(value="256", id="input-swo-bytes")
+                            yield Label("Continuous:", classes="label-mgr")
+                            yield Switch(value=self.auto_swo_capture, id="switch-swo-continuous")
+                            yield Button("Enable SWO", id="btn-swo-enable", variant="primary")
+                            yield Button("Start", id="btn-swo-start", variant="success")
+                            yield Button("Read", id="btn-swo-read")
+                            yield Button("Stop", id="btn-swo-stop", variant="warning")
+                            yield Button("Clear", id="btn-swo-clear")
+                        yield RichLog(id="swo-log", max_lines=400, markup=True)
+
         yield RichLog(id="log-output", max_lines=100, markup=True)
         yield Footer()
 
@@ -836,6 +985,9 @@ class SVDDebuggerApp(App):
         self.query_one("#switch-rtt-continuous", Switch).value = self.auto_rtt_capture
         self._sync_rtt_read_controls()
 
+        self.query_one("#switch-swo-continuous", Switch).value = self.auto_swo_capture
+        self._sync_swo_read_controls()
+
         self.populate_peripheral_tree()
 
         if self.auto_load_svd and self.initial_svd_path:
@@ -857,6 +1009,9 @@ class SVDDebuggerApp(App):
         if self.rtt_poll_timer is not None:
             self.rtt_poll_timer.stop()
             self.rtt_poll_timer = None
+        if self.swo_poll_timer is not None:
+            self.swo_poll_timer.stop()
+            self.swo_poll_timer = None
         self.jlink.disconnect()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -905,7 +1060,33 @@ class SVDDebuggerApp(App):
         elif event.button.id == "btn-rtt-clear":
             self.query_one("#rtt-log", RichLog).clear()
 
+        elif event.button.id == "btn-swo-enable":
+            self._enable_swo()
+
+        elif event.button.id == "btn-swo-start":
+            self._start_swo_capture()
+
+        elif event.button.id == "btn-swo-read":
+            self._read_swo_console()
+
+        elif event.button.id == "btn-swo-stop":
+            self._stop_swo_capture()
+
+        elif event.button.id == "btn-swo-clear":
+            self.query_one("#swo-log", RichLog).clear()
+
     def on_switch_changed(self, event: Switch.Changed) -> None:
+        if event.switch.id == "switch-swo-continuous":
+            self.auto_swo_capture = bool(event.value)
+            self._sync_swo_read_controls()
+
+            if self.auto_swo_capture and self.jlink.connected:
+                self._start_swo_capture()
+            elif not self.auto_swo_capture and self.swo_poll_timer is not None:
+                self.swo_poll_timer.stop()
+                self.swo_poll_timer = None
+            return
+
         if event.switch.id != "switch-rtt-continuous":
             return
 
@@ -924,6 +1105,13 @@ class SVDDebuggerApp(App):
         if switch.value != self.auto_rtt_capture:
             switch.value = self.auto_rtt_capture
         read_button.disabled = self.auto_rtt_capture
+
+    def _sync_swo_read_controls(self) -> None:
+        switch = self.query_one("#switch-swo-continuous", Switch)
+        read_button = self.query_one("#btn-swo-read", Button)
+        if switch.value != self.auto_swo_capture:
+            switch.value = self.auto_swo_capture
+        read_button.disabled = self.auto_swo_capture
 
     @staticmethod
     def _parse_int_input(value: str, default: int) -> int:
@@ -1124,6 +1312,15 @@ class SVDDebuggerApp(App):
 
         self._read_rtt_console(quiet= self.auto_rtt_capture)
 
+    def _restart_swo_after_reset(self) -> None:
+        """Restart SWO capture after a reset so the console follows the new session."""
+        if not self.jlink.connected or not self.auto_swo_capture:
+            return
+        if self.swo_poll_timer is not None:
+            self.swo_poll_timer.stop()
+            self.swo_poll_timer = None
+        self._start_swo_capture()
+
     def _read_rtt_console(self, quiet: bool = False) -> None:
         logger = self.query_one("#rtt-log", RichLog)
         if not self.jlink.connected or not self.jlink.link:
@@ -1147,16 +1344,133 @@ class SVDDebuggerApp(App):
                     logger.write("[dim]RTT: no new data.[/dim]")
                 return
 
-            text = payload.decode("utf-8", errors="replace")
-            pending = self.rtt_pending_text.get(buffer_index, "") + text
-            normalized = pending.replace("\r\n", "\n")
-            lines = normalized.split("\n")
-            self.rtt_pending_text[buffer_index] = lines.pop() if lines else ""
+            self.rtt_pending_text[buffer_index], lines = decode_trace_chunk(
+                payload, self.rtt_pending_text.get(buffer_index, "")
+            )
 
             for line in lines:
                 logger.write(line)
         except Exception as exc:
             logger.write(f"[red]RTT read failed: {exc}[/red]")
+
+    def _enable_swo(self, quiet: bool = False) -> bool:
+        logger = self.query_one("#swo-log", RichLog)
+        if not self.jlink.connected:
+            if not quiet:
+                logger.write("[yellow]SWO enable ignored: probe is not connected.[/yellow]")
+            return False
+
+        cpu_speed = self._parse_int_input(self.query_one("#input-swo-cpu", Input).value, 0)
+        swo_speed = self._parse_int_input(self.query_one("#input-swo-speed", Input).value, 0)
+        port_mask = self._parse_int_input(self.query_one("#input-swo-mask", Input).value, 0)
+
+        if cpu_speed <= 0:
+            logger.write("[red]SWO enable: CPU speed must be a positive Hz value.[/red]")
+            return False
+        if swo_speed <= 0:
+            logger.write("[red]SWO enable: SWO speed must be a positive Hz value.[/red]")
+            return False
+        if port_mask <= 0:
+            logger.write("[red]SWO enable: port mask must be a positive value.[/red]")
+            return False
+
+        if self.jlink.swo_enable(cpu_speed, swo_speed, port_mask):
+            if not quiet:
+                logger.write(
+                    f"[green]SWO enabled: CPU={cpu_speed} Hz, SWO={swo_speed} Hz, "
+                    f"mask=0x{port_mask:X}.[/green]"
+                )
+            self.swo_pending_text.clear()
+            return True
+
+        detail = self.jlink.last_error or "unknown error"
+        logger.write(f"[red]SWO enable failed: {detail}[/red]")
+        return False
+
+    def _start_swo_capture(self) -> None:
+        logger = self.query_one("#swo-log", RichLog)
+        if not self.jlink.connected:
+            logger.write("[yellow]SWO start ignored: probe is not connected.[/yellow]")
+            return
+
+        if self.swo_poll_timer is not None:
+            self.swo_poll_timer.stop()
+            self.swo_poll_timer = None
+
+        swo_speed = self._parse_int_input(self.query_one("#input-swo-speed", Input).value, 0)
+        if swo_speed <= 0:
+            logger.write("[red]SWO start: SWO speed must be a positive Hz value.[/red]")
+            return
+
+        if self.jlink.swo_start(swo_speed):
+            logger.write(f"[green]SWO collection started at {swo_speed} Hz.[/green]")
+        elif self._enable_swo(quiet=True):
+            logger.write("[green]SWO enabled and collection started (target trace was not configured).[/green]")
+        else:
+            detail = self.jlink.last_error or "unknown error"
+            logger.write(f"[red]SWO start failed: {detail}[/red]")
+            return
+
+        self.swo_pending_text.clear()
+
+        if self.auto_swo_capture:
+            self.swo_poll_timer = self.set_interval(self.poll_interval_s, self._read_swo_console_silent)
+        self._read_swo_console(quiet=self.auto_swo_capture)
+
+    def _stop_swo_capture(self) -> None:
+        logger = self.query_one("#swo-log", RichLog)
+        if self.swo_poll_timer is not None:
+            self.swo_poll_timer.stop()
+            self.swo_poll_timer = None
+        if not self.jlink.connected:
+            logger.write("[yellow]SWO stop ignored: probe is not connected.[/yellow]")
+            return
+
+        if self.jlink.swo_stop():
+            logger.write("[green]SWO stopped.[/green]")
+        else:
+            detail = self.jlink.last_error or "unknown error"
+            logger.write(f"[red]SWO stop failed: {detail}[/red]")
+        self.swo_pending_text.clear()
+        self.auto_swo_capture = False
+        self._sync_swo_read_controls()
+
+    def _read_swo_console_silent(self) -> None:
+        self._read_swo_console(quiet=True)
+
+    def _read_swo_console(self, quiet: bool = False) -> None:
+        logger = self.query_one("#swo-log", RichLog)
+        if not self.jlink.connected:
+            logger.write("[yellow]SWO read ignored: probe is not connected.[/yellow]")
+            return
+
+        port = self._parse_int_input(self.query_one("#input-swo-port", Input).value, -1)
+        num_bytes = self._parse_int_input(self.query_one("#input-swo-bytes", Input).value, -1)
+        if port < 0 or port > 31:
+            logger.write("[red]SWO read: port must be between 0 and 31.[/red]")
+            return
+        if num_bytes <= 0 or num_bytes > 4096:
+            logger.write("[red]SWO read: bytes must be between 1 and 4096.[/red]")
+            return
+
+        data = self.jlink.swo_read_stimulus(port, num_bytes)
+        if data is None:
+            detail = self.jlink.last_error or "read failed"
+            logger.write(f"[red]SWO read failed: {detail}[/red]")
+            return
+
+        payload = bytes(data)
+        if not payload:
+            if not quiet:
+                logger.write("[dim]SWO: no new data.[/dim]")
+            return
+
+        self.swo_pending_text[port], lines = decode_trace_chunk(
+            payload, self.swo_pending_text.get(port, "")
+        )
+
+        for line in lines:
+            logger.write(line)
 
     def _load_svd(self, svd_path: str) -> None:
         logger = self.query_one("#log-output", RichLog)
@@ -1218,6 +1532,8 @@ class SVDDebuggerApp(App):
             self.poll_timer = self.set_interval(self.poll_interval_s, self.poll_active_registers)
             if self.auto_rtt_capture:
                 self._start_rtt_console()
+            if self.auto_swo_capture:
+                self._start_swo_capture()
         else:
             detail = self.jlink.last_error or "unknown error"
             logger.write(f"[red]Hardware Connection Failure: {detail}[/red]")
@@ -1231,12 +1547,23 @@ class SVDDebuggerApp(App):
         if self.rtt_poll_timer:
             self.rtt_poll_timer.stop()
             self.rtt_poll_timer = None
+        if self.swo_poll_timer:
+            self.swo_poll_timer.stop()
+            self.swo_poll_timer = None
         try:
             if self.jlink.connected and self.jlink.link:
                 self.jlink.link.rtt_stop()
         except Exception:
             pass
+        try:
+            if self.jlink.connected and self.jlink.link:
+                self.jlink.link.swo_stop()
+        except Exception:
+            pass
         self.jlink.disconnect()
+        self.swo_pending_text.clear()
+        self.auto_swo_capture = False
+        self._sync_swo_read_controls()
         connect_button.label = "Connect Probe"
         connect_button.variant = "success"
         logger.write("J-Link hardware abstraction pipeline session teardown completed successfully.")
@@ -1263,6 +1590,7 @@ class SVDDebuggerApp(App):
             logger.write(f"[green]Target action completed: {action}[/green]")
             if action == "reset":
                 self._restart_rtt_after_reset()
+                self._restart_swo_after_reset()
             self.poll_active_registers()
         else:
             detail = self.jlink.last_error or "unknown error"
@@ -1648,6 +1976,37 @@ def build_argument_parser() -> argparse.ArgumentParser:
         help="Automatically start continuous RTT capture after connecting",
     )
     parser.add_argument(
+        "--swo-cpu-speed",
+        type=int,
+        default=480000000,
+        help="Target CPU speed in Hz used to configure SWO (default: 480000000)",
+    )
+    parser.add_argument(
+        "--swo-speed",
+        type=int,
+        default=2000000,
+        help="SWO output baud rate in Hz (default: 2000000)",
+    )
+    parser.add_argument(
+        "--swo-port-mask",
+        type=lambda s: int(s, 0),
+        default=0x1,
+        help="ITM stimulus port enable mask (default: 0x1)",
+    )
+    parser.add_argument(
+        "--swo-port",
+        type=int,
+        default=0,
+        help="Stimulus port shown in the SWO console, 0-31 (default: 0)",
+    )
+    parser.add_argument(
+        "--swo-auto-start",
+        "--swo-continuous",
+        dest="swo_auto_start",
+        action="store_true",
+        help="Automatically enable SWO and start continuous capture after connecting",
+    )
+    parser.add_argument(
         "--poll-interval",
         type=float,
         default=0.5,
@@ -1665,6 +2024,18 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
 
     if args.remote_port <= 0 or args.remote_port > 65535:
         parser.error("--remote-port must be in the range 1..65535")
+
+    if args.swo_cpu_speed <= 0:
+        parser.error("--swo-cpu-speed must be greater than 0")
+
+    if args.swo_speed <= 0:
+        parser.error("--swo-speed must be greater than 0")
+
+    if args.swo_port_mask <= 0:
+        parser.error("--swo-port-mask must be greater than 0")
+
+    if args.swo_port < 0 or args.swo_port > 31:
+        parser.error("--swo-port must be in the range 0..31")
 
     if args.usb:
         try:
@@ -1711,6 +2082,11 @@ def main(argv: Optional[List[str]] = None) -> int:
         auto_load_svd=args.auto_load,
         auto_connect=args.auto_connect,
         auto_rtt_capture=args.rtt_continuous,
+        auto_swo_capture=args.swo_auto_start,
+        swo_cpu_speed=args.swo_cpu_speed,
+        swo_speed=args.swo_speed,
+        swo_port_mask=args.swo_port_mask,
+        swo_port=args.swo_port,
         poll_interval_s=args.poll_interval,
     )
     app.run()
