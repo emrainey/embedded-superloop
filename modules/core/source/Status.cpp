@@ -41,6 +41,10 @@ bool Status::IsFailure(void) const {
     return not(IsSuccess() or IsBusy());
 }
 
+bool Status::IsNotReady(void) const {
+    return (result_ == Result::NotReady);
+}
+
 Status::operator bool(void) const {
     return IsSuccess();
 }

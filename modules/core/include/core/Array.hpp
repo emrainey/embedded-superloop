@@ -68,6 +68,15 @@ public:
         }
     }
 
+    constexpr bool operator==(Array const& other) const {
+        for (IndexType i = 0; i < CAPACITY; ++i) {
+            if (data_[i] != other.data_[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /// Returns the pointer to the data
     constexpr Pointer data(void) { return &data_[0]; }
 

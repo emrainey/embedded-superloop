@@ -124,6 +124,9 @@ public:
     /// @return true when the Status is not Success and not Busy.
     bool IsFailure(void) const;
 
+    /// @return true when the result was not ready specifically.
+    bool IsNotReady(void) const;
+
     /// Returns true if the result is Success and any cause if present.
     explicit operator bool(void) const;
 

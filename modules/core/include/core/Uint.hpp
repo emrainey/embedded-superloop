@@ -17,7 +17,7 @@ struct Uint_ {
     constexpr Uint_()
         : value{0U} {}
     constexpr Uint_(StorageType l)
-        : value{l & ((static_cast<StorageType>(1U) << NUM_BITS) - 1U)} {}
+        : value{static_cast<StorageType>(l & ((static_cast<StorageType>(1U) << NUM_BITS) - 1U))} {}
     constexpr Uint_(Uint_ const&) = default;
     constexpr Uint_(Uint_&&) = default;
     constexpr Uint_& operator=(Uint_ const& other) {

@@ -142,3 +142,35 @@ add_module(NAME jarnax-net
     NO_CONFIGURATIONS
     NO_BOARDS
 )
+
+add_module(NAME jarnax-cyphal-can
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/cyphal/Node.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/include # Internal includes
+    DEFINES
+        JARNAX_CYPHAL_USE_CAN
+    LIBRARIES
+        strict jarnax-interfaces cyphal-dsdl
+    GENERIC_MODULES
+        memory core
+    NO_CONFIGURATIONS
+    NO_BOARDS
+)
+
+add_module(NAME jarnax-cyphal-udp
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/cyphal/Node.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/include # Internal includes
+    DEFINES
+        JARNAX_CYPHAL_USE_UDP
+    LIBRARIES
+        strict jarnax-interfaces cyphal-dsdl
+    GENERIC_MODULES
+        memory core
+    NO_CONFIGURATIONS
+    NO_BOARDS
+)

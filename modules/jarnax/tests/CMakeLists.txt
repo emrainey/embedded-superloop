@@ -46,6 +46,28 @@ host_unit_test(NAME jarnax-network
     NO_BOARDS
 )
 
+host_unit_test(NAME jarnax-cyphal
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/gtest-cyphal-node.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/gtest-cyphal-types.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/gtest-cyphal-service.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/../source/services/CyphalService.cpp
+    INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/mocks
+        ${CMAKE_CURRENT_SOURCE_DIR}/../source/include
+    DEFINES
+        JARNAX_CYPHAL_USE_UDP
+    LIBRARIES
+        strict
+        jarnax-interfaces
+    GENERIC_MODULES
+        memory core jarnax-cyphal-udp
+    GOOGLETEST
+    NO_CONFIGURATIONS
+    NO_BOARDS
+)
+
 host_unit_test(NAME jarnax-googletest
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/gtest-mocks.cpp
