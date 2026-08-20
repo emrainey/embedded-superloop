@@ -1,6 +1,8 @@
 #include "core/Status.hpp"
 #include "core/units/MicroSeconds.hpp"
+#include "core/vsnprint.hpp"
 
+#include <uavcan/diagnostic/Record_1_1.h>
 #include "jarnax/cyphal/Interface.hpp"
 #include "jarnax/cyphal/Node.hpp"
 #include "jarnax/cyphal/Types.hpp"
@@ -334,6 +336,37 @@ core::Status Node::Dismiss(ServiceId id, Server& server) {
     return core::Status{core::Result::NotAvailable, core::Cause::Resource};
 }
 
+void Node::Print(Severity severity, char const* fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    core::vsnprint(print_buffer_, sizeof(print_buffer_), fmt, args);
+    va_end(args);
+    uavcan_diagnostic_Record_1_1 record{};
+    uavcan_diagnostic_Record_1_1_initialize_(&record);
+    record.timestamp.microsecond = timer_.GetMicroseconds().value();
+    record.severity.value = polyfill::to_underlying(severity);
+    size_t len = strings::length(print_buffer_);
+    if (len > sizeof(record.text.elements)) {
+        len = sizeof(record.text.elements);
+    }
+    memory::copy(record.text.elements, print_buffer_, len);
+    record.text.count = len;
+    size_t out_len = diagnostic_record_blob_.size();
+    auto result = uavcan_diagnostic_Record_1_1_serialize_(&record, diagnostic_record_blob_.data(), &out_len);
+    if (result == NUNAVUT_SUCCESS) {
+        SerializedMessage msg{diagnostic_record_blob_.data(), out_len};
+        auto status = Publish(DiagnosticRecordSubjectId, msg);
+        if (not status) {
+            diagnostic_statistics_.failed++;
+        } else {
+            diagnostic_statistics_.passed++;
+        }
+    } else {
+        jarnax::print("Failed to serialize diagnostic record: %d\n", result);
+        diagnostic_statistics_.failed++;
+    }
+}
+
 void Node::OnReceive(Metadata const& metadata, SerializedMessage msg) {
     if (metadata.port_id.type == PortId::Type::Subject) {
         // search for each subscriber of this type
@@ -473,9 +506,8 @@ core::Status Node::GetResponse(ServiceId id, SerializedMessage& msg) {
             response.network_interface_statistics.elements[i].num_errored = statistics.network_interfaces[i].num_errored;
         }
         size_t inout_buffer_size = get_transport_statistics_response_blob_.size();
-        auto ret = uavcan_node_GetTransportStatistics_Response_0_1_serialize_(
-            &response, get_transport_statistics_response_blob_.data(), &inout_buffer_size
-        );
+        auto ret =
+            uavcan_node_GetTransportStatistics_Response_0_1_serialize_(&response, get_transport_statistics_response_blob_.data(), &inout_buffer_size);
         if (ret != NUNAVUT_SUCCESS) {
             return core::Status{core::Result::NotEnough, core::Cause::Resource};
         } else if (ret == NUNAVUT_SUCCESS) {

@@ -131,6 +131,7 @@ constexpr static size_t MaxExtent{FindMaxValue(Extents, NumExtents)};
 
 constexpr static size_t ExecuteCommandRequestCommandStringSize{uavcan_node_ExecuteCommand_Request_1_3_parameter_ARRAY_CAPACITY_};
 constexpr static size_t ExecuteCommandResponseStringSize{uavcan_node_ExecuteCommand_Response_1_3_output_ARRAY_CAPACITY_};
+constexpr static size_t DiagnosticRecordMessageStringSize{uavcan_diagnostic_Record_1_1_text_ARRAY_CAPACITY_};
 
 enum class Health : uint8_t {
     Nominal = uavcan_node_Health_1_0_NOMINAL,
@@ -144,6 +145,17 @@ enum class Mode : uint8_t {
     Initialization = uavcan_node_Mode_1_0_INITIALIZATION,
     Maintenance = uavcan_node_Mode_1_0_MAINTENANCE,
     SoftwareUpdate = uavcan_node_Mode_1_0_SOFTWARE_UPDATE
+};
+
+enum class Severity : uint8_t {
+    Trace = uavcan_diagnostic_Severity_1_0_TRACE,
+    Debug = uavcan_diagnostic_Severity_1_0_DEBUG,
+    Info = uavcan_diagnostic_Severity_1_0_INFO,
+    Notice = uavcan_diagnostic_Severity_1_0_NOTICE,
+    Warning = uavcan_diagnostic_Severity_1_0_WARNING,
+    Error = uavcan_diagnostic_Severity_1_0_ERROR,
+    Critical = uavcan_diagnostic_Severity_1_0_CRITICAL,
+    Alert = uavcan_diagnostic_Severity_1_0_ALERT
 };
 
 enum class ExecuteStatus : uint8_t {
@@ -162,6 +174,7 @@ using ExecuteCommandRequest = uavcan_node_ExecuteCommand_Request_1_3;
 using ExecuteCommandResponse = uavcan_node_ExecuteCommand_Response_1_3;
 using PortList = uavcan_node_port_List_1_0;
 using GetTransportStatisticsResponse = uavcan_node_GetTransportStatistics_Response_0_1;
+using DiagnosticRecord = uavcan_diagnostic_Record_1_1;
 
 constexpr static core::units::MicroSeconds HeartbeatPeriod{1000000u};    // Example period of 1 second
 constexpr static core::units::MicroSeconds PortListPeriod{10000000u};    // Example period of 10 seconds

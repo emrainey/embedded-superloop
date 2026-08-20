@@ -1,61 +1,55 @@
-# PLAN: Implement `uavcan.node.GetTransportStatistics` server in `cyphal::Node`
+# PLAN: Add gtests for `cyphal::Node::Print` diagnostic records
 
-Issue: #59 — branch `issue-59` (based on `issue-58`, which contains the
-`cyphal::Node`; the Node is not yet in `develop`).
-
-**STATUS: DONE — awaiting human review before commit.**
+Issue: #60 — branch `issue-60` (tracks `develop`; carries the user's
+uncommitted diagnostic Record work: `Printer` interface, `Severity` enum,
+`Node::Print`, `diagnostic_record_blob_`, `diagnostic_statistics_`).
 
 ## Summary
 
-The `cyphal::Node` registers a server for `uavcan.node.GetTransportStatistics`
-(434.0.1) in `RunOnce` but `Node::GetResponse` never handles that service id,
-so requests time out. This issue implements the response by querying the
-`cyphal::Interface` for its transport statistics and reporting them.
+Add GoogleTest coverage for the diagnostic Record publishing added by the
+human: `Node::Print(Severity, fmt, ...)` serializes a
+`uavcan.diagnostic.Record.1.1` (subject 8184) and publishes it via the
+interface.
 
 ## Changes
 
-1. **`Types.hpp`** — add transport-agnostic statistics types that the Interface
-   reports and the Node serializes:
-   - `InterfaceStatistics { num_emitted, num_received, num_errored }` (uint64_t,
-     mirrors the DSDL `uavcan.node.IOStatistics.0.1` truncated uint40 fields).
-   - `TransportStatistics { transfer, network_interfaces, num_interfaces }`.
-   - `MaxNetworkInterfaces` constant bound to
-     `uavcan_node_GetTransportStatistics_Response_0_1_MAX_NETWORK_INTERFACES`.
+1. **`gtest-cyphal-node.cpp`** — new `TEST_F`s for `Node::Print`:
+   - publishes a deserializable Record on `DiagnosticRecordSubjectId` with the
+     expected severity and text,
+   - text longer than 255 bytes is truncated to the DSDL capacity,
+   - the `timestamp.microsecond` field reflects the timer,
+   - `diagnostic_statistics_.passed` increments on a successful publish,
+   - `diagnostic_statistics_.failed` increments when the interface `Send`
+     fails.
+   - `TestNode` accessor `GetDiagnosticStatistics()` exposing the protected
+     `diagnostic_statistics_`.
 
-2. **`Interface.hpp`** — add pure virtual
-   `core::Status GetStatistics(TransportStatistics& statistics) = 0;` so the
-   Node can query the transport's counters.
+## Production fixes required by the tests (all flagged/approved)
 
-3. **`MockInterface.hpp`** — add `MOCK_METHOD` for `GetStatistics`.
+2. **`modules/jarnax/source/cyphal/Node.cpp`** — `Node::Print` called
+   `jarnax::vsnprint`, which is *declared* in `jarnax/print.hpp` but has no
+   definition anywhere in the repo. Changed to `core::vsnprint` (always linked
+   into cyphal targets; keeps the test target lean). Approved by human.
 
-4. **`Node.hpp`** — add `get_transport_statistics_response_blob_` static blob
-   for the serialized response.
+3. **`modules/memory/source/copy.cpp`** — the definition was
+   `copy(void*, void* const, size_t)` while the header declares
+   `copy(void*, void const*, size_t)`. Different mangled symbols; the overload
+   had never been linked before. Fixed the definition to match the header.
 
-5. **`Node.cpp`** — handle `GetTransportStatisticsServiceId` in
-   `Node::GetResponse`: query `interface_.GetStatistics`, populate the DSDL
-   `uavcan_node_GetTransportStatistics_Response_0_1` (transfer_statistics plus
-   per-interface `network_interface_statistics`), serialize into the blob.
-
-6. **Tests** (`gtest-cyphal-node.cpp`) — cover the response contents:
-   - transfer + per-interface statistics are echoed from the interface.
-   - zero/empty interface statistics.
-   - interface failure still yields a **successful response with zeroed**
-     statistics (the response type has no "unavailable" field, so the request
-     is answered rather than left to time out).
+4. **`modules/memory/tests/catch2-strings.cpp`** — added 2 `TEST_CASE`s
+   covering the fixed `copy(void*, void const*, size_t)` overload (mismatched
+   element types to force the non-template overload, as in `Node::Print`).
 
 ## Verification
 
-- `cmake --workflow --preset on-host-native-llvm` — **21/21 passed** (cyphal suite 40/40).
-- `cmake --workflow --preset on-host-native-clang` — **21/21 passed**.
+- `cmake --workflow --preset on-host-native-llvm` — 21/21 tests pass,
+  including 5 new `Print` tests and 2 new memory `copy` tests.
+- `cmake --workflow --preset on-host-native-clang` — 21/21 tests pass.
 - Cross-builds: `on-target-cortex-m4-gcc-arm-none-eabi` and
-  `on-target-cortex-m7-gcc-arm-none-eabi` both build clean (incl. nucleo-cyphal app).
-- New tests: `GetTransportStatisticsResponseContainsInterfaceStatistics`,
-  `GetTransportStatisticsResponseHandlesNoInterfaces`,
-  `GetTransportStatisticsResponseReportsZerosWhenInterfaceFails` — all pass.
-- `./scripts/build-all-presets.sh` does not exist in this repo; the four presets above are the
-  equivalent verification.
+  `on-target-cortex-m7-gcc-arm-none-eabi` still build clean.
 
 ## Notes
 
-- Branch `issue-59` is based on `issue-58` because `cyphal::Node` only exists
-  there; rebase onto `develop` after `issue-58` merges.
+- The `Print` impl is the human's uncommitted work on this branch; the two
+  production fixes above were the only changes needed and were approved before
+  applying.

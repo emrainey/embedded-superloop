@@ -12,6 +12,7 @@
 
 namespace {
 
+using jarnax::cyphal::DiagnosticRecordSubjectId;
 using jarnax::cyphal::ExecuteCommandServiceId;
 using jarnax::cyphal::Executor;
 using jarnax::cyphal::GetInfoServiceId;
@@ -49,6 +50,8 @@ public:
     core::Status CallGetResponse(ServiceId id, SerializedMessage& msg) { return GetResponse(id, msg); }
 
     void CallOnRequest(ServiceId id, NodeId sender, SerializedMessage msg) { OnRequest(id, sender, msg); }
+
+    auto const& GetDiagnosticStatistics() const { return diagnostic_statistics_; }
 };
 
 class CyphalNodeTest : public ::testing::Test {
@@ -512,6 +515,102 @@ TEST_F(CyphalNodeTest, DismissServerFailsWhenNotRegistered) {
     jarnax::cyphal::mock::MockServer server;
 
     ASSERT_STATUS_EQ(node.Dismiss(ServiceId{23U}, server), core::Result::NotAvailable, core::Cause::Resource);
+}
+
+TEST_F(CyphalNodeTest, PrintPublishesDiagnosticRecordOnSubject) {
+    TestNode test_node{timer, interface, NodeId{42U}, unique_id};
+    SerializedMessage published;
+    EXPECT_CALL(interface, Send(testing::_, testing::_))
+        .WillOnce(
+            testing::DoAll(
+                testing::Invoke([&](Metadata& sent, SerializedMessage msg) {
+                    EXPECT_EQ(sent.source, NodeId{42U});
+                    EXPECT_EQ(sent.port_id.type, PortId::Type::Subject);
+                    EXPECT_EQ(sent.port_id.value<SubjectId>(), DiagnosticRecordSubjectId);
+                    published = msg;
+                }),
+                Return(core::Status{})
+            )
+        );
+
+    test_node.Print(jarnax::cyphal::Severity::Warning, "hello %s", "world");
+
+    uavcan_diagnostic_Record_1_1 record{};
+    size_t size = published.size();
+    auto ret = uavcan_diagnostic_Record_1_1_deserialize_(&record, published.data(), &size);
+
+    ASSERT_EQ(ret, NUNAVUT_SUCCESS);
+    EXPECT_EQ(record.severity.value, polyfill::to_underlying(jarnax::cyphal::Severity::Warning));
+    EXPECT_EQ(record.text.count, 11U);
+    EXPECT_EQ(std::memcmp(record.text.elements, "hello world", 11), 0);
+}
+
+TEST_F(CyphalNodeTest, PrintTruncatesLongTextToRecordCapacity) {
+    TestNode test_node{timer, interface, NodeId{42U}, unique_id};
+    SerializedMessage published;
+    EXPECT_CALL(interface, Send(testing::_, testing::_))
+        .WillOnce(
+            testing::DoAll(
+                testing::Invoke([&](Metadata&, SerializedMessage msg) { published = msg; }),
+                Return(core::Status{})
+            )
+        );
+
+    char long_text[uavcan_diagnostic_Record_1_1_text_ARRAY_CAPACITY_ + 16U];
+    for (size_t i = 0; i < sizeof(long_text) - 1; ++i) {
+        long_text[i] = static_cast<char>('a' + (i % 26));
+    }
+    long_text[sizeof(long_text) - 1] = '\0';
+    test_node.Print(jarnax::cyphal::Severity::Debug, "%s", long_text);
+
+    uavcan_diagnostic_Record_1_1 record{};
+    size_t size = published.size();
+    auto ret = uavcan_diagnostic_Record_1_1_deserialize_(&record, published.data(), &size);
+
+    ASSERT_EQ(ret, NUNAVUT_SUCCESS);
+    EXPECT_EQ(record.text.count, uavcan_diagnostic_Record_1_1_text_ARRAY_CAPACITY_);
+}
+
+TEST_F(CyphalNodeTest, PrintSetsTimestampFromTimer) {
+    timer.Jump(core::units::MicroSeconds{123456U});
+    TestNode test_node{timer, interface, NodeId{42U}, unique_id};
+    SerializedMessage published;
+    EXPECT_CALL(interface, Send(testing::_, testing::_))
+        .WillOnce(
+            testing::DoAll(
+                testing::Invoke([&](Metadata&, SerializedMessage msg) { published = msg; }),
+                Return(core::Status{})
+            )
+        );
+
+    test_node.Print(jarnax::cyphal::Severity::Info, "stamp");
+
+    uavcan_diagnostic_Record_1_1 record{};
+    size_t size = published.size();
+    auto ret = uavcan_diagnostic_Record_1_1_deserialize_(&record, published.data(), &size);
+
+    ASSERT_EQ(ret, NUNAVUT_SUCCESS);
+    EXPECT_EQ(record.timestamp.microsecond, 123456U);
+}
+
+TEST_F(CyphalNodeTest, PrintIncrementsPassedStatisticsOnSuccess) {
+    TestNode test_node{timer, interface, NodeId{42U}, unique_id};
+    EXPECT_CALL(interface, Send(testing::_, testing::_)).WillOnce(Return(core::Status{}));
+
+    test_node.Print(jarnax::cyphal::Severity::Notice, "ok");
+
+    EXPECT_EQ(test_node.GetDiagnosticStatistics().passed, 1U);
+    EXPECT_EQ(test_node.GetDiagnosticStatistics().failed, 0U);
+}
+
+TEST_F(CyphalNodeTest, PrintIncrementsFailedStatisticsOnPublishFailure) {
+    TestNode test_node{timer, interface, NodeId{42U}, unique_id};
+    EXPECT_CALL(interface, Send(testing::_, testing::_)).WillOnce(Return(send_failure));
+
+    test_node.Print(jarnax::cyphal::Severity::Error, "fail");
+
+    EXPECT_EQ(test_node.GetDiagnosticStatistics().passed, 0U);
+    EXPECT_EQ(test_node.GetDiagnosticStatistics().failed, 1U);
 }
 
 }    // namespace

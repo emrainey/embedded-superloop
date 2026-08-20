@@ -83,6 +83,15 @@ protected:
     ~Executor() = default;
 };
 
+/// An interface for printing messages over Cyphal with different severity levels.
+class Printer {
+public:
+    virtual void Print(Severity, char const* fmt, ...) = 0;
+
+protected:
+    ~Printer() = default;
+};
+
 //======================================================
 // These should be moved to a configuration header
 constexpr static std::size_t MaxNumberOfPublishers{8U};
@@ -98,7 +107,8 @@ class Node : protected cyphal::Interface::Listener,
              protected cyphal::Client,
              protected cyphal::Subscriber,
              protected cyphal::Publisher,
-             protected cyphal::Executor {
+             protected cyphal::Executor,
+             public cyphal::Printer {
 public:
     /// The constructor for the Node class without a Node ID
     Node(jarnax::Timer const& timer, cyphal::Interface& interface, cyphal::UniqueId const& uid);
@@ -142,6 +152,9 @@ public:
 
     /// Informs the Node that an Executor is available to handle unhandled commands.
     core::Status SetExecutor(Executor& executor);
+
+    //+=== Printer ===+
+    void Print(Severity severity, char const* fmt, ...) override;
 
 protected:
     //+=== Interface Callbacks ===+
@@ -253,15 +266,33 @@ protected:
     char command_parameters_[ExecuteCommandRequestCommandStringSize];
     ExecuteStatus command_status_;
 
+    /// Print Buffer
+    char print_buffer_[DiagnosticRecordMessageStringSize + 1];
+    struct DiagnosticStatistics {
+        size_t count{0u};      ///< The total number of operations attempted.
+        size_t passed{0u};     ///< The number of successful operations.
+        size_t dropped{0u};    ///< The number of dropped operations.
+        size_t failed{0u};     ///< The number of failed operations.
+
+        inline void Reset() {
+            count = 0u;
+            passed = 0u;
+            dropped = 0u;
+            failed = 0u;
+        }
+    };
+    DiagnosticStatistics diagnostic_statistics_;
+
     /// We statically allocate a message blob for the maximum number of bytes that a message we send might need.
     core::Array<uint8_t, HeartbeatExtent> heartbeat_blob_;                  ///< The statically allocated message blob for Heartbeat messages.
     uavcan_node_port_List_1_0 port_list_{};                                 ///< The working Port List object.
     core::Array<uint8_t, PortListExtent> port_list_blob_;                   ///< The statically allocated message blob for PortList messages.
     core::Array<uint8_t, GetInfoResponseExtent> get_info_response_blob_;    ///< The statically allocated message blob for GetInfo response messages.
     core::Array<uint8_t, ExecuteCommandResponseExtent>
-        execute_command_response_blob_;    ///< The statically allocated message blob for ExecuteCommand response messages.
+        execute_command_response_blob_;             ///< The statically allocated message blob for ExecuteCommand response messages.
     core::Array<uint8_t, GetTransportStatisticsExtent>
         get_transport_statistics_response_blob_;    ///< The statically allocated message blob for GetTransportStatistics response messages.
+    core::Array<uint8_t, DiagnosticRecordExtent> diagnostic_record_blob_;    ///< The statically allocated message blob for DiagnosticRecord messages.
 };
 
 }    // namespace cyphal

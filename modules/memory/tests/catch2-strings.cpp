@@ -85,3 +85,20 @@ TEST_CASE("memory move of zero bytes does nothing", "[memory][move]") {
     REQUIRE(buffer[1] == 0x02U);
     REQUIRE(buffer[2] == 0x03U);
 }
+
+TEST_CASE("memory copy copies bytes from const source", "[memory][copy]") {
+    char const* const src = "\x0A\x0B\x0C\x0D";
+    std::uint8_t dst[4]{};
+    memory::copy(dst, src, 4U);
+    REQUIRE(dst[0] == 0x0AU);
+    REQUIRE(dst[1] == 0x0BU);
+    REQUIRE(dst[2] == 0x0CU);
+    REQUIRE(dst[3] == 0x0DU);
+}
+
+TEST_CASE("memory copy of zero bytes does nothing", "[memory][copy]") {
+    char const src = 0x0A;
+    std::uint8_t dst = 0x55U;
+    memory::copy(&dst, &src, 0U);
+    REQUIRE(dst == 0x55U);
+}

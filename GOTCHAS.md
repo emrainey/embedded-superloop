@@ -147,3 +147,10 @@
 - `g++-13` (homebrew) does not provide `cstddef`/libc++ headers, so any `module-core` TU fails
   with `fatal error: cstddef: No such file or directory`. This is pre-existing and unrelated to
   this change; AGENTS.md documents that the GCC host preset only works on Linux.
+
+## 2026-08-19 — Mangled-signature mismatch in `memory::copy` definition vs header (silent until linked)
+
+- **Symptom:** `test-jarnax-cyphal-none-all` link error: `undefined reference to memory::copy(void*, void const*, unsigned long)` even though `libmodule-memory-none-all.a` is on the link line.
+- **Root cause:** `modules/memory/source/copy.cpp` defined `void copy(void*, void *const, size_t)` (top-level const pointer = mangles to `void*`), but the header `memory.hpp` declares `void copy(void*, void const*, size_t)` (mangles to `void const*`). The template overload had masked it for years because no caller forced the non-template `void` overload (e.g. `memory::copy(uint8_t[], char[], n)` — mismatched element types defeat template deduction and fall through to the fixed overload).
+- **Fix:** changed the definition's parameter to `void const *_src` to match the header. Added Catch2 tests in `modules/memory/tests/catch2-strings.cpp` using mismatched element types (`uint8_t[]` dst, `char const*` src) to force the fixed overload.
+- **Gotcha:** top-level `const` on a pointer parameter is dropped during C++ name mangling, but pointee-const is not — `void *const` and `void const *` are different symbols. Keep definitions byte-for-byte consistent with the header declaration.
