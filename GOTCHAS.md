@@ -1,5 +1,18 @@
 # Gotchas
 
+## 2026-08-19 — Brace-ended `else` snippets are ambiguous targets for text edits
+
+- **Symptom:** editing `modules/jarnax/source/cyphal/Node.cpp`, a search/replace for the
+  pattern `} else {` intended for the end of `Node::GetResponse` silently matched the **first**
+  occurrence in the file instead (inside `RunOnce`'s publisher period loop), inserting the new
+  `else if (id == GetTransportStatisticsServiceId)` branch into the middle of `RunOnce`.
+- **Root cause:** `} else {` appears multiple times across the file; a short oldString matches
+  the earliest occurrence, not the one near the caret/context.
+- **Fix / rule:** when replacing an `else`/`else if` tail, always anchor the oldString with
+  enough surrounding context to be unique (e.g. include the preceding `} else if (...) {`
+  block or a following `return ...;` line). Verify the diff landed in the intended function
+  before building.
+
 ## 2026-08-12 — Vendor symbols referenced only from `configure.cpp` do not link (archive ordering)
 
 - **Symptom:** `undefined reference to stm32::initialize::enable_serial_wire_output(core::units::Hertz, unsigned long)`

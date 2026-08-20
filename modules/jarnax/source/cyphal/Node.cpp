@@ -452,6 +452,36 @@ core::Status Node::GetResponse(ServiceId id, SerializedMessage& msg) {
                 return core::Status{};
             }
         }
+    } else if (id == GetTransportStatisticsServiceId) {
+        uavcan_node_GetTransportStatistics_Response_0_1 response{};
+        TransportStatistics statistics{};
+        auto status = interface_.GetStatistics(statistics);
+        if (not status) {
+            // the transport could not produce statistics; report zeros rather than letting the request time out
+            statistics = {};
+        }
+        // transfer statistics apply to the whole transport
+        response.transfer_statistics.num_emitted = statistics.transfer.num_emitted;
+        response.transfer_statistics.num_received = statistics.transfer.num_received;
+        response.transfer_statistics.num_errored = statistics.transfer.num_errored;
+        // per interface statistics
+        size_t const count = (statistics.num_interfaces < MaxNetworkInterfaces) ? statistics.num_interfaces : MaxNetworkInterfaces;
+        response.network_interface_statistics.count = count;
+        for (size_t i = 0U; i < count; ++i) {
+            response.network_interface_statistics.elements[i].num_emitted = statistics.network_interfaces[i].num_emitted;
+            response.network_interface_statistics.elements[i].num_received = statistics.network_interfaces[i].num_received;
+            response.network_interface_statistics.elements[i].num_errored = statistics.network_interfaces[i].num_errored;
+        }
+        size_t inout_buffer_size = get_transport_statistics_response_blob_.size();
+        auto ret = uavcan_node_GetTransportStatistics_Response_0_1_serialize_(
+            &response, get_transport_statistics_response_blob_.data(), &inout_buffer_size
+        );
+        if (ret != NUNAVUT_SUCCESS) {
+            return core::Status{core::Result::NotEnough, core::Cause::Resource};
+        } else if (ret == NUNAVUT_SUCCESS) {
+            msg = SerializedMessage{get_transport_statistics_response_blob_.data(), inout_buffer_size};
+            return core::Status{};
+        }
     } else {
         return core::Status{core::Result::NotExpected, core::Cause::Parameter};
     }

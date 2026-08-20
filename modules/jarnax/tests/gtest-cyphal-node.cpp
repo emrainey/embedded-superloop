@@ -15,6 +15,7 @@ namespace {
 using jarnax::cyphal::ExecuteCommandServiceId;
 using jarnax::cyphal::Executor;
 using jarnax::cyphal::GetInfoServiceId;
+using jarnax::cyphal::GetTransportStatisticsServiceId;
 using jarnax::cyphal::HeartbeatSubjectId;
 using jarnax::cyphal::MaxExtent;
 using jarnax::cyphal::Metadata;
@@ -25,6 +26,7 @@ using jarnax::cyphal::PortId;
 using jarnax::cyphal::SerializedMessage;
 using jarnax::cyphal::ServiceId;
 using jarnax::cyphal::SubjectId;
+using jarnax::cyphal::TransportStatistics;
 using jarnax::cyphal::UniqueId;
 using ::testing::Return;
 
@@ -164,6 +166,85 @@ TEST_F(CyphalNodeTest, GetInfoResponseContainsExpectedProtocolAndVersion) {
     EXPECT_EQ(response.hardware_version.minor, 0U);
     EXPECT_EQ(response.software_version.major, cmake::project::version.major);
     EXPECT_EQ(response.software_version.minor, cmake::project::version.minor);
+}
+
+TEST_F(CyphalNodeTest, GetTransportStatisticsResponseContainsInterfaceStatistics) {
+    TestNode test_node{timer, interface, NodeId{42U}, unique_id};
+    uint8_t buffer[jarnax::cyphal::GetTransportStatisticsExtent];
+    SerializedMessage msg{buffer, sizeof(buffer)};
+
+    TransportStatistics stats;
+    stats.transfer.num_emitted = 100U;
+    stats.transfer.num_received = 50U;
+    stats.transfer.num_errored = 3U;
+    stats.num_interfaces = 2U;
+    stats.network_interfaces[0].num_emitted = 60U;
+    stats.network_interfaces[0].num_received = 30U;
+    stats.network_interfaces[0].num_errored = 1U;
+    stats.network_interfaces[1].num_emitted = 40U;
+    stats.network_interfaces[1].num_received = 20U;
+    stats.network_interfaces[1].num_errored = 2U;
+
+    EXPECT_CALL(interface, GetStatistics(testing::_))
+        .WillOnce(testing::DoAll(testing::SetArgReferee<0>(stats), Return(core::Status{})));
+
+    EXPECT_TRUE(test_node.CallGetResponse(GetTransportStatisticsServiceId, msg).IsSuccess());
+
+    uavcan_node_GetTransportStatistics_Response_0_1 response{};
+    size_t size = msg.size();
+    auto ret = uavcan_node_GetTransportStatistics_Response_0_1_deserialize_(&response, msg.data(), &size);
+
+    ASSERT_EQ(ret, NUNAVUT_SUCCESS);
+    EXPECT_EQ(response.transfer_statistics.num_emitted, 100U);
+    EXPECT_EQ(response.transfer_statistics.num_received, 50U);
+    EXPECT_EQ(response.transfer_statistics.num_errored, 3U);
+    EXPECT_EQ(response.network_interface_statistics.count, 2U);
+    EXPECT_EQ(response.network_interface_statistics.elements[0].num_emitted, 60U);
+    EXPECT_EQ(response.network_interface_statistics.elements[0].num_received, 30U);
+    EXPECT_EQ(response.network_interface_statistics.elements[0].num_errored, 1U);
+    EXPECT_EQ(response.network_interface_statistics.elements[1].num_emitted, 40U);
+    EXPECT_EQ(response.network_interface_statistics.elements[1].num_received, 20U);
+    EXPECT_EQ(response.network_interface_statistics.elements[1].num_errored, 2U);
+}
+
+TEST_F(CyphalNodeTest, GetTransportStatisticsResponseHandlesNoInterfaces) {
+    TestNode test_node{timer, interface, NodeId{42U}, unique_id};
+    uint8_t buffer[jarnax::cyphal::GetTransportStatisticsExtent];
+    SerializedMessage msg{buffer, sizeof(buffer)};
+
+    EXPECT_CALL(interface, GetStatistics(testing::_)).WillOnce(Return(core::Status{}));
+
+    EXPECT_TRUE(test_node.CallGetResponse(GetTransportStatisticsServiceId, msg).IsSuccess());
+
+    uavcan_node_GetTransportStatistics_Response_0_1 response{};
+    size_t size = msg.size();
+    auto ret = uavcan_node_GetTransportStatistics_Response_0_1_deserialize_(&response, msg.data(), &size);
+
+    ASSERT_EQ(ret, NUNAVUT_SUCCESS);
+    EXPECT_EQ(response.transfer_statistics.num_emitted, 0U);
+    EXPECT_EQ(response.transfer_statistics.num_received, 0U);
+    EXPECT_EQ(response.transfer_statistics.num_errored, 0U);
+    EXPECT_EQ(response.network_interface_statistics.count, 0U);
+}
+
+TEST_F(CyphalNodeTest, GetTransportStatisticsResponseReportsZerosWhenInterfaceFails) {
+    TestNode test_node{timer, interface, NodeId{42U}, unique_id};
+    uint8_t buffer[jarnax::cyphal::GetTransportStatisticsExtent];
+    SerializedMessage msg{buffer, sizeof(buffer)};
+
+    EXPECT_CALL(interface, GetStatistics(testing::_)).WillOnce(Return(send_failure));
+
+    EXPECT_TRUE(test_node.CallGetResponse(GetTransportStatisticsServiceId, msg).IsSuccess());
+
+    uavcan_node_GetTransportStatistics_Response_0_1 response{};
+    size_t size = msg.size();
+    auto ret = uavcan_node_GetTransportStatistics_Response_0_1_deserialize_(&response, msg.data(), &size);
+
+    ASSERT_EQ(ret, NUNAVUT_SUCCESS);
+    EXPECT_EQ(response.transfer_statistics.num_emitted, 0U);
+    EXPECT_EQ(response.transfer_statistics.num_received, 0U);
+    EXPECT_EQ(response.transfer_statistics.num_errored, 0U);
+    EXPECT_EQ(response.network_interface_statistics.count, 0U);
 }
 
 TEST_F(CyphalNodeTest, ExecuteCommandRoundTripSucceedsForRestart) {

@@ -88,6 +88,22 @@ constexpr static size_t PortListExtent{uavcan_node_port_List_1_0_EXTENT_BYTES_};
 constexpr static size_t DiagnosticRecordExtent{uavcan_diagnostic_Record_1_1_EXTENT_BYTES_};
 constexpr static size_t GetTransportStatisticsExtent{uavcan_node_GetTransportStatistics_Response_0_1_EXTENT_BYTES_};
 
+constexpr static size_t MaxNetworkInterfaces{uavcan_node_GetTransportStatistics_Response_0_1_MAX_NETWORK_INTERFACES};
+
+/// The statistics of a single Cyphal network interface as reported by the transport.
+struct InterfaceStatistics {
+    std::uint64_t num_emitted{0U};     ///< The number of successfully emitted transfers.
+    std::uint64_t num_received{0U};    ///< The number of successfully received transfers.
+    std::uint64_t num_errored{0U};     ///< The number of errored transfers.
+};
+
+/// The aggregate transport statistics reported by a cyphal::Interface.
+struct TransportStatistics {
+    InterfaceStatistics transfer{};                                                 ///< The aggregate statistics of all transfers.
+    core::Array<InterfaceStatistics, MaxNetworkInterfaces> network_interfaces{};    ///< The statistics of each network interface.
+    std::size_t num_interfaces{0U};                                                 ///< The number of network interfaces present.
+};
+
 constexpr static size_t Extents[] = {
     HeartbeatExtent,
     GetInfoResponseExtent,

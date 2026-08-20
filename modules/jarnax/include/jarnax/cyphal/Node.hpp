@@ -260,6 +260,8 @@ protected:
     core::Array<uint8_t, GetInfoResponseExtent> get_info_response_blob_;    ///< The statically allocated message blob for GetInfo response messages.
     core::Array<uint8_t, ExecuteCommandResponseExtent>
         execute_command_response_blob_;    ///< The statically allocated message blob for ExecuteCommand response messages.
+    core::Array<uint8_t, GetTransportStatisticsExtent>
+        get_transport_statistics_response_blob_;    ///< The statically allocated message blob for GetTransportStatistics response messages.
 };
 
 }    // namespace cyphal

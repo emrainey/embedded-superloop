@@ -116,6 +116,11 @@ public:
     /// @return Status indicating success or failure.
     virtual core::Status Send(Metadata& metadata, SerializedMessage msg) = 0;
 
+    /// Obtains the transport statistics of the interface.
+    /// @param statistics The statistics of the interface to be populated.
+    /// @return Status indicating success or failure.
+    virtual core::Status GetStatistics(TransportStatistics& statistics) = 0;
+
 protected:
     ~Interface() = default;
 };

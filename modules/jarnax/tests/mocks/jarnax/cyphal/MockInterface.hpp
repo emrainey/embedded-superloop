@@ -15,6 +15,7 @@ public:
     MOCK_METHOD(core::Status, Remove, (PortId port_id), (override));
     MOCK_METHOD(bool, IsListening, (PortId port_id), (const, override));
     MOCK_METHOD(core::Status, Send, (Metadata & metadata, SerializedMessage msg), (override));
+    MOCK_METHOD(core::Status, GetStatistics, (TransportStatistics & statistics), (override));
 
     virtual ~MockInterface() = default;
 };

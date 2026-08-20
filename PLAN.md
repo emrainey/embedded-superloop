@@ -1,77 +1,61 @@
-# PLAN: Add SWO (Serial Wire Output) trace viewer to tools/jalo.py
+# PLAN: Implement `uavcan.node.GetTransportStatistics` server in `cyphal::Node`
 
-Issue: #54 — branch `issue-54` (tracks `github/develop`). **STATUS: DONE,
-awaiting human review before commit.**
+Issue: #59 — branch `issue-59` (based on `issue-58`, which contains the
+`cyphal::Node`; the Node is not yet in `develop`).
+
+**STATUS: DONE — awaiting human review before commit.**
 
 ## Summary
 
-`tools/jalo.py` is the Textual TUI SVD/J-Link debugger. It has an RTT console
-but no SWO (Serial Wire Output / ITM trace) viewer. This issue adds a SWO
-Console tab mirroring the RTT Console UX, backed by the pylink-square SWO API,
-plus CLI preconfiguration and host-run unit tests.
-
-SWO target-side init (pin mux / DBGMCU / trace registers) is tracked
-separately in #41 and is out of scope here. This issue is tool-side only:
-capture and display SWO trace through the J-Link.
+The `cyphal::Node` registers a server for `uavcan.node.GetTransportStatistics`
+(434.0.1) in `RunOnce` but `Node::GetResponse` never handles that service id,
+so requests time out. This issue implements the response by querying the
+`cyphal::Interface` for its transport statistics and reporting them.
 
 ## Changes
 
-1. **`JLinkController` SWO wrappers** (`tools/jalo.py`) — thin, guarded methods
-   over the pylink-square SWO API:
-   - `swo_enabled()`, `swo_enable(cpu_speed, swo_speed, port_mask)`,
-   - `swo_start(swo_speed)`, `swo_stop()`, `swo_flush()`,
-   - `swo_num_bytes()`, `swo_read(offset, num_bytes, remove=False)`,
-   - `swo_read_stimulus(port, num_bytes)`.
-   All return `False`/`None` (with `last_error`) instead of raising when not
-   connected or on JLinkException.
+1. **`Types.hpp`** — add transport-agnostic statistics types that the Interface
+   reports and the Node serializes:
+   - `InterfaceStatistics { num_emitted, num_received, num_errored }` (uint64_t,
+     mirrors the DSDL `uavcan.node.IOStatistics.0.1` truncated uint40 fields).
+   - `TransportStatistics { transfer, network_interfaces, num_interfaces }`.
+   - `MaxNetworkInterfaces` constant bound to
+     `uavcan_node_GetTransportStatistics_Response_0_1_MAX_NETWORK_INTERFACES`.
 
-2. **SWO Console tab** in `SVDDebuggerApp` (mirrors RTT tab):
-   - Controls: CPU speed (Hz, default 480000000), SWO speed (Hz, default
-     2000000), port mask (default 0x1), stimulus port (default 0), bytes to
-     read, continuous-capture switch.
-   - Buttons: Enable SWO, Start, Read, Stop, Clear.
-   - `RichLog` output; stimulus-port data decoded as text with the same
-     line-buffering approach as the RTT console.
-   - SWO is stopped cleanly on disconnect and on unmount.
+2. **`Interface.hpp`** — add pure virtual
+   `core::Status GetStatistics(TransportStatistics& statistics) = 0;` so the
+   Node can query the transport's counters.
 
-3. **CLI args** (`build_argument_parser`):
-   - `--swo-cpu-speed`, `--swo-speed`, `--swo-port-mask`, `--swo-port`,
-   - `--swo-auto-start` (enable SWO + begin capture after connecting).
-   - Validation added in `parse_args`.
+3. **`MockInterface.hpp`** — add `MOCK_METHOD` for `GetStatistics`.
 
-4. **Tests** (`tools/test_jalo_swo.py`, run via `.venv/bin/python -m pytest`):
-   - `JLinkController` SWO methods against a mocked `pylink.JLink` (connected
-     and disconnected paths, error paths, last_error capture).
-   - `build_argument_parser`/`parse_args` SWO arg parsing and validation.
-   - Pure decode/line-buffering helper tests (no hardware required).
+4. **`Node.hpp`** — add `get_transport_statistics_response_blob_` static blob
+   for the serialized response.
+
+5. **`Node.cpp`** — handle `GetTransportStatisticsServiceId` in
+   `Node::GetResponse`: query `interface_.GetStatistics`, populate the DSDL
+   `uavcan_node_GetTransportStatistics_Response_0_1` (transfer_statistics plus
+   per-interface `network_interface_statistics`), serialize into the blob.
+
+6. **Tests** (`gtest-cyphal-node.cpp`) — cover the response contents:
+   - transfer + per-interface statistics are echoed from the interface.
+   - zero/empty interface statistics.
+   - interface failure still yields a **successful response with zeroed**
+     statistics (the response type has no "unavailable" field, so the request
+     is answered rather than left to time out).
 
 ## Verification
 
-- `.venv/bin/python -m pytest tools/test_jalo_swo.py -v` — **54 passed**.
-- `python3 -m py_compile tools/jalo.py tools/test_jalo_swo.py` — OK.
-- Live probe smoke test (`JLinkController` against the J-Link remote server at
-  127.0.0.1:19020, STM32H753ZI): connect, `swo_enable(480M, 2M, 0x1)`,
-  `swo_start(2M)`, `swo_num_bytes()`, `swo_read_stimulus`, `swo_read`,
-  `swo_stop`, disconnect all succeeded against real pylink. No trace bytes were
-  returned because the target is not yet emitting ITM/SWO (target-side init is
-  #41) — the empty-payload "no new data" path was exercised.
-- No C++ source touched; firmware build presets unaffected.
+- `cmake --workflow --preset on-host-native-llvm` — **21/21 passed** (cyphal suite 40/40).
+- `cmake --workflow --preset on-host-native-clang` — **21/21 passed**.
+- Cross-builds: `on-target-cortex-m4-gcc-arm-none-eabi` and
+  `on-target-cortex-m7-gcc-arm-none-eabi` both build clean (incl. nucleo-cyphal app).
+- New tests: `GetTransportStatisticsResponseContainsInterfaceStatistics`,
+  `GetTransportStatisticsResponseHandlesNoInterfaces`,
+  `GetTransportStatisticsResponseReportsZerosWhenInterfaceFails` — all pass.
+- `./scripts/build-all-presets.sh` does not exist in this repo; the four presets above are the
+  equivalent verification.
 
-## Gotchas
+## Notes
 
-- pylink `swo_enable(cpu_speed, swo_speed, port_mask)` also programs the
-  target ITM/DWT/TPIU registers (via `JLINKARM_SWO_EnableTarget`), so the tool
-  only needs to provide CPU/SWO speeds; the GPIO/pin init is target firmware
-  side (#41).
-- `swo_read(offset, num_bytes, remove=False)` does NOT remove data unless
-  `remove=True`; the console must either pass `remove=True` or call
-  `swo_flush()` to avoid re-reading the same bytes.
-- `swo_read_stimulus(port, num_bytes)` only returns printable data for the
-  given stimulus port and is the right primitive for a console.
-- With a target not emitting ITM trace, `swo_read_stimulus` returns an empty
-  list (not `None`) — the console treats that as "no new data", so guard on
-  `data is None` for errors, not on empty payloads.
-- Textual app tests need `run_test(size=(200, 50))` (SWO controls overflow the
-  80x24 default), `pilot.pause()` after tab switches, and
-  `active_effect_duration = 0` on re-clicked buttons (textual drops clicks
-  while the `-active` animation class is set).
+- Branch `issue-59` is based on `issue-58` because `cyphal::Node` only exists
+  there; rebase onto `develop` after `issue-58` merges.
