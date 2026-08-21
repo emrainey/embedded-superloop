@@ -8,7 +8,13 @@
         "clangd": {
             "command": [
                 "clangd",
-                "--background-index"
+                "--compile-commands-dir=build/native-llvm",
+                "--background-index",
+                "--query-driver=/**/arm-none-eabi-*",
+                "--clang-tidy",
+                "--enable-config",
+                "--header-insertion=iwyu",
+                "--pretty"
             ]
         }
     },
@@ -29,7 +35,7 @@
             "command": [
                 "pdf-oxide-mcp"
             ],
-            "cwd": "documentation/pdfs",
+            "cwd": "documentation/pdfs"
         }
     }
 }

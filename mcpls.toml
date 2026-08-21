@@ -2,12 +2,13 @@
 language_id = "cpp"
 command = "clangd"
 args = [
+  "--compile-commands-dir=build/native-llvm",
   "--background-index",
   "--query-driver=/**/arm-none-eabi-*",
   "--clang-tidy",
   "--enable-config",
   "--header-insertion=iwyu",
-  "--pretty"
+  "--pretty",
 ]
 file_patterns = [
   "**/*.cpp",
@@ -17,5 +18,5 @@ file_patterns = [
   "**/*.inc",
   "**/*.ipp",
   "**/*.tcc",
-  "**/*.in"
+  "**/*.in",
 ]
