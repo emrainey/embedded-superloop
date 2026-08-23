@@ -162,13 +162,15 @@ add_module(NAME jarnax-cyphal-can
 add_module(NAME jarnax-cyphal-udp
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/source/cyphal/Node.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/cyphal/O1HeapPool.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/services/CyphalUDPInterface.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/source/include # Internal includes
     DEFINES
         JARNAX_CYPHAL_USE_UDP
     LIBRARIES
-        strict jarnax-interfaces cyphal-dsdl
+        strict jarnax-interfaces cyphal-dsdl o1heap udpard
     GENERIC_MODULES
         memory core
     NO_CONFIGURATIONS

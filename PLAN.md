@@ -1,55 +1,39 @@
-# PLAN: Add gtests for `cyphal::Node::Print` diagnostic records
+# PLAN: Encapsulate libudpard in a `cyphal::Interface` implementation
 
-Issue: #60 — branch `issue-60` (tracks `develop`; carries the user's
-uncommitted diagnostic Record work: `Printer` interface, `Severity` enum,
-`Node::Print`, `diagnostic_record_blob_`, `diagnostic_statistics_`).
+**Status:** In progress — steps 4–5 complete (socket abstraction + `CyphalUDPInterface` + GoogleTest suite); hypha adapter and app refactor remain.
+**Issue:** https://github.com/emrainey/embedded-superloop/issues/61
+**Branch (when started):** `issue-61`, tracking `develop`
 
 ## Summary
 
-Add GoogleTest coverage for the diagnostic Record publishing added by the
-human: `Node::Print(Severity, fmt, ...)` serializes a
-`uavcan.diagnostic.Record.1.1` (subject 8184) and publishes it via the
-interface.
+Extract the libudpard plumbing inlined in `applications/nucleo-cyphal/source/CyphalApp.cpp` (~400 of 795 lines) into a reusable `jarnax::cyphal::CyphalUDPInterface` implementing `jarnax::cyphal::Interface`. Applications stop touching udpard directly.
 
-## Changes
+## Estimate
 
-1. **`gtest-cyphal-node.cpp`** — new `TEST_F`s for `Node::Print`:
-   - publishes a deserializable Record on `DiagnosticRecordSubjectId` with the
-     expected severity and text,
-   - text longer than 255 bytes is truncated to the DSDL capacity,
-   - the `timestamp.microsecond` field reflects the timer,
-   - `diagnostic_statistics_.passed` increments on a successful publish,
-   - `diagnostic_statistics_.failed` increments when the interface `Send`
-     fails.
-   - `TestNode` accessor `GetDiagnosticStatistics()` exposing the protected
-     `diagnostic_statistics_`.
+4–7 days total including tests.
 
-## Production fixes required by the tests (all flagged/approved)
+## Steps
 
-2. **`modules/jarnax/source/cyphal/Node.cpp`** — `Node::Print` called
-   `jarnax::vsnprint`, which is *declared* in `jarnax/print.hpp` but has no
-   definition anywhere in the repo. Changed to `core::vsnprint` (always linked
-   into cyphal targets; keeps the test target lean). Approved by human.
+1. Branch `issue-61` off `develop`.
+2. [complete] Move the shared O1Heap pool into `jarnax-cyphal-udp`, implement `core::Allocator`, and provide libudpard memory-resource factories.
+3. [complete] Add host-runnable GoogleTest coverage for the allocator and libudpard callbacks.
+4. [complete] Socket abstraction: `source/include/jarnax/services/CyphalUDPSocket.hpp` (`udp::Endpoint`, `DatagramHandler`, `Socket` with Join/Leave/Send). Time comes from an injected `MicrosecondClock` (generic modules cannot include cortex headers).
+5. [complete] `CyphalUDPInterface` in `source/services/CyphalUDPInterface.cpp` + internal header: all 6 `Interface` virtuals + `Loopable::Execute` TX drain + `DatagramHandler::OnDatagramReceived` RX dispatch; per-port transfer-ID counters; priority fixed Nominal; remembered request transfer-IDs for responses; fragment gather into scratch buffer; statistics.
+6. Hypha adapter for the socket abstraction.
+7. [complete] GoogleTest suite `tests/gtest-cyphal-udpinterface.cpp` with `tests/mocks/jarnax/services/MockUDPSocket.hpp`: Listen/Remove/IsListening lifecycle, Join-once semantics, Send publish/request/respond, TX error stats, RX subject round-trip, RPC request→response round-trip, unknown-group/bad-datagram handling. Valid RX datagrams are produced with a local `UdpardTx` producer (no hand-built wire formats). 62/62 pass on LLVM and AppleClang; both cross presets build.
+8. Refactor `CyphalApp` onto `CyphalUDPInterface`; verify on hardware via pylink/RTT + yactui.
+9. Run all presets and `./scripts/build-all-presets.sh`; PR against `develop`.
 
-3. **`modules/memory/source/copy.cpp`** — the definition was
-   `copy(void*, void* const, size_t)` while the header declares
-   `copy(void*, void const*, size_t)`. Different mangled symbols; the overload
-   had never been linked before. Fixed the definition to match the header.
+## Key design decisions
 
-4. **`modules/memory/tests/catch2-strings.cpp`** — added 2 `TEST_CASE`s
-   covering the fixed `copy(void*, void const*, size_t)` overload (mismatched
-   element types to force the non-template overload, as in `Node::Print`).
+- Do **not** extend `Metadata` with priority/transfer-ID yet — priority is constant Nominal; per-port transfer-ID counters live inside the interface; response transfers echo the transfer-ID of the last remembered request from that client.
+- Constructor takes `O1HeapPool&`, node-ID, `udp::Socket&`, and `MicrosecondClock&` — no singletons reached from inside; no cortex dependency so the generic module stays host-testable.
+- Single redundant interface initially; `TransportStatistics` reports one interface entry.
+- RX transfers are gathered into a contiguous scratch buffer bounded by `MaxExtent`; empty transfers are delivered as zero-length messages.
+- Service ports share one RPC multicast group; Join is issued once for the first port and Leave when the last port is removed.
 
-## Verification
+## Acceptance criteria
 
-- `cmake --workflow --preset on-host-native-llvm` — 21/21 tests pass,
-  including 5 new `Print` tests and 2 new memory `copy` tests.
-- `cmake --workflow --preset on-host-native-clang` — 21/21 tests pass.
-- Cross-builds: `on-target-cortex-m4-gcc-arm-none-eabi` and
-  `on-target-cortex-m7-gcc-arm-none-eabi` still build clean.
-
-## Notes
-
-- The `Print` impl is the human's uncommitted work on this branch; the two
-  production fixes above were the only changes needed and were approved before
-  applying.
+- No udpard types leak into application code.
+- All host unit tests pass on LLVM and AppleClang; cross builds unbroken.
+- nucleo-cyphal behaves identically on hardware.

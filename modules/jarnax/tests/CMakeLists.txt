@@ -49,8 +49,10 @@ host_unit_test(NAME jarnax-network
 host_unit_test(NAME jarnax-cyphal
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/gtest-cyphal-node.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/gtest-cyphal-o1heappool.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/gtest-cyphal-types.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/gtest-cyphal-service.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/gtest-cyphal-udpinterface.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/../source/services/CyphalService.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include

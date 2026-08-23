@@ -1,12 +1,12 @@
 #include "CyphalApp.hpp"
 
 #include "GetInfoScanner.hpp"
-#include "O1HeapPool.hpp"
 #include "board.hpp"
 #include "core/Conversions.hpp"
 #include "core/vsnprint.hpp"
 #include "hypha_ip/hypha_ip.h"
 #include "jarnax/Assertion.hpp"
+#include "jarnax/cyphal/O1HeapPool.hpp"
 #include "memory.hpp"
 #include "segger/rtt.hpp"
 #include "stm32/h7xx/ethernet/Driver.hpp"
@@ -73,17 +73,6 @@ HyphaIpSpan_t MakeSpan(void const* data, std::size_t size) {
     span.count = static_cast<decltype(span.count)>(size & 0x0FFFFFFFU);
     span.type = HyphaIpSpanTypeUint8_t;
     return span;
-}
-
-void* UdpardAlloc(void* context, size_t size) {
-    auto* heap = static_cast<O1HeapInstance*>(context);
-    return o1heapAllocate(heap, size);
-}
-
-void UdpardFree(void* context, size_t size, void* pointer) {
-    (void)size;
-    auto* heap = static_cast<O1HeapInstance*>(context);
-    o1heapFree(heap, pointer);
 }
 
 bool SameIPv4Address(HyphaIpIPv4Address_t const& a, HyphaIpIPv4Address_t const& b) {
@@ -288,22 +277,13 @@ bool CyphalApp::Execute() {
 }
 
 void CyphalApp::InitUdpard() {
-    O1HeapInstance& heap = O1HeapPool::Instance();
+    jarnax::cyphal::O1HeapPool& heap = jarnax::cyphal::O1HeapPool::Instance();
 
     // v1.x memory resources wrap the same O1Heap-backed allocator.
-    struct UdpardMemoryResource const memory = {
-        .user_reference = &heap,
-        .deallocate = &UdpardFree,
-        .allocate = &UdpardAlloc,
-    };
+    UdpardMemoryResource const memory = heap.GetMemoryResource();
     tx_memory_ = memory;
 
-    rx_memory_.session = memory;
-    rx_memory_.fragment = memory;
-    rx_memory_.payload = {
-        .user_reference = &heap,
-        .deallocate = &UdpardFree,
-    };
+    rx_memory_ = heap.GetRxMemoryResources();
 
     // TX pipeline: single (non-redundant) interface, capacity bounded by the O1Heap.
     int_fast8_t const tx_init = udpardTxInit(&tx_, &node_id_, 32U, tx_memory_);
@@ -328,22 +308,10 @@ void CyphalApp::InitUdpard() {
 }
 
 void CyphalApp::ServiceDispatcherInit() {
-    O1HeapInstance& heap = O1HeapPool::Instance();
+    jarnax::cyphal::O1HeapPool& heap = jarnax::cyphal::O1HeapPool::Instance();
 
     // The RPC dispatcher shares the same O1Heap-backed memory resources as the subjects pipeline.
-    struct UdpardMemoryResource const memory = {
-        .user_reference = &heap,
-        .deallocate = &UdpardFree,
-        .allocate = &UdpardAlloc,
-    };
-    struct UdpardRxMemoryResources const dispatcher_memory = {
-        .session = memory,
-        .fragment = memory,
-        .payload = {
-            .user_reference = &heap,
-            .deallocate = &UdpardFree,
-        },
-    };
+    UdpardRxMemoryResources const dispatcher_memory = heap.GetRxMemoryResources();
 
     int_fast8_t const dispatcher_init = udpardRxRPCDispatcherInit(&service_dispatcher_, dispatcher_memory);
     if (dispatcher_init < 0) {
@@ -513,8 +481,8 @@ HyphaIpStatus_e CyphalApp::OnReceiveUdp(HyphaIpExternalContext_t context, HyphaI
         return HyphaIpStatusOk;
     }
 
-    O1HeapInstance& heap = O1HeapPool::Instance();
-    void* copy = o1heapAllocate(&heap, payload_size);
+    jarnax::cyphal::O1HeapPool& heap = jarnax::cyphal::O1HeapPool::Instance();
+    void* copy = heap.allocate(payload_size);
     if (copy == nullptr) {
         return HyphaIpStatusOutOfMemory;
     }
@@ -540,7 +508,7 @@ HyphaIpStatus_e CyphalApp::OnReceiveUdp(HyphaIpExternalContext_t context, HyphaI
                 udpardRxFragmentFree(transfer.base.payload, self->rx_memory_.fragment, self->rx_memory_.payload);
             }
         } else {
-            o1heapFree(&heap, copy);
+            heap.deallocate(copy, payload_size);
         }
         return HyphaIpStatusOk;
     }

@@ -3,7 +3,6 @@ add_firmware(NAME nucleo-cyphal
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GlobalContext.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CyphalApp.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GetInfoScanner.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/O1HeapPool.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
     DEFINES
@@ -12,7 +11,8 @@ add_firmware(NAME nucleo-cyphal
         cyphal-dsdl
         hypha-ip
         udpard
-        o1heap
+    GENERIC_MODULES
+        jarnax-cyphal-udp
     CONFIGURATIONS
         basic
     BOARDS
