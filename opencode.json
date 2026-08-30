@@ -19,6 +19,17 @@
         }
     },
     "mcp": {
+        "elf-mcp": {
+            "type": "local",
+            "command": [
+                ".venv/bin/python",
+                "tools/elf-mcp/mcp_server.py"
+            ],
+            "cwd": ".",
+            "environment": {
+                "PYTHONPATH": "tools/elf-mcp"
+            }
+        },
         "pylink-square-mcp": {
             "type": "local",
             "command": [
