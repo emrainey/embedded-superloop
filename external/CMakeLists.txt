@@ -22,7 +22,7 @@ execute_process (
     OUTPUT_STRIP_TRAILING_WHITESPACE
     COMMAND ${Python3_EXECUTABLE} --version
     COMMAND ${Python3_EXECUTABLE} -m pip install --upgrade pip
-    COMMAND ${Python3_EXECUTABLE} -m pip install jinja2 pyyaml jlink-mcp pylink-square pytest pytest-cov pyserial nunavut pydsdl
+    COMMAND ${Python3_EXECUTABLE} -m pip install jinja2 pyyaml jlink-mcp mcp-cmake pylink-square pytest pytest-cov pyserial nunavut pydsdl
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
