@@ -24,9 +24,7 @@ O1HeapPool& O1HeapPool::Instance() {
 }
 
 void* O1HeapPool::allocate(std::size_t bytes, std::size_t alignment) {
-    if (alignment > O1HEAP_ALIGNMENT) {
-        return nullptr;
-    }
+    (void)alignment;
     return o1heapAllocate(&HeapInstance(), bytes);
 }
 

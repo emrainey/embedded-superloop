@@ -82,18 +82,18 @@ protected:
 };
 
 TEST_F(CyphalNodeTest, ConstructorStoresAnonymousNodeIdentity) {
-    Node node{timer, interface, NodeId{0u}, unique_id};
+    Node constructed_node{timer, interface, NodeId{0u}, unique_id};
 
-    EXPECT_EQ(node.GetId(), NodeId{0U});
-    EXPECT_EQ(node.GetUniqueId(), unique_id);
+    EXPECT_EQ(constructed_node.GetId(), NodeId{0U});
+    EXPECT_EQ(constructed_node.GetUniqueId(), unique_id);
 }
 
 TEST_F(CyphalNodeTest, ConstructorStoresNodeIdentity) {
     NodeId const node_id{42U};
-    Node node{timer, interface, node_id, unique_id};
+    Node constructed_node{timer, interface, node_id, unique_id};
 
-    EXPECT_EQ(node.GetId(), node_id);
-    EXPECT_EQ(node.GetUniqueId(), unique_id);
+    EXPECT_EQ(constructed_node.GetId(), node_id);
+    EXPECT_EQ(constructed_node.GetUniqueId(), unique_id);
 }
 
 TEST_F(CyphalNodeTest, RunOnceRemainsActiveAsTimeAdvances) {
@@ -364,7 +364,7 @@ TEST_F(CyphalNodeTest, PublishSendsBroadcastSubject) {
 TEST_F(CyphalNodeTest, RequestSendsTargetedServiceRequest) {
     ServiceId const service_id{23U};
     NodeId const recipient{9U};
-    Node node{timer, interface, NodeId{7U}, unique_id};
+    Node constructed_node{timer, interface, NodeId{7U}, unique_id};
     jarnax::cyphal::mock::MockClient client{};
     EXPECT_CALL(interface, Send(testing::_, testing::_))
         .WillOnce(
@@ -379,7 +379,7 @@ TEST_F(CyphalNodeTest, RequestSendsTargetedServiceRequest) {
                 Return(core::Status{})
             )
         );
-    core::Status const actual = node.Request(service_id, recipient, client, message);
+    core::Status const actual = constructed_node.Request(service_id, recipient, client, message);
 
     ASSERT_STATUS_EQ(actual, core::Result::Success, core::Cause::Unknown);
 }
@@ -387,7 +387,7 @@ TEST_F(CyphalNodeTest, RequestSendsTargetedServiceRequest) {
 TEST_F(CyphalNodeTest, RespondSendsTargetedServiceResponse) {
     ServiceId const service_id{23U};
     NodeId const recipient{9U};
-    Node node{timer, interface, NodeId{7U}, unique_id};
+    Node constructed_node{timer, interface, NodeId{7U}, unique_id};
     EXPECT_CALL(interface, Send(testing::_, testing::_))
         .WillOnce(
             testing::DoAll(
@@ -402,7 +402,7 @@ TEST_F(CyphalNodeTest, RespondSendsTargetedServiceResponse) {
             )
         );
 
-    core::Status const actual = node.Respond(service_id, recipient, message);
+    core::Status const actual = constructed_node.Respond(service_id, recipient, message);
 
     ASSERT_STATUS_EQ(actual, core::Result::Success, core::Cause::Unknown);
 }
