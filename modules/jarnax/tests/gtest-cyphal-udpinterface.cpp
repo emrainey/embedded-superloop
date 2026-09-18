@@ -11,7 +11,7 @@ extern "C" {
 #include "core/units/MicroSeconds.hpp"
 #include "jarnax/cyphal/O1HeapPool.hpp"
 #include "jarnax/services/CyphalUDPInterface.hpp"
-#include "jarnax/services/MockUDPSocket.hpp"
+#include "jarnax/services/MockUDPDispatcher.hpp"
 
 namespace {
 
@@ -26,7 +26,7 @@ using jarnax::cyphal::SerializedMessage;
 using jarnax::cyphal::ServiceId;
 using jarnax::cyphal::SubjectId;
 using jarnax::cyphal::udp::Endpoint;
-using jarnax::cyphal::udp::MockSocket;
+using jarnax::cyphal::udp::MockDispatcher;
 
 constexpr std::uint16_t LocalNodeId{42U};
 constexpr std::uint16_t RemoteNodeId{100U};
@@ -95,8 +95,7 @@ public:
     /// Publishes a message on a subject; returns the datagram to feed into the interface.
     bool Publish(std::uint16_t subject_id, UdpardTransferID transfer_id, std::vector<std::uint8_t> const& message) {
         UdpardPayload const payload{message.size(), message.data()};
-        std::int32_t const result =
-            udpardTxPublish(&tx_, 1000000ULL, UdpardPriorityNominal, subject_id, transfer_id, payload, nullptr);
+        std::int32_t const result = udpardTxPublish(&tx_, 1000000ULL, UdpardPriorityNominal, subject_id, transfer_id, payload, nullptr);
         return result > 0;
     }
 
@@ -104,18 +103,17 @@ public:
     bool Request(std::uint16_t service_id, std::uint16_t server_node, UdpardTransferID transfer_id) {
         UdpardPayload const payload{0U, nullptr};
         std::int32_t const result = udpardTxRequest(
-            &tx_, 1000000ULL, UdpardPriorityNominal, service_id, static_cast<UdpardNodeID>(server_node), transfer_id,
-            payload, nullptr);
+            &tx_, 1000000ULL, UdpardPriorityNominal, service_id, static_cast<UdpardNodeID>(server_node), transfer_id, payload, nullptr
+        );
         return result > 0;
     }
 
     /// Sends an RPC response to the given client node.
-    bool Respond(std::uint16_t service_id, std::uint16_t client_node, UdpardTransferID transfer_id,
-                 std::vector<std::uint8_t> const& message) {
+    bool Respond(std::uint16_t service_id, std::uint16_t client_node, UdpardTransferID transfer_id, std::vector<std::uint8_t> const& message) {
         UdpardPayload const payload{message.size(), message.data()};
         std::int32_t const result = udpardTxRespond(
-            &tx_, 1000000ULL, UdpardPriorityNominal, service_id, static_cast<UdpardNodeID>(client_node), transfer_id,
-            payload, nullptr);
+            &tx_, 1000000ULL, UdpardPriorityNominal, service_id, static_cast<UdpardNodeID>(client_node), transfer_id, payload, nullptr
+        );
         return result > 0;
     }
 
@@ -143,12 +141,12 @@ private:
 class CyphalUDPInterfaceTest : public Test {
 protected:
     void SetUp() override {
-        interface_ = std::make_unique<CyphalUDPInterface>(heap_, static_cast<NodeId>(LocalNodeId), socket_, clock_);
+        interface_ = std::make_unique<CyphalUDPInterface>(heap_, static_cast<NodeId>(LocalNodeId), dispatcher_, clock_);
         ASSERT_TRUE(interface_->IsInitialized());
     }
 
     jarnax::cyphal::O1HeapPool& heap_{jarnax::cyphal::O1HeapPool::Instance()};
-    NiceMock<MockSocket> socket_{};
+    NiceMock<MockDispatcher> dispatcher_{};
     FakeClock clock_;
     TestListener listener_;
     std::unique_ptr<CyphalUDPInterface> interface_;
@@ -166,20 +164,17 @@ TEST_F(CyphalUDPInterfaceTest, RegisterListenerSucceedsAndReplaces) {
 
 TEST_F(CyphalUDPInterfaceTest, ListenSubjectJoinsMulticastGroup) {
     Endpoint joined{};
-    EXPECT_CALL(socket_, Join(_, _))
-        .WillOnce(DoAll(SaveArg<0>(&joined), Return(core::Status{})))
-        .WillRepeatedly(Return(core::Status{}));
+    EXPECT_CALL(dispatcher_, Join(_, _)).WillOnce(DoAll(SaveArg<0>(&joined), Return(core::Status{}))).WillRepeatedly(Return(core::Status{}));
 
     EXPECT_TRUE(interface_->Listen(PortId{TestSubject}).IsSuccess());
     EXPECT_TRUE(interface_->IsListening(PortId{TestSubject}));
     EXPECT_NE(joined.udp_port, 0U);    // derived from the subject by libudpard
 
     // Duplicate subscription is rejected
-    EXPECT_EQ(
-        interface_->Listen(PortId{TestSubject}).GetResult(), core::Result::NotExpected);
+    EXPECT_EQ(interface_->Listen(PortId{TestSubject}).GetResult(), core::Result::NotExpected);
 
     // Removal leaves the group
-    EXPECT_CALL(socket_, Leave(_)).WillOnce(Return(core::Status{}));
+    EXPECT_CALL(dispatcher_, Leave(_)).WillOnce(Return(core::Status{}));
     EXPECT_TRUE(interface_->Remove(PortId{TestSubject}).IsSuccess());
     EXPECT_FALSE(interface_->IsListening(PortId{TestSubject}));
 
@@ -187,17 +182,15 @@ TEST_F(CyphalUDPInterfaceTest, ListenSubjectJoinsMulticastGroup) {
     EXPECT_EQ(interface_->Remove(PortId{TestSubject}).GetResult(), core::Result::NotExpected);
 
     // Verify expectations at this checkpoint
-    Mock::VerifyAndClearExpectations(&socket_);
+    Mock::VerifyAndClearExpectations(&dispatcher_);
 }
 
 TEST_F(CyphalUDPInterfaceTest, ListenServicePortsJoinServiceGroupOnce) {
     Endpoint service_endpoint{};
-    EXPECT_CALL(socket_, Join(_, _))
-        .Times(1)
-        .WillOnce([&service_endpoint](Endpoint const& endpoint, jarnax::cyphal::udp::DatagramHandler&) {
-            service_endpoint = endpoint;
-            return core::Status{};
-        });
+    EXPECT_CALL(dispatcher_, Join(_, _)).Times(1).WillOnce([&service_endpoint](Endpoint const& endpoint, jarnax::cyphal::udp::DatagramHandler&) {
+        service_endpoint = endpoint;
+        return core::Status{};
+    });
 
     auto const request = PortId{GetInfoServiceId, PortId::Style::Request};
     auto const response = PortId{GetInfoServiceId, PortId::Style::Response};
@@ -212,52 +205,47 @@ TEST_F(CyphalUDPInterfaceTest, ListenServicePortsJoinServiceGroupOnce) {
     EXPECT_EQ(interface_->Listen(request).GetResult(), core::Result::NotExpected);
     EXPECT_EQ(interface_->Listen(response).GetResult(), core::Result::NotExpected);
 
-    EXPECT_CALL(socket_, Leave(_)).WillOnce(Return(core::Status{}));
-    EXPECT_TRUE(interface_->Remove(response).IsSuccess());     // group still needed by request port
-    EXPECT_TRUE(interface_->Remove(request).IsSuccess());      // last port leaves the group
+    EXPECT_CALL(dispatcher_, Leave(_)).WillOnce(Return(core::Status{}));
+    EXPECT_TRUE(interface_->Remove(response).IsSuccess());    // group still needed by request port
+    EXPECT_TRUE(interface_->Remove(request).IsSuccess());     // last port leaves the group
     EXPECT_FALSE(interface_->IsListening(request));
     EXPECT_FALSE(interface_->IsListening(response));
 
-    Mock::VerifyAndClearExpectations(&socket_);
+    Mock::VerifyAndClearExpectations(&dispatcher_);
 }
 
 TEST_F(CyphalUDPInterfaceTest, ListenRejectsInvalidPorts) {
     // A service port explicitly styled as Neither is invalid
-    EXPECT_EQ(
-        interface_->Listen(PortId{GetInfoServiceId, PortId::Style::Neither}).GetResult(), core::Result::InvalidValue);
+    EXPECT_EQ(interface_->Listen(PortId{GetInfoServiceId, PortId::Style::Neither}).GetResult(), core::Result::InvalidValue);
 }
 
 TEST_F(CyphalUDPInterfaceTest, ListenFailsWhenSubscriptionsExhausted) {
-    ON_CALL(socket_, Join(_, _)).WillByDefault(Return(core::Status{}));
+    ON_CALL(dispatcher_, Join(_, _)).WillByDefault(Return(core::Status{}));
     for (std::size_t i = 0U; i < CyphalUDPInterface::MaxSubscriptions; ++i) {
         EXPECT_TRUE(interface_->Listen(PortId{SubjectId{static_cast<std::uint16_t>(100U + i)}}).IsSuccess());
     }
-    EXPECT_EQ(
-        interface_->Listen(PortId{SubjectId{static_cast<std::uint16_t>(200U)}}).GetResult(),
-        core::Result::ExceededLimit);
+    EXPECT_EQ(interface_->Listen(PortId{SubjectId{static_cast<std::uint16_t>(200U)}}).GetResult(), core::Result::ExceededLimit);
 }
 
 TEST_F(CyphalUDPInterfaceTest, SendPublishesToSubjectMulticastGroup) {
-    ON_CALL(socket_, Join(_, _)).WillByDefault(Return(core::Status{}));
+    ON_CALL(dispatcher_, Join(_, _)).WillByDefault(Return(core::Status{}));
     EXPECT_TRUE(interface_->Listen(PortId{TestSubject}).IsSuccess());
 
     std::vector<std::uint8_t> message{1U, 2U, 3U, 4U};
-    Metadata metadata{LocalNodeId, jarnax::cyphal::udp::anonymous, PortId{TestSubject},
-                      core::units::MicroSeconds{0ULL}};
+    Metadata metadata{LocalNodeId, jarnax::cyphal::udp::anonymous, PortId{TestSubject}, core::units::MicroSeconds{0ULL}};
     EXPECT_TRUE(interface_->Send(metadata, SerializedMessage{message.data(), message.size()}).IsSuccess());
 
     // Drain: exactly one datagram goes out on the subject multicast group
     Endpoint sent_to{};
     std::size_t payload_size = 0U;
-    EXPECT_CALL(socket_, Send(_, _))
-        .WillOnce([&sent_to, &payload_size](Endpoint const& destination, core::Span<std::uint8_t const> payload) {
-            sent_to = destination;
-            payload_size = payload.count();
-            return core::Status{};
-        });
+    EXPECT_CALL(dispatcher_, Send(_, _)).WillOnce([&sent_to, &payload_size](Endpoint const& destination, core::Span<std::uint8_t const> payload) {
+        sent_to = destination;
+        payload_size = payload.count();
+        return core::Status{};
+    });
     EXPECT_TRUE(interface_->Execute());
 
-    EXPECT_EQ(sent_to.udp_port, 9382U);    // the Cyphal/UDP well-known port
+    EXPECT_EQ(sent_to.udp_port, 9382U);         // the Cyphal/UDP well-known port
     EXPECT_GT(payload_size, message.size());    // header plus CRC are added
 
     jarnax::cyphal::TransportStatistics statistics{};
@@ -266,19 +254,18 @@ TEST_F(CyphalUDPInterfaceTest, SendPublishesToSubjectMulticastGroup) {
     EXPECT_EQ(statistics.transfer.num_emitted, 1U);
     EXPECT_EQ(statistics.network_interfaces[0U].num_emitted, 1U);
 
-    Mock::VerifyAndClearExpectations(&socket_);
+    Mock::VerifyAndClearExpectations(&dispatcher_);
 }
 
 TEST_F(CyphalUDPInterfaceTest, ExecuteReportsTransmitErrors) {
-    ON_CALL(socket_, Join(_, _)).WillByDefault(Return(core::Status{}));
+    ON_CALL(dispatcher_, Join(_, _)).WillByDefault(Return(core::Status{}));
     EXPECT_TRUE(interface_->Listen(PortId{TestSubject}).IsSuccess());
 
     std::vector<std::uint8_t> message{1U};
-    Metadata metadata{LocalNodeId, jarnax::cyphal::udp::anonymous, PortId{TestSubject},
-                      core::units::MicroSeconds{0ULL}};
+    Metadata metadata{LocalNodeId, jarnax::cyphal::udp::anonymous, PortId{TestSubject}, core::units::MicroSeconds{0ULL}};
     EXPECT_TRUE(interface_->Send(metadata, SerializedMessage{message.data(), message.size()}).IsSuccess());
 
-    EXPECT_CALL(socket_, Send(_, _)).WillOnce(Return(core::Status{core::Result::Failure, core::Cause::Peripheral}));
+    EXPECT_CALL(dispatcher_, Send(_, _)).WillOnce(Return(core::Status{core::Result::Failure, core::Cause::Peripheral}));
     EXPECT_TRUE(interface_->Execute());
 
     jarnax::cyphal::TransportStatistics statistics{};
@@ -286,11 +273,11 @@ TEST_F(CyphalUDPInterfaceTest, ExecuteReportsTransmitErrors) {
     EXPECT_EQ(statistics.transfer.num_emitted, 0U);
     EXPECT_EQ(statistics.transfer.num_errored, 1U);
 
-    Mock::VerifyAndClearExpectations(&socket_);
+    Mock::VerifyAndClearExpectations(&dispatcher_);
 }
 
 TEST_F(CyphalUDPInterfaceTest, ReceiveDeliversSubjectTransferToListener) {
-    ON_CALL(socket_, Join(_, _)).WillByDefault(Return(core::Status{}));
+    ON_CALL(dispatcher_, Join(_, _)).WillByDefault(Return(core::Status{}));
     EXPECT_TRUE(interface_->Listen(PortId{TestSubject}).IsSuccess());
     EXPECT_TRUE(interface_->RegisterListener(LocalNodeId, listener_).IsSuccess());
 
@@ -319,7 +306,7 @@ TEST_F(CyphalUDPInterfaceTest, ReceiveDeliversSubjectTransferToListener) {
 }
 
 TEST_F(CyphalUDPInterfaceTest, ReceiveIgnoresUnknownGroupsAndBadDatagrams) {
-    ON_CALL(socket_, Join(_, _)).WillByDefault(Return(core::Status{}));
+    ON_CALL(dispatcher_, Join(_, _)).WillByDefault(Return(core::Status{}));
     EXPECT_TRUE(interface_->Listen(PortId{TestSubject}).IsSuccess());
     EXPECT_TRUE(interface_->RegisterListener(LocalNodeId, listener_).IsSuccess());
 
@@ -348,7 +335,7 @@ TEST_F(CyphalUDPInterfaceTest, ReceiveIgnoresUnknownGroupsAndBadDatagrams) {
 }
 
 TEST_F(CyphalUDPInterfaceTest, ServiceRequestResponseRoundTrip) {
-    ON_CALL(socket_, Join(_, _)).WillByDefault(Return(core::Status{}));
+    ON_CALL(dispatcher_, Join(_, _)).WillByDefault(Return(core::Status{}));
     auto const request_port = PortId{GetInfoServiceId, PortId::Style::Request};
     auto const response_port = PortId{GetInfoServiceId, PortId::Style::Response};
     EXPECT_TRUE(interface_->Listen(request_port).IsSuccess());
@@ -373,16 +360,14 @@ TEST_F(CyphalUDPInterfaceTest, ServiceRequestResponseRoundTrip) {
     // We respond via the Interface API; the recorded request transfer-ID is echoed.
     std::vector<std::uint8_t> response_message{5U, 6U};
     Metadata metadata{LocalNodeId, RemoteNodeId, response_port, core::units::MicroSeconds{0ULL}};
-    EXPECT_TRUE(interface_->Send(metadata, SerializedMessage{response_message.data(), response_message.size()})
-                    .IsSuccess());
+    EXPECT_TRUE(interface_->Send(metadata, SerializedMessage{response_message.data(), response_message.size()}).IsSuccess());
 
     // The response goes to the client's RPC multicast group when drained.
     Endpoint sent_to{};
-    EXPECT_CALL(socket_, Send(_, _))
-        .WillOnce([&](Endpoint const& destination, core::Span<std::uint8_t const>) {
-            sent_to = destination;
-            return core::Status{};
-        });
+    EXPECT_CALL(dispatcher_, Send(_, _)).WillOnce([&](Endpoint const& destination, core::Span<std::uint8_t const>) {
+        sent_to = destination;
+        return core::Status{};
+    });
     EXPECT_TRUE(interface_->Execute());
 
     // The response is addressed to the client's own RPC multicast group (node 100).
@@ -406,15 +391,14 @@ TEST_F(CyphalUDPInterfaceTest, ServiceRequestResponseRoundTrip) {
     EXPECT_TRUE(interface_->GetStatistics(statistics).IsSuccess());
     EXPECT_EQ(statistics.transfer.num_received, 2U);
 
-    Mock::VerifyAndClearExpectations(&socket_);
+    Mock::VerifyAndClearExpectations(&dispatcher_);
 }
 
 TEST_F(CyphalUDPInterfaceTest, SendResponseWithoutRequestFails) {
     auto const response_port = PortId{GetInfoServiceId, PortId::Style::Response};
     Metadata metadata{LocalNodeId, RemoteNodeId, response_port, core::units::MicroSeconds{0ULL}};
     std::uint8_t byte{0U};
-    EXPECT_EQ(
-        interface_->Send(metadata, SerializedMessage{&byte, 1U}).GetResult(), core::Result::NotExpected);
+    EXPECT_EQ(interface_->Send(metadata, SerializedMessage{&byte, 1U}).GetResult(), core::Result::NotExpected);
 }
 
 }    // namespace

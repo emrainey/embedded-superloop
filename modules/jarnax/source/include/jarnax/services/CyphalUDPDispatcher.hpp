@@ -1,5 +1,5 @@
-#ifndef JARNAX_SERVICES_CYPHAL_UDP_SOCKET_HPP
-#define JARNAX_SERVICES_CYPHAL_UDP_SOCKET_HPP
+#ifndef JARNAX_SERVICES_CYPHAL_UDP_DISPATCHER_HPP
+#define JARNAX_SERVICES_CYPHAL_UDP_DISPATCHER_HPP
 
 #include <cstddef>
 #include <cstdint>
@@ -26,7 +26,7 @@ struct Endpoint final {
     }
 };
 
-/// The handler of datagrams received by a Socket.
+/// The handler of datagrams received by a Dispatcher.
 /// Implementations are notified for every datagram the underlying UDP/IP stack delivers.
 class DatagramHandler {
 public:
@@ -40,27 +40,26 @@ protected:
     ~DatagramHandler() = default;
 };
 
-/// The minimal abstraction over the UDP/IP stack required by Cyphal/UDP.
+/// The narrow UDP/IP dispatch boundary required by Cyphal/UDP.
 /// The production implementation wraps hypha; unit tests inject a mock.
 /// All methods are non-blocking and return immediately.
-class Socket {
+class Dispatcher {
 public:
-    /// Joins the multicast group at the endpoint and begins delivering received
-    /// datagrams to the handler (e.g. IGMP join plus socket bind).
+    /// Begins delivering multicast datagrams for the endpoint to the handler.
     virtual core::Status Join(Endpoint const& multicast_endpoint, DatagramHandler& handler) = 0;
 
-    /// Leaves the multicast group at the endpoint; no more datagrams are delivered.
+    /// Stops delivering multicast datagrams for the endpoint.
     virtual core::Status Leave(Endpoint const& multicast_endpoint) = 0;
 
     /// Transmits one datagram to the given multicast endpoint.
     virtual core::Status Send(Endpoint const& destination, core::Span<std::uint8_t const> payload) = 0;
 
 protected:
-    ~Socket() = default;
+    ~Dispatcher() = default;
 };
 
 }    // namespace udp
 }    // namespace cyphal
 }    // namespace jarnax
 
-#endif    // JARNAX_SERVICES_CYPHAL_UDP_SOCKET_HPP
+#endif    // JARNAX_SERVICES_CYPHAL_UDP_DISPATCHER_HPP

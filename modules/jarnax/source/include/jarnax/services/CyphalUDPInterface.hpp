@@ -14,7 +14,7 @@ extern "C" {
 #include "jarnax/Loopable.hpp"
 #include "jarnax/cyphal/Interface.hpp"
 #include "jarnax/cyphal/O1HeapPool.hpp"
-#include "jarnax/services/CyphalUDPSocket.hpp"
+#include "jarnax/services/CyphalUDPDispatcher.hpp"
 
 namespace jarnax {
 namespace cyphal {
@@ -33,7 +33,7 @@ protected:
 /// The concrete Cyphal/UDP transport implementing cyphal::Interface on top of libudpard.
 /// Applications never touch udpard types directly; they use Listen/Send/RegisterListener
 /// and drive the object from the SuperLoop via Loopable::Execute (TX drain).
-/// Incoming datagrams are pushed in by a udp::Socket implementation (hypha on target).
+/// Incoming datagrams are pushed in by a udp::Dispatcher implementation (hypha on target).
 class CyphalUDPInterface final : public Interface, public Loopable, public udp::DatagramHandler {
 public:
     /// The maximum number of subjects which can be listened to concurrently.
@@ -50,9 +50,9 @@ public:
     /// Constructs the interface.
     /// @param heap The O1Heap backed pool shared by all udpard allocations.
     /// @param node_id The local Cyphal node-ID; anonymous (0xFFFF) cannot use services.
-    /// @param socket The UDP/IP stack abstraction; its lifetime must exceed ours.
+    /// @param dispatcher The UDP/IP dispatcher; its lifetime must exceed ours.
     /// @param ticker The time source used for transfer deadlines and timestamps.
-    CyphalUDPInterface(O1HeapPool& heap, udp::NodeId node_id, udp::Socket& socket, MicrosecondClock& clock);
+    CyphalUDPInterface(O1HeapPool& heap, udp::NodeId node_id, udp::Dispatcher& dispatcher, MicrosecondClock& clock);
     virtual ~CyphalUDPInterface() override;
 
     //+=== LOOPABLE INTERFACE ===
@@ -118,7 +118,7 @@ private:
     void DeliverTransfer(UdpardRxTransfer const& transfer, PortId port_id);
 
     O1HeapPool& heap_;
-    udp::Socket& socket_;
+    udp::Dispatcher& dispatcher_;
     MicrosecondClock& clock_;
     udp::NodeId local_node_id_;
     bool initialized_;
@@ -126,7 +126,7 @@ private:
     UdpardMemoryResource tx_memory_;
     UdpardRxMemoryResources rx_memory_;
     UdpardTx tx_;
-    UdpardRxRPCDispatcher dispatcher_;
+    UdpardRxRPCDispatcher rpc_dispatcher_;
     udp::Endpoint service_endpoint_{};
     bool service_group_joined_{false};
 
