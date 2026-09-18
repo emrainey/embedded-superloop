@@ -3,6 +3,7 @@ add_firmware(NAME nucleo-cyphal
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GlobalContext.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/CyphalApp.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GetInfoScanner.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/HyphaUdpDispatcher.cpp
     INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/include
     DEFINES

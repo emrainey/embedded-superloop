@@ -15,8 +15,8 @@ constexpr bool SamePort(PortId const& lhs, PortId const& rhs) {
         return false;
     }
     bool const same = (lhs.type == PortId::Type::Subject)    //
-                          ? (lhs.subject.value == rhs.subject.value)
-                          : ((lhs.style == rhs.style) and (lhs.service.value == rhs.service.value));
+                        ? (lhs.subject.value == rhs.subject.value)
+                        : ((lhs.style == rhs.style) and (lhs.service.value == rhs.service.value));
     return same;
 }
 
@@ -31,24 +31,29 @@ core::Status CyphalUDPInterface::MapResult(std::int32_t result) const {
         return core::Status{};    // Success
     }
     switch (-result) {
-        case UDPARD_ERROR_ARGUMENT: return core::Status{core::Result::InvalidValue, core::Cause::Parameter};
-        case UDPARD_ERROR_MEMORY: return core::Status{core::Result::NotEnough, core::Cause::Resource};
-        case UDPARD_ERROR_CAPACITY: return core::Status{core::Result::ExceededLimit, core::Cause::Resource};
-        case UDPARD_ERROR_ANONYMOUS: return core::Status{core::Result::NotConfigured, core::Cause::Configuration};
-        default: return core::Status{core::Result::Failure, core::Cause::Unknown};
+        case UDPARD_ERROR_ARGUMENT:
+            return core::Status{core::Result::InvalidValue, core::Cause::Parameter};
+        case UDPARD_ERROR_MEMORY:
+            return core::Status{core::Result::NotEnough, core::Cause::Resource};
+        case UDPARD_ERROR_CAPACITY:
+            return core::Status{core::Result::ExceededLimit, core::Cause::Resource};
+        case UDPARD_ERROR_ANONYMOUS:
+            return core::Status{core::Result::NotConfigured, core::Cause::Configuration};
+        default:
+            return core::Status{core::Result::Failure, core::Cause::Unknown};
     }
 }
 
-CyphalUDPInterface::CyphalUDPInterface(O1HeapPool& heap, udp::NodeId node_id, udp::Socket& socket, MicrosecondClock& clock)
+CyphalUDPInterface::CyphalUDPInterface(O1HeapPool& heap, udp::NodeId node_id, udp::Dispatcher& dispatcher, MicrosecondClock& clock)
     : heap_{heap}
-    , socket_{socket}
+    , dispatcher_{dispatcher}
     , clock_{clock}
     , local_node_id_{node_id}
     , initialized_{false}
     , tx_memory_{}
     , rx_memory_{}
     , tx_{}
-    , dispatcher_{}
+    , rpc_dispatcher_{}
     , service_endpoint_{}
     , service_group_joined_{false}
     , listener_{nullptr}
@@ -62,13 +67,13 @@ CyphalUDPInterface::CyphalUDPInterface(O1HeapPool& heap, udp::NodeId node_id, ud
     }
     tx_.mtu = UDPARD_MTU_DEFAULT;
 
-    std::int_fast8_t const dispatcher_init = udpardRxRPCDispatcherInit(&dispatcher_, rx_memory_);
+    std::int_fast8_t const dispatcher_init = udpardRxRPCDispatcherInit(&rpc_dispatcher_, rx_memory_);
     if (dispatcher_init < 0) {
         return;
     }
 
     UdpardUDPIPEndpoint endpoint{};
-    std::int_fast8_t const dispatcher_start = udpardRxRPCDispatcherStart(&dispatcher_, local_node_id_, &endpoint);
+    std::int_fast8_t const dispatcher_start = udpardRxRPCDispatcherStart(&rpc_dispatcher_, local_node_id_, &endpoint);
     if (dispatcher_start < 0) {
         return;
     }
@@ -87,7 +92,7 @@ CyphalUDPInterface::~CyphalUDPInterface() {
     }
     for (auto& port : service_ports_) {
         if (port.used) {
-            (void)udpardRxRPCDispatcherCancel(&dispatcher_, port.service_id.value, port.is_request);
+            (void)udpardRxRPCDispatcherCancel(&rpc_dispatcher_, port.service_id.value, port.is_request);
             port.used = false;
         }
     }
@@ -104,10 +109,8 @@ bool CyphalUDPInterface::Execute() {
     // Drain the prioritized TX queue, highest priority first.
     while (UdpardTxItem const* item = udpardTxPeek(&tx_)) {
         udp::Endpoint const destination{item->destination.ip_address, item->destination.udp_port};
-        core::Span<std::uint8_t const> const payload{
-            static_cast<std::uint8_t const*>(item->datagram_payload.data), item->datagram_payload.size
-        };
-        core::Status const status = socket_.Send(destination, payload);
+        core::Span<std::uint8_t const> const payload{static_cast<std::uint8_t const*>(item->datagram_payload.data), item->datagram_payload.size};
+        core::Status const status = dispatcher_.Send(destination, payload);
         UdpardTxItem* const taken = udpardTxPop(&tx_, item);
         udpardTxFree(tx_memory_, taken);
         if (not status.IsSuccess()) {
@@ -173,13 +176,12 @@ core::Status CyphalUDPInterface::ListenSubject(PortId port_id) {
     if (slot == nullptr) {
         return core::Status{core::Result::ExceededLimit, core::Cause::Resource};
     }
-    std::int_fast8_t const result =
-        udpardRxSubscriptionInit(&slot->sub, static_cast<UdpardPortID>(subject.value), MaxExtent, rx_memory_);
+    std::int_fast8_t const result = udpardRxSubscriptionInit(&slot->sub, static_cast<UdpardPortID>(subject.value), MaxExtent, rx_memory_);
     if (result < 0) {
         return MapResult(result);
     }
     udp::Endpoint const group{slot->sub.udp_ip_endpoint.ip_address, slot->sub.udp_ip_endpoint.udp_port};
-    core::Status const join = socket_.Join(group, *this);
+    core::Status const join = dispatcher_.Join(group, *this);
     if (not join.IsSuccess()) {
         udpardRxSubscriptionFree(&slot->sub);
         return join;
@@ -200,14 +202,14 @@ core::Status CyphalUDPInterface::ListenService(PortId port_id) {
         return core::Status{core::Result::ExceededLimit, core::Cause::Resource};
     }
     std::int_fast8_t const listen =
-        udpardRxRPCDispatcherListen(&dispatcher_, &slot->port, static_cast<UdpardPortID>(service.value), is_request, MaxExtent);
+        udpardRxRPCDispatcherListen(&rpc_dispatcher_, &slot->port, static_cast<UdpardPortID>(service.value), is_request, MaxExtent);
     if (listen < 0) {
         return MapResult(listen);
     }
     if (not service_group_joined_) {
-        core::Status const join = socket_.Join(service_endpoint_, *this);
+        core::Status const join = dispatcher_.Join(service_endpoint_, *this);
         if (not join.IsSuccess()) {
-            (void)udpardRxRPCDispatcherCancel(&dispatcher_, static_cast<UdpardPortID>(service.value), is_request);
+            (void)udpardRxRPCDispatcherCancel(&rpc_dispatcher_, static_cast<UdpardPortID>(service.value), is_request);
             return join;
         }
         service_group_joined_ = true;
@@ -240,7 +242,7 @@ core::Status CyphalUDPInterface::RemoveSubject(PortId port_id) {
     udp::Endpoint const group{slot->sub.udp_ip_endpoint.ip_address, slot->sub.udp_ip_endpoint.udp_port};
     udpardRxSubscriptionFree(&slot->sub);
     slot->used = false;
-    return socket_.Leave(group);
+    return dispatcher_.Leave(group);
 }
 
 core::Status CyphalUDPInterface::RemoveService(PortId port_id) {
@@ -250,8 +252,7 @@ core::Status CyphalUDPInterface::RemoveService(PortId port_id) {
     if (slot == nullptr) {
         return core::Status{core::Result::NotExpected, core::Cause::State};    // not listening
     }
-    std::int_fast8_t const cancel =
-        udpardRxRPCDispatcherCancel(&dispatcher_, static_cast<UdpardPortID>(service.value), is_request);
+    std::int_fast8_t const cancel = udpardRxRPCDispatcherCancel(&rpc_dispatcher_, static_cast<UdpardPortID>(service.value), is_request);
     slot->used = false;
     if (cancel < 0) {
         return MapResult(cancel);
@@ -263,7 +264,7 @@ core::Status CyphalUDPInterface::RemoveService(PortId port_id) {
     }
     if (not any_left and service_group_joined_) {
         service_group_joined_ = false;
-        return socket_.Leave(service_endpoint_);
+        return dispatcher_.Leave(service_endpoint_);
     }
     return core::Status{};
 }
@@ -304,8 +305,7 @@ CyphalUDPInterface::TransferIdCounter* CyphalUDPInterface::FindTransferCounter(P
             }
             continue;
         }
-        bool const same_value = (counter.value ==
-                                 ((port_id.type == PortId::Type::Subject) ? port_id.subject.value : port_id.service.value));
+        bool const same_value = (counter.value == ((port_id.type == PortId::Type::Subject) ? port_id.subject.value : port_id.service.value));
         bool const same_kind = (counter.type == port_id.type) and (counter.style == port_id.style);
         bool const same_peer = (counter.type == PortId::Type::Subject) or (counter.peer == peer);
         if (same_value and same_kind and same_peer) {
@@ -316,16 +316,14 @@ CyphalUDPInterface::TransferIdCounter* CyphalUDPInterface::FindTransferCounter(P
         free_slot->used = true;
         free_slot->type = port_id.type;
         free_slot->style = port_id.style;
-        free_slot->value =
-            (port_id.type == PortId::Type::Subject) ? port_id.subject.value : port_id.service.value;
+        free_slot->value = (port_id.type == PortId::Type::Subject) ? port_id.subject.value : port_id.service.value;
         free_slot->peer = peer;
         free_slot->next = 0U;
     }
     return free_slot;
 }
 
-CyphalUDPInterface::PendingRequest* CyphalUDPInterface::RememberRequest(
-    ServiceId service_id, udp::NodeId client, UdpardTransferID transfer_id) {
+CyphalUDPInterface::PendingRequest* CyphalUDPInterface::RememberRequest(ServiceId service_id, udp::NodeId client, UdpardTransferID transfer_id) {
     PendingRequest* slot = const_cast<PendingRequest*>(FindPendingRequest(service_id, client));
     if (slot == nullptr) {
         for (auto& pending : pending_requests_) {
@@ -346,8 +344,7 @@ CyphalUDPInterface::PendingRequest* CyphalUDPInterface::RememberRequest(
     return slot;
 }
 
-CyphalUDPInterface::PendingRequest const* CyphalUDPInterface::FindPendingRequest(
-    ServiceId service_id, udp::NodeId client) const {
+CyphalUDPInterface::PendingRequest const* CyphalUDPInterface::FindPendingRequest(ServiceId service_id, udp::NodeId client) const {
     for (auto const& pending : pending_requests_) {
         if (pending.used and (pending.service_id.value == service_id.value) and (pending.client == client)) {
             return &pending;
@@ -370,14 +367,12 @@ core::Status CyphalUDPInterface::Send(Metadata& metadata, SerializedMessage msg)
             return core::Status{core::Result::ExceededLimit, core::Cause::Resource};
         }
         UdpardTransferID const transfer_id = counter->next;
-        result = udpardTxPublish(
-            &tx_, deadline, DefaultPriority, static_cast<UdpardPortID>(metadata.port_id.subject.value), transfer_id, payload,
-            this);
+        result =
+            udpardTxPublish(&tx_, deadline, DefaultPriority, static_cast<UdpardPortID>(metadata.port_id.subject.value), transfer_id, payload, this);
         if (result > 0) {
             counter->next = transfer_id + 1U;    // increment only on success per the library contract
         }
-    } else if (
-        (metadata.port_id.type == PortId::Type::Service) and (metadata.port_id.style == PortId::Style::Request)) {
+    } else if ((metadata.port_id.type == PortId::Type::Service) and (metadata.port_id.style == PortId::Style::Request)) {
         ServiceId const service = metadata.port_id.service;
         TransferIdCounter* const counter = FindTransferCounter(metadata.port_id, metadata.recipient);
         if (counter == nullptr) {
@@ -385,21 +380,34 @@ core::Status CyphalUDPInterface::Send(Metadata& metadata, SerializedMessage msg)
         }
         UdpardTransferID const transfer_id = counter->next;
         result = udpardTxRequest(
-            &tx_, deadline, DefaultPriority, static_cast<UdpardPortID>(service.value),
-            static_cast<UdpardNodeID>(metadata.recipient), transfer_id, payload, this);
+            &tx_,
+            deadline,
+            DefaultPriority,
+            static_cast<UdpardPortID>(service.value),
+            static_cast<UdpardNodeID>(metadata.recipient),
+            transfer_id,
+            payload,
+            this
+        );
         if (result > 0) {
             counter->next = transfer_id + 1U;
         }
-    } else if (
-        (metadata.port_id.type == PortId::Type::Service) and (metadata.port_id.style == PortId::Style::Response)) {
+    } else if ((metadata.port_id.type == PortId::Type::Service) and (metadata.port_id.style == PortId::Style::Response)) {
         ServiceId const service = metadata.port_id.service;
         PendingRequest const* const pending = FindPendingRequest(service, metadata.recipient);
         if (pending == nullptr) {
             return core::Status{core::Result::NotExpected, core::Cause::State};    // no request to respond to
         }
         result = udpardTxRespond(
-            &tx_, deadline, DefaultPriority, static_cast<UdpardPortID>(service.value),
-            static_cast<UdpardNodeID>(metadata.recipient), pending->transfer_id, payload, this);
+            &tx_,
+            deadline,
+            DefaultPriority,
+            static_cast<UdpardPortID>(service.value),
+            static_cast<UdpardNodeID>(metadata.recipient),
+            pending->transfer_id,
+            payload,
+            this
+        );
     } else {
         return core::Status{core::Result::InvalidValue, core::Cause::Parameter};
     }
@@ -422,20 +430,15 @@ void CyphalUDPInterface::DeliverTransfer(UdpardRxTransfer const& transfer, PortI
         return;
     }
     // Empty transfers (e.g. GetInfo requests) are valid and delivered as zero-length messages.
-    size_t const expected =
-        (transfer.payload_size < rx_scratch_.size()) ? transfer.payload_size : rx_scratch_.size();
+    size_t const expected = (transfer.payload_size < rx_scratch_.size()) ? transfer.payload_size : rx_scratch_.size();
     if (expected > 0U) {
         size_t const gathered = udpardGather(transfer.payload, expected, rx_scratch_.data());
         if (gathered == 0U) {
             return;
         }
     }
-    NodeId const recipient =
-        (port_id.type == PortId::Type::Service) ? local_node_id_ : udp::anonymous;
-    Metadata const metadata{
-        static_cast<NodeId>(transfer.source_node_id), recipient, port_id,
-        core::units::MicroSeconds{transfer.timestamp_usec}
-    };
+    NodeId const recipient = (port_id.type == PortId::Type::Service) ? local_node_id_ : udp::anonymous;
+    Metadata const metadata{static_cast<NodeId>(transfer.source_node_id), recipient, port_id, core::units::MicroSeconds{transfer.timestamp_usec}};
     SerializedMessage const msg{rx_scratch_.data(), expected};
     listener_->OnReceive(metadata, msg);
     statistics_.transfer.num_received++;
@@ -458,16 +461,12 @@ void CyphalUDPInterface::OnDatagramReceived(udp::Endpoint const& destination, st
 
     if (destination == service_endpoint_) {
         UdpardRxRPCTransfer transfer{};
-        std::int_fast8_t const result =
-            udpardRxRPCDispatcherReceive(&dispatcher_, NowUs(), payload, 0U, nullptr, &transfer);
+        std::int_fast8_t const result = udpardRxRPCDispatcherReceive(&rpc_dispatcher_, NowUs(), payload, 0U, nullptr, &transfer);
         if (result > 0) {
             ServiceId const service{static_cast<std::uint16_t>(transfer.service_id)};
             if (transfer.is_request) {
-                (void)RememberRequest(
-                    service, static_cast<udp::NodeId>(transfer.base.source_node_id), transfer.base.transfer_id);
-                DeliverTransfer(
-                    transfer.base,
-                    PortId{service, PortId::Style::Request});
+                (void)RememberRequest(service, static_cast<udp::NodeId>(transfer.base.source_node_id), transfer.base.transfer_id);
+                DeliverTransfer(transfer.base, PortId{service, PortId::Style::Request});
             } else {
                 DeliverTransfer(transfer.base, PortId{service, PortId::Style::Response});
             }
@@ -476,8 +475,8 @@ void CyphalUDPInterface::OnDatagramReceived(udp::Endpoint const& destination, st
     } else {
         Subscription* slot = nullptr;
         for (auto& sub : subscriptions_) {
-            if (sub.used                                                                    //
-                and (sub.sub.udp_ip_endpoint.ip_address == destination.ip_address)          //
+            if (sub.used                                                              //
+                and (sub.sub.udp_ip_endpoint.ip_address == destination.ip_address)    //
                 and (sub.sub.udp_ip_endpoint.udp_port == destination.udp_port)) {
                 slot = &sub;
                 break;
@@ -485,8 +484,7 @@ void CyphalUDPInterface::OnDatagramReceived(udp::Endpoint const& destination, st
         }
         if (slot != nullptr) {
             UdpardRxTransfer transfer{};
-            std::int_fast8_t const result =
-                udpardRxSubscriptionReceive(&slot->sub, NowUs(), payload, 0U, &transfer);
+            std::int_fast8_t const result = udpardRxSubscriptionReceive(&slot->sub, NowUs(), payload, 0U, &transfer);
             if (result > 0) {
                 DeliverTransfer(transfer, PortId{slot->subject_id});
                 udpardRxFragmentFree(transfer.payload, rx_memory_.fragment, rx_memory_.payload);
